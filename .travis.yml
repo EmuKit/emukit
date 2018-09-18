@@ -1,0 +1,53 @@
+language: python
+os: linux
+python:
+  - '3.4'
+  - '3.5'
+  - '3.6'
+before_install: |
+ if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
+   brew update
+   # Recommended for pyenv
+   brew outdated openssl || brew upgrade openssl
+   brew outdated readline || brew upgrade readline
+   # Update pyenv
+   brew outdated pyenv || brew upgrade pyenv
+   # Install specified Python version
+   pyenv install $PYTHON
+   # Set environment variables
+   export PYENV_VERSION=$PYTHON
+   export PATH="/Users/travis/.pyenv/shims:${PATH}"
+   # Confirm versions
+   python --version
+   pip -V
+ fi
+install:
+  - pip install --upgrade pip
+  - pip install -r requirements/requirements.txt
+  - pip install -r requirements/test_requirements.txt
+  - pip freeze
+script:
+  # - flake8
+  - pytest tests
+after_success:
+  - codecov
+jobs:
+  include:
+    - os: osx
+      language: generic
+      env: PYTHON=3.4.4
+    - os: osx
+      language: generic
+      env: PYTHON=3.5.1
+    - os: osx
+      language: generic
+      env: PYTHON=3.6.6
+    - os: linux
+      language: generic
+      env: PYTHON=3.4.4
+    - os: linux
+      language: generic
+      env: PYTHON=3.5.1
+    - os: linux
+      language: generic
+      env: PYTHON=3.6.6

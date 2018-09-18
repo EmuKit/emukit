@@ -1,4 +1,2 @@
-flake8>=3.5.0
-pytest==3.5.1
--e https://github.com/automl/pybnn.git
--e https://github.com/automl/random_forest_run.git
+-e git+https://github.com/automl/pybnn.git#egg=pybnn
+-e git+https://github.com/automl/random_forest_run.git#egg=pyrfr
