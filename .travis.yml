@@ -4,7 +4,6 @@ notifications:
 language: python
 os: linux
 python:
-  - '3.4'
   - '3.5'
   - '3.6'
 before_install: |
@@ -28,6 +27,8 @@ install:
   - pip install --upgrade pip
   - pip install -r requirements/requirements.txt
   - pip install -r requirements/test_requirements.txt
+  # work around issues with GPy and GPyOpt setting matplotlib backend
+  - echo "backend: Agg" > ~/.matplotlib/matplotlibrc
   - pip install .
   - pip freeze
 script:
@@ -37,9 +38,6 @@ after_success:
   - codecov
 jobs:
   include:
-    - os: osx
-      language: generic
-      env: PYTHON=3.4.4
     - os: osx
       language: generic
       env: PYTHON=3.5.1
