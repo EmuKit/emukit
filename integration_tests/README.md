@@ -1,0 +1,1 @@
+This folder contains integration tests for Emukit.

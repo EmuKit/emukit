@@ -1,0 +1,1 @@
+This folder contains unit tests for core Emukit functionality.

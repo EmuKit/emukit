@@ -1,0 +1,6 @@
+coverage>=4.5.1
+codecov>=2.0.15
+flake8>=3.5.0
+pytest==3.5.1
+pytest-cov==2.5.1
+mock==2.0.0
