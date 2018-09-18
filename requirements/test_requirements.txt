@@ -4,3 +4,8 @@ flake8>=3.5.0
 pytest==3.5.1
 pytest-cov==2.5.1
 mock==2.0.0
+
+# This is unfortunate - we don't need matplotlib
+# but until GPy and GPyOpt get their dependencies straight
+# we need this to make sure tests are running
+matplotlib>=1.5.3

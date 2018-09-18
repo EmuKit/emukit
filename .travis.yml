@@ -1,3 +1,6 @@
+# turn off notifications until build is stable
+notifications:
+  email: false
 language: python
 os: linux
 python:
