@@ -28,7 +28,7 @@ install:
   - pip install -r requirements/requirements.txt
   - pip install -r requirements/test_requirements.txt
   # work around issues with GPy and GPyOpt setting matplotlib backend
-  - echo "backend: Agg" > ~/.matplotlib/matplotlibrc
+  - echo "backend: Agg" > matplotlibrc
   - pip install .
   - pip freeze
 script:
