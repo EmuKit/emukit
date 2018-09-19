@@ -33,7 +33,7 @@ install:
   - pip freeze
 script:
   # - flake8
-  - pytest tests
+  - python -m pytest
 after_success:
   - codecov
 jobs:

@@ -83,7 +83,7 @@ See installing from source.
 ### Running tests
 Run the full suite of tests by running:
 ```
-pytest
+python -m pytests
 ```
 from the top level directory. This also does coverage checks.
 
