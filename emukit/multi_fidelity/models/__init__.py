@@ -1,2 +1,0 @@
-from .linear_model import GPyLinearMultiFidelityModel
-from .non_linear_multi_fidelity_model import NonLinearMultiFidelityModel
