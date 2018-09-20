@@ -1,6 +1,7 @@
 # Emukit
 
-[![Build Status](https://travis-ci.org/amzn/emukit.svg?branch=master)](https://travis-ci.org/amzn/emukit) |
+[![Master Branch Build Status](https://travis-ci.org/amzn/emukit.svg?branch=master)](https://travis-ci.org/amzn/emukit) |
+[![Develop Branch Build Status](https://travis-ci.org/amzn/emukit.svg?branch=develop)](https://travis-ci.org/amzn/emukit) |
 [![Tests Coverage](https://codecov.io/gh/amzn/emukit/branch/master/graph/badge.svg)](https://codecov.io/gh/amzn/emukit) |
 [![GitHub License](https://img.shields.io/github/license/amzn/emukit.svg)](https://github.com/amzn/emukit/blob/master/LICENSE)
 
