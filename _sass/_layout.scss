@@ -1,0 +1,158 @@
+html,body {
+    font-family: $base-font-family;
+    font-size: $base-font-size;
+}
+
+.navbar {
+    border-radius: 0;
+}
+
+.navbar-default {
+    border-color: transparent;
+    background-color: transparent;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+
+
+img {
+    max-width: 100%;
+}
+
+.mt50 {
+    margin-top: 50px;
+}
+.mt20 {
+    margin-top: 20px;
+}
+
+.mt10 {
+    margin-top: 10px;
+}
+.mt25 {
+    margin-top: 0;
+    @include media-query($on-palm) {
+        margin-top: 25px;
+    }
+}
+
+.p20{
+    padding: 20px 0;
+}
+.navbar-brand {
+    font-weight: 900;
+    font-size: 1.85em;
+    padding: 10px;
+    margin-left: 15px !important;
+    @media screen and (max-width: $on-palm) {
+        font-size: 1.5em;
+    }
+}
+.post-meta {
+    color: $grey-color;
+}
+
+.panel {
+    margin-bottom: 2em;
+   border: none;
+   box-shadow: 0 0 1px rgba(0,0,0,.4);
+   transition: all 0.3s ease;
+    &:hover, &:focus, &:active {
+           box-shadow: 
+                    0px 1px 0px #ccc,
+                    0px 2px 0px #c9c9c9,
+                    0px 3px 0px #bbb,
+                    0px 4px 0px #b9b9b9,
+                    0px 6px 0px rgba(0,0,0,.1),
+                    0px 1px 0px rgba(0,0,0,.3),
+                    0px 3px 0px rgba(0,0,0,.2),
+                    0px 5px 0px rgba(0,0,0,.25),
+                    0 7px  7px rgba(0,0,0,.1),
+                    0 8px  7px rgba(0,0,0,.1),
+                    0 9px  9px rgba(0,0,0,.1),
+                    0 10px  10px rgba(0,0,0,.15),
+                    0 15px  15px rgba(0,0,0,.16),
+
+
+    }
+
+}
+
+
+
+
+footer {
+    border-top: 1px solid $grey-color-light;
+}
+
+.social {
+    list-style: none;
+    display: inline;
+    margin-left: 10px;
+    padding: 5px 8px;
+    font-size: 1.25em;
+    }
+.social:hover {
+     opacity: 0.7;
+}
+.social img {
+    width: 20px;
+}
+
+.quora img{
+    width: 17px;
+}
+
+.facebook img {
+    width: 16px;
+}
+
+.recent ul {
+    list-style: none;
+    padding: 0;
+    text-align: justify;
+}
+
+.recent {
+    padding: 10px;
+    border: 1px solid $grey-color-light;
+}
+
+.post-img img {
+    width: 100%;
+}
+
+
+.pack {
+
+
+    display: -webkit-inline-flex;
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    flex-wrap: wrap;
+    -webkit-flex-wrap: wrap;
+}
+
+.card {
+    float: none;
+
+}
+
+.post-title {
+    line-height: 2;
+    text-decoration: underline;
+}
+
+.index-anchor {
+    text-decoration: none;
+    color: $text-color;
+    &:hover {
+            text-decoration: none;
+            color: $text-color;
+    }
+}
+
+article.post {
+    margin-bottom: 5em;
+}

@@ -1,0 +1,24 @@
+<footer>
+
+    <div class="container">
+        <div class="row p20">
+            {% if site.copyright.name %}
+                <div class="col-md-4 text-center mt25">All rights reserved by <a target="_blank" href="{{site.copyright.link}}">{{site.copyright.name}}</a></div>
+            {% endif %}
+
+
+            <div class="col-md-4 text-center mt25">
+               {% if site.twitter %}
+                <a target="_blank" href="{{site.twitter}}"><li class="social twitter"><i class="fa fa-twitter-square"></i></li></a>
+                {% endif %}
+               {% if site.github %}
+                <a target="_blank" href="{{site.github}}"><li class="social github"><i class="fa fa-github-square"></i></li></a>
+                {% endif %}
+               {% if site.email %}
+                <a target="_blank" href="mailto:{{site.email}}"><li class="social email"><i class="fa fa-envelope"></i></li></a>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</footer>
