@@ -2,7 +2,7 @@ import numpy as np
 from typing import Tuple
 
 from emukit.core.interfaces.models import IModel
-from ..interfaces.base_gp import IBaseGaussianProcess
+from ..models.base_gp import IBaseGaussianProcess
 
 
 class WarpedBayesianQuadratureModel(IModel):
@@ -57,17 +57,10 @@ class WarpedBayesianQuadratureModel(IModel):
         """
         raise NotImplemented
 
-    def update_data(self, X: np.ndarray, Y: np.ndarray) -> None:
-        """
-        Updates model with new data points.
-
-        :param X: new points
-        :param Y: function values at new points X
-        """
+    def update_data(self, X: np.ndarray, Y: np.ndarray):
         self.base_gp.update_data(X, Y)
 
-    def optimize(self) -> None:
-        """ Optimize the hyperparameters of the GP """
+    def optimize(self):
         self.base_gp.optimize()
 
     def integrate(self) -> Tuple[float, float]:

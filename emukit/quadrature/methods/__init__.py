@@ -1,1 +1,2 @@
 from .warped_bq_model import WarpedBayesianQuadratureModel
+from .vanilla_bq import VanillaBayesianQuadrature

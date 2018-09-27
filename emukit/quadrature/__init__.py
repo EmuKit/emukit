@@ -1,3 +1,6 @@
 from . import kernels
-from . import interfaces
+from . import models
 from . import methods
+from . import tasks
+
+from .integral_bounds import IntegralBounds
