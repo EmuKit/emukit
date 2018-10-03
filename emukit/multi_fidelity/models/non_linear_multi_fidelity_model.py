@@ -40,8 +40,8 @@ def make_non_linear_kernels(base_kernel_class: Type[GPy.kern.Kern], n_fidelities
     for i in range(1, n_fidelities):
         fidelity_name = 'fidelity' + str(i + 1)
         interaction_kernel = base_kernel_class(n_input_dims, active_dims=base_dims_list, ARD=ARD,
-                                               name='interaction_kernel_' + fidelity_name)
-        scale_kernel = base_kernel_class(1, active_dims=[n_input_dims], name='scale_kernel_' + fidelity_name)
+                                               name='scale_kernel_' + fidelity_name)
+        scale_kernel = base_kernel_class(1, active_dims=[n_input_dims], name='previous_fidelity_' + fidelity_name)
         bias_kernel = base_kernel_class(n_input_dims, active_dims=base_dims_list,  ARD=ARD, name='bias_kernel_' + fidelity_name)
         kernels.append(interaction_kernel * scale_kernel + bias_kernel)
     return kernels
