@@ -212,3 +212,13 @@ class TestNonLinearModel:
             return non_linear_model.get_prediction_gradients(x_full)[1]
 
         assert np.all(check_grad(wrap_func, wrap_gradients, x0) < 1e-6)
+
+
+def test_non_linear_kernel_ard():
+    """
+    Test that the kernels that act on the input space have the correct number of lengthscales when ARD is true
+    """
+    kernels = make_non_linear_kernels(GPy.kern.RBF, 2, 2, ARD=True)
+    assert len(kernels[0].lengthscale) == 2
+    assert len(kernels[1].bias_kernel_fidelity2.lengthscale) == 2
+    assert len(kernels[1].mul.scale_kernel_fidelity2.lengthscale) == 2
