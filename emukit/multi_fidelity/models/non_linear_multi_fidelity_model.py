@@ -31,7 +31,8 @@ def make_non_linear_kernels(base_kernel_class: Type[GPy.kern.Kern], n_fidelities
     :param base_kernel_class: GPy class definition of the kernel type to construct the kernels at
     :param n_fidelities: Number of fidelities in the model. A kernel will be returned for each fidelity
     :param n_input_dims: The dimensionality of the input.
-    :param ARD: Whether to have different lengthscales for different dimensions
+    :param ARD: If True, uses different lengthscales for different dimensions. Otherwise the same lengthscale is used
+                for all dimensions. Default False.
     :return: A list of kernels with one entry for each fidelity starting from lowest to highest fidelity.
     """
 
