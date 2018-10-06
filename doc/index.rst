@@ -1,21 +1,19 @@
-EmulabCore
-=============
+All about Emukit
+==================================
 
-Please replace this text with a short description of your package.
+.. toctree::
+   :maxdepth: 1
 
+   installation
+   tutorials
+   api
 
-Modules
-_______
+Emukit is a toolkit for decision making under uncertainty.
 
-.. autosummary::
-    :toctree: _autosummary
-
-    .. Add/replace module names you want documented here
-    emulab_core
-
+It is designed to enable flexible development and experimentation. Besides, Emukit is model agnostic, which means you can use any tool of your choice in the Python ecosystem to build the surrogate model, and still be able to use Emukit.
 
 Indices and tables
-__________________
+==================
 
 * :ref:`genindex`
 * :ref:`modindex`
