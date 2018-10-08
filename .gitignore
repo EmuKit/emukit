@@ -19,7 +19,9 @@ __pycache__/
 /.coverage.*
 /.cache
 
-/doc/_autosummary/
+/doc/_build/
+/doc/generated/
+/doc/examples/
 /build
 /dist
 .pytest_cache
