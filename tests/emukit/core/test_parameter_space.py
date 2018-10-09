@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 
-from emukit.core import ContinuousParameter, ParameterSpace
+from emukit.core import ContinuousParameter, ParameterSpace, InformationSourceParameter
 
 @pytest.fixture
 def space_2d():
@@ -25,3 +25,8 @@ def test_check_in_domain_fails(space_2d):
     x_test = np.array([[1.5, 6.0, 7.0], [1.5, 2.0, 7.0]])
     with pytest.raises(ValueError):
         space_2d.check_points_in_domain(x_test)
+
+
+def test_two_information_source_parameters_fail():
+    with pytest.raises(ValueError):
+        ParameterSpace([InformationSourceParameter(2), InformationSourceParameter(2)])

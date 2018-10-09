@@ -10,10 +10,13 @@ class AcquisitionOptimizer(object):
         self.gpyopt_space = space.convert_to_gpyopt_design_space()
         self.gpyopt_acquisition_optimizer = GPyOpt.optimization.AcquisitionOptimizer(self.gpyopt_space, **kwargs)
 
-    def optimize(self, acquisition: Acquisition):
+    def optimize(self, acquisition: Acquisition, context: dict = None):
         """
         acquisition - The acquisition function to be optimized
         """
+
+        self.gpyopt_acquisition_optimizer.context_manager = GPyOpt.optimization.acquisition_optimizer.ContextManager(
+            self.gpyopt_space, context)
 
         # Take negative of acquisition function because they are to be maximised and the optimizers minimise
         f = lambda x: -acquisition.evaluate(x)
@@ -22,7 +25,7 @@ class AcquisitionOptimizer(object):
             f_value, df_value = acquisition.evaluate_with_gradients(x)
             return -f_value, -df_value
 
-        if acquisition.has_gradients():
+        if acquisition.has_gradients:
             return self.gpyopt_acquisition_optimizer.optimize(f, None, f_df)
         else:
             return self.gpyopt_acquisition_optimizer.optimize(f, None, None)

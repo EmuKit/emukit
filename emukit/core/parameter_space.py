@@ -4,11 +4,17 @@ import numpy as np
 import GPyOpt
 
 from . import ContinuousParameter
+from .discrete_parameter import DiscreteParameter, InformationSourceParameter
 
 
 class ParameterSpace(object):
     def __init__(self, parameters: List):
         self._parameters = parameters
+
+        # Check no more than one InformationSource parameter
+        source_parameter = [param for param in self.parameters if isinstance(param, InformationSourceParameter)]
+        if len(source_parameter) > 1:
+            raise ValueError('More than one source parameter found')
 
     @property
     def parameters(self):
@@ -22,14 +28,18 @@ class ParameterSpace(object):
         """
         Converts this ParameterSpace to a GPyOpt DesignSpace object
         """
-        
+
         gpyopt_parameters = []
 
         for parameter in self.parameters:
-            if not isinstance(parameter, ContinuousParameter):
-                raise NotImplementedError("Nothing except continuous is supported right now")
-            gpyopt_param = {'name': parameter.name, 'type': 'continuous', 'domain': (parameter.min, parameter.max),
-                            'dimensionality': 1}
+            if isinstance(parameter, ContinuousParameter):
+                gpyopt_param = {'name': parameter.name, 'type': 'continuous', 'domain': (parameter.min, parameter.max),
+                                'dimensionality': 1}
+            elif isinstance(parameter, DiscreteParameter):
+                gpyopt_param = {'name': parameter.name, 'type': 'discrete', 'domain': parameter.domain,
+                                'dimensionality': 1}
+            else:
+                raise NotImplementedError("Nothing except continuous or discrete is supported right now")
             gpyopt_parameters.append(gpyopt_param)
 
         return GPyOpt.core.task.space.Design_space(gpyopt_parameters)
