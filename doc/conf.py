@@ -27,7 +27,7 @@ class Mock(MagicMock):
     def __getattr__(cls, name):
         return MagicMock()
 
-MOCK_MODULES = ['matplotlib', 'pylab']
+MOCK_MODULES = ['matplotlib', 'pylab', 'matplotlib.pyplot']
 sys.modules.update((module_name, Mock()) for module_name in MOCK_MODULES)
 
 # -- Project information -----------------------------------------------------
