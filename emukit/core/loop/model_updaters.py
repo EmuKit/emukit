@@ -4,6 +4,9 @@ from . import LoopState
 from ..interfaces import IModel
 
 
+import logging
+_log = logging.getLogger(__name__)
+
 class ModelUpdater(abc.ABC):
     @abc.abstractmethod
     def update(self, loop_state: LoopState) -> None:
@@ -31,4 +34,5 @@ class FixedIntervalUpdater(ModelUpdater):
         """
         self.model.update_data(loop_state.X, loop_state.Y)
         if (loop_state.iteration % self.interval) == 0:
+            _log.info("Updating parameters of the model")
             self.model.optimize()
