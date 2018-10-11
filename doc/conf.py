@@ -19,6 +19,17 @@ import shutil
 import sys
 from os.path import abspath, dirname
 
+# -- Mock graphing modules - workaround for wrong behavior of some dependencies
+from unittest.mock import MagicMock
+
+class Mock(MagicMock):
+    @classmethod
+    def __getattr__(cls, name):
+        return MagicMock()
+
+MOCK_MODULES = ['matplotlib', 'pylab', 'matplotlib.pyplot']
+sys.modules.update((module_name, Mock()) for module_name in MOCK_MODULES)
+
 # -- Project information -----------------------------------------------------
 
 project = 'emukit'
