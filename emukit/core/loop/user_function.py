@@ -13,6 +13,9 @@ import numpy as np
 from .user_function_result import UserFunctionResult
 
 
+import logging
+_log = logging.getLogger(__name__)
+
 class UserFunction(abc.ABC):
     """ The user supplied function is interrogated as part of the outer loop """
     @abc.abstractmethod
@@ -38,6 +41,7 @@ class UserFunctionWrapper(UserFunction):
         if inputs.ndim != 2:
             raise ValueError("User function should receive 2d array as an input, actual input dimensionality is {}".format(inputs.ndim))
 
+        _log.info("Evaluating user function for {} point(s)".format(inputs.shape[0]))
         outputs = self.f(inputs)
 
         if outputs.ndim != 2:
@@ -76,6 +80,7 @@ class MultiSourceFunctionWrapper(UserFunction):
 
         n_sources = len(self.f)
 
+        _log.info("Evaluating multi-source user function for {} point(s)".format(inputs.shape[0]))
         # Run each source function for all inputs at that source
         outputs = []
         for i_source in range(n_sources):
