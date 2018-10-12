@@ -100,7 +100,7 @@ class MonteCarloSensitivity(object):
 
 class ModelBasedMonteCarloSensitivity(MonteCarloSensitivity):
     '''
-    Class to compute the sensitivity coefficients of a Gaussian process  This class wraps the model and calls the mean
+    Class to compute the sensitivity coefficients of given model. This class wraps the model and calls the mean
     predictions that are used to compute the sensitivity inputs using Monte Carlo.
     '''
 
