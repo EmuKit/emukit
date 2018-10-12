@@ -1,10 +1,10 @@
 import numpy as np
-from typing import Tuple, List
+from typing import Tuple
 
-from ...core import ContinuousParameter, ParameterSpace
+from ...core import ParameterSpace
 from ...core.loop import UserFunctionWrapper
 from ...experimental_design.model_free.random_design import RandomDesign
-
+from ...core.interfaces.models import IModel
 
 class MonteCarloSensitivity(object):
     '''
@@ -16,7 +16,7 @@ class MonteCarloSensitivity(object):
     def __init__(self, objective, input_domain: ParameterSpace)-> None:
         '''
         :param : python function in which the sensitivity analysis will be performed.
-        :param space: space class.
+        :param input_domain: space class.
         '''
         self.objective = UserFunctionWrapper(objective)
         self.input_domain = input_domain
@@ -95,3 +95,22 @@ class MonteCarloSensitivity(object):
 
             var_index += 1
         return main_effects, total_effects, total_variance
+
+
+
+class ModelBasedMonteCarloSensitivity(MonteCarloSensitivity):
+    '''
+    Class to compute the sensitivity coefficients of a Gaussian process  This class wraps the model and calls the mean
+    predictions that are used to compute the sensitivity inputs using Monte Carlo.
+    '''
+
+    def __init__(self, model: IModel, input_domain: ParameterSpace)-> None:
+        '''
+        :param model: model wrapper with the interface IModel.
+        :param input_domain: space class.
+        '''
+
+        self.model = model
+        self.model_objective = lambda x : self.model.predict(x)[0].flatten()
+
+        super().__init__(self.model_objective, input_domain)
