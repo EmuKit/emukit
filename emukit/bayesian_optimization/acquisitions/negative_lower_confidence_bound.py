@@ -59,4 +59,4 @@ class NegativeLowerConfidenceBound(Acquisition):
         return lcb, dlcb_dx
 
     def has_gradients(self):
-        return True
+        return isinstance(self.model, IDifferentiable)

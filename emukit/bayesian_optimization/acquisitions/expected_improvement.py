@@ -71,4 +71,4 @@ class ExpectedImprovement(Acquisition):
 
     def has_gradients(self) -> bool:
         """Returns that this acquisition has gradients"""
-        return True
+        return isinstance(self.model, IDifferentiable)

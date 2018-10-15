@@ -19,7 +19,7 @@ from ..util.mcmc_sampler import AffineInvariantEnsembleSampler, McmcSampler
 
 class EntropySearch(Acquisition):
 
-    def __init__(self, model: Union[IModel, IDifferentiable, IEntropySearchModel], space: ParameterSpace, sampler: McmcSampler = None,
+    def __init__(self, model: Union[IModel, IEntropySearchModel], space: ParameterSpace, sampler: McmcSampler = None,
                  num_samples: int = 100, num_representer_points: int = 50,
                  proposal_function: Acquisition = None, burn_in_steps: int = 50) -> None:
 
