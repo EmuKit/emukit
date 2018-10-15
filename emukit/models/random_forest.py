@@ -1,7 +1,3 @@
-# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-# SPDX-License-Identifier: Apache-2.0
-
-
 import numpy as np
 
 from ..core.interfaces.models import IModel
@@ -84,8 +80,8 @@ class RandomForest(IModel):
         :param X: new points
         :param Y: function values at new points X
         """
-        self._X = np.append(self._X, X, axis=0)
-        self._Y = np.append(self._Y, Y, axis=0)
+        self._X = X
+        self._Y = Y
 
         data = reg.default_data_container(self.X.shape[1])
 
