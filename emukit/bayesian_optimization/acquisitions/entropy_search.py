@@ -198,6 +198,7 @@ class EntropySearch(Acquisition):
         dv_rep = -dm_rep.dot(dm_rep.T)
         return dm_rep, dv_rep
 
+    @property
     def has_gradients(self) -> bool:
         """Returns that this acquisition has gradients"""
         return False
