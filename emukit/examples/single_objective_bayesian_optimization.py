@@ -8,11 +8,11 @@ import numpy as np
 from GPy.models import GPRegression
 from GPy.kern import Matern52
 
-from ...model_wrappers.gpy_model_wrappers import GPyModelWrapper
-from ...core.parameter_space import ParameterSpace
-from ...core.loop import FixedIterationsStoppingCondition, UserFunction
-from ..acquisitions import ExpectedImprovement, NegativeLowerConfidenceBound, ProbabilityOfImprovement
-from ..loops import BayesianOptimizationLoop
+from emukit.model_wrappers.gpy_model_wrappers import GPyModelWrapper
+from emukit.core.parameter_space import ParameterSpace
+from emukit.core.loop import FixedIterationsStoppingCondition, UserFunction
+from emukit.bayesian_optimization.acquisitions import ExpectedImprovement, NegativeLowerConfidenceBound, ProbabilityOfImprovement
+from emukit.bayesian_optimization.loops import BayesianOptimizationLoop
 
 
 class AcquisitionType(Enum):

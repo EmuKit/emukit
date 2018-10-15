@@ -1,8 +1,7 @@
 import numpy as np
 
 from emukit.core.continuous_parameter import ContinuousParameter
-from emukit.bayesian_optimization.methods import GPBayesianOptimization
-from emukit.core.loop import UserFunctionWrapper
+from examples.methods import GPBayesianOptimization
 
 
 def f(x):
