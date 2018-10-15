@@ -51,8 +51,8 @@ if os.path.exists('generated'):
 # -- Docs configuration -----------------------------------------------------
 
 # copy over examples folder for notebook docs
-EXAMPLES_SRC = "../examples"
-EXAMPLES_DST = "examples"
+EXAMPLES_SRC = "../notebooks"
+EXAMPLES_DST = "notebooks"
 if os.path.isdir(EXAMPLES_DST):
     shutil.rmtree(EXAMPLES_DST)
 shutil.copytree(EXAMPLES_SRC, EXAMPLES_DST)
