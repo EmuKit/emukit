@@ -8,6 +8,7 @@ Subpackages
 
     emukit.bayesian_optimization
     emukit.core
+    emukit.examples
     emukit.experimental_design
     emukit.model_wrappers
     emukit.models

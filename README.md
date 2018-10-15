@@ -39,7 +39,7 @@ pip install git+https://github.com/amzn/Emukit.git
 ```
 
 ## Getting started
-For examples see our [tutorial notebooks](examples/notebooks).
+For examples see our [tutorial notebooks](notebooks).
 
 ## API documentation
 Coming soon!
