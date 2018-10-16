@@ -61,5 +61,6 @@ class ProbabilityOfImprovement(Acquisition):
 
         return cdf, dcdf_dx
 
+    @property
     def has_gradients(self):
-        return True
+        return isinstance(self.model, IDifferentiable)
