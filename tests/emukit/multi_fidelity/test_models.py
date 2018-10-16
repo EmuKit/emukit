@@ -6,13 +6,14 @@ import GPy
 import emukit.multi_fidelity
 from emukit.model_wrappers.gpy_model_wrappers import GPyMultiOutputWrapper
 from emukit.multi_fidelity.models import GPyLinearMultiFidelityModel
+import emukit.test_functions.forrester
 
 
 class TestModels:
     @pytest.fixture()
     def functions(self):
-        return [emukit.multi_fidelity.example_functions.forrester_low,
-                emukit.multi_fidelity.example_functions.forrester_high]
+        return [lambda x: emukit.test_functions.forrester.forrester_low(x, 0),
+                lambda x: emukit.test_functions.forrester.forrester(x, 0)]
 
     @pytest.fixture()
     def x_init(self, functions):
@@ -30,7 +31,7 @@ class TestModels:
         y_init = np.zeros((5 * n_fidelities, 1))
         for i in range(n_fidelities):
             is_this_fidelity = x_init[:, -1] == i
-            y_init[is_this_fidelity, :] = functions[i](x_init[is_this_fidelity, :-1])[:, None]
+            y_init[is_this_fidelity, :] = functions[i](x_init[is_this_fidelity, :-1])
         return y_init
 
     @pytest.fixture
