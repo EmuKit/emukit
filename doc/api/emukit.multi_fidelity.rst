@@ -17,11 +17,6 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
-.. automodule:: emukit.multi_fidelity.example_functions
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 
 Module contents
 ---------------

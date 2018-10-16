@@ -14,6 +14,7 @@ Subpackages
     emukit.models
     emukit.multi_fidelity
     emukit.sensitivity
+    emukit.test_functions
 
 Module contents
 ---------------
