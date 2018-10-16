@@ -58,5 +58,6 @@ class IntegratedVarianceReduction(Acquisition):
 
         return integrated_variance
 
+    @property
     def has_gradients(self):
         return False
