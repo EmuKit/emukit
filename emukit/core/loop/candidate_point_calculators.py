@@ -15,9 +15,11 @@ from ..optimization import AcquisitionOptimizer
 class CandidatePointCalculator(abc.ABC):
     """ Computes the next point(s) for function evaluation """
     @abc.abstractmethod
-    def compute_next_points(self, loop_state: LoopState) -> np.ndarray:
+    def compute_next_points(self, loop_state: LoopState, context: dict=None) -> np.ndarray:
         """
         :param loop_state: Object that contains current state of the loop
+        :param context: Contains variables to fix through optimization of acquisition function. The dictionary key is
+                        the parameter name and the value is the value to fix the parameter to.
         :return: (n_points x n_dims) array of next inputs to evaluate the function at
         """
         pass
@@ -33,14 +35,16 @@ class Sequential(CandidatePointCalculator):
         self.acquisition = acquisition
         self.acquisition_optimizer = acquisition_optimizer
 
-    def compute_next_points(self, loop_state: LoopState) -> np.ndarray:
+    def compute_next_points(self, loop_state: LoopState, context: dict=None) -> np.ndarray:
         """
         Computes point(s) to evaluate next
 
         :param loop_state: Object that contains current state of the loop
+        :param context: Contains variables to fix through optimization of acquisition function. The dictionary key is
+                        the parameter name and the value is the value to fix the parameter to.
         :return: List of function inputs to evaluate the function at next
         """
-        x, _ = self.acquisition_optimizer.optimize(self.acquisition)
+        x, _ = self.acquisition_optimizer.optimize(self.acquisition, context)
         return np.atleast_2d(x)
 
 
@@ -69,24 +73,33 @@ class MultiSourceSequential(CandidatePointCalculator):
             raise ValueError('No source parameter found')
         return source_parameter[0]
 
-    def compute_next_points(self, loop_state: LoopState=None) -> np.ndarray:
+    def compute_next_points(self, loop_state: LoopState=None, context: dict=None) -> np.ndarray:
         """
         Computes the location and source of the next point to evaluate by finding the optimum input location at each
         information source, then picking the information source where the value of the acquisition at the optimum input
         location is highest.
 
         :param loop_state: Object that tracks the state of the loop. Currently unused
+        :param context: Contains variables to fix through optimization of acquisition function. The dictionary key is
+                        the parameter name and the value is the value to fix the parameter to.
         :return: A list of function inputs to evaluate next
         """
         f_mins = np.zeros((len(self.source_parameter.domain)))
         x_opts = []
 
+        if context is None:
+            context = dict()
+        elif self.source_parameter.name in context:
+            # Information source parameter already has a context so just optimise the acquisition at this source
+            return self.acquisition_optimizer.optimize(self.acquisition, context)[0]
+
         # Optimize acquisition for each information source
         for i in range(len(self.source_parameter.domain)):
             # Fix the source using a dictionary, the key is the name of the parameter to fix and the value is the
             # value to which the parameter is fixed
-            context = {self.source_parameter.name: self.source_parameter.domain[i]}
+            context[self.source_parameter.name] = self.source_parameter.domain[i]
             x, f_mins[i] = self.acquisition_optimizer.optimize(self.acquisition, context)
             x_opts.append(x)
         best_source = np.argmin(f_mins)
         return x_opts[best_source]
+

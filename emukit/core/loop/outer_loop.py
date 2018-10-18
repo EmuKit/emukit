@@ -17,6 +17,7 @@ from .stopping_conditions import StoppingCondition, FixedIterationsStoppingCondi
 import logging
 _log = logging.getLogger(__name__)
 
+
 class OuterLoop(object):
     """
     Generic outer loop that provides the framework for decision making parts of Emukit.
@@ -40,12 +41,15 @@ class OuterLoop(object):
         if self.loop_state is None:
             self.loop_state = LoopState([])
 
-    def run_loop(self, user_function: Union[UserFunction, Callable], stopping_condition: Union[StoppingCondition, int]) -> None:
+    def run_loop(self, user_function: Union[UserFunction, Callable], stopping_condition: Union[StoppingCondition, int],
+                 context: dict=None) -> None:
         """
         :param user_function: The function that we are emulating
-        :param stopping_condition: If integer - a number of iterations to run,
-                                   if object - a stopping condition object that decides
-                                   whether we should stop collecting more points
+        :param stopping_condition: If integer - a number of iterations to run, if object - a stopping condition object
+                                   that decides whether we should stop collecting more points
+        :param context: The context is used to force certain parameters of the inputs to the function of interest to
+                        have a given value. It is a dictionary whose keys are the parameter names to fix and the values
+                        are the values to fix the parameters to.
         """
         if not (isinstance(stopping_condition, int) or isinstance(stopping_condition, StoppingCondition)):
             raise ValueError("Expected stopping_condition to be an int or a StoppingCondition instance, but received {}".format(type(stopping_condition)))
@@ -61,7 +65,7 @@ class OuterLoop(object):
         while not stopping_condition.should_stop(self.loop_state):
             _log.info("Iteration {}".format(self.loop_state.iteration))
             self.model_updater.update(self.loop_state)
-            new_x = self.candidate_point_calculator.compute_next_points(self.loop_state)
+            new_x = self.candidate_point_calculator.compute_next_points(self.loop_state, context)
             results = user_function.evaluate(new_x)
             self.loop_state.update(results)
             self.custom_step()
