@@ -3,21 +3,21 @@
 
 
 import numpy as np
-from typing import Tuple
+from typing import Tuple, Callable
 
 from ...core import ParameterSpace
 from ...core.loop import UserFunctionWrapper
 from ...experimental_design.model_free.random_design import RandomDesign
 from ...core.interfaces.models import IModel
 
-class MonteCarloSensitivity(object):
+class ModelFreeMonteCarloSensitivity(object):
     '''
     Class to do sensitivity analysis of a function. It computes Monte Carlo approximations to
     the Sobol indexes and the total variance components of each input variable of some objective
     of interest.
     '''
 
-    def __init__(self, objective, input_domain: ParameterSpace)-> None:
+    def __init__(self, objective: Callable, input_domain: ParameterSpace)-> None:
         '''
         :param : python function in which the sensitivity analysis will be performed.
         :param input_domain: space class.
@@ -102,7 +102,7 @@ class MonteCarloSensitivity(object):
 
 
 
-class ModelBasedMonteCarloSensitivity(MonteCarloSensitivity):
+class MonteCarloSensitivity(ModelFreeMonteCarloSensitivity):
     '''
     Class to compute the sensitivity coefficients of given model. This class wraps the model and calls the mean
     predictions that are used to compute the sensitivity inputs using Monte Carlo.
@@ -115,6 +115,6 @@ class ModelBasedMonteCarloSensitivity(MonteCarloSensitivity):
         '''
 
         self.model = model
-        self.model_objective = lambda x : self.model.predict(x)[0].flatten()
+        self.model_objective = lambda x : self.model.predict(x)[0]
 
         super().__init__(self.model_objective, input_domain)
