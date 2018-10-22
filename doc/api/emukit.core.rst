@@ -23,6 +23,11 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+.. automodule:: emukit.core.discrete_parameter
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 .. automodule:: emukit.core.parameter_space
     :members:
     :undoc-members:

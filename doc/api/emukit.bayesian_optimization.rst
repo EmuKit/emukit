@@ -9,8 +9,6 @@ Subpackages
     emukit.bayesian_optimization.acquisitions
     emukit.bayesian_optimization.interfaces
     emukit.bayesian_optimization.loops
-    emukit.bayesian_optimization.methods
-    emukit.bayesian_optimization.test_functions
     emukit.bayesian_optimization.util
 
 Module contents
