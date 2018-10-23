@@ -4,7 +4,6 @@ import numpy as np
 
 from emukit.core import ContinuousParameter, ParameterSpace
 from emukit.sensitivity.monte_carlo import MonteCarloSensitivity, ModelFreeMonteCarloSensitivity
-from emukit.sensitivity.test_functions import Ishigami
 from emukit.core.interfaces import IModel
 from emukit.test_functions.sensitivity import Ishigami
 
