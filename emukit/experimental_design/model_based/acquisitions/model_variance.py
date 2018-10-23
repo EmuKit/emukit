@@ -27,6 +27,7 @@ class ModelVariance(Acquisition):
         _, variance = self.model.predict(x)
         _, dvariance_dx = self.model.get_prediction_gradients(x)
         return variance, dvariance_dx
-    
+
+    @property
     def has_gradients(self):
         return isinstance(self.model, IDifferentiable)

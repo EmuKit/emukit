@@ -1,7 +1,5 @@
-import pytest
 import numpy as np
-from emukit.core import ContinuousParameter, ParameterSpace
-from emukit.sensitivity.test_functions import Ishigami
+from emukit.test_functions.sensitivity import Ishigami
 
 def test_ishigami_function():
 
