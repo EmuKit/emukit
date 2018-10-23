@@ -15,10 +15,10 @@ class UserFunctionResult(object):
         :param Y: Function output(s), 1 by function output dimension
         """
         if X.ndim != 1:
-            raise ValueError("x is expected to be 1-dimensional, actual dimentionality is {}".format(X.ndim))
+            raise ValueError("x is expected to be 1-dimensional, actual dimensionality is {}".format(X.ndim))
 
         if Y.ndim != 1:
-            raise ValueError("y is expected to be 1-dimensional, actual dimentionality is {}".format(Y.ndim))
+            raise ValueError("y is expected to be 1-dimensional, actual dimensionality is {}".format(Y.ndim))
 
         self.X = X
         self.Y = Y
