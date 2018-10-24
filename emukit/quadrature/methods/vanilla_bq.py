@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.linalg import lapack
 
-from emulab.quadrature.methods.warped_bq_model import WarpedBayesianQuadratureModel
+from .warped_bq_model import WarpedBayesianQuadratureModel
 
 class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel):
     """

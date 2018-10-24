@@ -2,10 +2,10 @@ import numpy as np
 from typing import Tuple
 
 
-from emulab.quadrature.kernels import IntegrableKernel
+from ..kernels import IntegrableKernel
 
 
-class IBaseGaussianProcess(IModel, IGPQuantities):
+class IBaseGaussianProcess(IModel, IQuadratureBaseModel):
     """
     Class to define the functionality of a GP class for base_gp required by the quadrature methods
     """
