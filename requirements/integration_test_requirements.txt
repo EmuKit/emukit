@@ -1,2 +1,2 @@
-pyrfr
+scikit-learn
 -e git+https://github.com/automl/pybnn.git#egg=pybnn
