@@ -1,6 +1,13 @@
 emukit.examples package
 =======================
 
+Subpackages
+-----------
+
+.. toctree::
+
+    emukit.examples.models
+
 Submodules
 ----------
 

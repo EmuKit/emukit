@@ -1,15 +1,15 @@
-emukit.models package
-=====================
+emukit.examples.models package
+==============================
 
 Submodules
 ----------
 
-.. automodule:: emukit.models.bohamiann
+.. automodule:: emukit.examples.models.bohamiann
     :members:
     :undoc-members:
     :show-inheritance:
 
-.. automodule:: emukit.models.random_forest
+.. automodule:: emukit.examples.models.random_forest
     :members:
     :undoc-members:
     :show-inheritance:
@@ -18,7 +18,7 @@ Submodules
 Module contents
 ---------------
 
-.. automodule:: emukit.models
+.. automodule:: emukit.examples.models
     :members:
     :undoc-members:
     :show-inheritance:

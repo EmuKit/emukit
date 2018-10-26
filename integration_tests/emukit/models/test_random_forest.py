@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from emukit.models.random_forest import RandomForest
+from emukit.examples.models.random_forest import RandomForest
 
 
 @pytest.fixture

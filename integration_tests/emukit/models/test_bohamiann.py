@@ -1,7 +1,11 @@
 import numpy as np
 import pytest
 
-from emukit.models.bohamiann import Bohamiann
+try:
+    from emukit.examples.models.bohamiann import Bohamiann
+except ImportError:
+    # Bohamiann has an import issue. See https://github.com/automl/pybnn/pull/1
+    pytestmark = pytest.mark.skip
 
 
 @pytest.fixture

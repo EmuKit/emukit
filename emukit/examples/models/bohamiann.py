@@ -3,7 +3,7 @@
 
 import numpy as np
 
-from ..core.interfaces.models import IModel, IDifferentiable
+from ...core.interfaces.models import IModel, IDifferentiable
 
 try:
     from pybnn import bohamiann
@@ -12,6 +12,8 @@ except ImportError:
         This module is missing required dependencies. Try running
 
         pip install git+https://github.com/automl/pybnn.git
+
+        Refer to https://github.com/automl/pybnn for further information.
     """)
 
 

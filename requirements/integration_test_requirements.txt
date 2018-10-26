@@ -1,2 +1,2 @@
+pyrfr
 -e git+https://github.com/automl/pybnn.git#egg=pybnn
--e git+https://github.com/automl/random_forest_run.git#egg=pyrfr

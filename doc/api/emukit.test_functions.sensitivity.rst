@@ -1,10 +1,10 @@
-emukit.sensitivity.test\_functions package
+emukit.test\_functions.sensitivity package
 ==========================================
 
 Submodules
 ----------
 
-.. automodule:: emukit.sensitivity.test_functions.ishigami
+.. automodule:: emukit.test_functions.sensitivity.ishigami
     :members:
     :undoc-members:
     :show-inheritance:
@@ -13,7 +13,7 @@ Submodules
 Module contents
 ---------------
 
-.. automodule:: emukit.sensitivity.test_functions
+.. automodule:: emukit.test_functions.sensitivity
     :members:
     :undoc-members:
     :show-inheritance:
