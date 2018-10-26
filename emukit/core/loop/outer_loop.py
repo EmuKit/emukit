@@ -66,6 +66,7 @@ class OuterLoop(object):
             self.loop_state.update(results)
             self.custom_step()
 
+        self.model_updater.update(self.loop_state)
         _log.info("Finished outer loop")
 
     def get_next_points(self, results: List[UserFunctionResult]) -> np.ndarray:

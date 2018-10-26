@@ -1,7 +1,11 @@
+from typing import Tuple
+
 import mock
 import pytest
 
 import numpy as np
+from emukit.core.interfaces import IModel
+
 from emukit.core.loop import (OuterLoop, ModelUpdater, StoppingCondition, CandidatePointCalculator, UserFunctionResult,
                               LoopState, UserFunction)
 
@@ -31,6 +35,7 @@ def mock_user_function():
 
     return user_function
 
+
 def test_outer_loop(mock_next_point_calculator, mock_updater, mock_user_function):
     """ Example of automatic outer loop """
 
@@ -42,6 +47,46 @@ def test_outer_loop(mock_next_point_calculator, mock_updater, mock_user_function
 
     assert(loop.loop_state.iteration == 2)
     assert(np.array_equal(loop.loop_state.X, np.array([[0], [0]])))
+
+
+def test_outer_loop_model_update(mock_next_point_calculator, mock_user_function):
+    """ Checks the model has the correct number of data points """
+
+    class MockModelUpdater(ModelUpdater):
+        def __init__(self, model):
+            self.model = model
+
+        def update(self, loop_state):
+            self.model.update_data(loop_state.X, loop_state.Y)
+
+    class MockModel(IModel):
+        @property
+        def X(self):
+            return self._X
+
+        @property
+        def Y(self):
+            return self._Y
+
+        def predict(self, X):
+            pass
+
+        def update_data(self, X, Y):
+            self._X = X
+            self._Y = Y
+
+        def optimize(self):
+            pass
+
+    model = MockModel()
+    model_updater = MockModelUpdater(model)
+
+    loop = OuterLoop(mock_next_point_calculator, model_updater)
+    loop.run_loop(mock_user_function, 2)
+
+    # Check update was last called with a loop state with all the collected data points
+    assert model.X.shape[0] == 2
+    assert model.Y.shape[0] == 2
 
 def test_accept_non_wrapped_function(mock_next_point_calculator, mock_updater):
     stopping_condition = mock.create_autospec(StoppingCondition)
