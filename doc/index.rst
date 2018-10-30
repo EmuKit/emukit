@@ -7,6 +7,7 @@ All about Emukit
    installation
    tutorials
    usage
+   emukit_structure
    api
 
 Emukit is a toolkit for decision making under uncertainty.
