@@ -14,6 +14,11 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+.. automodule:: emukit.bayesian_optimization.acquisitions.local_penalization
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 .. automodule:: emukit.bayesian_optimization.acquisitions.negative_lower_confidence_bound
     :members:
     :undoc-members:
