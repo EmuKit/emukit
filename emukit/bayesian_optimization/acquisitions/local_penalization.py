@@ -1,7 +1,10 @@
+from typing import Tuple
+
 import numpy as np
 from scipy.stats import norm
 
 from emukit.core.acquisition import Acquisition
+from emukit.core.interfaces import IModel
 
 
 class LocalPenalization(Acquisition):
@@ -13,7 +16,7 @@ class LocalPenalization(Acquisition):
 
     where :math:`x_i` are the points already in the batch
     """
-    def __init__(self, model):
+    def __init__(self, model: IModel):
         """
         :param model: Model
         """
@@ -24,10 +27,10 @@ class LocalPenalization(Acquisition):
         self.model = model
 
     @property
-    def has_gradients(self):
+    def has_gradients(self) -> bool:
         return True
 
-    def update_batches(self, x_batch, lipschitz_constant, f_min):
+    def update_batches(self, x_batch: np.ndarray, lipschitz_constant: float, f_min: float):
         """
         Updates the batches internally and pre-computes the parameters of the penalization function
         """
@@ -56,7 +59,7 @@ class LocalPenalization(Acquisition):
         self.scale = scale.flatten()
         self.x_batch = x_batch
 
-    def evaluate(self, x):
+    def evaluate(self, x: np.ndarray) -> np.ndarray:
         """
         Evaluates the penalization function value
         """
@@ -68,7 +71,7 @@ class LocalPenalization(Acquisition):
         z = (distances - self.radius) / self.scale
         return norm.logcdf(z).sum(axis=1, keepdims=True)
 
-    def evaluate_with_gradients(self, x: np.ndarray):
+    def evaluate_with_gradients(self, x: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
         Evaluates the penalization function value and gradients with respect to x
         """

@@ -9,7 +9,7 @@ class LogAcquisition(Acquisition):
     """
     Takes the log of an acquisition function
     """
-    def __init__(self, acquisition):
+    def __init__(self, acquisition: Acquisition):
         """
         :param acquisition: Base acquisition function
         """
@@ -35,5 +35,5 @@ class LogAcquisition(Acquisition):
         return np.log(value), log_gradient
 
     @property
-    def has_gradients(self):
+    def has_gradients(self) -> bool:
         return self.acquisition.has_gradients
