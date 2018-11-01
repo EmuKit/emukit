@@ -7,7 +7,6 @@ Subpackages
 .. toctree::
 
     emukit.sensitivity.monte_carlo
-    emukit.sensitivity.test_functions
 
 Module contents
 ---------------

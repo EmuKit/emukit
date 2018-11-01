@@ -1,6 +1,13 @@
 emukit.test\_functions package
 ==============================
 
+Subpackages
+-----------
+
+.. toctree::
+
+    emukit.test_functions.sensitivity
+
 Submodules
 ----------
 
