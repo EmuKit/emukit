@@ -30,7 +30,7 @@ ________
 All ``Emukit`` loops need a probabilistic model of the underlying system.
 Emukit does not provide functionality to build models as there are already many good modelling frameworks available in python.
 Instead, we provide a way of interfacing third part modelling libraries with Emukit. 
-We already provide a wrapper for using a mode created with ``GPy``.
+We already provide a wrapper for using a model created with ``GPy``.
 For instructions on how to include your own model please see :doc:`this notebook </notebooks/Emukit-custom-model>`.
 
 Different models and modelling frameworks will provide different functionality. 
@@ -40,25 +40,25 @@ The basic interface that all models must implement is ``IModel``, which implemen
 update the model but a model may implement any number of other interfaces such as ``IDifferentiable`` which indicates a
 model has prediction derivatives available.
 
+Candidate Point Calculator
+__________________________
+This class decides which point to evaluate next.
+The simplest implementation, ``Sequential``, collects one point at a time by finding where the acquisition is a maximum
+by applying the acquisition optimizer to the acquisition function.
+More complex implementations will enable batches of points to be collected so that the user function can be evaluated
+in parallel.
+
 Acquisition
 ___________
-The acquisition function is a data collection policy that aims to maximise amount of information collected about some 
-latent property of the system of interest. 
+The acquisition is a heuristic quantification of how valuable collecting a future point might be.
+It is used by the candidate point calculator to decide which point(s) to collect next.
 
 Acquisition Optimizer
 _____________________
 The ``AcquisitionOptimizer`` optimizes the acquisition function to find the point at which the acquisition is a maximum.
 This will use the acquisition function gradients if they are available. 
 If gradients of the acquisition function are not available it will either estimate them numerically or use a gradient 
-free optimizer. 
-
-Candidate Point Calculator
-__________________________
-This class decides which point to evaluate next. 
-The simplest implementation, ``Sequential``, collects one point at a time by finding where the acquisition is a maximum
-by applying the acquisition optimizer to the acquisition function. 
-More complex implementations will enable batches of points to be collected so that the user function can be evaluated 
-in parallel. 
+free optimizer.
 
 User Function
 _____________
@@ -72,7 +72,7 @@ hyper-parameters of the model.
 It can decide whether hyper-parameters need updating based on some internal logic.
 
 
-Stopping condition
+Stopping Condition
 __________________
 The ``StoppingCondition`` class chooses when we should stop collecting points.
 The most commonly used example is to stop when a set number of iterations have been reached.
