@@ -1,9 +1,7 @@
-import mock
-import pytest
-from types import MethodType
-
 import GPy
+import mock
 import numpy as np
+import pytest
 
 from emukit.core import ContinuousParameter, ParameterSpace
 from emukit.core.interfaces import IModel
@@ -128,7 +126,7 @@ def test_condition_invalid_type(mock_next_point_calculator, mock_updater, mock_u
         loop.run_loop(mock_user_function, invalid_n_iter)
 
 
-def test_custom_step_call():
+def test_iteration_end_event():
     space = ParameterSpace([ContinuousParameter('x', 0, 1)])
 
     def user_function(x):
@@ -156,7 +154,7 @@ def test_custom_step_call():
     model_updater = FixedIntervalUpdater(model)
 
     loop = OuterLoop(candidate_point_calculator, model_updater, loop_state)
-    loop.loop_iteration_end_event.append(compute_mse)
+    loop.iteration_end_event.append(compute_mse)
     loop.run_loop(user_function, 5)
 
     assert len(mse) == 5
