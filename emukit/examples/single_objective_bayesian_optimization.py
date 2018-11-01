@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from enum import Enum, auto
+from enum import Enum
 import numpy as np
 
 from GPy.models import GPRegression
