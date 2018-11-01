@@ -46,8 +46,7 @@ class LocalPenalization(Acquisition):
         """
         Pre-computes the parameters of a penalization function
         """
-        mean = self.model.predict(x_batch)[0]
-        variance = self.model.predict(x_batch)[1]
+        mean, variance = self.model.predict(x_batch)
 
         variance = np.maximum(1e-16, variance)
         std_deviation = np.sqrt(variance)
@@ -67,9 +66,9 @@ class LocalPenalization(Acquisition):
         if self.x_batch is None:
             return np.ones((x.shape[0], 1))
 
-        distances = _squared_distance_calculation(x, self.x_batch)
-        z = (distances - self.radius) / self.scale
-        return norm.logcdf(z).sum(axis=1, keepdims=True)
+        distances = _distance_calculation(x, self.x_batch)
+        normalized_distance = (distances - self.radius) / self.scale
+        return norm.logcdf(normalized_distance).sum(axis=1, keepdims=True)
 
     def evaluate_with_gradients(self, x: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
@@ -79,20 +78,20 @@ class LocalPenalization(Acquisition):
         if self.x_batch is None:
             return np.ones((x.shape[0], 1)), np.zeros(x.shape)
 
-        distances, d_dist_dx = _squared_distance_with_gradient(x, self.x_batch)
-        z = (distances - self.radius) / self.scale
-        h_func = norm.cdf(z)
-        d_value_dx = 0.5 * (1 / h_func[:, :, None]) * norm.pdf(z)[:, :, None] * d_dist_dx / self.scale[None, :, None]
-        return norm.logcdf(z).sum(1, keepdims=True), d_value_dx.sum(1)
+        distances, d_dist_dx = _distance_with_gradient(x, self.x_batch)
+        normalized_distance = (distances - self.radius) / self.scale
+        h_func = norm.cdf(normalized_distance)
+        d_value_dx = 0.5 * (1 / h_func[:, :, None]) * norm.pdf(normalized_distance)[:, :, None] * d_dist_dx / self.scale[None, :, None]
+        return norm.logcdf(normalized_distance).sum(1, keepdims=True), d_value_dx.sum(1)
 
 
-def _squared_distance_calculation(x_1, x_2):
+def _distance_calculation(x_1, x_2):
     dx = x_1[:, None, :] - x_2[None, :, :]
     return np.sqrt(np.square(dx).sum(-1))
 
 
-def _squared_distance_with_gradient(x_1, x_2):
-    distances = _squared_distance_calculation(x_1, x_2)
+def _distance_with_gradient(x_1, x_2):
+    distances = _distance_calculation(x_1, x_2)
     inv_distance = np.where(distances != 0., 1 / distances, 0)
     dx = x_1[:, None, :] - x_2[None, :, :]
     d_dist_dx = 2 * dx * inv_distance[:, :, None]

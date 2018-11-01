@@ -7,11 +7,13 @@ from emukit.core.acquisition import Acquisition
 
 class LogAcquisition(Acquisition):
     """
-    Takes the log of an acquisition function
+    Takes the log of an acquisition function.
     """
+
     def __init__(self, acquisition: Acquisition):
         """
-        :param acquisition: Base acquisition function
+        :param acquisition: Base acquisition function that is log transformed. This acquisition function must output
+                            positive values only.
         """
         self.acquisition = acquisition
 

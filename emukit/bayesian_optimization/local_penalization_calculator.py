@@ -24,8 +24,8 @@ class LocalPenalizationPointCalculator(CandidatePointCalculator):
     def __init__(self, acquisition: Acquisition, acquisition_optimizer: AcquisitionOptimizer, model: IDifferentiable,
                  parameter_space: ParameterSpace, batch_size: int):
         """
-        :param acquisition: Base acquisition function to use without any penalization applied, this should have a log
-                            transform applied if the acquisition function can be negative
+        :param acquisition: Base acquisition function to use without any penalization applied, this acquisition should
+                            output positive values only.
         :param acquisition_optimizer: AcquisitionOptimizer object to optimize the penalized acquisition
         :param model: Model object, used to compute the parameters of the local penalization
         :param parameter_space: Parameter space describing input domain
@@ -69,7 +69,7 @@ def _estimate_lipschitz_constant(space: ParameterSpace, model: IDifferentiable):
     Estimate the lipschitz constant of the function by max norm of gradient currently in the model. Find this max
     gradient norm using an optimizer.
     """
-    def gradient_norm(x):
+    def negative_gradient_norm(x):
         x = np.atleast_2d(x)
         d_mean_d_x, _ = model.get_prediction_gradients(x)
         result = np.sqrt((np.square(d_mean_d_x)).sum(1))  # simply take the norm of the expectation of the gradient
@@ -79,11 +79,11 @@ def _estimate_lipschitz_constant(space: ParameterSpace, model: IDifferentiable):
     random_design = RandomDesign(space)
     samples = random_design.get_samples(N_SAMPLES)
     samples = np.vstack([samples, model.X])
-    gradient_norm_at_samples = gradient_norm(samples)
+    gradient_norm_at_samples = negative_gradient_norm(samples)
     x0 = samples[np.argmin(gradient_norm_at_samples)]
 
     # Run optimizer to find point of highest gradient
-    res = scipy.optimize.minimize(gradient_norm, x0, bounds=space.convert_to_gpyopt_design_space().get_bounds(),
+    res = scipy.optimize.minimize(negative_gradient_norm, x0, bounds=space.convert_to_gpyopt_design_space().get_bounds(),
                                   options={'maxiter': MAX_ITER})
     lipschitz_constant = -res.fun[0]
 

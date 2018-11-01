@@ -7,7 +7,7 @@ from emukit.core.interfaces import IModel
 TOL = 1e-6
 
 
-def test_penalization_function():
+def test_penalization_function_shape():
 
     model = MockModel()
     lp = LocalPenalization(model)
@@ -38,7 +38,7 @@ def test_local_penalization_gradients_with_single_point_in_batch():
     _check_grad(lp, TOL, x0)
 
 
-def test_local_penalization_gradients_with_no_batch():
+def test_local_penalization_gradients_with_no_points_in_batch():
     np.random.seed(123)
     model = MockModel()
     lp = LocalPenalization(model)
@@ -48,7 +48,7 @@ def test_local_penalization_gradients_with_no_batch():
     _check_grad(lp, TOL, x0)
 
 
-def test_local_penalization_gradients_with_multiple_batch():
+def test_local_penalization_gradients_with_multiple_points_in_batch():
     np.random.seed(123)
     model = MockModel()
     lp = LocalPenalization(model)
@@ -60,7 +60,7 @@ def test_local_penalization_gradients_with_multiple_batch():
 
 def test_local_penaliztion_at_batch_point():
     # Test edge case where evaluating local penalization at a point already in the batch.
-    # This can lead to infinite gradients if not done correctly.
+    # This can lead to divide by zero errors if not done correctly.
 
     np.random.seed(123)
     model = MockModel()
