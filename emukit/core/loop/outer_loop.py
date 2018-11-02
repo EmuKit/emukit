@@ -6,6 +6,7 @@ from typing import List, Union, Callable
 
 import numpy as np
 
+from ..event_handler import EventHandler
 from .loop_state import LoopState
 from .user_function_result import UserFunctionResult
 from .candidate_point_calculators import CandidatePointCalculator
@@ -27,6 +28,9 @@ class OuterLoop(object):
     1. Emukit calculates the next point(s) to try and evaluates your function at these points until some stopping
        criterion is met.
     2. Emukit only calculates the next points(s) to try and you evaluate your function or perform the experiment.
+
+    This object exposes the following events. See ``emukit.core.event_handler`` for details of how to subscribe:
+         - ``iteration_end_event`` called at the end of each iteration
     """
     def __init__(self, candidate_point_calculator: CandidatePointCalculator, model_updater: ModelUpdater,
                  loop_state: LoopState = None) -> None:
@@ -40,6 +44,7 @@ class OuterLoop(object):
         self.loop_state = loop_state
         if self.loop_state is None:
             self.loop_state = LoopState([])
+        self.iteration_end_event = EventHandler()
 
     def run_loop(self, user_function: Union[UserFunction, Callable], stopping_condition: Union[StoppingCondition, int],
                  context: dict=None) -> None:
@@ -52,7 +57,8 @@ class OuterLoop(object):
                         are the values to fix the parameters to.
         """
         if not (isinstance(stopping_condition, int) or isinstance(stopping_condition, StoppingCondition)):
-            raise ValueError("Expected stopping_condition to be an int or a StoppingCondition instance, but received {}".format(type(stopping_condition)))
+            raise ValueError("Expected stopping_condition to be an int or a StoppingCondition instance, "
+                             "but received {}".format(type(stopping_condition)))
 
         if not isinstance(user_function, UserFunction):
             user_function = UserFunctionWrapper(user_function)
@@ -64,12 +70,14 @@ class OuterLoop(object):
 
         while not stopping_condition.should_stop(self.loop_state):
             _log.info("Iteration {}".format(self.loop_state.iteration))
+
             self.model_updater.update(self.loop_state)
             new_x = self.candidate_point_calculator.compute_next_points(self.loop_state, context)
             results = user_function.evaluate(new_x)
             self.loop_state.update(results)
-            self.custom_step()
+            self.iteration_end_event(self, self.loop_state)
 
+        self.model_updater.update(self.loop_state)
         _log.info("Finished outer loop")
 
     def get_next_points(self, results: List[UserFunctionResult]) -> np.ndarray:
@@ -84,9 +92,3 @@ class OuterLoop(object):
             self.loop_state.update(results)
             self.model_updater.update(self.loop_state)
         return self.candidate_point_calculator.compute_next_points(self.loop_state)
-
-    def custom_step(self) -> None:
-        """
-        The user can insert custom code into the loop by overloading this method
-        """
-        pass

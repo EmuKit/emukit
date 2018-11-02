@@ -22,6 +22,7 @@ __pycache__/
 /doc/_build/
 /doc/generated/
 /doc/examples/
+/doc/notebooks/
 /build
 /dist
 .pytest_cache
