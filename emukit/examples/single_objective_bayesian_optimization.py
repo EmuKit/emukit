@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from enum import Enum, auto
+from enum import Enum
 import numpy as np
 
 from GPy.models import GPRegression
@@ -16,13 +16,13 @@ from emukit.bayesian_optimization.loops import BayesianOptimizationLoop
 
 
 class AcquisitionType(Enum):
-    EI = auto()
-    PI = auto()
-    NLCB = auto()
+    EI = 1
+    PI = 2
+    NLCB = 3
 
 
 class OptimizerType(Enum):
-    LBFGS = auto()
+    LBFGS = 1
 
 
 class GPBayesianOptimization(BayesianOptimizationLoop):
