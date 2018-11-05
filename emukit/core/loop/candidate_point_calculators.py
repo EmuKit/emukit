@@ -6,10 +6,10 @@ import abc
 
 import numpy as np
 
-from emukit.core.interfaces import IModel
 from .loop_state import LoopState
 from .. import ParameterSpace, InformationSourceParameter
 from ..acquisition import Acquisition
+from ..interfaces import IModel
 from ..optimization import AcquisitionOptimizer
 
 
@@ -64,8 +64,8 @@ class GreedyBatchPointCalculator(CandidatePointCalculator):
         :param acquisition_optimizer: Acquisition optimizer that optimizes acquisition function to find each point in batch
         :param batch_size: Number of points to calculate in batch
         """
-        if not isinstance(batch_size, int):
-            raise ValueError('Batch size should be an integer')
+        if (not isinstance(batch_size, int)) or (batch_size < 1):
+            raise ValueError('Batch size should be a positive integer')
         self.model = model
         self.acquisition = acquisition
         self.acquisition_optimizer = acquisition_optimizer
