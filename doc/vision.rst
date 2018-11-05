@@ -24,12 +24,14 @@ Typical workflow that we envision for a user interested in emulation is:
 Emukit and emulation
 _____________________
 
+.. image:: _static/Emukit_vision.svg
+
 Here is Emukit approach towards each of three parts of emulation.
 
 Methods
 ^^^^^^^^
 
-This is the main focus of Emukit. Emukit defines a general sctructure of a decision making method, called ``OuterLoop``, and then offers implementations of few such methods: Bayesian optimization, sensitivity analysis, experimental design. All methods in Emukit are model-agnostic.
+This is the main focus of Emukit. Emukit defines a general sctructure of a decision making method, called ``OuterLoop``, and then offers implementations of few such methods: Bayesian optimization, experimental design. In addition to provide a framework for decision making Emukit provide other tools, like sensitivity analysis, that help to debug and interpret emulators. All methods in Emukit are model-agnostic. 
 
 Models
 ^^^^^^^
