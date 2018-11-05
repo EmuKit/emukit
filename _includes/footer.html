@@ -1,13 +1,15 @@
 <footer>
-
     <div class="container">
         <div class="row p20">
-            {% if site.copyright.name %}
-                <div class="col-md-4 text-center mt25">All rights reserved by <a target="_blank" href="{{site.copyright.link}}">{{site.copyright.name}}</a></div>
-            {% endif %}
 
 
             <div class="col-md-4 text-center mt25">
+               {% if site.facebook %}
+                <a target="_blank" href="{{site.facebook}}"><li class="social facebook"><i class="fa fa-facebook-square"></i></li></a>
+                {% endif %}
+               {% if site.quora %}
+                <a target="_blank" href="{{site.quora}}"><li class="social quora"><i class="fa fa-quora"></i></li></a>
+                {% endif %}
                {% if site.twitter %}
                 <a target="_blank" href="{{site.twitter}}"><li class="social twitter"><i class="fa fa-twitter-square"></i></li></a>
                 {% endif %}

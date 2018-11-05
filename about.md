@@ -4,14 +4,15 @@ title: About
 permalink: /about/
 ---
 
+<h4>Emukit: the first open source toolkit for emulation and decision making under uncertainty</h4>
+
+We are launching Emukit, a highly adaptable Python toolkit for enriching decision making under uncertainty. 
 
 
+<div align="center"><img width="160" src="./images/loop.jpeg" />       </div>
 
-Webjeda cards is a Bootstrap based theme. Any Bootstrap element can be used in the theme. Read [Webjeda Blog](http://blog.webjeda.com){: target="_blank"} for jekyll tutorials. 
 
-For more themes, visit [jekyll-themes](https://jekyll-themes.com){: target="_blank"}
+<div align="center"><img width="160" src="./images/application_loops.jpeg" />      </div>
 
-**Does the theme deserve a star?**
 
-<a class="github-button" href="https://github.com/sharu725/cards" data-style="mega" data-count-href="/sharu725/cards/stargazers" data-count-api="/repos/sharu725/cards#stargazers_count" data-count-aria-label="# stargazers on GitHub" aria-label="Star sharu725/cards on GitHub">Star</a>
-<script async defer src="https://buttons.github.io/buttons.js"></script>
+<div align="center"><img width="160" src="./images//model_method_task.jpeg" />       </div>

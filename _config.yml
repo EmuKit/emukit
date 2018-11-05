@@ -7,24 +7,24 @@
 
 # Site settings
 title: Emukit
-email: your-email@domain.com
+email: emukit-mailist@amazon.com
 description: > # this means to ignore newlines until "baseurl:"
-  This is the landing page for the Emukit project.
-
-
+  Emukit is a highly adaptable Python toolkit for enriching decision making under uncertainty.
+  
+  
 baseurl: "/cards" # the subpath of your site, e.g. /blog
-url: "http://webjeda.com" # the base hostname & protocol for your site
+url: "http://emukit.com" # the base hostname & protocol for your site
 
 #sidebar
-default-image: webjeda-logo-big.jpg # If there is no featured image in a post then this image will be showed. Also on all pages this image will be showed. Use a 500x250 image.
+default-image: emulator.png # If there is no featured image in a post then this image will be showed. Also on all pages this image will be showed. Use a 500x250 image.
 
 #footer
 
-built-by: webjeda
+built-by: Emukit-team
 
 copyright:
-   name: emukit
-   link: 'http://blog.webjeda.com'
+   name: Emukit
+   link: 'http://'
 
 # Build settings
 markdown: kramdown
@@ -36,21 +36,11 @@ paginate_path: /page:num/
 analytics: UA-83979019-1
 
 # Comments
-disqus: yes
-disqus-shortname: webjeda-demo
 
 #social
-#facebook: http://facebook.com/webjeda
-quora: http://quora.com/sharathdt
 twitter: http://twitter.com/@emukitUQ
-github: http://github.com/amzn/emukit
-#email: hello@webjeda.com
-
-#facebook like box
-#fb-like-box: yes
-#fb-app-id: 549480635219583
-#fb-page-url: https://www.facebook.com/webjeda/
-#fb-page-title: webjeda
+github: https://github.com/amzn/emukit
+email: emukit-mailist@amazon.com
 
 # Sass style
 sass:
@@ -58,3 +48,4 @@ sass:
 
 # Ruby Gems
 plugins: [jekyll-paginate, jekyll-seo-tag]
+

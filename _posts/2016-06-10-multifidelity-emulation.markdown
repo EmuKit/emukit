@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Elements"
+title:  "Multi-fidelity emulation"
 categories: jekyll update
 img: image-4.png
 ---

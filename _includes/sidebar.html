@@ -6,15 +6,15 @@
             <img width="600" src="{{site.baseurl}}/images/{{site.default-image}}" alt="webjeda">
             {% endif %}
         </div>
-
-
+            
+        
         <div class="mt10 recent">
-            <h2>Other</h2>
+            <h2>Also in Emukit</h2>
              <ul>
                 {% for post in site.related_posts limit:3 %}
 
                       <li>
-                      <p><a href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a><small>&nbsp;&nbsp;{{ post.date | date_to_string }}</small></p>
+                      <p><a href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a></p>
                       </li>
 
                 {% endfor %}

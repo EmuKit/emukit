@@ -3,48 +3,44 @@ layout: default
 ---
 
 <div class="home">
+    <center><b>Python toolkit for emulation and decision making under uncertainty</b></center>
+    <center><b>Accessible and built with reusable components</b> </center>
+    <center><b>Independent of the modelling framework. Use it with MXNet, TensorFlow, etc</b></center>
+    <center><b>Open Source under the Apache-2.0 license</b></center>
+    </div>
 
-  <div class="row">
-    <div class="column"></div>
 
-    <div class="column"></div>
-    <h4>Emulation and decision making under uncertainty in Python.</h4>
-    <ul>
-      <li>Accessible to everybody, for practitioner and developers.</li>
-      <li>Agnostic to the underlying modelling framework, MXnet, TensorFlow, etc.</li>
-      <li>Open source, commercially usable - APACHE license.</li>
-    </ul>
-
-  </div>
-
+<div class="home">
+ 
+  
     <div class="row pack">
 
-        {% for post in paginator.posts %}
+        {% for post in paginator.posts %}   
             <div class="col-md-4 card">
-             <a href="{{ post.url | prepend: site.baseurl }}" class="index-anchor">
+             <a href="{{ post.url | prepend: site.baseurl }}" class="index-anchor">    
                 <div class="panel panel-default">
-
+                  
                   {% if post.img %}
                   <img width="100%" src="{{site.baseurl}}/images/{{post.img}}" alt="{{post.title}}">
                   {% else %}
                   <img width="100%" src="{{site.baseurl}}/images/webjeda-logo-big.jpg" alt="{{site.title}}">
                   {% endif %}
-
+                  
                   <div class="panel-body">
                     <h3 class="panel-title pull-left">{{ post.title | truncate: 25 }}</h3><span class="post-meta pull-right"><small>{{ post.date | date: "%b %-d, %Y" }}</small></span>
                   </div>
-
+                  
                   <div class="panel-body"><small>
                     {{ post.excerpt | strip_html | strip_newlines | truncate: 180 }}</small>
                   </div>
                 </div>
                 </a>
             </div>
-
+        
           {% endfor %}
 
-    </div>
-
+    </div> 
+    
 <div class="row">
     <div class="col-md-4">  </div>
     <div class="col-md-4">
