@@ -13,12 +13,7 @@ from emukit.core.parameter_space import ParameterSpace
 from emukit.core.loop import FixedIterationsStoppingCondition, UserFunction
 from emukit.bayesian_optimization.acquisitions import ExpectedImprovement, NegativeLowerConfidenceBound, ProbabilityOfImprovement
 from emukit.bayesian_optimization.loops import BayesianOptimizationLoop
-
-
-class AcquisitionType(Enum):
-    EI = 1
-    PI = 2
-    NLCB = 3
+from .enums import AcquisitionType
 
 
 class OptimizerType(Enum):
