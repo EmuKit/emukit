@@ -1,21 +1,15 @@
 # Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
-
-
-import numpy as np
-
-from emukit.bayesian_optimization.acquisitions.log_acquisition import LogAcquisition
-from emukit.bayesian_optimization.local_penalization_calculator import LocalPenalizationPointCalculator
-from emukit.core.interfaces import IDifferentiable
-from emukit.core.loop.loop_state import create_loop_state
-from ...core.loop import OuterLoop, Sequential, FixedIntervalUpdater, LoopState, \
-    UserFunctionResult, ModelUpdater, CandidatePointCalculator
+from ..acquisitions import ExpectedImprovement
+from ..acquisitions.log_acquisition import LogAcquisition
+from ..local_penalization_calculator import LocalPenalizationPointCalculator
+from ...core.interfaces import IDifferentiable
+from ...core.loop.loop_state import create_loop_state
+from ...core.loop import OuterLoop, Sequential, FixedIntervalUpdater, ModelUpdater
 from ...core.optimization import AcquisitionOptimizer
 from ...core.parameter_space import ParameterSpace
 from ...core.acquisition import Acquisition
 from ...core.interfaces import IModel
-
-from ..acquisitions.expected_improvement import ExpectedImprovement
 
 
 class BayesianOptimizationLoop(OuterLoop):

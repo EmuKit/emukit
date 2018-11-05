@@ -2,7 +2,7 @@ from typing import Tuple
 
 import numpy as np
 
-from emukit.core.acquisition import Acquisition
+from ...core.acquisition import Acquisition
 
 
 class LogAcquisition(Acquisition):
@@ -32,7 +32,9 @@ class LogAcquisition(Acquisition):
         :return: Tuple of (log value, gradient of log value)
         """
         value, gradient = self.acquisition.evaluate_with_gradients(x)
-        value = np.maximum(value, 1e-10)
+
+        epsilon = 1e-10
+        value = np.maximum(value, epsilon)
         log_gradient = 1/value * gradient
         return np.log(value), log_gradient
 

@@ -1,13 +1,13 @@
 import numpy as np
 import scipy.optimize
 
-from emukit.core import ParameterSpace
-from emukit.core.acquisition import Acquisition
-from emukit.core.interfaces import IDifferentiable
-from emukit.core.loop import CandidatePointCalculator, LoopState
-from emukit.bayesian_optimization.acquisitions.local_penalization import LocalPenalization
-from emukit.core.optimization import AcquisitionOptimizer
-from emukit.experimental_design.model_free.random_design import RandomDesign
+from ..core import ParameterSpace
+from ..core.acquisition import Acquisition
+from ..core.interfaces import IDifferentiable
+from ..core.loop import CandidatePointCalculator, LoopState
+from ..bayesian_optimization.acquisitions.local_penalization import LocalPenalization
+from ..core.optimization import AcquisitionOptimizer
+from ..experimental_design.model_free.random_design import RandomDesign
 
 N_SAMPLES = 500  # Number of samples to use when estimating Lipschitz constant
 MAX_ITER = 200  # Maximum number of iterations for optimizer when estimating Lipschitz constant
@@ -70,7 +70,6 @@ def _estimate_lipschitz_constant(space: ParameterSpace, model: IDifferentiable):
     gradient norm using an optimizer.
     """
     def negative_gradient_norm(x):
-        x = np.atleast_2d(x)
         d_mean_d_x, _ = model.get_prediction_gradients(x)
         result = np.sqrt((np.square(d_mean_d_x)).sum(1))  # simply take the norm of the expectation of the gradient
         return -result
@@ -80,14 +79,17 @@ def _estimate_lipschitz_constant(space: ParameterSpace, model: IDifferentiable):
     samples = random_design.get_samples(N_SAMPLES)
     samples = np.vstack([samples, model.X])
     gradient_norm_at_samples = negative_gradient_norm(samples)
-    x0 = samples[np.argmin(gradient_norm_at_samples)]
+    x0 = samples[np.argmin(gradient_norm_at_samples)][None, :]
 
     # Run optimizer to find point of highest gradient
-    res = scipy.optimize.minimize(negative_gradient_norm, x0, bounds=space.convert_to_gpyopt_design_space().get_bounds(),
+    res = scipy.optimize.minimize(lambda x: negative_gradient_norm(x[None, :]), x0,
+                                  bounds=space.convert_to_gpyopt_design_space().get_bounds(),
                                   options={'maxiter': MAX_ITER})
     lipschitz_constant = -res.fun[0]
 
-    if lipschitz_constant < 1e-7:
+    min_lipschitz_constant = 1e-7
+    fallback_lipschitz_constant = 10  # Value to use if calculated value is below minimum allowed
+    if lipschitz_constant < min_lipschitz_constant:
         # To avoid problems in cases in which the model is flat.
-        lipschitz_constant = 10
+        lipschitz_constant = fallback_lipschitz_constant
     return lipschitz_constant

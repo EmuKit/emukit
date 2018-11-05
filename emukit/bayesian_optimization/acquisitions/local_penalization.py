@@ -3,8 +3,8 @@ from typing import Tuple
 import numpy as np
 from scipy.stats import norm
 
-from emukit.core.acquisition import Acquisition
-from emukit.core.interfaces import IModel
+from ...core.acquisition import Acquisition
+from ...core.interfaces import IModel
 
 
 class LocalPenalization(Acquisition):
@@ -48,7 +48,10 @@ class LocalPenalization(Acquisition):
         """
         mean, variance = self.model.predict(x_batch)
 
-        variance = np.maximum(1e-16, variance)
+        # Limit how small the variance can be to avoid numerical issues
+        epsilon = 1e-10
+        variance = np.maximum(epsilon, variance)
+        
         std_deviation = np.sqrt(variance)
 
         # Calculate function parameters
