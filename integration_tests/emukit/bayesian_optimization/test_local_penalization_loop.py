@@ -1,7 +1,7 @@
 import GPy
 
 from emukit.bayesian_optimization.acquisitions import ExpectedImprovement
-from emukit.examples.local_penalization_batch_optimization import LocalPenalizationBatchOptimization
+from emukit.bayesian_optimization.loops import BayesianOptimizationLoop
 from emukit.experimental_design import RandomDesign
 from emukit.model_wrappers import GPyModelWrapper
 from emukit.test_functions import branin_function
@@ -21,7 +21,7 @@ def test_local_penalization():
 
     batch_size = 10
 
-    lp = LocalPenalizationBatchOptimization(parameter_space, model, base_acquisition, batch_size)
+    lp = BayesianOptimizationLoop(model, parameter_space, base_acquisition, batch_size)
     lp.run_loop(branin_fcn, 5)
 
     assert len(lp.loop_state.Y) == 60

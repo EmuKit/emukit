@@ -4,6 +4,10 @@
 
 import numpy as np
 
+from emukit.bayesian_optimization.acquisitions.log_acquisition import LogAcquisition
+from emukit.bayesian_optimization.local_penalization_calculator import LocalPenalizationPointCalculator
+from emukit.core.interfaces import IDifferentiable
+from emukit.core.loop.loop_state import create_loop_state
 from ...core.loop import OuterLoop, Sequential, FixedIntervalUpdater, LoopState, \
     UserFunctionResult, ModelUpdater, CandidatePointCalculator
 from ...core.optimization import AcquisitionOptimizer
@@ -15,8 +19,7 @@ from ..acquisitions.expected_improvement import ExpectedImprovement
 
 
 class BayesianOptimizationLoop(OuterLoop):
-    def __init__(self, model: IModel, space: ParameterSpace, X_init: np.array, Y_init: np.array,
-                 acquisition: Acquisition = None, candidate_point_calculator: CandidatePointCalculator = None,
+    def __init__(self, model: IModel, space: ParameterSpace, acquisition: Acquisition = None, batch_size: int = 1,
                  model_updater: ModelUpdater = None):
 
         """
@@ -24,13 +27,11 @@ class BayesianOptimizationLoop(OuterLoop):
 
         :param model: The model that approximates the underlying function
         :param space: Input space where the optimization is carried out.
-        :param acquisition: The acquisition function that will be used to collect new points (default, EI).
-        :param X_init: x values for initial function evaluations
-        :param Y_init: y values for initial function evaluations
-        :param model_updater: Defines how and how often the model will be updated if new data
-        arrives (default, FixedIntervalUpdater)
-        :param candidate_point_calculator: Optimizes the acquisition function to find the
-        next candidate to evaluate (default, Sequential)
+        :param acquisition: The acquisition function that will be used to collect new points (default, EI). If batch
+                            size is greater than one, this acquisition must output positive values only. 
+        :param batch_size: How many points to evaluate in one iteration of the optimization loop. Defaults to 1.
+        :param model_updater: Defines how and when the model is updated if new data arrives.
+                              Defaults to updating hyper-parameters every iteration.
         """
 
         if acquisition is None:
@@ -39,13 +40,17 @@ class BayesianOptimizationLoop(OuterLoop):
         if model_updater is None:
             model_updater = FixedIntervalUpdater(model, 1)
 
-        if candidate_point_calculator is None:
-            acquisition_optimizer = AcquisitionOptimizer(space)
+        acquisition_optimizer = AcquisitionOptimizer(space)
+        if batch_size == 1:
             candidate_point_calculator = Sequential(acquisition, acquisition_optimizer)
+        else:
+            if not isinstance(model, IDifferentiable):
+                raise ValueError('Model must implement ' + str(IDifferentiable) +
+                                 ' for use with Local Penalization batch method.')
+            log_acquisition = LogAcquisition(acquisition)
+            candidate_point_calculator = LocalPenalizationPointCalculator(log_acquisition, acquisition_optimizer, model,
+                                                                          space, batch_size)
 
-        initial_results = []
-        for i in range(X_init.shape[0]):
-            initial_results.append(UserFunctionResult(X_init[i], Y_init[i]))
-        loop_state = LoopState(initial_results)
+        loop_state = create_loop_state(model.X, model.Y)
 
-        super(BayesianOptimizationLoop, self).__init__(candidate_point_calculator, model_updater, loop_state)
+        super().__init__(candidate_point_calculator, model_updater, loop_state)

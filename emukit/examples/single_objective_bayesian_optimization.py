@@ -64,15 +64,9 @@ class GPBayesianOptimization(BayesianOptimizationLoop):
         # 3. Select the acquisition function
         self._acquisition_chooser()
 
-        # 4. Select how the objective is going to be evaluated
-        self._evaluator_chooser()
-
         super(GPBayesianOptimization, self).__init__(model=self.model,
                                                      space=self.space,
-                                                     acquisition=self.acquisition,
-                                                     X_init=X,
-                                                     Y_init=Y,
-                                                     candidate_point_calculator=self.evaluator)
+                                                     acquisition=self.acquisition)
 
     def _model_chooser(self):
         """ Initialize the model used for the optimization """
@@ -92,10 +86,6 @@ class GPBayesianOptimization(BayesianOptimizationLoop):
             self.acquisition = ProbabilityOfImprovement(self.model)
         elif self.acquisition_type is AcquisitionType.NLCB:
             self.acquisition = NegativeLowerConfidenceBound(self.model)
-
-    def _evaluator_chooser(self):
-        """ Selects whether the optimization is done sequentially or in parallel"""
-        self.evaluator = None
 
     def suggest_new_locations(self):
         """ Returns one or a batch of locations without evaluating the objective """
