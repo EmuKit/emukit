@@ -1,6 +1,6 @@
 # Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
-from emukit.experimental_design.model_based.batch_experimental_design import GreedyBatchPointCalculator
+from emukit.core.loop.candidate_point_calculators import GreedyBatchPointCalculator
 from .acquisitions import ModelVariance
 from ...core.acquisition import Acquisition
 from ...core.interfaces.models import IModel
