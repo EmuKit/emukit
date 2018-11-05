@@ -37,10 +37,11 @@ class LocalPenalizationPointCalculator(CandidatePointCalculator):
         self.model = model
         self.parameter_space = parameter_space
 
-    def compute_next_points(self, loop_state: LoopState) -> np.ndarray:
+    def compute_next_points(self, loop_state: LoopState, context: dict=None) -> np.ndarray:
         """
         Computes a batch of points using local penalization.
 
+        :param context:
         :param loop_state: Object containing the current state of the loop
         """
 
@@ -54,7 +55,7 @@ class LocalPenalizationPointCalculator(CandidatePointCalculator):
         x_batch = []
         for i in range(self.batch_size):
             # Collect point
-            x_next, _ = self.acquisition_optimizer.optimize(acquisition)
+            x_next, _ = self.acquisition_optimizer.optimize(acquisition, context)
             x_batch.append(x_next)
 
             # Update local penalization acquisition with x_next
