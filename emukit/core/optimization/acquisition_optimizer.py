@@ -14,6 +14,7 @@ from ..acquisition import Acquisition
 import logging
 _log = logging.getLogger(__name__)
 
+
 class AcquisitionOptimizer(object):
     """ Optimizes the acquisition function """
     def __init__(self, space: ParameterSpace, **kwargs) -> None:
@@ -33,31 +34,20 @@ class AcquisitionOptimizer(object):
         # Take negative of acquisition function because they are to be maximised and the optimizers minimise
         f = lambda x: -acquisition.evaluate(x)
 
-        # Validate context
-        if context is not None:
-            for context_name, context_value in context.items():
-                # Check parameter exists in space
-                if context_name not in self.space.parameter_names:
-                    raise ValueError(context_name + ' appears as variable in context but not in the parameter space.')
+        self.gpyopt_acquisition_optimizer.context_manager = GPyOpt.optimization.acquisition_optimizer.ContextManager(
+            self.gpyopt_space, context)
 
-                # Log warning if context parameter is out of domain
-                param = self.space.get_parameter_by_name(context_name)
-                if param.check_in_domain(context_value) is False:
-                    _log.warning(context_name + ' with value ' + str(context_value), ' is out of the domain')
-                else:
-                    _log.info('Parameter ' + context_name + ' fixed to ' + str(context_value))
+        # Context validation
+        if context is not None:
+            self._validate_context_parameters(context)
 
             # Return without optimizing if no parameter left to optimize
             are_all_parameters_fixed = len(context.keys()) == len(self.space.parameter_names)
             if are_all_parameters_fixed:
                 _log.warning("All parameters are fixed through context")
 
-                ctx_manager = GPyOpt.optimization.acquisition_optimizer.ContextManager(self.gpyopt_space, context)
-                x = np.array(ctx_manager.context_value)[None, :]
+                x = np.array(self.gpyopt_acquisition_optimizer.context_manager.context_value)[None, :]
                 return x, f(x)
-
-        self.gpyopt_acquisition_optimizer.context_manager = GPyOpt.optimization.acquisition_optimizer.ContextManager(
-            self.gpyopt_space, context)
 
         def f_df(x):
             f_value, df_value = acquisition.evaluate_with_gradients(x)
@@ -69,3 +59,16 @@ class AcquisitionOptimizer(object):
         else:
             _log.info("Starting gradient-free optimization of acquisition function {}".format(type(acquisition)))
             return self.gpyopt_acquisition_optimizer.optimize(f, None, None)
+
+    def _validate_context_parameters(self, context):
+        for context_name, context_value in context.items():
+            # Check parameter exists in space
+            if context_name not in self.space.parameter_names:
+                raise ValueError(context_name + ' appears as variable in context but not in the parameter space.')
+
+            # Log warning if context parameter is out of domain
+            param = self.space.get_parameter_by_name(context_name)
+            if param.check_in_domain(context_value) is False:
+                _log.warning(context_name + ' with value ' + str(context_value), ' is out of the domain')
+            else:
+                _log.info('Parameter ' + context_name + ' fixed to ' + str(context_value))
