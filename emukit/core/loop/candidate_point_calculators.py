@@ -71,15 +71,17 @@ class GreedyBatchPointCalculator(CandidatePointCalculator):
         self.acquisition_optimizer = acquisition_optimizer
         self.batch_size = batch_size
 
-    def compute_next_points(self, loop_state: LoopState) -> np.ndarray:
+    def compute_next_points(self, loop_state: LoopState, context: dict=None) -> np.ndarray:
         """
         :param loop_state: Object containing history of the loop
+        :param context: Contains variables to fix through optimization of acquisition function. The dictionary key is
+                        the parameter name and the value is the value to fix the parameter to.
         :return: 2d array of size (batch_size x input dimensions) of new points to evaluate
         """
         new_xs = []
         original_data = (self.model.X, self.model.Y)
         for _ in range(self.batch_size):
-            new_x, _ = self.acquisition_optimizer.optimize(self.acquisition)
+            new_x, _ = self.acquisition_optimizer.optimize(self.acquisition, context)
             new_xs.append(new_x)
             new_y = self.model.predict(new_x)[0]
 
