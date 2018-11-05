@@ -41,8 +41,9 @@ class LocalPenalizationPointCalculator(CandidatePointCalculator):
         """
         Computes a batch of points using local penalization.
 
-        :param context:
         :param loop_state: Object containing the current state of the loop
+        :param context: Contains variables to fix through optimization of acquisition function. The dictionary key is
+                        the parameter name and the value is the value to fix the parameter to.
         """
 
         # Initialize local penalization acquisition
