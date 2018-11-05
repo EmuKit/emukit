@@ -1,7 +1,9 @@
+# turn off notifications until build is stable
+notifications:
+  email: false
 language: python
 os: linux
 python:
-  - '3.4'
   - '3.5'
   - '3.6'
 before_install: |
@@ -25,29 +27,20 @@ install:
   - pip install --upgrade pip
   - pip install -r requirements/requirements.txt
   - pip install -r requirements/test_requirements.txt
+  # work around issues with GPy and GPyOpt setting matplotlib backend
+  - "echo 'backend: Agg' > matplotlibrc"
+  - pip install .
   - pip freeze
 script:
   # - flake8
-  - pytest tests
+  - python -m pytest
 after_success:
   - codecov
 jobs:
   include:
     - os: osx
       language: generic
-      env: PYTHON=3.4.4
+      env: PYTHON=3.5.2
     - os: osx
-      language: generic
-      env: PYTHON=3.5.1
-    - os: osx
-      language: generic
-      env: PYTHON=3.6.6
-    - os: linux
-      language: generic
-      env: PYTHON=3.4.4
-    - os: linux
-      language: generic
-      env: PYTHON=3.5.1
-    - os: linux
       language: generic
       env: PYTHON=3.6.6

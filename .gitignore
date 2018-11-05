@@ -22,4 +22,4 @@ __pycache__/
 /doc/_autosummary/
 /build
 /dist
-/.pytest_cache
+.pytest_cache
