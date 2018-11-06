@@ -6,16 +6,30 @@ permalink: /about/
 
 <h1>Emukit: the first open source toolkit for statistical emulation and decision making under uncertainty</h1>
 
-*Cambridge, UK, December 2018.*
+*December 2018, Cambridge, UK.*
 
-We are launching Emukit, a highly adaptable Python toolkit for enriching decision making under uncertainty. Emukit allows scientists to easily build and test their uncertainty quantification workflows.
+We are launching Emukit, a highly adaptable Python toolkit for enriching decision making under uncertainty. This is 
+particularly pertinent to complex systems where data is scarce or difficult to acquire. In these scenarios, 
+propagating well-calibrated uncertainty estimates within a design loop or computational 
+pipeline ensures that constrained resources are used effectively.
 
-Emukit is a highly adaptable Python toolkit for enriching decision making under uncertainty. This is particularly pertinent to complex systems where data is scarce or difficult to acquire. In these scenarios, propagating well-calibrated uncertainty estimates within a design loop or computational pipeline ensures that constrained resources are used effectively.
+Some features of Emukit are:
 
-Emukit is agnostic to the underlying modelling framework, which means you can use any tool of your choice in the Python ecosystem to build the machine learning model, and still be able to use Emukit.
+- Emukit brings together under the same code framework several for uncertainty quantification and decision making tools. 
+Sensitivity analysis, Bayesian optimization, Experimental design of multi-fidelity modelling can be now performed within 
+the same integrated code repository.
+
+- Emukit has been build using reusable components. Its main goal is to provide tools that ease 
+the creation of new methods for uncertainty quantification and decision making.
+
+- Emukit is agnostic to the underlying modelling framework, which means you can use any tool of your choice in the Python ecosystem to 
+build the machine learning model that is used in your decision pipeline. Models written in GPy, TensorFlow, MXnet, etc can easily be
+wrapped in Emukit and used in several sequential decision making problems. 
 
 
-<h3> Sequential decison making under uncertainty</h3>
+<h3> 1. Sequential decison making under uncertainty</h3>
+
+
 
 <div align="center"><img width="460" src="../images/loop.jpeg" />       </div>
 
