@@ -1,4 +1,5 @@
 import mock
+import pytest
 
 import numpy as np
 
@@ -6,6 +7,7 @@ from emukit.core.loop import LoopState, FixedIterationsStoppingCondition, FixedI
 from emukit.core.acquisition import Acquisition
 from emukit.core.optimization import AcquisitionOptimizer
 from emukit.core.interfaces import IModel
+from emukit.core import ParameterSpace, ContinuousParameter
 
 
 def test_fixed_iteration_stopping_condition():
@@ -45,8 +47,38 @@ def test_sequential_evaluator():
 
     # "Sequential" should only ever return 1 value
     assert(len(next_points) == 1)
-    # Value should be result of acquitision optimization
+    # Value should be result of acquisition optimization
     assert(np.equal(np.array([[0.]]), next_points[0]))
+
+
+def test_sequential_with_context():
+    mock_acquisition = mock.create_autospec(Acquisition)
+    mock_acquisition.has_gradients = False
+    mock_acquisition.evaluate = lambda x: np.sum(x**2, axis=1)[:, None]
+    space = ParameterSpace([ContinuousParameter('x', 0, 1), ContinuousParameter('y', 0, 1)])
+    acquisition_optimizer = AcquisitionOptimizer(space)
+
+    loop_state_mock = mock.create_autospec(LoopState)
+    seq = Sequential(mock_acquisition, acquisition_optimizer)
+    next_points = seq.compute_next_points(loop_state_mock, context={'x': 0.25})
+
+    # "Sequential" should only ever return 1 value
+    assert(len(next_points) == 1)
+    # Context value should be what we set
+    assert np.isclose(next_points[0, 0], 0.25)
+
+
+def test_sequential_with_all_parameters_fixed():
+    mock_acquisition = mock.create_autospec(Acquisition)
+    mock_acquisition.has_gradients = False
+    mock_acquisition.evaluate = lambda x: np.sum(x**2, axis=1)[:, None]
+    space = ParameterSpace([ContinuousParameter('x', 0, 1), ContinuousParameter('y', 0, 1)])
+    acquisition_optimizer = AcquisitionOptimizer(space)
+
+    loop_state_mock = mock.create_autospec(LoopState)
+    seq = Sequential(mock_acquisition, acquisition_optimizer)
+    next_points = seq.compute_next_points(loop_state_mock, context={'x': 0.25, 'y': 0.25})
+    assert np.array_equiv(next_points, np.array([0.25, 0.25]))
 
 
 def test_user_function_wrapper():

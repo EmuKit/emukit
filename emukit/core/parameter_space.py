@@ -20,6 +20,11 @@ class ParameterSpace(object):
         if len(source_parameter) > 1:
             raise ValueError('More than one source parameter found')
 
+        # Check uniqueness of parameter names
+        names = self.parameter_names
+        if not len(names) == len(set(names)):
+            raise ValueError('Parameter names are not unique')
+
     @property
     def parameters(self):
         return self._parameters
@@ -27,6 +32,12 @@ class ParameterSpace(object):
     @property
     def parameter_names(self):
         return [p.name for p in self._parameters]
+
+    def get_parameter_by_name(self, name):
+        for param in self.parameters:
+            if param.name == name:
+                return param
+        raise ValueError('Parameter with name ' + name + 'not found.')
 
     def convert_to_gpyopt_design_space(self):
         """

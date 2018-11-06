@@ -2,7 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import Iterable
+from typing import Iterable, Union
+
+import numpy as np
 
 
 class DiscreteParameter(object):
@@ -17,13 +19,15 @@ class DiscreteParameter(object):
         self.name = name
         self.domain = domain
 
-    def check_in_domain(self, x: Iterable) -> bool:
+    def check_in_domain(self, x: Union[Iterable, float]) -> bool:
         """
         Checks if the points in x are in the set of allowed values
 
         :param x: 1d numpy array of points to check
         :return: A boolean indicating whether each point is in domain
         """
+        if np.isscalar(x):
+            x = [x]
         return set(x).issubset(set(self.domain))
 
 
