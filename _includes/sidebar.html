@@ -1,0 +1,25 @@
+<div class="col-md-4 mt20">
+        <div class="post-img">
+           {% if page.img %}
+            <img width="600" src="{{site.baseurl}}/images/{{page.img}}" alt="{{page.title}}">
+            {% else %}
+            <img width="600" src="{{site.baseurl}}/images/{{site.default-image}}" alt="webjeda">
+            {% endif %}
+        </div>
+            
+        
+        <div class="mt10 recent">
+            <h2>Also in Emukit</h2>
+             <ul>
+                {% for post in site.related_posts limit:3 %}
+
+                      <li>
+                      <p><a href="{{ post.url | prepend: site.baseurl }}">{{ post.title }}</a></p>
+                      </li>
+
+                {% endfor %}
+              </ul>
+        </div>
+
+
+</div>

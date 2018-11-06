@@ -1,0 +1,51 @@
+# Welcome to Jekyll!
+#
+# This config file is meant for settings that affect your whole blog, values
+# which you are expected to set up once and rarely need to edit after that.
+# For technical reasons, this file is *NOT* reloaded automatically when you use
+# 'jekyll serve'. If you change this file, please restart the server process.
+
+# Site settings
+title: Emukit
+email: emukit-mailist@amazon.com
+description: > # this means to ignore newlines until "baseurl:"
+  Emukit is a highly adaptable Python toolkit for enriching decision making under uncertainty.
+  
+  
+baseurl: "/emukit" # the subpath of your site, e.g. /blog
+url: "http://emukit.com" # the base hostname & protocol for your site
+
+#sidebar
+default-image: emulator.png # If there is no featured image in a post then this image will be showed. Also on all pages this image will be showed. Use a 500x250 image.
+
+#footer
+
+built-by: Emukit-team
+
+copyright:
+   name: Emukit
+   link: 'http://'
+
+# Build settings
+markdown: kramdown
+permalink: /:title/
+paginate: 6
+paginate_path: /page:num/
+
+# Tracker
+analytics: UA-83979019-1
+
+# Comments
+
+#social
+twitter: http://twitter.com/@emukitUQ
+github: https://github.com/amzn/emukit
+email: emukit-mailist@amazon.com
+
+# Sass style
+sass:
+  style: compressed
+
+# Ruby Gems
+plugins: [jekyll-paginate, jekyll-seo-tag]
+
