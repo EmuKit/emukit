@@ -4,8 +4,7 @@
 
 import numpy as np
 
-from emukit.bayesian_optimization.acquisitions import ExpectedImprovement
-
+from ..bayesian_optimization.acquisitions import ExpectedImprovement
 from ..bayesian_optimization.acquisitions.acquisition_per_cost import acquisition_per_expected_cost
 from ..core.acquisition import Acquisition
 from ..core.interfaces import IModel
