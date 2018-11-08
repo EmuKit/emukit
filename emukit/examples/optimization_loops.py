@@ -6,8 +6,8 @@ from ..core import ParameterSpace
 from ..core.loop import OuterLoop, FixedIntervalUpdater, Sequential
 from ..core.loop.loop_state import create_loop_state
 from ..core.optimization import AcquisitionOptimizer
-from ..models.bohamiann import Bohamiann
-from ..models.random_forest import RandomForest
+from .models.bohamiann import Bohamiann
+from .models.random_forest import RandomForest
 from .enums import AcquisitionType, ModelType
 
 
