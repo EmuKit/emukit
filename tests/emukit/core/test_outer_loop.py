@@ -48,7 +48,7 @@ def test_outer_loop(mock_next_point_calculator, mock_updater, mock_user_function
     stopping_condition = mock.create_autospec(StoppingCondition)
     stopping_condition.should_stop.side_effect = [False, False, True]
 
-    loop = OuterLoop(mock_next_point_calculator, [mock_updater])
+    loop = OuterLoop(mock_next_point_calculator, mock_updater)
     loop.run_loop(mock_user_function, stopping_condition)
 
     assert (loop.loop_state.iteration == 2)
@@ -102,7 +102,7 @@ def test_accept_non_wrapped_function(mock_next_point_calculator, mock_updater):
     def user_function(x):
         return np.array([[0]])
 
-    loop = OuterLoop(mock_next_point_calculator, [mock_updater])
+    loop = OuterLoop(mock_next_point_calculator, mock_updater)
     loop.run_loop(user_function, stopping_condition)
 
     assert (loop.loop_state.iteration == 2)
@@ -112,7 +112,7 @@ def test_accept_non_wrapped_function(mock_next_point_calculator, mock_updater):
 def test_default_condition(mock_next_point_calculator, mock_updater, mock_user_function):
     n_iter = 10
 
-    loop = OuterLoop(mock_next_point_calculator, [mock_updater])
+    loop = OuterLoop(mock_next_point_calculator, mock_updater)
     loop.run_loop(mock_user_function, n_iter)
 
     assert (loop.loop_state.iteration == n_iter)
@@ -120,7 +120,7 @@ def test_default_condition(mock_next_point_calculator, mock_updater, mock_user_f
 
 def test_condition_invalid_type(mock_next_point_calculator, mock_updater, mock_user_function):
     invalid_n_iter = 10.0
-    loop = OuterLoop(mock_next_point_calculator, [mock_updater])
+    loop = OuterLoop(mock_next_point_calculator, mock_updater)
 
     with pytest.raises(ValueError):
         loop.run_loop(mock_user_function, invalid_n_iter)
