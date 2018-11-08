@@ -7,6 +7,7 @@ All about Emukit
    installation
    tutorials
    usage
+   vision
    emukit_structure
    api
 

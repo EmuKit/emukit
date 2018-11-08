@@ -7,10 +7,9 @@ import abc
 import numpy as np
 
 from .loop_state import LoopState
-from .. import ParameterSpace, InformationSourceParameter
 from ..acquisition import Acquisition
 from ..interfaces import IModel
-from ..optimization import AcquisitionOptimizer
+from ..optimization.acquisition_optimizer import AcquisitionOptimizerBase
 
 
 class CandidatePointCalculator(abc.ABC):
@@ -28,7 +27,7 @@ class CandidatePointCalculator(abc.ABC):
 
 class Sequential(CandidatePointCalculator):
     """ This candidate point calculator chooses one candidate point at a time """
-    def __init__(self, acquisition: Acquisition, acquisition_optimizer: AcquisitionOptimizer) -> None:
+    def __init__(self, acquisition: Acquisition, acquisition_optimizer: AcquisitionOptimizerBase) -> None:
         """
         :param acquisition: Acquisition function to maximise
         :param acquisition_optimizer: Optimizer of acquisition function
@@ -56,7 +55,7 @@ class GreedyBatchPointCalculator(CandidatePointCalculator):
     the end of collecting a batch but if you use a model where training the model with the same data leads to different
     predictions, the model behaviour will be modified.
     """
-    def __init__(self, model: IModel, acquisition: Acquisition, acquisition_optimizer: AcquisitionOptimizer,
+    def __init__(self, model: IModel, acquisition: Acquisition, acquisition_optimizer: AcquisitionOptimizerBase,
                  batch_size: int=1):
         """
         :param model: Model that is used by the acquisition function
@@ -93,60 +92,3 @@ class GreedyBatchPointCalculator(CandidatePointCalculator):
         # Reset data
         self.model.update_data(*original_data)
         return np.concatenate(new_xs, axis=0)
-
-
-class MultiSourceSequential(CandidatePointCalculator):
-    """
-    Finds the location and information source of the next point to evaluate
-    """
-    def __init__(self, acquisition: Acquisition, acquisition_optimizer: AcquisitionOptimizer, space: ParameterSpace) -> None:
-        """
-        :param acquisition: Acquisition function to find maximum of
-        :param acquisition_optimizer: Optimizer of the acquisition function
-        :param space: Domain to search for maximum over
-        """
-        self.acquisition = acquisition
-        self.acquisition_optimizer = acquisition_optimizer
-        self.space = space
-        self.source_parameter = self._get_information_source_parameter()
-        self.n_sources = np.array(self.source_parameter.domain).size
-
-    def _get_information_source_parameter(self) -> InformationSourceParameter:
-        """
-        :return: The parameter containing the index of the information source
-        """
-        source_parameter = [param for param in self.space.parameters if isinstance(param, InformationSourceParameter)]
-        if len(source_parameter) == 0:
-            raise ValueError('No source parameter found')
-        return source_parameter[0]
-
-    def compute_next_points(self, loop_state: LoopState=None, context: dict=None) -> np.ndarray:
-        """
-        Computes the location and source of the next point to evaluate by finding the optimum input location at each
-        information source, then picking the information source where the value of the acquisition at the optimum input
-        location is highest.
-
-        :param loop_state: Object that tracks the state of the loop. Currently unused
-        :param context: Contains variables to fix through optimization of acquisition function. The dictionary key is
-                        the parameter name and the value is the value to fix the parameter to.
-        :return: A list of function inputs to evaluate next
-        """
-        f_mins = np.zeros((len(self.source_parameter.domain)))
-        x_opts = []
-
-        if context is None:
-            context = dict()
-        elif self.source_parameter.name in context:
-            # Information source parameter already has a context so just optimise the acquisition at this source
-            return self.acquisition_optimizer.optimize(self.acquisition, context)[0]
-
-        # Optimize acquisition for each information source
-        for i in range(len(self.source_parameter.domain)):
-            # Fix the source using a dictionary, the key is the name of the parameter to fix and the value is the
-            # value to which the parameter is fixed
-            context[self.source_parameter.name] = self.source_parameter.domain[i]
-            x, f_mins[i] = self.acquisition_optimizer.optimize(self.acquisition, context)
-            x_opts.append(x)
-        best_source = np.argmin(f_mins)
-        return x_opts[best_source]
-

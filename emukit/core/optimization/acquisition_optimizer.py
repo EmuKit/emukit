@@ -15,7 +15,19 @@ import logging
 _log = logging.getLogger(__name__)
 
 
-class AcquisitionOptimizer(object):
+class AcquisitionOptimizerBase:
+    def optimize(self, acquisition: Acquisition, context: dict = None) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Optimizes the acquisition function, taking into account gradients if it supports them
+
+        :param acquisition: The acquisition function to be optimized
+        :param context: Optimization context, determines whether any variable values should be fixed during the optimization
+        :return: Tuple of (location of optimum, acquisition value at optimum)
+        """
+        pass
+
+
+class AcquisitionOptimizer(AcquisitionOptimizerBase):
     """ Optimizes the acquisition function """
     def __init__(self, space: ParameterSpace, **kwargs) -> None:
         self.space = space
