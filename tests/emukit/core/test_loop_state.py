@@ -1,10 +1,10 @@
-import pytest
-
 import numpy as np
+import pytest
 from numpy.testing import assert_array_equal
 
-from emukit.core.loop.loop_state import create_loop_state, LoopState
+from emukit.core.loop.loop_state import create_loop_state
 from emukit.core.loop.user_function_result import UserFunctionResult
+
 
 def test_create_loop_state():
     x_init = np.array([[1], [2], [3]])
@@ -14,6 +14,18 @@ def test_create_loop_state():
 
     assert_array_equal(loop_state.X, x_init)
     assert_array_equal(loop_state.Y, y_init)
+    assert loop_state.iteration == 0
+
+def test_create_loop_state_with_cost():
+    x_init = np.array([[1], [2], [3]])
+    y_init = np.array([[4], [5], [6]])
+    cost = np.array([[5], [2], [0]])
+
+    loop_state = create_loop_state(x_init, y_init, cost)
+
+    assert_array_equal(loop_state.X, x_init)
+    assert_array_equal(loop_state.Y, y_init)
+    assert_array_equal(loop_state.cost, cost)
     assert loop_state.iteration == 0
 
 def test_create_loop_error():
@@ -45,4 +57,3 @@ def test_loop_state_update_error():
 
     with pytest.raises(ValueError):
         loop_state.update([])
-
