@@ -1,10 +1,10 @@
 import numpy as np
 from scipy.special import erf
 
-from .integrable_kernel_wgrad import IntegrableKernel
+from .quadrature_kernels import IntegrableKernel, IDifferentiableKernel
 
 
-class IntegrableRBF(IntegrableKernel):
+class IntegrableRBF(IntegrableKernel, IDifferentiableKernel):
     """
     Augments an RBF kernel with integrability
     """

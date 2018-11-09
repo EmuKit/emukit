@@ -1,12 +1,12 @@
 import numpy as np
 
-from from emukit.core import IntegralBounds
+from emukit.core import MultiDimensionalContinuousParameter
 
 
 class IntegrableKernel():
     """ Abstract class for covariance function of a Gaussian process """
 
-    def __init__(self, input_dim: int, integral_bounds: IntegralBounds) -> None:
+    def __init__(self, input_dim: int, integral_bounds: MultiDimensionalContinuousParameter) -> None:
         """
         :param input_dim: Input dimension
         :param integral_bounds: define the domain integrated over
@@ -85,11 +85,3 @@ class IDifferentiableKernel():
         :return: the gradient with shape (N, input_dim)
         """
         raise NotImplementedError
-
-
-class IntegrableKernelWithGradients(IntegrableKernel, IDifferentiableKernel):
-    """
-    An integrable kernel that is also differentiable
-    """
-    def __init__(self, input_dim: int, integral_bounds: IntegralBounds) -> None:
-        super(IntegrableKernelWithGradients, self).__init__(input_dim, integral_bounds)

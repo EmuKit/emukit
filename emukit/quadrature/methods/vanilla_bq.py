@@ -43,4 +43,4 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel):
         integral_mean, kernel_mean_X = self._compute_integral_mean_and_kernel_mean()
         integral_var = self.base_gp.kern.qKq() - np.square(lapack.dtrtrs(self.base_gp.gram_chol(), kernel_mean_X.T,
                                                                        lower=1)[0]).sum(axis=0, keepdims=True).T
-        return integral_mean, integral_var
+        return np.float(integral_mean), np.float(integral_var)

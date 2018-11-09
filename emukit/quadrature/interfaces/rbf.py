@@ -2,19 +2,19 @@
 import numpy as np
 
 
-class RBF():
+class IRBF():
     """
-    Base class for an RBF kernel
-    Inherit from this class to wrap an your custom rbf kernel
+    Interface for an RBF kernel
+    Inherit from this class to wrap your rbf kernel
     """
 
     @property
     def lengthscale(self):
-        raise NotImplemented
+        raise NotImplementedError
 
     @property
     def variance(self):
-        raise NotImplemented
+        raise NotImplementedError
 
     def K(self, x, x2):
         """
@@ -25,7 +25,7 @@ class RBF():
 
         :return: the kernel matrix with shape (N, M)
         """
-        raise NotImplemented
+        raise NotImplementedError
 
     def dK_dx(self, x: np.ndarray, x2: np.ndarray) -> np.ndarray:
         """
@@ -36,4 +36,4 @@ class RBF():
 
         :return: the gradient at x
         """
-        raise NotImplemented
+        raise NotImplementedError

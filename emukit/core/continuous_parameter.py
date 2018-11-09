@@ -29,3 +29,29 @@ class ContinuousParameter(object):
         :return: A boolean value which indicates whether all points lie in the domain
         """
         return np.all([(self.min < x), (self.max > x)], axis=0)
+
+
+class MultiDimensionalContinuousParameter(object):
+    """
+    A multivariate continuous parameter with a domain defined in a range between two values per dimension
+    """
+    def __init__(self, name: str, min_values: np.ndarray, max_values: np.ndarray):
+        """
+        :param name: Name of parameter
+        :param min_value: Minimum value the parameter is allowed to take (lower bounds of domain), shape (1, dimension)
+        :param max_value: Maximum value the parameter is allowed to take (upper bounds of domain), shape (1, dimension)
+        """
+        self.name = name
+        self.lower_bounds = min_values
+        self.upper_bounds = max_values
+
+    def check_in_domain(self, x: np.ndarray) -> np.ndarray:
+        """
+        Checks if the points in x lie between the min and max allowed values
+        :param x: locations (n_points, input_dim)
+        :return: a boolean array (n_points,) indicating whether each point is in domain
+        """
+        return np.all([np.all(self.lower_bounds < x, axis=1), np.all(self.upper_bounds > x, axis=1)], axis=0)
+
+    def get_bounds(self):
+        return self.lower_bounds, self.upper_bounds

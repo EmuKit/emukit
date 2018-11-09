@@ -2,7 +2,7 @@ import numpy as np
 from typing import Tuple
 
 from emukit.core.interfaces.models import IModel
-from ..models.base_gp import IBaseGaussianProcess
+from ..interfaces.base_gp import IBaseGaussianProcess
 
 
 class WarpedBayesianQuadratureModel(IModel):
@@ -44,7 +44,7 @@ class WarpedBayesianQuadratureModel(IModel):
         """
         raise NotImplemented
 
-    def predict(self, X_pred: np.ndarray, return_full_cov: bool) -> Tuple(np.ndarray, ...):
+    def predict(self, X_pred: np.ndarray, return_full_cov: bool) -> Tuple:
         """
         Computes predictive means and (co-)variances.
 

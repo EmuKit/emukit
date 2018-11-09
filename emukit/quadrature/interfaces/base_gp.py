@@ -1,42 +1,7 @@
 import numpy as np
 from typing import Tuple
 
-
-from ..kernels import IntegrableKernel
-
-
-class IBaseGaussianProcess(IModel, IQuadratureBaseModel):
-    """
-    Class to define the functionality of a GP class for base_gp required by the quadrature methods
-    """
-    def __init__(self, X: np.ndarray, Y: np.ndarray, kernel: IntegrableKernel) -> None:
-        """
-        :param X: locations of data
-        :param Y: function evaluations at locations X
-        :param kernel: integrable kernel
-        :param noise_variance: Gaussian observation noise
-        """
-        self._X = X
-        self._Y = Y
-        self.kern = kernel
-
-    @property
-    def X(self):
-        return self._X
-
-    @property
-    def Y(self):
-        return self._Y
-
-    def predict(self, X_pred: np.ndarray, full_cov: bool = False) -> Tuple:
-        """
-        Predictive mean and (co)variance at the locations X_pred
-
-        :param X_pred: points at which to predict, with shape (number of points, dimension)
-        :param full_cov: if True, return the full covariance matrix instead of just the variance
-        :return: Predictive mean, predictive (co)variance
-        """
-        raise NotImplementedError
+from emukit.core.interfaces import IModel
 
 
 class IQuadratureBaseModel:
@@ -71,3 +36,29 @@ class IQuadratureBaseModel:
         :return: the inverse Gram matrix multiplied with the mean-corrected data with shape: (number of datapoints, 1)
         """
         raise NotImplementedError
+
+
+class IBaseGaussianProcess(IModel, IQuadratureBaseModel):
+    """
+    Class to define the functionality of a GP class for base_gp required by the quadrature methods
+    """
+
+    @property
+    def X(self):
+        raise NotImplementedError
+
+    @property
+    def Y(self):
+        raise NotImplementedError
+
+    def predict(self, X_pred: np.ndarray, full_cov: bool = False) -> Tuple:
+        """
+        Predictive mean and (co)variance at the locations X_pred
+
+        :param X_pred: points at which to predict, with shape (number of points, dimension)
+        :param full_cov: if True, return the full covariance matrix instead of just the variance
+        :return: Predictive mean, predictive (co)variance
+        """
+        raise NotImplementedError
+
+
