@@ -12,33 +12,33 @@ Bayesian quadrature returns not only an estimator, but a full posterior distribu
 which can subsequently be used in decision making or uncertainty analysis.
 
 Bayesian quadrature is especially useful when integrand evaluations are expensive and sampling schemes 
-prohibitive, for example when evaluating the integrand involves running a complex computer simulation, a real-world experiments,
+prohibitive, for example when evaluating the integrand involves running a complex computer simulation, a real-world experiment,
 or a lab. But even when evaluation cost is manageable, the sheer amount of queries that might be required by classical 
 algorithms is usually incentive enough to favor a smarter and less wasteful approach.
 
 Instead, Bayesian quadrature draws information from structure encoded as prior over the function space modeling the integrand, 
-such as regularity or smoothness, and is thus able to learn faster from less datapoints (function evaluations). 
+such as regularity or smoothness, and is thus able to learn faster from fewer datapoints (function evaluations). 
 In Emukit, the surrogate model for the integrand would be the *emulator* and the integrand that can be queried, and
  possibly describes a real, complex system, the *simulator*.
 
 #### Bayesian Quadrature in the Loop
 
 Like other sequential learning schemes, Bayesian quadrature iteratively selects points where the integrand will be queried 
-next such that and acquisition function (e.g., the reduction of the integral variance) is maximized in each step. 
+next such that an acquisition function (e.g., the reduction of the integral variance) is maximized in each step. 
 At the same time, the model class (often a Gaussian process) is updated with the newly collected datapoint and 
 refined at each step by optimizing its hyperparameters. 
 The actual integration that yields the distribution over the integral value is then performed by integrating the emulator
 of the integrand function, which is often analytic for certain choices of Gaussian processes, or 
-an analytic approximating (e.g., for WSABI [[3]](#refereces-on-quadrature)). 
+an analytic approximation (e.g., for WSABI [[3]](#refereces-on-quadrature)). 
 
-Thus, the success of Bayesian quadrature is based on three things: i) replacing an intractable integral with and inference 
+Thus, the success of Bayesian quadrature is based on three things: i) replacing an intractable integral with an inference 
 problem on the integrand function ii) replacing the actual integration with an easier, analytic integration of the surrogate model
 on the integrand function, and iii) actively choosing locations for integrand evaluations such that the budget is optimally used
 in the sense encoded by the acquisition scheme.
 
 #### Bayesian Quadrature in Emukit
 Emukit provides basic functionality for vanilla Bayesian quadrature [[1, 2]](#refereces-on-quadrature), 
-but also for more elaborate methods like WSABI [[3]](#refereces-on-quadrature). It alleviated the need to research and 
+but also for more elaborate methods like WSABI [[3]](#refereces-on-quadrature). It alleviates the need to research and 
 implement the integration of the emulator, the acquisition scheme and the active loop while providing a frame to implement 
 and try out novel Bayesian quadrature methods.
 
