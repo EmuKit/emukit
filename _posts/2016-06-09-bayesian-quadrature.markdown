@@ -45,8 +45,6 @@ and try out novel Bayesian quadrature methods.
 
 We're always open to contributions! Please read our [contribution guidelines](CONTRIBUTING.md) for more information. 
 We are particularly interested in contributions regarding translations and tutorials. 
-This project is licensed under Apache 2.0. Please refer to [LICENSE](LICENSE) and [NOTICE](NOTICE) for further license 
-information.
 
 
 #### Refereces on Quadrature
