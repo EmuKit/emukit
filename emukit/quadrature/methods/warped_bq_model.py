@@ -44,7 +44,7 @@ class WarpedBayesianQuadratureModel(IModel):
         """
         raise NotImplemented
 
-    def predict(self, X_pred: np.ndarray, return_full_cov: bool) -> Tuple:
+    def predict_base(self, X_pred: np.ndarray, return_full_cov: bool) -> Tuple:
         """
         Computes predictive means and (co-)variances.
 
@@ -56,6 +56,19 @@ class WarpedBayesianQuadratureModel(IModel):
         predictive mean and (co-)variance of base-GP.
         """
         raise NotImplemented
+
+    def predict(self, X_pred: np.ndarray, return_full_cov: bool=False) -> Tuple:
+        """
+        Computes predictive means and (co-)variances.
+
+        :param X_pred: Locations at which to predict
+        :param return_full_cov: If True, full covariance matrices will be
+        returned. Otherwise variances only.
+
+        :returns: predictive mean and (co-)variance of warped GP,
+        predictive mean and (co-)variance of base-GP.
+        """
+        return self.predict_base(X_pred, return_full_cov)[:2]
 
     def update_data(self, X: np.ndarray, Y: np.ndarray):
         self.base_gp.update_data(X, Y)

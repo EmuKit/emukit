@@ -5,6 +5,7 @@
 from typing import Union
 
 import numpy as np
+from itertools import count
 
 
 class ContinuousParameter(object):
@@ -55,3 +56,18 @@ class MultiDimensionalContinuousParameter(object):
 
     def get_bounds(self):
         return self.lower_bounds, self.upper_bounds
+
+    def convert_to_list_of_continuous_parameters(self):
+        """
+        This iterates through the dimensions and creates one ContinuousParameter object for each pair of lower_bound
+        and upper_bound.
+
+        :return: list if ContinuousParameter objects
+        """
+        lower_bounds, upper_bounds = self.get_bounds()
+        continuous_parameters = []
+        for i, lb, ub in zip(count(), lower_bounds, upper_bounds):
+            name_i = self.name+'_'+str(i)
+            cont_param = ContinuousParameter(name=name_i, min_value=lower_bounds[i], max_value=upper_bounds[i])
+            continuous_parameters.append(cont_param)
+        return continuous_parameters

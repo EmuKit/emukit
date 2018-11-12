@@ -36,6 +36,14 @@ class GPRegressionGPy(IBaseGaussianProcess):
         """
         return self.gpy_model.Gaussian_noise[0]
 
+    def update_data(self, X, Y):
+        """
+        Updates model with new training data
+        :param X: New training features
+        :param Y: New training outputs
+        """
+        self.gpy_model.set_XY(X, Y)
+
     def predict(self, X_pred, full_cov=False):
         """
         Predictive mean and (co)variance at the locations X_pred

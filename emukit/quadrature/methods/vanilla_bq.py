@@ -22,7 +22,7 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel):
         """ Transform from integrand to base-GP """
         return Y
 
-    def predict(self, X_pred, return_full_cov=False):
+    def predict_base(self, X_pred, return_full_cov=False):
         """ Computes the predictive mean and covariance """
         m, cov = self.base_gp.predict(X_pred, return_full_cov)
         return m, cov, m, cov
