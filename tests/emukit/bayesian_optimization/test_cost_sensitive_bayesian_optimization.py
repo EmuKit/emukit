@@ -1,9 +1,10 @@
 import GPy
 import numpy as np
 
-from emukit.core import ParameterSpace, ContinuousParameter
+from emukit.bayesian_optimization.loops.cost_sensitive_bayesian_optimization_loop import (
+    CostSensitiveBayesianOptimizationLoop)
+from emukit.core import ContinuousParameter, ParameterSpace
 from emukit.core.loop.user_function import UserFunctionWrapper
-from emukit.examples.cost_sensitive_bayesian_optimization.cost_sensitive_bayesian_optimization_loop import CostSensitiveBayesianOptimizationLoop
 from emukit.model_wrappers import GPyModelWrapper
 
 
@@ -25,7 +26,7 @@ def test_cost_sensitive_bayesian_optimization_loop():
     model_objective = GPyModelWrapper(gpy_model_objective)
     model_cost = GPyModelWrapper(gpy_model_cost)
 
-    loop = CostSensitiveBayesianOptimizationLoop(model_objective, model_cost, space, x_init, y_init, cost_init)
+    loop = CostSensitiveBayesianOptimizationLoop(model_objective, model_cost, space)
     loop.run_loop(user_fcn, 10)
 
     assert loop.loop_state.X.shape[0] == 20
