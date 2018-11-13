@@ -65,12 +65,11 @@ def create_loop_state(x_init: np.ndarray, y_init: np.ndarray, cost: np.ndarray =
             x_init.shape[0], y_init.shape[0])
         raise ValueError(error_message)
 
+    initial_results = []
     if cost is not None:
-        initial_results = []
         for x, y, c in zip(x_init, y_init, cost):
             initial_results.append(UserFunctionResult(x, y, c))
     else:
-        initial_results = []
         for x, y in zip(x_init, y_init):
             initial_results.append(UserFunctionResult(x, y))
 

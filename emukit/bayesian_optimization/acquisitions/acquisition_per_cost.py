@@ -59,6 +59,4 @@ class CostAcquisition(Acquisition):
         is_below_min_cost = (expected_cost < self.min_cost).flatten()
         grad = self.cost_model.get_prediction_gradients(x)[0]
         grad[is_below_min_cost, :] = 0
-        print(is_below_min_cost)
-        print(grad)
         return np.maximum(expected_cost, self.min_cost), grad
