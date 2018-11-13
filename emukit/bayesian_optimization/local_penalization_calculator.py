@@ -45,6 +45,7 @@ class LocalPenalizationPointCalculator(CandidatePointCalculator):
         :param context: Contains variables to fix through optimization of acquisition function. The dictionary key is
                         the parameter name and the value is the value to fix the parameter to.
         """
+        self.acquisition.update_parameters()
 
         # Initialize local penalization acquisition
         local_penalization_acquisition = LocalPenalization(self.model)
