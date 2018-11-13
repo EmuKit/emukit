@@ -12,16 +12,12 @@ expensive to evaluate.
 
 Bayesian optimization (see [[1]](#references-on-bayesian-optimization) for a review) focuses on global optimization problems
 where the objective is not directly accessible. This can be the case when evaluating the objective comes with a very high
-cost, *e. g.* training a large neural network in a large dataset, or because it is embodied in some physical process, *e. g.* optimizing a synthetic gene
+cost, *e.g.* training a large neural network in a large dataset, or because it is embodied in some physical process, *e. g.* optimizing a synthetic gene
 to over produce a protein in a cell. Other examples are problems in robotics, inference with intractable likelihoods,
 compilers optimization, etc.
 
-Given some function $$f: \mathbb{X} \rightarrow \mathbb{R}$$ defined in a constrained input space $$\mathbb{X}$$ the goal of
-is to find
-
-$$ x_{\star} =  \operatorname*{arg\:min}_{x \in \mathbb{X}} f(x). $$
-
-For illustrative purposes of how to solve these problems with Emukit, we start by loading the [Branin function](https://www.sfu.ca/~ssurjano/branin.html). We define the input space to be $$[-5,10]\times [0,15]$$.
+Given some function f defined in a constrained input space the goal id to find the location of its minimum (or maximum). For illustrative purposes of how to solve 
+these problems with Emukit, we start by loading the [Branin function](https://www.sfu.ca/~ssurjano/branin.html). We define the input space to be $$[-5,10]\times [0,15]$$.
 
 ```python
 from emukit.test_functions import branin_function
@@ -32,17 +28,16 @@ parameter_space = ParameterSpace([ContinuousParameter('x1', -5, 10),
                                   ContinuousParameter('x2', 0, 15)])
 ```
 
-In general cases we assume that the function $$f$$ does not have explicit form and that it is expensive to evaluate. This means that to find the $$x_{\star}$$
+In general cases we assume that the function does not have explicit form and that it is expensive to evaluate. This means that to find the optimum
 we'll need to run a finite, and typically small, number of evaluations. Selecting these evaluations smartly is the key to approaching
-to the optimum with a minimal cost. This transform the original *optimization* problem in a
+to the optimum with a minimal cost. This transforms the original *optimization* problem in a
 sequence of *decision* problems (of where to select the best next location). In Bayesian optimization these problems
 are solved using principles of *statistical inference* and *decision theory*.
 
-How is it done? The first step is to define a prior probability measure on the objective $$p(f)$$. This measure
-captures our prior beliefs on $$f$$ and can be either generic or it can be some sort of structural knowledge about the problem.
-Every time we collect a new data point in the form of pairs $$(\textbf{x}_i,y_i)$$ the *prior*
-will be updated to a *posterior* $$p(f|\mathcal{D}_n)$$ where $$\mathcal{D}_n = \{(\textbf{x}_i, y_i)\}_{i=1}^n$$, being $$n$$ the number of available points. Following with our example, let's
-start by collected 5 points at random and use them to train a Gaussian process [[2]](#references-on-bayesian-optimization) with [GPy](https://github.com/SheffieldML/GPy).
+How is it done? The first step is to build a model for the objective function. This model should
+captures our prior beliefs on the function and can be either generic or it can be some sort of structural knowledge about the problem.
+Every time we evaluate the objective the model is updated with the collected data. Following with our example, let's
+start by collecting 5 points at random and use them to train a Gaussian process [[2]](#references-on-bayesian-optimization) with [GPy](https://github.com/SheffieldML/GPy).
 
 ```python
 from emukit.experimental_design.model_free.random_design import RandomDesign
@@ -56,11 +51,12 @@ model_gpy = GPRegression(X,Y) # Train and wrap the model in Emukit
 model_emukit = GPyModelWrapper(model_gpy)
 ```
 
-The next step is to define an acquisition function $$a: \mathbb{X} \rightarrow \mathbb{R}$$ able to
+The next in Bayesian optimization is to define an acquisition function able to
 quantify the utility of evaluating each point the input domain. The central idea of the acquisition function is to trade
 off the exploration in regions of the input space where the model is still uncertain and the exploitation of
 the model's confidence about the good regions of the input space. There are a variety of acquisition functions in Emukit. In this
-example we use one of the most popular ones, the Expected improvement [[3]](#references-on-bayesian-optimization).
+example the expected improvement [[3]](#references-on-bayesian-optimization), that computes in expectation how much we can improve with 
+respect to the current best observed location. 
 
 ```python
 from emukit.bayesian_optimization.acquisitions import ExpectedImprovement
@@ -68,10 +64,11 @@ from emukit.bayesian_optimization.acquisitions import ExpectedImprovement
 expected_improvement = ExpectedImprovement(model = model_emukit)
 ```
 
-Given these ingredients, Bayesian optimization iterates the following three steps until it achieves a predefined stopping criterion.
+Given the model and the acquisition, Bayesian optimization iterates the following three steps until it achieves a predefined stopping criterion 
+(normally using a fixed number of evaluations).
 
-1. Find the next point to evaluate $$x_{n+1}$$ by using a numerical solver maximize $$a(x)$$.
-2. Evaluate $$f$$ $$x_{n+1}$$, obtain $$y_{n+1}$$. Add the new observation to the data, $$D_{n+1} \leftarrow D_{n} \cup \{x_{n+1}, y_{n+1}\}$$.
+1. Find the next point to evaluate the objective by using a numerical solver to optimize the acquisition/utility. 
+2. Evaluate the objective in that location and add the new observation to the data set.
 3. Update the model using the currently available data.
 
 In Emukit, we first create the Bayesian optimization loop using the previously defined objects.
@@ -93,11 +90,12 @@ from emukit.core.loop import FixedIterationsStoppingCondition
 stopping_condition = FixedIterationsStoppingCondition(i_max = 20)
 bayesopt_loop.run_loop(f, stopping_condition)
 ```
-And that's it! You can check the obtained the result looking into the state of the loop. Note that you can use other models, including those with multiple outputs,
-and acquisitions of your own in this loop.
+And that's it! You can check the obtained the result looking into the state of the loop. Note that you can use other models and acquisitions of your own in this loop.
+
+Check our list of [notebooks]() if you want to learn more about how to do Bayesian optimization other methods with Emukit. You can also check the Emukit [documentation]().
 
 We’re always open to contributions! Please read our [contribution guidelines](CONTRIBUTING.md) for more information. We are particularly interested in contributions
-regarding translations and tutorials.
+regarding examples and tutorials.
 
 #### References on Bayesian optimization
 
