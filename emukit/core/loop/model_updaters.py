@@ -30,7 +30,7 @@ class FixedIntervalUpdater(ModelUpdater):
         """
         :param model: Emukit emulator model
         :param interval: Number of function evaluations between optimizing model hyper-parameters
-        :param targets_extractor_fcn: A lambda function that takes in loop state and returns the training targets.
+        :param targets_extractor_fcn: A function that takes in loop state and returns the training targets.
                                       Defaults to a function returning loop_state.Y
         """
         self.model = model
