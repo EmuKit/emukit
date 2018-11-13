@@ -66,6 +66,12 @@ class Acquisition(abc.ABC):
         """
         raise NotImplementedError("Gradients not implemented for this acquisition function")
 
+    def update_parameters(self) -> None:
+        """
+        Performs any updates to parameters that needs to be done once per outer loop iteration
+        """
+        pass
+
 
 class Quotient(Acquisition):
     """
@@ -114,6 +120,13 @@ class Quotient(Acquisition):
         :return: True if gradients are available
         """
         return self.denominator.has_gradients and self.numerator.has_gradients
+
+    def update_parameters(self) -> None:
+        """
+        Performs any updates to parameters that needs to be done once per outer loop iteration
+        """
+        self.denominator.update_parameters()
+        self.numerator.update_parameters()
 
 
 class Product(Acquisition):
@@ -164,6 +177,13 @@ class Product(Acquisition):
         """
         return self.acquisition_1.has_gradients and self.acquisition_2.has_gradients
 
+    def update_parameters(self) -> None:
+        """
+        Performs any updates to parameters that needs to be done once per outer loop iteration
+        """
+        self.acquisition_1.update_parameters()
+        self.acquisition_2.update_parameters()
+
 
 class Sum(Acquisition):
     """
@@ -209,3 +229,10 @@ class Sum(Acquisition):
         :return: True if gradients are available
         """
         return self.acquisition_1.has_gradients and self.acquisition_2.has_gradients
+
+    def update_parameters(self) -> None:
+        """
+        Performs any updates to parameters that needs to be done once per outer loop iteration
+        """
+        self.acquisition_1.update_parameters()
+        self.acquisition_2.update_parameters()
