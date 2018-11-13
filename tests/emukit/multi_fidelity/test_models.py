@@ -92,7 +92,7 @@ class TestModels:
         new_x = np.array([[0.5, 0], [0.5, 1]])
         new_y = np.array([[0.5], [0.5]])
 
-        model.update_data(new_x, new_y)
+        model.set_data(new_x, new_y)
 
         assert model.gpy_model.X.shape[0] == 2
         assert model.gpy_model.Y.shape[0] == 2
@@ -113,7 +113,7 @@ class TestModels:
         y_new = np.concatenate([model.gpy_model.Y, np.array([[0.]])], axis=0)
 
         old_var = model.predict(x_test_high)[1]
-        model.update_data(X_new, y_new)
+        model.set_data(X_new, y_new)
         new_var = model.predict(x_test_high)[1]
 
         var_diff = old_var - new_var
