@@ -2,8 +2,8 @@ from typing import Tuple
 
 import numpy as np
 
-from ...core.acquisition import Acquisition
-from ...core.interfaces import IDifferentiable, IModel
+from ..acquisition import Acquisition
+from ..interfaces import IDifferentiable, IModel
 
 
 def acquisition_per_expected_cost(acquisition: Acquisition, cost_model: IModel, min_cost: float=1e-4) -> Acquisition:

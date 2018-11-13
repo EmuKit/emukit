@@ -5,8 +5,7 @@
 import numpy as np
 
 from ..bayesian_optimization.acquisitions import ExpectedImprovement
-from ..bayesian_optimization.acquisitions.acquisition_per_cost import acquisition_per_expected_cost
-from ..core.acquisition import Acquisition
+from ..core.acquisition import Acquisition, acquisition_per_expected_cost
 from ..core.interfaces import IModel
 from ..core.loop import CandidatePointCalculator, FixedIntervalUpdater, ModelUpdater, OuterLoop, Sequential
 from ..core.loop.loop_state import create_loop_state
