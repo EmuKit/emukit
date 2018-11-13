@@ -57,3 +57,11 @@ def test_loop_state_update_error():
 
     with pytest.raises(ValueError):
         loop_state.update([])
+
+def test_cost_returns_none():
+    x = np.array([[1], [2], [3], [4]])
+    y = np.array([[4], [5], [6], [7]])
+
+    loop_state = create_loop_state(x[:3, :], y[:3, :])
+
+    assert np.array_equiv(loop_state.cost, np.array([None, None, None]))

@@ -22,7 +22,7 @@ class UserFunctionResult(object):
             raise ValueError("y is expected to be 1-dimensional, actual dimensionality is {}".format(Y.ndim))
 
         if cost is not None and cost.ndim != 1:
-            raise ValueError("y is expected to be 1-dimensional, actual dimensionality is {}".format(cost.ndim))
+            raise ValueError("cost is expected to be 1-dimensional, actual dimensionality is {}".format(cost.ndim))
 
         self.X = X
         self.Y = Y

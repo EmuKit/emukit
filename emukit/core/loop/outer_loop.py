@@ -33,18 +33,18 @@ class OuterLoop(object):
          - ``iteration_end_event`` called at the end of each iteration
     """
     def __init__(self, candidate_point_calculator: CandidatePointCalculator,
-                 model_updater: Union[ModelUpdater, List[ModelUpdater]], loop_state: LoopState = None) -> None:
+                 model_updaters: Union[ModelUpdater, List[ModelUpdater]], loop_state: LoopState = None) -> None:
         """
         :param candidate_point_calculator: Finds next points to evaluate by optimizing the acquisition function
-        :param model_updater: Updates the data in the model and the model hyper-parameters when we observe new data
+        :param model_updaters: Updates the data in the model(s) and the model hyper-parameters when we observe new data
         :param loop_state: Object that keeps track of the history of the loop. Default: None, resulting in empty initial state
         """
         self.candidate_point_calculator = candidate_point_calculator
 
-        if isinstance(model_updater, list):
-            self.model_updater = model_updater
+        if isinstance(model_updaters, list):
+            self.model_updaters = model_updaters
         else:
-            self.model_updater = [model_updater]
+            self.model_updaters = [model_updaters]
         self.loop_state = loop_state
         if self.loop_state is None:
             self.loop_state = LoopState([])
@@ -85,7 +85,7 @@ class OuterLoop(object):
         _log.info("Finished outer loop")
 
     def _update_models(self):
-        for model_updater in self.model_updater:
+        for model_updater in self.model_updaters:
             model_updater.update(self.loop_state)
 
     def get_next_points(self, results: List[UserFunctionResult]) -> np.ndarray:
