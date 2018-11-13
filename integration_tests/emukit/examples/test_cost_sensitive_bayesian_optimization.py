@@ -2,7 +2,7 @@ import GPy
 import numpy as np
 
 from emukit.core import ParameterSpace, ContinuousParameter
-from emukit.core.loop.user_function import UserFunctionWithCostWrapper
+from emukit.core.loop.user_function import UserFunctionWrapper
 from emukit.examples.cost_sensitive_bayesian_optimization_loop import CostSensitiveBayesianOptimizationLoop
 from emukit.model_wrappers import GPyModelWrapper
 
@@ -15,7 +15,7 @@ def test_cost_sensitive_bayesian_optimization_loop():
     def function_with_cost(x):
         return np.sin(x), x
 
-    user_fcn = UserFunctionWithCostWrapper(function_with_cost)
+    user_fcn = UserFunctionWrapper(function_with_cost)
 
     y_init, cost_init = function_with_cost(x_init)
 

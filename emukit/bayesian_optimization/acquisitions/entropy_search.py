@@ -104,6 +104,12 @@ class EntropySearch(Acquisition):
 
         return repr_points, repr_points_log
 
+    def update_parameters(self) -> None:
+        """
+        Updates p_min parameter
+        """
+        self.update_pmin()
+
     def update_pmin(self) -> np.ndarray:
         """
         Approximates the distribution of the global optimum  p(x=x_star|D) by doing the following steps:
