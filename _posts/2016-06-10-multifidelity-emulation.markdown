@@ -5,6 +5,8 @@ categories: jekyll update
 img: multi-fidelity.png
 ---
 
+Modelling scenarios where data that reflect different level of accuracy the real world are available.
+
 A common issue encountered when applying machine learning to environmental sciences and engineering problems is the 
 difficulty or cost required to obtain sufficient data for building robust models. Possible examples include aerospace 
 and nautical engineering, where it is both infeasible and prohibitively expensive to run a vast number of experiments 
