@@ -44,6 +44,7 @@ class Sequential(CandidatePointCalculator):
                         the parameter name and the value is the value to fix the parameter to.
         :return: List of function inputs to evaluate the function at next
         """
+        self.acquisition.update_parameters()
         x, _ = self.acquisition_optimizer.optimize(self.acquisition, context)
         return np.atleast_2d(x)
 
@@ -77,6 +78,7 @@ class GreedyBatchPointCalculator(CandidatePointCalculator):
                         the parameter name and the value is the value to fix the parameter to.
         :return: 2d array of size (batch_size x input dimensions) of new points to evaluate
         """
+        self.acquisition.update_parameters()
         new_xs = []
         original_data = (self.model.X, self.model.Y)
         for _ in range(self.batch_size):
@@ -87,8 +89,8 @@ class GreedyBatchPointCalculator(CandidatePointCalculator):
             # Add new point as fake observation in model
             all_x = np.concatenate([self.model.X, new_x], axis=0)
             all_y = np.concatenate([self.model.Y, new_y], axis=0)
-            self.model.update_data(all_x, all_y)
+            self.model.set_data(all_x, all_y)
 
         # Reset data
-        self.model.update_data(*original_data)
+        self.model.set_data(*original_data)
         return np.concatenate(new_xs, axis=0)

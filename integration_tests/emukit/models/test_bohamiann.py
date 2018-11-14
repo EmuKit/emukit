@@ -31,7 +31,7 @@ def test_update_data(model):
     rng = np.random.RandomState(43)
     x_new = rng.rand(5, 2)
     y_new = rng.rand(5, 1)
-    model.update_data(x_new, y_new)
+    model.set_data(x_new, y_new)
 
     assert(model.X.shape == x_new.shape)
     assert(model.Y.shape == y_new.shape)

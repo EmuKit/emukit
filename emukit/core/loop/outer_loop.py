@@ -32,15 +32,19 @@ class OuterLoop(object):
     This object exposes the following events. See ``emukit.core.event_handler`` for details of how to subscribe:
          - ``iteration_end_event`` called at the end of each iteration
     """
-    def __init__(self, candidate_point_calculator: CandidatePointCalculator, model_updater: ModelUpdater,
-                 loop_state: LoopState = None) -> None:
+    def __init__(self, candidate_point_calculator: CandidatePointCalculator,
+                 model_updaters: Union[ModelUpdater, List[ModelUpdater]], loop_state: LoopState = None) -> None:
         """
         :param candidate_point_calculator: Finds next points to evaluate by optimizing the acquisition function
-        :param model_updater: Updates the data in the model and the model hyper-parameters when we observe new data
+        :param model_updaters: Updates the data in the model(s) and the model hyper-parameters when we observe new data
         :param loop_state: Object that keeps track of the history of the loop. Default: None, resulting in empty initial state
         """
         self.candidate_point_calculator = candidate_point_calculator
-        self.model_updater = model_updater
+
+        if isinstance(model_updaters, list):
+            self.model_updaters = model_updaters
+        else:
+            self.model_updaters = [model_updaters]
         self.loop_state = loop_state
         if self.loop_state is None:
             self.loop_state = LoopState([])
@@ -71,14 +75,18 @@ class OuterLoop(object):
         while not stopping_condition.should_stop(self.loop_state):
             _log.info("Iteration {}".format(self.loop_state.iteration))
 
-            self.model_updater.update(self.loop_state)
+            self._update_models()
             new_x = self.candidate_point_calculator.compute_next_points(self.loop_state, context)
             results = user_function.evaluate(new_x)
             self.loop_state.update(results)
             self.iteration_end_event(self, self.loop_state)
 
-        self.model_updater.update(self.loop_state)
+            self._update_models()
         _log.info("Finished outer loop")
+
+    def _update_models(self):
+        for model_updater in self.model_updaters:
+            model_updater.update(self.loop_state)
 
     def get_next_points(self, results: List[UserFunctionResult]) -> np.ndarray:
         """
@@ -90,5 +98,5 @@ class OuterLoop(object):
         """
         if results:
             self.loop_state.update(results)
-            self.model_updater.update(self.loop_state)
+            self._update_models()
         return self.candidate_point_calculator.compute_next_points(self.loop_state)

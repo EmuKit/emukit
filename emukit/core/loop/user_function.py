@@ -3,9 +3,9 @@
 
 
 """
-This file contains the "OuterFunction" base class and implementations
+This file contains the "UserFunction" base class and implementations
 
-The outer function is the objective function in optimization, the integrand in quadrature or the function to be learnt
+The user function is the objective function in optimization, the integrand in quadrature or the function to be learnt
 in experimental design.
 """
 
@@ -20,6 +20,7 @@ from .user_function_result import UserFunctionResult
 import logging
 _log = logging.getLogger(__name__)
 
+
 class UserFunction(abc.ABC):
     """ The user supplied function is interrogated as part of the outer loop """
     @abc.abstractmethod
@@ -31,13 +32,16 @@ class UserFunctionWrapper(UserFunction):
     """ Wraps a user-provided python function. """
     def __init__(self, f: Callable):
         """
-        :param f: A python function that takes in a 2d numpy ndarray of inputs and returns a 2d numpy ndarray of outputs.
+        :param f: A python function that takes in a 2d numpy ndarray of inputs and returns a either a 2d numpy array
+                  of function outputs or a tuple of (outputs, evaluation_costs) where the outputs are 2d and the
+                  cost is 1d
         """
         self.f = f
 
     def evaluate(self, inputs: np.ndarray) -> List[UserFunctionResult]:
         """
-        Evaluates python function by providing it with numpy types and converts the output to a List of OuterFunctionResults
+        Evaluates python function by providing it with numpy types and converts the output
+        to a List of UserFunctionResults
 
         :param inputs: List of function inputs at which to evaluate function
         :return: List of function results
@@ -48,13 +52,22 @@ class UserFunctionWrapper(UserFunction):
         _log.info("Evaluating user function for {} point(s)".format(inputs.shape[0]))
         outputs = self.f(inputs)
 
-        if outputs.ndim != 2:
-            raise ValueError("User function should return 2d array as an output, actual output dimensionality is {}".format(outputs.ndim))
+        if isinstance(outputs, tuple):
+            user_fcn_outputs = outputs[0]
+            cost = outputs[1]
+        else:
+            user_fcn_outputs = outputs
+            cost = np.array([None] * user_fcn_outputs.shape[0])
+
+        if user_fcn_outputs.ndim != 2:
+            raise ValueError("User function should return 2d array or a tuple of 2d array as an output, "
+                             "actual output dimensionality is {}".format(outputs.ndim))
 
         results = []
-        for x, y in zip(inputs, outputs):
-            results.append(UserFunctionResult(x, y))
+        for x, y, c in zip(inputs, user_fcn_outputs, cost):
+            results.append(UserFunctionResult(x, y.flatten(), c))
         return results
+
 
 class MultiSourceFunctionWrapper(UserFunction):
     """
@@ -98,3 +111,4 @@ class MultiSourceFunctionWrapper(UserFunction):
         for x, y in zip(inputs, outputs_array):
             results.append(UserFunctionResult(x, y))
         return results
+

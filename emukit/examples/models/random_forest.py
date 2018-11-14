@@ -60,9 +60,9 @@ class RandomForest(IModel):
 
         return mean, var
 
-    def update_data(self, X: np.ndarray, Y: np.ndarray) -> None:
+    def set_data(self, X: np.ndarray, Y: np.ndarray) -> None:
         """
-        Updates model with new data points.
+        Sets training data in model
 
         :param X: new points
         :param Y: function values at new points X

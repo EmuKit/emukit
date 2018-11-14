@@ -14,7 +14,7 @@ from ...core.interfaces import IModel
 
 class BayesianOptimizationLoop(OuterLoop):
     def __init__(self, model: IModel, space: ParameterSpace, acquisition: Acquisition = None, batch_size: int = 1,
-                 model_updater: ModelUpdater = None):
+                 model_updaters: ModelUpdater = None):
 
         """
         Emukit class that implement a loop for building modular Bayesian optimization
@@ -24,15 +24,15 @@ class BayesianOptimizationLoop(OuterLoop):
         :param acquisition: The acquisition function that will be used to collect new points (default, EI). If batch
                             size is greater than one, this acquisition must output positive values only. 
         :param batch_size: How many points to evaluate in one iteration of the optimization loop. Defaults to 1.
-        :param model_updater: Defines how and when the model is updated if new data arrives.
+        :param model_updaters: Defines how and when the model is updated if new data arrives.
                               Defaults to updating hyper-parameters every iteration.
         """
 
         if acquisition is None:
             acquisition = ExpectedImprovement(model)
 
-        if model_updater is None:
-            model_updater = FixedIntervalUpdater(model, 1)
+        if model_updaters is None:
+            model_updaters = FixedIntervalUpdater(model, 1)
 
         acquisition_optimizer = AcquisitionOptimizer(space)
         if batch_size == 1:
@@ -47,4 +47,4 @@ class BayesianOptimizationLoop(OuterLoop):
 
         loop_state = create_loop_state(model.X, model.Y)
 
-        super().__init__(candidate_point_calculator, model_updater, loop_state)
+        super().__init__(candidate_point_calculator, model_updaters, loop_state)

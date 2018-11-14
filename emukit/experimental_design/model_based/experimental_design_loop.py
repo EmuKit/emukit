@@ -11,8 +11,8 @@ from ...core.parameter_space import ParameterSpace
 
 
 class ExperimentalDesignLoop(OuterLoop):
-    def __init__(self, space: ParameterSpace, model: IModel, acquisition: Acquisition = None,
-                 update_interval: int = 1, batch_size: int=1):
+    def __init__(self, space: ParameterSpace, model: IModel, acquisition: Acquisition = None, update_interval: int = 1,
+                 batch_size: int=1):
         """
         An outer loop class for use with Experimental design
 
