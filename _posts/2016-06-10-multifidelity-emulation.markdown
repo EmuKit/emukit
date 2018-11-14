@@ -39,8 +39,8 @@ as the input domain in our experiment.
 from emukit.emukit.test_functions.non_linear_sin import nonlinear_sin_high, nonlinear_sin_low
 n_low_fidelity_points = 50
 
-x_train_l = nonlinear_sin_high(np.linspace(0, 1, n_low_fidelity_points)[:, None])
-x_train_h = nonlinear_sin_low(x_train_l[::4, :])
+x_train_l = nonlinear_sin_low(np.linspace(0, 1, n_low_fidelity_points)[:, None])
+x_train_h = nonlinear_sin_high(x_train_l[::4, :])
 
 X_train, Y_train = convert_xy_lists_to_arrays([x_train_l, x_train_h], [y_train_l, y_train_h])
 ``` 
@@ -66,27 +66,27 @@ linear_mf_kernel = LinearMultiFidelityKernel(kernels)
 gpy_linear_mf_model = GPyLinearMultiFidelityModel(X_train, Y_train, lin_mf_kernel, n_fidelities = 2)
 ```
 
-We have created the model. The last step is to wrap it (in case we want to use it in a loop like Bayesian optimization) and to train it. 
+We have created the model. The last step is to train it. 
 As the evaluations of the fidelities are exact, we first set the noise parameters to zero by doing
 
 ```python
 gpy_linear_mf_model.mixed_noise.Gaussian_noise.fix(0)
 gpy_linear_mf_model.mixed_noise.Gaussian_noise_1.fix(0)
 ```
-and complete the training by writing 
+and complete the training by optimizing the model 
 
 ```python
-from emukit.model_wrappers.gpy_model_wrappers import GPyMultiOutputWrapper
-
-linear_mf_model =  GPyMultiOutputWrapper(gpy_linear_mf_model, num_fidelities, n_optimization_restarts = 5)
-linear_mf_model.optimize()
+gpy_linear_mf_model.optimize()
 ```
+If you are planning to use the model in a loop (like Bayesian optimization or experimental design) you can load the `GPyMultiOutputWrapper` in
+`emukit.model_wrappers.gpy_model_wrappers` and wrap it.
 
-And that's it! In the tutorials you can see how to train other available models like the one described [[2](#references-on-multi-fidelity-gaussian-processes)]. 
-which assumes a non-linear relationship between fidelities. Note that you are now ready to use this model in other decision 
-methods implemented in Emukit.
+And that's it! In the tutorials you can see how to train other available models like the one described in [[2](#references-on-multi-fidelity-gaussian-processes)], 
+which assumes a non-linear relationship between fidelities. 
 
-Check our list of [notebooks]() if you want to learn more about how to do Multi-fidelity emulation with with Emukit. You can also check the Emukit [documentation]().
+Check our list of [tutorial notebooks](https://github.com/amzn/emukit/tree/develop/notebooks) and 
+[examples](https://github.com/amzn/emukit/tree/develop/emukit/examples) if you want to learn more about how 
+to do Multi-fidelity emulation with with Emukit. You can also check the Emukit [documentation](https://emukit.readthedocs.io/en/latest/).
 
 We’re always open to contributions! Please read our [contribution guidelines](CONTRIBUTING.md) for more information. We are particularly interested in contributions
 regarding examples and tutorials.
