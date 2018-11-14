@@ -20,7 +20,7 @@ class MockModel(IModel):
         self._X = np.zeros((1, 1))
         self._Y = np.zeros((1, 1))
 
-    def update_data(self, X, Y):
+    def set_data(self, X, Y):
         self._X = X
         self._Y = Y
 

@@ -111,7 +111,7 @@ class NonLinearMultiFidelityModel(IModel, IDifferentiable):
         for model in self.models[:-1]:
             model.Gaussian_noise.fix(1e-4)
 
-    def update_data(self, X: np.ndarray, Y: np.ndarray) -> None:
+    def set_data(self, X: np.ndarray, Y: np.ndarray) -> None:
         """
         Updates training data in the model.
 

@@ -82,7 +82,7 @@ class TestNonLinearModel:
         for i in range(3):
             y[i * 5:(i + 1) * 5, :] = np.random.randn(5, 1)
 
-        non_linear_model.update_data(x, y)
+        non_linear_model.set_data(x, y)
 
         assert non_linear_model.models[0].X.shape == (5, 2)
         assert non_linear_model.models[1].X.shape == (5, 3)

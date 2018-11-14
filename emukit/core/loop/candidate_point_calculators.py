@@ -89,8 +89,8 @@ class GreedyBatchPointCalculator(CandidatePointCalculator):
             # Add new point as fake observation in model
             all_x = np.concatenate([self.model.X, new_x], axis=0)
             all_y = np.concatenate([self.model.Y, new_y], axis=0)
-            self.model.update_data(all_x, all_y)
+            self.model.set_data(all_x, all_y)
 
         # Reset data
-        self.model.update_data(*original_data)
+        self.model.set_data(*original_data)
         return np.concatenate(new_xs, axis=0)
