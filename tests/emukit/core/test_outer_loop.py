@@ -63,7 +63,7 @@ def test_outer_loop_model_update(mock_next_point_calculator, mock_user_function)
             self.model = model
 
         def update(self, loop_state):
-            self.model.update_data(loop_state.X, loop_state.Y)
+            self.model.set_data(loop_state.X, loop_state.Y)
 
     class MockModel(IModel):
         @property
@@ -77,7 +77,7 @@ def test_outer_loop_model_update(mock_next_point_calculator, mock_user_function)
         def predict(self, x):
             pass
 
-        def update_data(self, x, y):
+        def set_data(self, x, y):
             self._X = x
             self._Y = y
 

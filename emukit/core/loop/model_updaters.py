@@ -46,7 +46,7 @@ class FixedIntervalUpdater(ModelUpdater):
         :param loop_state: Object that contains current state of the loop
         """
         targets = self.targets_extractor_fcn(loop_state)
-        self.model.update_data(loop_state.X, targets)
+        self.model.set_data(loop_state.X, targets)
         if (loop_state.iteration % self.interval) == 0:
             _log.info("Updating parameters of the model")
             self.model.optimize()

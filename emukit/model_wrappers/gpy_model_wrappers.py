@@ -35,9 +35,10 @@ class GPyModelWrapper(IModel, IDifferentiable, ICalculateVarianceReduction, IEnt
         d_mean_dx, d_variance_dx = self.model.predictive_gradients(X)
         return d_mean_dx[:, :, 0], d_variance_dx
 
-    def update_data(self, X: np.ndarray, Y: np.ndarray) -> None:
+    def set_data(self, X: np.ndarray, Y: np.ndarray) -> None:
         """
-        Updates model with new training data
+        Sets training data in model
+
         :param X: New training features
         :param Y: New training outputs
         """
@@ -144,7 +145,7 @@ class GPyMultiOutputWrapper(IModel, IDifferentiable, ICalculateVarianceReduction
         y_metadata = {'output_index': output_index.astype(int)}
         return self.gpy_model.predict(X, Y_metadata=y_metadata)
 
-    def update_data(self, X: np.ndarray, Y: np.ndarray) -> None:
+    def set_data(self, X: np.ndarray, Y: np.ndarray) -> None:
         """
         Updates model with new training data
         :param X: New training features with output index as last column
