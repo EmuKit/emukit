@@ -31,8 +31,7 @@ the high-fidelity output more effectively.
 
 Emukit offers implementation of a selection Gaussian process multi-fidelity models that can also be combined with other 
 outer-loop applications. To work with an specific example we start loading a problem with two fidelities in which their relationship 
-between is given by $$f_{high}(x) = (x-\sqrt{2})f^2_{low}$$. You can check 
-[[1](#references-on-multi-fidelity-gaussian-processes)] for a graphical representation of this problem. We will use the interval [0,1]
+between is linear. You can check [[1](#references-on-multi-fidelity-gaussian-processes)] for a graphical representation of this problem. We will use the interval [0,1]
 as the input domain in our experiment.
 
 ```python
@@ -99,6 +98,3 @@ regarding examples and tutorials.
 - [2] Kennedy, M.C. and O'Hagan, A., 2000. [Predicting the output from a complex computer code when fast approximations are available](https://www.jstor.org/stable/2673557?seq=1#page_scan_tab_contents). *Biometrika*, 87(1), pp.1-13.
 
 - [3] Perdikaris, P., Raissi, M., Damianou, A., Lawrence, N.D. and Karniadakis, G.E., 2017. [Nonlinear information fusion algorithms for data-efficient multi-fidelity modelling](http://rspa.royalsocietypublishing.org/content/473/2198/20160751). *Proc. R. Soc. A*, 473(2198), p.20160751.
-
-- [2] Perdikaris, P., Raissi, M., Damianou, A., Lawrence, N.D. and Karniadakis, G.E., 2017. [Nonlinear information fusion algorithms for data-efficient multi-fidelity modelling](http://rspa.royalsocietypublishing.org/content/473/2198/20160751). *Proc. R. Soc. A*, 473(2198), p.20160751.
-
