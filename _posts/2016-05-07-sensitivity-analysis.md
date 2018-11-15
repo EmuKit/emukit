@@ -4,7 +4,7 @@ title: Sensitivity Analysis
 img: sensitivity.png
 ---
 
-Sensitivity analysis helps to the study of how the variations in the outputs of a numerical or 
+Sensitivity analysis is the study of how the variations in the outputs of a numerical or 
 physical system can be assigned to different sources of variation in its inputs.
 
 Understanding the variance of the outputs of a system in terms of the contributions of the inputs is a key aspect of
