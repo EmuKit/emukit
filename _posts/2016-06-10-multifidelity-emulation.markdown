@@ -30,7 +30,7 @@ These low-fidelity  observations are then systemically combined with the more ac
 the high-fidelity output more effectively. 
 
 Emukit offers implementation of a selection of Gaussian process multi-fidelity models that can also be combined with other 
-outer-loop applications. To work with an specific example we start loading a problem with two fidelities in which their relationship 
+outer-loop applications. To work with a specific example we start loading a problem with two fidelities in which their relationship 
  is given by $$f_{high}(x) = (x-\sqrt{2})f^2_{low}$$. You can check 
 [[2](#references-on-multi-fidelity-gaussian-processes)] for a graphical representation of this problem. We will use the interval [0,1]
 as the input domain in our experiment.
