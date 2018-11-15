@@ -14,7 +14,7 @@ and helps to calibrate physical models to the real world by improving their inte
 Sensitivity analysis methods are divided into two main classes: *local* methods, where changes in the output are studied for
 specific values of the inputs, and *global* methods where the total variability of the outputs is assigned to each input variable. Given a physical model of a system, for instance a climate model simulator, local sensitivity analysis is carried out using gradients.
 However, if the physical model is expensive-to-evaluate approximating gradients becomes intractable. Using an emulator of the physical model, like
-a Gaussian process, and using its gradients is an effective alternative.
+a Gaussian process, and using its analytic gradients is an effective alternative.
 
 A similar situation arises when doing global sensitivity analysis. The core element in global sensitivity analysis are the Sobol indices, also called *main effects* [[1,2](#references-on-sensitivity-analysis)].
 They are a measure of “first order sensitivity” of each input variable. They account for the proportion of variance of the output explained by
