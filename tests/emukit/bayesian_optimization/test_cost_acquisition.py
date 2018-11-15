@@ -3,7 +3,7 @@ import numpy as np
 import pytest
 import scipy.optimize
 
-from emukit.bayesian_optimization.acquisitions.acquisition_per_cost import CostAcquisition
+from emukit.core.acquisition.acquisition_per_cost import CostAcquisition
 from emukit.model_wrappers import GPyModelWrapper
 
 
