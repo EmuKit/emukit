@@ -1,20 +1,11 @@
-
 import numpy as np
 
 
-class IRBF():
+class IStandardKernel:
     """
-    Interface for an RBF kernel
-    Inherit from this class to wrap your rbf kernel
+    Interface for a standard kernel kernel that in principle can be integrated
+    Inherit from this class to construct wrappers for specific kernels e.g., the rbf
     """
-
-    @property
-    def lengthscale(self):
-        raise NotImplementedError
-
-    @property
-    def variance(self):
-        raise NotImplementedError
 
     def K(self, x, x2):
         """
@@ -25,6 +16,21 @@ class IRBF():
 
         :return: the kernel matrix with shape (N, M)
         """
+        raise NotImplementedError
+
+
+class IRBF(IStandardKernel):
+    """
+    Interface for an RBF kernel
+    Inherit from this class to wrap your standard rbf kernel
+    """
+
+    @property
+    def lengthscale(self):
+        raise NotImplementedError
+
+    @property
+    def variance(self):
         raise NotImplementedError
 
     def dK_dx(self, x: np.ndarray, x2: np.ndarray) -> np.ndarray:

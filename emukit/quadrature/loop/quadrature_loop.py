@@ -1,18 +1,18 @@
 from emukit.core.loop.outer_loop import OuterLoop
 
-# TODO: replace this with BQ acquisition
-from emukit.bayesian_optimization.acquisitions import NegativeLowerConfidenceBound
 from emukit.core.loop.loop_state import create_loop_state
 from emukit.core.loop import OuterLoop, Sequential, FixedIntervalUpdater, ModelUpdater
 from emukit.core.optimization import AcquisitionOptimizer
+from emukit.quadrature.methods import VanillaBayesianQuadrature
+# TODO: replace this with BQ acquisition
+from emukit.bayesian_optimization.acquisitions import NegativeLowerConfidenceBound
 
 from emukit.core.parameter_space import ParameterSpace
 from emukit.core.acquisition import Acquisition
-from emukit.core.interfaces import IModel
 
 
 class VanillaBayesianQuadratureLoop(OuterLoop):
-    def __init__(self, model: IModel, space: ParameterSpace, acquisition: Acquisition = None,
+    def __init__(self, model: VanillaBayesianQuadrature, space: ParameterSpace, acquisition: Acquisition = None,
                  model_updater: ModelUpdater = None):
 
         """

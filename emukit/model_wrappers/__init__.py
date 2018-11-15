@@ -4,5 +4,5 @@
 
 # Implement your code here.
 from .gpy_model_wrappers import GPyModelWrapper, GPyMultiOutputWrapper
-from .gpy_quadrature_wrappers import GPRegressionGPy, RBFGPy, gpy_wrapper_for_quadrature
+from .gpy_quadrature_wrappers import BaseGaussianProcessGPy, RBFGPy, convert_gpy_model_to_emukit_model
 

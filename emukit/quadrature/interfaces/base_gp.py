@@ -2,16 +2,29 @@ import numpy as np
 from typing import Tuple
 
 from emukit.core.interfaces import IModel
+from emukit.quadrature.kernels.quadrature_kernels import QuadratureKernel
 
 
-class IQuadratureBaseModel:
+class IBaseGaussianProcess(IModel):
     """ Interface with properties a GP model should have """
+
+    def __init__(self, kern: QuadratureKernel) -> None:
+        self.kern = kern
 
     @property
     def noise_variance(self):
         """
         Gaussian observation noise variance
         :return: The noise variance from some external GP model
+        """
+        raise NotImplementedError
+
+    def predict_with_full_covariance(self, X_pred: np.ndarray) -> Tuple:
+        """
+        Predictive mean and full co-variance at the locations X_pred
+
+        :param X_pred: points at which to predict, with shape (number of points, dimension)
+        :return: Predictive mean, predictive full co-variance
         """
         raise NotImplementedError
 
@@ -36,29 +49,4 @@ class IQuadratureBaseModel:
         :return: the inverse Gram matrix multiplied with the mean-corrected data with shape: (number of datapoints, 1)
         """
         raise NotImplementedError
-
-
-class IBaseGaussianProcess(IModel, IQuadratureBaseModel):
-    """
-    Class to define the functionality of a GP class for base_gp required by the quadrature methods
-    """
-
-    @property
-    def X(self):
-        raise NotImplementedError
-
-    @property
-    def Y(self):
-        raise NotImplementedError
-
-    def predict(self, X_pred: np.ndarray, full_cov: bool = False) -> Tuple:
-        """
-        Predictive mean and (co)variance at the locations X_pred
-
-        :param X_pred: points at which to predict, with shape (number of points, dimension)
-        :param full_cov: if True, return the full covariance matrix instead of just the variance
-        :return: Predictive mean, predictive (co)variance
-        """
-        raise NotImplementedError
-
 

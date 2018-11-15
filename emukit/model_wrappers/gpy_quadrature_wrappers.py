@@ -1,24 +1,23 @@
 
-from emukit.quadrature.interfaces.rbf import IRBF
-
-from emukit.quadrature.kernels import IntegrableKernel, IntegrableRBF
+from emukit.quadrature.interfaces.standard_kernels import IRBF
 from emukit.quadrature.interfaces import IBaseGaussianProcess
+from emukit.quadrature.kernels.integral_bounds import IntegralBounds
+from emukit.quadrature.kernels import QuadratureKernel, QuadratureRBF
 
 
-class GPRegressionGPy(IBaseGaussianProcess):
+class BaseGaussianProcessGPy(IBaseGaussianProcess):
     """
     Wrapper for GPy GPRegression
 
     An instance of this can be passed as 'base_gp' to an ApproximateWarpedGPSurrogate object
     """
-    def __init__(self, gpy_model, kernel: IntegrableKernel):
+    def __init__(self, kern: QuadratureKernel, gpy_model):
         """
+        :param kern: a kernel of type QuadratureKernel
         :param gpy_model: GPy.GPRegression model
-        :param kernel: a kernel of type IntegrableKernel
         """
-
+        super().__init__(kern=kern)
         self.gpy_model = gpy_model
-        self.kern = kernel
 
     @property
     def X(self):
@@ -152,14 +151,14 @@ class RBFGPy(IRBF):
                (self.lengthscale ** 2 * (x.T[:, :, None] - x2.T[:, None, :]) / (self.lengthscale * np.sqrt(2)))
 
 
-def gpy_wrapper_for_quadrature(gpy_model, integral_bounds):
+def convert_gpy_model_to_emukit_model(gpy_model, integral_bounds: IntegralBounds) -> BaseGaussianProcessGPy:
     """
     Wrap a GPy model and return an emukit model
 
-    :param gpy_model: A GPy Gaussian process regression model
-    :param integral_bounds: Integration bounds (MultiDimensionalContinuousParameter)
+    :param gpy_model: A GPy Gaussian process regression model (GPy.models.GPRegression)
+    :param integral_bounds: Integration bounds
 
-    :return: emukit model for quadrature (IBaseGaussianProcess)
+    :return: emukit model for quadrature witg GPy backend (IBaseGaussianProcessGPy)
     """
 
     if gpy_model.kern.name is not 'rbf':
@@ -167,9 +166,8 @@ def gpy_wrapper_for_quadrature(gpy_model, integral_bounds):
         raise NotImplementedError
 
     # wrap the kernel
-    rbf_kernel = RBFGPy(gpy_model.kern)
-    integrable_rbf = IntegrableRBF(rbf_kernel=rbf_kernel,
-                                   input_dim=gpy_model.X.shape[-1], integral_bounds=integral_bounds)
+    gpy_kernel = RBFGPy(gpy_model.kern)
+    emukit_qkernel = QuadratureRBF(rbf_kernel=gpy_kernel, integral_bounds=integral_bounds)
 
     # wrap the model
-    return GPRegressionGPy(gpy_model, integrable_rbf)
+    return BaseGaussianProcessGPy(kern=emukit_qkernel, gpy_model=gpy_model)

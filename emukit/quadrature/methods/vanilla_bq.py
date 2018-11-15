@@ -3,6 +3,7 @@ from scipy.linalg import lapack
 
 from .warped_bq_model import WarpedBayesianQuadratureModel
 
+
 class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel):
     """
     class for vanilla Bayesian quadrature

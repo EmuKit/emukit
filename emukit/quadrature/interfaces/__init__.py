@@ -1,2 +1,2 @@
-from .base_gp import IBaseGaussianProcess, IQuadratureBaseModel
-from .rbf import IRBF
+from .base_gp import IBaseGaussianProcess
+from .standard_kernels import IRBF, IStandardKernel

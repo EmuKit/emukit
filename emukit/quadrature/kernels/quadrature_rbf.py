@@ -1,26 +1,27 @@
 import numpy as np
 from scipy.special import erf
 
-from .quadrature_kernels import IntegrableKernel, IDifferentiableKernel
+from .quadrature_kernels import QuadratureKernel, IDifferentiableKernel
+from emukit.quadrature.interfaces.standard_kernels import IRBF
 
 
-class IntegrableRBF(IntegrableKernel, IDifferentiableKernel):
+class QuadratureRBF(QuadratureKernel, IDifferentiableKernel):
     """
     Augments an RBF kernel with integrability
+
+    Note that each standard kernel goes with a corresponding quadrature kernel, in this case QuadratureRBF
     """
 
-    def __init__(self, rbf_kernel, input_dim, integral_bounds) -> None:
-        super(IntegrableRBF, self).__init__(input_dim=input_dim, integral_bounds=integral_bounds)
-
-        self.rbf = rbf_kernel
+    def __init__(self, rbf_kernel: IRBF, integral_bounds) -> None:
+        super(QuadratureRBF, self).__init__(kern=rbf_kernel, integral_bounds=integral_bounds)
 
     @property
     def lengthscale(self):
-        return self.rbf.lengthscale
+        return self.kern.lengthscale
 
     @property
     def variance(self):
-        return self.rbf.variance
+        return self.kern.variance
 
     def K(self, x1, x2=None):
         """
@@ -31,7 +32,7 @@ class IntegrableRBF(IntegrableKernel, IDifferentiableKernel):
 
         :return: the gradient of K with shape (N, M)
         """
-        return self.rbf.K(x1, x2)
+        return self.kern.K(x1, x2)
 
     def qK(self, x):
         """
@@ -81,7 +82,7 @@ class IntegrableRBF(IntegrableKernel, IDifferentiableKernel):
 
         :return: the gradient of K with shape (input_dim, N, M)
         """
-        return self.rbf.dK_dx(x, x2)
+        return self.kern.dK_dx(x, x2)
 
     def dqK_dx(self, x):
         """
@@ -118,7 +119,7 @@ class IntegrableRBF(IntegrableKernel, IDifferentiableKernel):
             \frac{v_1 - v_2}{\lambda \sqrt{2}}
 
         name mapping:
-            \lambda: self.rbf.lengthscale
+            \lambda: self.kern.lengthscale
 
         :param v1: first vector
         :param v2: second vector, must have same second dimensions as v1

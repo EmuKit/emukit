@@ -1,18 +1,30 @@
 import numpy as np
 
-from emukit.core import MultiDimensionalContinuousParameter
+from emukit.quadrature.interfaces.standard_kernels import IStandardKernel
+from .integral_bounds import IntegralBounds
 
 
-class IntegrableKernel():
-    """ Abstract class for covariance function of a Gaussian process """
+class QuadratureKernel:
+    """
+    Abstract class for covariance function of a Gaussian process
 
-    def __init__(self, input_dim: int, integral_bounds: MultiDimensionalContinuousParameter) -> None:
+    Note that each specific implementation of this class must go with a specific standard kernel as input which
+    inherits from IStandardKernel. This is because we both want the QuadratureKernel to be backend agnostic
+    but at the same time QuadratureKernel need access to specifics of the standard kernel.
+
+    An example of a specific QuadratureKernel and IStandardKernel pair is QuadratureRBF and IRBF.
+    """
+
+    # TODO: change this so it can take alist of tuples rather than the class
+    def __init__(self, kern: IStandardKernel, integral_bounds: IntegralBounds) -> None:
         """
-        :param input_dim: Input dimension
+        :param kern: standard kernel object IStandardKernel
         :param integral_bounds: define the domain integrated over
         """
-        self.input_dim = input_dim
-        self.lower_bounds, self.upper_bounds = integral_bounds.get_bounds()
+        self.kern = kern
+        self.bounds = integral_bounds
+        self.input_dim = integral_bounds.dim
+        self.lower_bounds, self.upper_bounds = integral_bounds.get_bounds_as_separate_arrays()
 
     def K(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
         """
@@ -54,10 +66,10 @@ class IntegrableKernel():
         raise NotImplementedError
 
 
-class IDifferentiableKernel():
+class IDifferentiableKernel:
     """ Adds differentiability to an integrable kernel """
 
-    def dK_dx(self) -> np.ndarray:
+    def dK_dx(self, x:np.ndarray, x2:np.ndarray) -> np.ndarray:
         """
         gradient of the kernel wrt x
 
