@@ -37,7 +37,7 @@ class ParameterSpace(object):
         for param in self.parameters:
             if param.name == name:
                 return param
-        raise ValueError('Parameter with name ' + name + 'not found.')
+        raise ValueError('Parameter with name ' + name + ' not found.')
 
     def convert_to_gpyopt_design_space(self):
         """

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import Union
+from typing import List, Union
 
 import numpy as np
 
@@ -29,3 +29,18 @@ class ContinuousParameter(object):
         :return: A boolean value which indicates whether all points lie in the domain
         """
         return np.all([(self.min < x), (self.max > x)], axis=0)
+
+
+class CategoricalParameter(object):
+    def __init__(self, name: str, categories: List, encodings: np.ndarray):
+        self.categories = categories
+        self.encodings = encodings
+
+    # def check_in_domain(self, x: Union[np.ndarray, str]) -> bool:
+    #     """
+        
+
+    #     :param x: 
+    #     :return: A boolean value which indicates whether all points lie in the domain
+    #     """
+    #     return np.all([(self.min < x), (self.max > x)], axis=0)
