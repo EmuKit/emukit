@@ -14,18 +14,16 @@ from emukit.core.acquisition import Acquisition
 class VanillaBayesianQuadratureLoop(OuterLoop):
     def __init__(self, model: VanillaBayesianQuadrature, space: ParameterSpace, acquisition: Acquisition = None,
                  model_updater: ModelUpdater = None):
-
         """
         Emukit class that implement a loop for building modular Bayesian optimization
 
-        :param model: The model that approximates the underlying function
-        :param space: Input space where the optimization is carried out.
-        :param acquisition: The acquisition function that will be used to collect new points (default, EI). If batch
-                            size is greater than one, this acquisition must output positive values only.
-        :param batch_size: How many points to evaluate in one iteration of the optimization loop. Defaults to 1.
-        :param model_updater: Defines how and when the model is updated if new data arrives.
+        :param model: the vanilla Bayesian quadrature method
+        :param space: the domain of the integral
+        :param acquisition: The acquisition function that is be used to collect new points. default, variance reduction
+        :param model_updater: Defines how and when the quadrature model is updated if new data arrives.
                               Defaults to updating hyper-parameters every iteration.
         """
+
 
         # TODO: this need to be e.g., variance reduction
         if acquisition is None:
@@ -35,9 +33,8 @@ class VanillaBayesianQuadratureLoop(OuterLoop):
             model_updater = FixedIntervalUpdater(model, 1)
 
         acquisition_optimizer = AcquisitionOptimizer(space)
-        #log_acquisition = LogAcquisition(acquisition)
         candidate_point_calculator = Sequential(acquisition, acquisition_optimizer)
 
         loop_state = create_loop_state(model.X, model.Y)
 
-        super(VanillaBayesianQuadratureLoop).__init__(candidate_point_calculator, model_updater, loop_state)
+        super().__init__(candidate_point_calculator, model_updater, loop_state)

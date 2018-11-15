@@ -73,13 +73,12 @@ class WarpedBayesianQuadratureModel(IModel):
         """
         return self.predict_base(X_pred, return_full_cov=False)[:2]
 
-    def update_data(self, X: np.ndarray, Y: np.ndarray):
-        self.base_gp.update_data(X, Y)
+    def set_data(self, X: np.ndarray, Y: np.ndarray):
+        self.base_gp.set_data(X, Y)
 
     def optimize(self):
         self.base_gp.optimize()
 
-    # TODO: integral bounds here instead of IQuadratureKernel
     def integrate(self) -> Tuple[float, float]:
         """
         Computes an estimator of the integral as well as its variance. 

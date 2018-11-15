@@ -35,9 +35,9 @@ class BaseGaussianProcessGPy(IBaseGaussianProcess):
         """
         return self.gpy_model.Gaussian_noise[0]
 
-    def update_data(self, X, Y):
+    def set_data(self, X, Y):
         """
-        Updates model with new training data
+        Sets training data in model
         :param X: New training features
         :param Y: New training outputs
         """
