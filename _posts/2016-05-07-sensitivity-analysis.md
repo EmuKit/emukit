@@ -43,7 +43,7 @@ space = ParameterSpace([ContinuousParameter('x1', -np.pi, np.pi),
                         ContinuousParameter('x3', -np.pi, np.pi)])
 ```
 
-Now we generate a data set by evaluating the simulator 500 random samples in the input domain:
+Now we generate a data set by evaluating the simulator on 500 random samples in the input domain:
 
 ```python
 from emukit.experimental_design.model_free.random_design import RandomDesign
