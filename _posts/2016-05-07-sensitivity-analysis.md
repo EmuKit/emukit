@@ -11,7 +11,7 @@ Understanding the variance of the outputs of a system in terms of the contributi
 uncertainty quantification: it helps to test the robustness of a system, design strategies for uncertainty reduction
 and helps to calibrate physical models to the real world by improving their interpretability.
 
-Sensitivity analysis methods are divided in two main classes: *local* methods, where changes in the output are studied for
+Sensitivity analysis methods are divided into two main classes: *local* methods, where changes in the output are studied for
 specific values of the inputs, and *global* methods where the total variability of the outputs is assigned to each input variable. Given a physical model of a system, for instance a climate model simulator, local sensitivity analysis is carried out using gradients.
 However, if the physical model is expensive-to-evaluate approximating gradients becomes intractable. Using an emulator of the physical model, like
 a Gaussian process, and using its gradients is an effective alternative.
