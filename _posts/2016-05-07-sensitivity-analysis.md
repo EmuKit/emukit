@@ -51,7 +51,7 @@ desing = RandomDesign(space)
 X = desing.get_samples(500)
 Y  = ishigami.target_simulator(X)[:,None]
 ```
-And we fit and wrap a Gaussian process to the inputs and outputs of the simulator.
+And we wrap and fit a Gaussian process to the inputs and outputs of the simulator.
 
 ```python
 from GPy.models import GPRegression
