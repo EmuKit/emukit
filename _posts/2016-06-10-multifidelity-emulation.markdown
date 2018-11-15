@@ -39,7 +39,8 @@ as the input domain in our experiment.
 from emukit.emukit.test_functions.non_linear_sin import nonlinear_sin_high, nonlinear_sin_low
 n_low_fidelity_points = 50
 
-x_train_l = nonlinear_sin_low(np.linspace(0, 1, n_low_fidelity_points)[:, None])
+x_train_l = np.linspace(0, 1, n_low_fidelity_points)[:, None]
+y_train_l = nonlinear_sin_low(x_train_l)
 x_train_h = nonlinear_sin_high(x_train_l[::4, :])
 
 X_train, Y_train = convert_xy_lists_to_arrays([x_train_l, x_train_h], [y_train_l, y_train_h])
