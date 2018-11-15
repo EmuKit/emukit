@@ -32,26 +32,27 @@ the high-fidelity output more effectively.
 Emukit offers implementation of a selection Gaussian process multi-fidelity models that can also be combined with other 
 outer-loop applications. To work with an specific example we start loading a problem with two fidelities in which their relationship 
 between is given by $$f_{high}(x) = (x-\sqrt{2})f^2_{low}$$. You can check 
-[[2](#references-on-multi-fidelity-gaussian-processes)] for a graphical representation of this problem. We will use the interval [0,1]
+[[1](#references-on-multi-fidelity-gaussian-processes)] for a graphical representation of this problem. We will use the interval [0,1]
 as the input domain in our experiment.
 
 ```python
-from emukit.emukit.test_functions.non_linear_sin import nonlinear_sin_high, nonlinear_sin_low
-n_low_fidelity_points = 50
+from emukit.emukit.test_functions.forrester import forrester, forrester_low
 
-x_train_l = nonlinear_sin_low(np.linspace(0, 1, n_low_fidelity_points)[:, None])
-x_train_h = nonlinear_sin_high(x_train_l[::4, :])
-
+x_train_l = np.atleast_2d(np.random.rand(12)).T
+x_train_h = np.atleast_2d(np.random.permutation(x_train_l)[:6])
+y_train_l = forrester_low(x_train_l)
+y_train_h = forrester(x_train_h)
 X_train, Y_train = convert_xy_lists_to_arrays([x_train_l, x_train_h], [y_train_l, y_train_h])
 ``` 
  
 With this code we have just collected some samples in both fidelities and formatted the data in a way that can be understood by Emukit. 
+Emukit expects the final column of the model inputs to contain an index which indicates which fidelity the point belongs to.
 Normally, high fidelities are more expensive to sample than low fidelities so we have reflected that in the 
 data collection approach.  
  
 Now that we have the data, it is time to show how to use Emukit to train a Gaussian process *linear* multi-fidelity model as proposed 
-in [[1]](#references-on-multi-fidelity-gaussian-processes). This models assumes that
-the high fidelity is a linear combination of the low fidelity and a *delta* term that captures the difference between the two. 
+in [[3]](#references-on-multi-fidelity-gaussian-processes). A non-linear version of this model proposed in [[3]](#references-on-multi-fidelity-gaussian-processes)
+is also available. The linear model assumes that the high fidelity is a linear combination of the low fidelity and a *delta* term that captures the difference between the two. 
 We just need to specify the kernels for the two fidelities and create the model. [GPy](https://github.com/SheffieldML/GPy) is used as 
 the modelling framework in this example.
 
@@ -63,7 +64,7 @@ from emukit.multi_fidelity.models import GPyLinearMultiFidelityModel
 num_fidelities = 2
 kernels = [GPy.kern.RBF(1), GPy.kern.RBF(1)]
 linear_mf_kernel = LinearMultiFidelityKernel(kernels)
-gpy_linear_mf_model = GPyLinearMultiFidelityModel(X_train, Y_train, lin_mf_kernel, n_fidelities = 2)
+gpy_linear_mf_model = GPyLinearMultiFidelityModel(X_train, Y_train, linear_mf_kernel, n_fidelities = 2)
 ```
 
 We have created the model. The last step is to train it. 
@@ -93,6 +94,9 @@ regarding examples and tutorials.
 
 #### References on Multi-fidelity Gaussian processes
 
-- [1] Kennedy, M.C. and O'Hagan, A., 2000. [Predicting the output from a complex computer code when fast approximations are available](https://www.jstor.org/stable/2673557?seq=1#page_scan_tab_contents). *Biometrika*, 87(1), pp.1-13.
+- [1] Forrester, Alexander I.J., Sóbester, András and Keane, Andy J. (2007) []Multi-fidelity optimization via surrogate modelling](https://eprints.soton.ac.uk/64698/). *Proceedings of the Royal Society of London A*, 463 (2088), 3251-3269.
 
-- [2] Perdikaris, P., Raissi, M., Damianou, A., Lawrence, N.D. and Karniadakis, G.E., 2017. [Nonlinear information fusion algorithms for data-efficient multi-fidelity modelling](http://rspa.royalsocietypublishing.org/content/473/2198/20160751). *Proc. R. Soc. A*, 473(2198), p.20160751.
+- [2] Kennedy, M.C. and O'Hagan, A., 2000. [Predicting the output from a complex computer code when fast approximations are available](https://www.jstor.org/stable/2673557?seq=1#page_scan_tab_contents). *Biometrika*, 87(1), pp.1-13.
+
+- [3] Perdikaris, P., Raissi, M., Damianou, A., Lawrence, N.D. and Karniadakis, G.E., 2017. [Nonlinear information fusion algorithms for data-efficient multi-fidelity modelling](http://rspa.royalsocietypublishing.org/content/473/2198/20160751). *Proc. R. Soc. A*, 473(2198), p.20160751.
+
