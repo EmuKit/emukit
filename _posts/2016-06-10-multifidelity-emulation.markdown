@@ -5,7 +5,7 @@ categories: jekyll update
 img: multi-fidelity.png
 ---
 
-Modelling scenarios where data that reflect different level of accuracy the real world are available.
+Modelling scenarios where data of different levels of accuracy are available.
 
 A common issue encountered when applying machine learning to environmental sciences and engineering problems is the 
 difficulty or cost required to obtain sufficient data for building robust models. Possible examples include aerospace 
@@ -99,4 +99,6 @@ regarding examples and tutorials.
 - [2] Kennedy, M.C. and O'Hagan, A., 2000. [Predicting the output from a complex computer code when fast approximations are available](https://www.jstor.org/stable/2673557?seq=1#page_scan_tab_contents). *Biometrika*, 87(1), pp.1-13.
 
 - [3] Perdikaris, P., Raissi, M., Damianou, A., Lawrence, N.D. and Karniadakis, G.E., 2017. [Nonlinear information fusion algorithms for data-efficient multi-fidelity modelling](http://rspa.royalsocietypublishing.org/content/473/2198/20160751). *Proc. R. Soc. A*, 473(2198), p.20160751.
+
+- [2] Perdikaris, P., Raissi, M., Damianou, A., Lawrence, N.D. and Karniadakis, G.E., 2017. [Nonlinear information fusion algorithms for data-efficient multi-fidelity modelling](http://rspa.royalsocietypublishing.org/content/473/2198/20160751). *Proc. R. Soc. A*, 473(2198), p.20160751.
 
