@@ -69,7 +69,7 @@ from emukit.sensitivity.monte_carlo import MonteCarloSensitivity
 senstivity = MonteCarloSensitivity(model = model_emukit, input_domain = space)
 main_effects, total_effects, _ = senstivity.compute_effects(num_monte_carlo_points = 10000)
 ```
-And that's it! you can check the computed main and total effects. Note that
+And that's it! You can check the computed main and total effects. Note that
 although we have used a Gaussian process here, the coefficients are computed running Monte Carlo, which means that any model can be wrapped here.
 
 Check our list of [tutorial notebooks](https://github.com/amzn/emukit/tree/develop/notebooks) if you want to learn more about how to do sensitivity analysis and other methods with Emukit. You can also check the Emukit [documentation](https://emukit.readthedocs.io/en/latest/).
