@@ -32,7 +32,7 @@ target_simulator = ishigami.fidelity1
 ```
 
 Emukit allows to compute both, the main and total effects using Monte Carlo with the Saltelli estimators [[4](#references-on-sensitivity-analysis)].
-Instead of computing the indices by calling the simulator, we wi learn an emulator first and we compute the indices using *cheap* calls to this model. We first define the parameter space:
+Instead of computing the indices by calling the simulator, we learn an emulator first and we compute the indices using *cheap* calls to this model. We first define the parameter space:
 
 ```python
 import numpy as np
