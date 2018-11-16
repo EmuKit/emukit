@@ -84,6 +84,7 @@ class EntropySearch(Acquisition):
         self.representer_points = None
         self.representer_points_log = None
         self.logP = None
+        self.p_min_entropy = None
 
     def _sample_representer_points(self) -> tuple:
         """ Samples a new set of representer points from the proposal measurement"""
@@ -126,6 +127,9 @@ class EntropySearch(Acquisition):
 
         self.logP, self.dlogPdMu, self.dlogPdSigma, self.dlogPdMudMu = epmgp.joint_min(mu, var, with_derivatives=True)
         self.logP = self.logP[:, np.newaxis]
+
+        self.p_min_entropy = np.sum(np.multiply(np.exp(self.logP), np.add(self.logP, self.representer_points_log)),
+                                    axis=0)
 
         return self.logP
 
@@ -180,10 +184,11 @@ class EntropySearch(Acquisition):
         predicted_logP = np.subtract(predicted_logP, lselP)
 
         # We maximize the information gain
-        dHp = np.sum(np.multiply(np.exp(predicted_logP), np.add(predicted_logP, self.representer_points_log)), axis=0)
+        H_p = np.sum(np.multiply(np.exp(predicted_logP), np.add(predicted_logP, self.representer_points_log)), axis=0)
 
-        dH = np.mean(dHp)
-        return np.array([[dH]])
+        new_entropy = np.mean(H_p)
+        entropy_change = new_entropy - self.p_min_entropy
+        return np.array([[entropy_change]])
 
     def _innovations(self, x: np.ndarray) -> tuple:
         """
