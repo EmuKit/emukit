@@ -128,6 +128,7 @@ class EntropySearch(Acquisition):
         self.logP, self.dlogPdMu, self.dlogPdSigma, self.dlogPdMudMu = epmgp.joint_min(mu, var, with_derivatives=True)
         self.logP = self.logP[:, np.newaxis]
 
+        # Calculate the entropy of the distribution over the minimum given the current model
         self.p_min_entropy = np.sum(np.multiply(np.exp(self.logP), np.add(self.logP, self.representer_points_log)),
                                     axis=0)
 
