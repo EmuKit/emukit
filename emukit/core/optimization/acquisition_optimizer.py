@@ -69,10 +69,16 @@ class AcquisitionOptimizer(AcquisitionOptimizerBase):
 
         if acquisition.has_gradients:
             _log.info("Starting gradient-based optimization of acquisition function {}".format(type(acquisition)))
-            return self.gpyopt_acquisition_optimizer.optimize(f, None, f_df)
+            x, f_min = self.gpyopt_acquisition_optimizer.optimize(f, None, f_df)
         else:
             _log.info("Starting gradient-free optimization of acquisition function {}".format(type(acquisition)))
-            return self.gpyopt_acquisition_optimizer.optimize(f, None, None)
+            x, f_min = self.gpyopt_acquisition_optimizer.optimize(f, None, None)
+
+        print("Before zipping: " + x)
+        x = self.gpyopt_space.zip_inputs(x)
+        print("After zipping: " + x)
+
+        return x, f_min
 
     def _validate_context_parameters(self, context):
         for context_name, context_value in context.items():

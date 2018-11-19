@@ -53,7 +53,7 @@ class RandomForest(IModel):
         for i, x in enumerate(X):
             preds = []
             for estimator in self.rf.estimators_:
-                pred = estimator.predict(x.reshape([1, 2]))
+                pred = estimator.predict(x.reshape(1, -1))
                 preds.append(pred[0])
             mean[i] = np.array(preds).mean()
             var[i] = np.array(preds).std()

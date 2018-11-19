@@ -11,6 +11,22 @@ from . import ContinuousParameter
 from .discrete_parameter import DiscreteParameter, InformationSourceParameter
 
 
+class CategoricalParameter(object):
+    def __init__(self, name: str, categories: List, encodings: np.ndarray):
+        self.name = name
+
+        self.categories = categories
+        self.encodings = encodings
+
+    # def check_in_domain(self, x: Union[np.ndarray, str]) -> bool:
+    #     """
+        
+
+    #     :param x: 
+    #     :return: A boolean value which indicates whether all points lie in the domain
+    #     """
+    #     return np.all([(self.min < x), (self.max > x)], axis=0)
+
 class ParameterSpace(object):
     def __init__(self, parameters: List):
         self._parameters = parameters
@@ -53,8 +69,10 @@ class ParameterSpace(object):
             elif isinstance(parameter, DiscreteParameter):
                 gpyopt_param = {'name': parameter.name, 'type': 'discrete', 'domain': parameter.domain,
                                 'dimensionality': 1}
+            elif isinstance(parameter, CategoricalParameter):
+                gpyopt_param = {'name': parameter.name, 'type': 'categorical', 'domain': [i for i, _ in enumerate(parameter.categories)]}
             else:
-                raise NotImplementedError("Nothing except continuous or discrete is supported right now")
+                raise NotImplementedError("Only continuous, discrete and categorical parameters are supported, received " + type(parameter))
             gpyopt_parameters.append(gpyopt_param)
 
         return GPyOpt.core.task.space.Design_space(gpyopt_parameters)
