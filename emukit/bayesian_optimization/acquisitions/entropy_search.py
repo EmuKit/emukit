@@ -8,7 +8,7 @@ import scipy
 import numpy as np
 
 from ...core.acquisition import Acquisition
-from ...core.interfaces import IModel, IDifferentiable
+from ...core.interfaces import IModel
 from ...core.parameter_space import ParameterSpace
 
 from ..acquisitions import ExpectedImprovement

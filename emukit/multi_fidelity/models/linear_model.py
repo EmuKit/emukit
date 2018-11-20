@@ -22,7 +22,8 @@ class GPyLinearMultiFidelityModel(GPy.core.GP):
         :param Y: Training data targets
         :param kernel: Multi-fidelity kernel
         :param n_fidelities: Number of fidelities in problem
-        :param likelihood: GPy likelihood object. Defaults to MixedNoise which has different noise levels for each fidelity
+        :param likelihood: GPy likelihood object.
+                           Defaults to MixedNoise which has different noise levels for each fidelity
         """
 
         # Input checks

@@ -21,7 +21,8 @@ class AcquisitionOptimizerBase:
         Optimizes the acquisition function, taking into account gradients if it supports them
 
         :param acquisition: The acquisition function to be optimized
-        :param context: Optimization context, determines whether any variable values should be fixed during the optimization
+        :param context: Optimization context.
+                        Determines whether any variable values should be fixed during the optimization
         :return: Tuple of (location of optimum, acquisition value at optimum)
         """
         pass
@@ -39,7 +40,8 @@ class AcquisitionOptimizer(AcquisitionOptimizerBase):
         Optimizes the acquisition function, taking into account gradients if it supports them
 
         :param acquisition: The acquisition function to be optimized
-        :param context: Optimization context, determines whether any variable values should be fixed during the optimization
+        :param context: Optimization context.
+                        Determines whether any variable values should be fixed during the optimization
         :return: Tuple of (location of optimum, acquisition value at optimum)
         """
 
