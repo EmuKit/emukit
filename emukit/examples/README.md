@@ -9,7 +9,6 @@ examples](https://github.com/apache/incubator-mxnet/blob/master/example/README.m
 
 
 ## <a name="Contributing"></a>Contributing
-
 If you want to contribute to this of, please open a new pull request.
 
 
@@ -19,7 +18,7 @@ Examples can be either notebooks that tell a narrative about a problem/question 
 they can contain the implementation of some specific method. These can live in a .py file, should have tests 
 and ideally should be delivered together with a small illustrative notebook. 
 
-### Examples location
+#### Examples location
 
 Example applications or scripts should be submitted in this `emukit/examples` folder.  Each example must live in a separated 
 folder that can contain some extra files an dependencies. Please make sure that you update this `README.md` file with the information 
@@ -31,7 +30,7 @@ about you example.
 As part of making sure all our examples are running correctly with the latest version of Emukit, yor can add your own tests 
 here `tests/tutorials/test_tutorials.py`. (If you forget, don't worry your PR will not pass the sanity check).
 
-### Tutorials
+#### Tutorials
 
 Tutorials are Jupyter notebooks that illustrate different features of the library. They are stand alone notebooks that 
 don't require any extra file and fully sit on Emukit components (apart from the creation of the model).
