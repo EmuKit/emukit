@@ -13,7 +13,7 @@ more labels need to be collected.
 
 The are two main ways of doing experimental design. 
  * *Model-free designs:* These designs define rules to spread the experiments as much as possible
-across the input domain. Drawing points at random or in a grid are the most naive way of doing so. Other more elaborated approaches are the so-called
+across the input domain. Drawing points at random or in a grid are the most naive way of doing so. Other more elaborate approaches are
 [low discrepancy sequences](https://en.wikipedia.org/wiki/Low-discrepancy_sequence) that try to induce some negative correlation in the selected points to spread them evenly. Some examples are 
 Latin hyper-cube sampling and Sobol sequences.
 
