@@ -7,7 +7,7 @@ Experimental design addresses the problem of how to collect data points (experim
 sources of variance of a model.
 
 
-In experimental design the goal to decide in which locations of the input space we should evaluate a function of interest.
+In experimental design the goal is to decide at which locations of the input space we should evaluate a function of interest.
 In some contexts it is also know as active learning, for instance in image classification problems in which 
 more labels need to be collected. 
 
