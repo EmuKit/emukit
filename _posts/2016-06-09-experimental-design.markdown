@@ -60,7 +60,7 @@ model_emukit = GPyModelWrapper(model_gpy)
 ```
 
 We can use the model to decide which are the best points to collect using some data collection criteria (that we call acquisition). 
-Here we use the model variance as acquisitions function. It is known that when using Gaussian processes are used, 
+Here we use the model variance as the acquisition function. It is known that when using Gaussian processes, 
 selecting points of maximum variance is equivalent to maximizing the mutual information between the model and
 the new set of points [[3](#references-on-experimental-design)] so this is a simple but mathematically grounded approach.
 
