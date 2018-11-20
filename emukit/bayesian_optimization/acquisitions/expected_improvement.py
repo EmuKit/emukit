@@ -60,7 +60,7 @@ class ExpectedImprovement(Acquisition):
         y_minimum = np.min(self.model.Y, axis=0)
 
         dmean_dx, dvariance_dx = self.model.get_prediction_gradients(x)
-        dstandard_deviation_dx = dvariance_dx / (2*standard_deviation)
+        dstandard_deviation_dx = dvariance_dx / (2 * standard_deviation)
 
         pdf, cdf, u = get_quantiles(self.jitter, y_minimum, mean, standard_deviation)
 

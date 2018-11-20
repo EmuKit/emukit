@@ -37,7 +37,8 @@ class OuterLoop(object):
         """
         :param candidate_point_calculator: Finds next points to evaluate by optimizing the acquisition function
         :param model_updaters: Updates the data in the model(s) and the model hyper-parameters when we observe new data
-        :param loop_state: Object that keeps track of the history of the loop. Default: None, resulting in empty initial state
+        :param loop_state: Object that keeps track of the history of the loop.
+                           Default: None, resulting in empty initial state
         """
         self.candidate_point_calculator = candidate_point_calculator
 

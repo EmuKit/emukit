@@ -7,7 +7,7 @@ Contains code for non-linear model multi-fidelity model.
 
 It is based on this paper:
 
-Nonlinear information fusion algorithms for data-efficient multi-fidelity modelling. 
+Nonlinear information fusion algorithms for data-efficient multi-fidelity modelling.
 P. Perdikaris, M. Raissi, A. Damianou, N. D. Lawrence and G. E. Karniadakis (2017)
 http://web.mit.edu/parisp/www/assets/20160751.full.pdf
 """
@@ -20,7 +20,8 @@ from ...core.interfaces import IModel, IDifferentiable
 from ..convert_lists_to_array import convert_y_list_to_array, convert_x_list_to_array
 
 
-def make_non_linear_kernels(base_kernel_class: Type[GPy.kern.Kern], n_fidelities: int, n_input_dims: int, ARD: bool=False) -> List:
+def make_non_linear_kernels(base_kernel_class: Type[GPy.kern.Kern],
+                            n_fidelities: int, n_input_dims: int, ARD: bool=False) -> List:
     """
     This function takes a base kernel class and constructs the structured multi-fidelity kernels
 
@@ -47,7 +48,8 @@ def make_non_linear_kernels(base_kernel_class: Type[GPy.kern.Kern], n_fidelities
         interaction_kernel = base_kernel_class(n_input_dims, active_dims=base_dims_list, ARD=ARD,
                                                name='scale_kernel_' + fidelity_name)
         scale_kernel = base_kernel_class(1, active_dims=[n_input_dims], name='previous_fidelity_' + fidelity_name)
-        bias_kernel = base_kernel_class(n_input_dims, active_dims=base_dims_list,  ARD=ARD, name='bias_kernel_' + fidelity_name)
+        bias_kernel = base_kernel_class(n_input_dims, active_dims=base_dims_list,
+                                        ARD=ARD, name='bias_kernel_' + fidelity_name)
         kernels.append(interaction_kernel * scale_kernel + bias_kernel)
     return kernels
 
@@ -73,7 +75,8 @@ class NonLinearMultiFidelityModel(IModel, IDifferentiable):
                         the dimensionality of the features.
         :param n_samples: Number of samples to use to do quasi-Monte-Carlo integration at each fidelity. Default 100
         :param verbose: Whether to output messages during optimization. Defaults to False.
-        :param optimization_restarts: Number of random restarts when optimizing the Gaussian processes' hyper-parameters.
+        :param optimization_restarts: Number of random restarts
+                                      when optimizing the Gaussian processes' hyper-parameters.
         """
 
         if not isinstance(X_init, np.ndarray):
@@ -96,7 +99,8 @@ class NonLinearMultiFidelityModel(IModel, IDifferentiable):
         self._fidelity_idx = -1
 
         is_lowest_fidelity = X_init[:, self._fidelity_idx] == 0
-        self.models.append(GPy.models.GPRegression(X_init[is_lowest_fidelity, :-1], Y_init[is_lowest_fidelity, :], kernels[0]))
+        self.models.append(
+            GPy.models.GPRegression(X_init[is_lowest_fidelity, :-1], Y_init[is_lowest_fidelity, :], kernels[0]))
 
         # Make models for fidelities but lowest fidelity
         for i in range(1, self.n_fidelities):
@@ -190,8 +194,8 @@ class NonLinearMultiFidelityModel(IModel, IDifferentiable):
 
         # Initialise vectors
         sample_mean = np.zeros((self.n_samples ** (self.n_fidelities - 1), X.shape[0]))
-        d_sample_mean_dx = np.zeros((self.n_samples ** (self.n_fidelities - 1), X.shape[0], X.shape[1]-1))
-        d_sample_var_dx = np.zeros((self.n_samples ** (self.n_fidelities - 1), X.shape[0], X.shape[1]-1))
+        d_sample_mean_dx = np.zeros((self.n_samples ** (self.n_fidelities - 1), X.shape[0], X.shape[1] - 1))
+        d_sample_var_dx = np.zeros((self.n_samples ** (self.n_fidelities - 1), X.shape[0], X.shape[1] - 1))
 
         # Iteratively obtain predictions and associated gradients for each input point
         for i in range(X.shape[0]):
@@ -252,9 +256,11 @@ class NonLinearMultiFidelityModel(IModel, IDifferentiable):
         for i in range(1, fidelity + 1):
             previous_sample_variance = sample_variance.copy()
             # Predict at all fidelities up until the one we are interested in
-            sample_mean, sample_variance, x_augmented = self._propagate_samples_through_level(X, i, sample_mean, sample_variance)
-            dsample_mean_dx, dsample_var_dx = self._propagate_samples_through_level_gradient(dsample_mean_dx, dsample_var_dx,
-                                                                                             i, previous_sample_variance, x_augmented)
+            sample_mean, sample_variance, x_augmented = \
+                self._propagate_samples_through_level(X, i, sample_mean, sample_variance)
+            dsample_mean_dx, dsample_var_dx = \
+                self._propagate_samples_through_level_gradient(dsample_mean_dx, dsample_var_dx,
+                                                               i, previous_sample_variance, x_augmented)
         return sample_mean, dsample_mean_dx, sample_variance, dsample_var_dx
 
     def _propagate_samples_through_level(self, X, i_level, sample_mean, sample_variance):
@@ -286,7 +292,8 @@ class NonLinearMultiFidelityModel(IModel, IDifferentiable):
         :param dsample_var_dx: Gradients of variance prediction of samples from previous level
         :param i_fidelity: level index
         :param sample_variance: The variance prediction of the samples from the previous level
-        :param x_augmented: The X input for this level augmented with the outputs from the previous level as the final column
+        :param x_augmented: The X input for this level augmented with the outputs
+                            from the previous level as the final column
         """
         # Convert variance derivative to std derivative
         clipped_var = np.clip(sample_variance, 1e-10, np.inf)

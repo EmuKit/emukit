@@ -2,5 +2,4 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from .single_objective_bayesian_optimization import GPBayesianOptimization
-
+from .single_objective_bayesian_optimization import GPBayesianOptimization  # noqa: F401

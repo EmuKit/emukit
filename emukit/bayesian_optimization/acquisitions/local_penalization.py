@@ -51,7 +51,7 @@ class LocalPenalization(Acquisition):
         # Limit how small the variance can be to avoid numerical issues
         epsilon = 1e-10
         variance = np.maximum(epsilon, variance)
-        
+
         std_deviation = np.sqrt(variance)
 
         # Calculate function parameters
@@ -84,7 +84,9 @@ class LocalPenalization(Acquisition):
         distances, d_dist_dx = _distance_with_gradient(x, self.x_batch)
         normalized_distance = (distances - self.radius) / self.scale
         h_func = norm.cdf(normalized_distance)
-        d_value_dx = 0.5 * (1 / h_func[:, :, None]) * norm.pdf(normalized_distance)[:, :, None] * d_dist_dx / self.scale[None, :, None]
+        d_value_dx = 0.5 * (1 / h_func[:, :, None]) \
+                     * norm.pdf(normalized_distance)[:, :, None] \
+                     * d_dist_dx / self.scale[None, :, None]
         return norm.logcdf(normalized_distance).sum(1, keepdims=True), d_value_dx.sum(1)
 
 

@@ -50,7 +50,7 @@ class NegativeLowerConfidenceBound(Acquisition):
         standard_deviation = np.sqrt(variance)
 
         dmean_dx, dvariance_dx = self.model.get_prediction_gradients(x)
-        dstandard_deviation_dx = dvariance_dx / (2*standard_deviation)
+        dstandard_deviation_dx = dvariance_dx / (2 * standard_deviation)
 
         lcb = - (mean - self.beta * standard_deviation)
 
