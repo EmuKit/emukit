@@ -19,7 +19,7 @@ Latin hyper-cube sampling and Sobol sequences.
 
 * *Model-based designs:* In these designs a feedback loop is used between some 'optimal' statistical criterion to collect points and a model. In general, the criterion aims to 
 reduce some type of variance in the model. The type of optimality refers to which type of uncertainty that is reduced. For instance, a *D-optimal* design aims
-to maximizing the differential Shannon information content of the model parameter estimates; an *I-optimal* design seeks to minimize the average prediction 
+to maximize the differential Shannon information content of the model parameter estimates; an *I-optimal* design seeks to minimize the average prediction 
 variance over the entire design space. See [[1]](#references-on-experimental-design) for a general review on experimental design of these type with Bayesian modes. 
   
 
