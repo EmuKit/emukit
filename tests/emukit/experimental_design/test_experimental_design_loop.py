@@ -29,6 +29,7 @@ def test_loop_initial_state():
     assert_array_equal(exp_design.loop_state.X, x_init)
     assert_array_equal(exp_design.loop_state.Y, y_init)
 
+
 def test_loop():
     n_iterations = 5
 

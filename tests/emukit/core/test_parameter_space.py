@@ -3,6 +3,7 @@ import numpy as np
 
 from emukit.core import ContinuousParameter, ParameterSpace, InformationSourceParameter
 
+
 @pytest.fixture
 def space_2d():
     p1 = ContinuousParameter('c', 1.0, 5.0)

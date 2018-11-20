@@ -45,7 +45,9 @@ def test_multi_source_sequential_with_context():
     mock_acquisition = mock.create_autospec(Acquisition)
     mock_acquisition.has_gradients = False
     mock_acquisition.evaluate = lambda x: np.sum(x**2, axis=1)[:, None]
-    space = ParameterSpace([ContinuousParameter('x', 0, 1), ContinuousParameter('y', 0, 1),  InformationSourceParameter(2)])
+    space = ParameterSpace([ContinuousParameter('x', 0, 1),
+                            ContinuousParameter('y', 0, 1),
+                            InformationSourceParameter(2)])
     acquisition_optimizer = AcquisitionOptimizer(space)
     multi_source_acquisition_optimizer = MultiSourceAcquisitionOptimizer(acquisition_optimizer, space)
 
@@ -64,7 +66,9 @@ def test_multi_source_sequential_with_source_context():
     mock_acquisition = mock.create_autospec(Acquisition)
     mock_acquisition.has_gradients = False
     mock_acquisition.evaluate = lambda x: np.sum(x**2, axis=1)[:, None]
-    space = ParameterSpace([ContinuousParameter('x', 0, 1), ContinuousParameter('y', 0, 1),  InformationSourceParameter(2)])
+    space = ParameterSpace([ContinuousParameter('x', 0, 1),
+                            ContinuousParameter('y', 0, 1),
+                            InformationSourceParameter(2)])
     acquisition_optimizer = AcquisitionOptimizer(space)
     multi_source_acquisition_optimizer = MultiSourceAcquisitionOptimizer(acquisition_optimizer, space)
 
