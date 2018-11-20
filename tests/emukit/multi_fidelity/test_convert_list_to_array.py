@@ -2,7 +2,8 @@ import pytest
 
 import numpy as np
 
-from emukit.multi_fidelity.convert_lists_to_array import convert_x_list_to_array, convert_y_list_to_array, convert_xy_lists_to_arrays
+from emukit.multi_fidelity.convert_lists_to_array import \
+    convert_x_list_to_array, convert_y_list_to_array, convert_xy_lists_to_arrays
 
 
 def test_convert_x_list_to_array():

@@ -43,7 +43,7 @@ def test_every_iteration_model_updater_with_cost():
     class MockModel(IModel):
         def optimize(self):
             pass
-        
+
         def set_data(self, X: np.ndarray, Y: np.ndarray):
             self._X = X
             self._Y = Y
