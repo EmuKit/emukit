@@ -4,13 +4,13 @@
 
 import numpy as np
 
-from ..bayesian_optimization.acquisitions import ExpectedImprovement
-from ..core.acquisition import Acquisition, acquisition_per_expected_cost
-from ..core.interfaces import IModel
-from ..core.loop import CandidatePointCalculator, FixedIntervalUpdater, ModelUpdater, OuterLoop, Sequential
-from ..core.loop.loop_state import create_loop_state
-from ..core.optimization import AcquisitionOptimizer
-from ..core.parameter_space import ParameterSpace
+from ...bayesian_optimization.acquisitions import ExpectedImprovement
+from ...core.acquisition import Acquisition, acquisition_per_expected_cost
+from ...core.interfaces import IModel
+from ...core.loop import CandidatePointCalculator, FixedIntervalUpdater, ModelUpdater, OuterLoop, Sequential
+from ...core.loop.loop_state import create_loop_state
+from ...core.optimization import AcquisitionOptimizer
+from ...core.parameter_space import ParameterSpace
 
 
 class CostSensitiveBayesianOptimizationLoop(OuterLoop):
