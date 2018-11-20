@@ -1,29 +1,31 @@
+# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 
 import numpy as np
 from scipy.integrate import quad, dblquad
-import  matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
-from emukit.core import MultiDimensionalContinuousParameter
+from emukit.quadrature.kernels.integral_bounds import IntegralBounds
 
 
 class Hennig1D():
     """ 1D toy integrand coined by Philipp Hennig """
 
-    def evaluate(self, x):
+    def evaluate(self, x: np.ndarray):
         """ Evaluate the function at x """
         return np.exp(- x**2 - np.sin(3.*x)**2)
 
-    def approximate_ground_truth_integral(self, integral_bounds: MultiDimensionalContinuousParameter):
+    def approximate_ground_truth_integral(self, integral_bounds: IntegralBounds):
         """
-        Use scipy.integrate.quad to estimate the ground truth
+        Uses scipy.integrate.quad to estimate the ground truth
 
         :param integral_bounds: bounds of integral
 
-        :returns: output of scipy.integrate.quad
+        :returns: integral estimate, output of scipy.integrate.quad
         """
-        lb, ub = integral_bounds.get_bounds()
-        return quad(self.evaluate, np.float(lb), np.float(ub))
+        lower_bound, upper_bound = integral_bounds.get_bounds_as_separate_arrays()
+        return quad(self.evaluate, np.float(lower_bound), np.float(upper_bound))
 
     def plot(self, resolution, lower_bounds, upper_bounds, **kwargs):
         x = np.linspace(lower_bounds, upper_bounds, resolution)
@@ -38,27 +40,26 @@ class CircularGaussian():
         """
         :param mean: mean of Gaussian in radius (must be > 0)
         """
-        Integrand.__init__(self, input_dim=2)
         self.mean = mean
         self. variance = variance
 
-    def evaluate(self, x):
+    def evaluate(self, x: np.ndarray):
         """ Evaluate the function at x """
         norm_x = np.sqrt((x**2).sum(axis=1))
         return norm_x**2 * np.exp(- (norm_x - self.mean)**2/(2.*self.variance)) / np.sqrt(2. * np.pi * self.variance)
 
-    def approximate_ground_truth_integral(self, integral_bounds: MultiDimensionalContinuousParameter):
+    def approximate_ground_truth_integral(self, integral_bounds: IntegralBounds):
         """
-        Use scipy.integrate.quad to estimate the ground truth
+        Uses scipy.integrate.quad to estimate the ground truth
 
         :param integral_bounds: bounds of integral
 
-        :returns: output of scipy.integrate.quad
+        :returns: integral estimate, output of scipy.integrate.quad
         """
-        lb, ub = integral_bounds.get_bounds()
-        return dblquad(self._evaluate2d, lb[0], ub[0], lb[1], ub[1])
+        lower_bound, upper_bound = integral_bounds.get_bounds_as_separate_arrays()
+        return dblquad(self._evaluate2d, lower_bound[0], upper_bound[0], lower_bound[1], upper_bound[1])
 
-    def plot(self, resolution, lower_bounds, upper_bounds, **kwargs):
+    def plot(self, resolution, lower_bounds, upper_bounds):
         """ Surface plot of the integrand """
         X1, X2 = np.meshgrid(np.linspace(lower_bounds[0], upper_bounds[0], resolution),
                              np.linspace(lower_bounds[1], upper_bounds[1], resolution), indexing='ij')
@@ -75,4 +76,3 @@ class CircularGaussian():
     def _evaluate2d(self, y, x):
         """ dblquad doesn't take np.ndarrays as input, but two floats"""
         return self.evaluate(np.array([x, y]).reshape(1, -1)).item()
-

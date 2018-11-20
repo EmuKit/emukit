@@ -28,7 +28,7 @@ class BaseGaussianProcessGPy(IBaseGaussianProcess):
         return self.gpy_model.Y
 
     @property
-    def noise_variance(self):
+    def observation_noise_variance(self):
         """
         Gaussian observation noise variance
         :return: The noise variance from some external GP model

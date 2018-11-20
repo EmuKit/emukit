@@ -1,3 +1,7 @@
+# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+
 import numpy as np
 from typing import Tuple
 
@@ -12,7 +16,7 @@ class IBaseGaussianProcess(IModel):
         self.kern = kern
 
     @property
-    def noise_variance(self):
+    def observation_noise_variance(self):
         """
         Gaussian observation noise variance
         :return: The noise variance from some external GP model

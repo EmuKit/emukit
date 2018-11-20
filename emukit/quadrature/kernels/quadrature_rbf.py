@@ -1,11 +1,15 @@
+# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+
 import numpy as np
 from scipy.special import erf
 
-from .quadrature_kernels import QuadratureKernel, IDifferentiableKernel
+from .quadrature_kernels import QuadratureKernel
 from emukit.quadrature.interfaces.standard_kernels import IRBF
 
 
-class QuadratureRBF(QuadratureKernel, IDifferentiableKernel):
+class QuadratureRBF(QuadratureKernel):
     """
     Augments an RBF kernel with integrability
 
@@ -23,24 +27,13 @@ class QuadratureRBF(QuadratureKernel, IDifferentiableKernel):
     def variance(self):
         return self.kern.variance
 
-    def K(self, x1, x2=None):
-        """
-        The kernel evaluated at x and x2
-
-        :param x: N points at which to evaluate, np.ndarray with x.shape = (N, input_dim)
-        :param x2: M points at which to evaluate, np.ndarray with x2.shape = (M, input_dim)
-
-        :return: the gradient of K with shape (N, M)
-        """
-        return self.kern.K(x1, x2)
-
-    def qK(self, x):
+    # the following methods are integrals of a quadrature kernel
+    def qK(self, x: np.ndarray) -> np.ndarray:
         """
         RBF kernel mean, i.e. the kernel integrated over the first argument as a function of its second argument
 
-        :param x: N points at which kernel mean is evaluated, np.ndarray with x.shape = (N, input_dim)
-
-        :returns: the kernel mean evaluated at N input points x, np.ndarray with shape (1, N)
+        :param x: N points at which kernel mean is evaluated, shape (N, input_dim)
+        :returns: the kernel mean evaluated at N input points x, shape (1, N)
         """
         erf_lo = erf(self._scaled_vectordiff(self.lower_bounds, x))
         erf_up = erf(self._scaled_vectordiff(self.upper_bounds, x))
@@ -48,18 +41,17 @@ class QuadratureRBF(QuadratureKernel, IDifferentiableKernel):
 
         return kernel_mean.reshape(1, -1)
 
-    def Kq(self, x):
+    def Kq(self, x: np.ndarray) -> np.ndarray:
         """
         RBF transposed kernel mean,
         i.e. the kernel integrated over the second argument as a function of its first argument
 
-        :param x: N points at which kernel mean is evaluated, np.ndarray with x.shape = (N, input_dim)
-
-        :returns: the kernel mean evaluated at N input points x, np.ndarray with shape (N,1)
+        :param x: N points at which kernel mean is evaluated, shape (N, input_dim)
+        :returns: the kernel mean evaluated at N input points x, shape (N,1)
         """
         return self.qK(x).T
 
-    def qKq(self):
+    def qKq(self) -> np.float:
         """
         RBF kernel integrated over both parameters
 
@@ -73,21 +65,11 @@ class QuadratureRBF(QuadratureKernel, IDifferentiableKernel):
 
         return np.float(prefac * (exp_term + erf_term).prod())
 
-    def dK_dx(self, x, x2):
-        """
-        gradient of the kernel wrt x
-
-        :param x: N points at which to evaluate, np.ndarray with x.shape = (N, input_dim)
-        :param x2: M points at which to evaluate, np.ndarray with x2.shape = (M, input_dim)
-
-        :return: the gradient of K with shape (input_dim, N, M)
-        """
-        return self.kern.dK_dx(x, x2)
-
-    def dqK_dx(self, x):
+    # the following methods are gradients of a quadrature kernel
+    def dqK_dx(self, x: np.ndarray) -> np.ndarray:
         """
         gradient of the kernel mean evaluated at x
-        :param x: N points at which to evaluate, np.ndarray with x.shape = (N, input_dim)
+        :param x: N points at which to evaluate, shape = (N, input_dim)
 
         :return: the gradient with shape (input_dim, N)
         """
@@ -101,17 +83,17 @@ class QuadratureRBF(QuadratureKernel, IDifferentiableKernel):
 
         return self.qK(x) * fraction
 
-    def dKq_dx(self, x):
+    def dKq_dx(self, x: np.ndarray) -> np.ndarray:
         """
         gradient of the transposed kernel mean evaluated at x
-        :param x: N points at which to evaluate, np.ndarray with x.shape = (N, input_dim)
+        :param x: N points at which to evaluate, shape = (N, input_dim)
 
         :return: the gradient with shape (N, input_dim)
         """
         return self.dqK_dx(x).T
 
-    # helpers
-    def _scaled_vectordiff(self, v1, v2):
+    # rbf-kernel specific helpers
+    def _scaled_vectordiff(self, v1: np.ndarray, v2: np.ndarray) -> np.ndarray:
         """
         Scaled element-wise vector difference between vectors v1 and v2
 
@@ -124,5 +106,6 @@ class QuadratureRBF(QuadratureKernel, IDifferentiableKernel):
         :param v1: first vector
         :param v2: second vector, must have same second dimensions as v1
         :return: scaled difference between v1 and v2, np.ndarray with unchanged dimensions
+
         """
         return (v1 - v2) / (self.lengthscale * np.sqrt(2))
