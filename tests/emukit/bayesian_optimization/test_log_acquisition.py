@@ -21,6 +21,7 @@ def test_log_acquisition_gradients():
     assert np.all(scipy.optimize.check_grad(lambda x: log.evaluate_with_gradients(x[None, :])[0],
                                             lambda x: log.evaluate_with_gradients(x[None, :])[1], x0) < 1e-6)
 
+
 def test_log_acquisition_shapes():
     x_init = np.random.rand(5, 2)
     y_init = np.random.rand(5, 1)

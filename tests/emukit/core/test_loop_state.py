@@ -16,6 +16,7 @@ def test_create_loop_state():
     assert_array_equal(loop_state.Y, y_init)
     assert loop_state.iteration == 0
 
+
 def test_create_loop_state_with_cost():
     x_init = np.array([[1], [2], [3]])
     y_init = np.array([[4], [5], [6]])
@@ -28,12 +29,14 @@ def test_create_loop_state_with_cost():
     assert_array_equal(loop_state.cost, cost)
     assert loop_state.iteration == 0
 
+
 def test_create_loop_error():
     x_init = np.array([[1], [2], [3]])
     y_init = np.array([[4], [5]])
 
     with pytest.raises(ValueError):
         create_loop_state(x_init, y_init)
+
 
 def test_loop_state_update():
     x = np.array([[1], [2], [3], [4]])
@@ -47,6 +50,7 @@ def test_loop_state_update():
     assert_array_equal(loop_state.Y, y)
     assert loop_state.iteration == 1
 
+
 def test_loop_state_update_error():
     x = np.array([[1], [2], [3], [4]])
     y = np.array([[4], [5], [6], [7]])
@@ -57,6 +61,7 @@ def test_loop_state_update_error():
 
     with pytest.raises(ValueError):
         loop_state.update([])
+
 
 def test_cost_returns_none():
     x = np.array([[1], [2], [3], [4]])

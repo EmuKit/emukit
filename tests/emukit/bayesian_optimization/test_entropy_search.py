@@ -1,8 +1,6 @@
 import numpy as np
 import pytest
 
-from scipy.optimize import check_grad
-
 from GPy.models import GPRegression
 from GPy.kern import RBF
 
@@ -31,6 +29,7 @@ def test_entropy_search_shape(acquisition):
     result = acquisition.evaluate(x_test)
 
     assert (result.shape == (2, 1))
+
 
 def test_entropy_search_update_pmin(acquisition):
     logP = acquisition.update_pmin()

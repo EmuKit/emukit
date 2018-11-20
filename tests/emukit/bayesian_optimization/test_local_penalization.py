@@ -71,6 +71,7 @@ def test_local_penaliztion_at_batch_point():
     val, grad = lp.evaluate_with_gradients(x_batch)
     assert not np.any(np.isnan(grad))
 
+
 class MockModel(IModel):
     def predict(self, X):
         return np.random.rand(X.shape[0], 1), np.random.rand(X.shape[0], 1)

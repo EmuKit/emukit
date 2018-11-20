@@ -35,7 +35,7 @@ class LogAcquisition(Acquisition):
 
         epsilon = 1e-10
         value = np.maximum(value, epsilon)
-        log_gradient = 1/value * gradient
+        log_gradient = 1 / value * gradient
         return np.log(value), log_gradient
 
     @property

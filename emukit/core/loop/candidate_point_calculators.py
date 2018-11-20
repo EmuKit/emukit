@@ -61,7 +61,8 @@ class GreedyBatchPointCalculator(CandidatePointCalculator):
         """
         :param model: Model that is used by the acquisition function
         :param acquisition: Acquisition to be optimized to find each point in batch
-        :param acquisition_optimizer: Acquisition optimizer that optimizes acquisition function to find each point in batch
+        :param acquisition_optimizer: Acquisition optimizer that optimizes acquisition function
+                                      to find each point in batch
         :param batch_size: Number of points to calculate in batch
         """
         if (not isinstance(batch_size, int)) or (batch_size < 1):

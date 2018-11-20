@@ -9,8 +9,6 @@ import numpy as np
 from ....core.acquisition import Acquisition
 from ....core.interfaces import IModel, IDifferentiable
 
-from ...interfaces import ICalculateVarianceReduction
-
 
 class ModelVariance(Acquisition):
     """

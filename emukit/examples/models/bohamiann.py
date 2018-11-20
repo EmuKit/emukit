@@ -19,6 +19,8 @@ except ImportError:
 
 import torch
 import torch.nn as nn
+
+
 def get_default_network(input_dimensionality: int) -> torch.nn.Module:
     class AppendLayer(nn.Module):
         def __init__(self, bias=True, *args, **kwargs):

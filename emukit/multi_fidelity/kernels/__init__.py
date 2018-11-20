@@ -2,4 +2,4 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from .linear_multi_fidelity_kernel import LinearMultiFidelityKernel
+from .linear_multi_fidelity_kernel import LinearMultiFidelityKernel  # noqa: F401
