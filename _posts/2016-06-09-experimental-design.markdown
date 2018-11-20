@@ -27,7 +27,7 @@ Gaussian processes have a long tradition of being the 'model of choice' for desi
 you can use them in Emukit for this purpose. Of course you can generalize these ideas to other models too. 
 
 We start by loading the [Branin function](https://www.sfu.ca/~ssurjano/branin.html). 
-We define the input space to be $$[-5,10]\times [0,15]$$.
+We define the input space to be $[-5,10]\times [0,15]$.
 
 ```python
 from emukit.test_functions import branin_function
