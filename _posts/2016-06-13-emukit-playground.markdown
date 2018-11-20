@@ -6,7 +6,7 @@ categories: jekyll update
 img: city.png
 categories: [one, two]
 ---
-The Emukit-playground is a demo that was developed by Adam Hirst to illustrate different concepts in emulation an uncertainty quantification.
+The Emukit-playground is a demo to illustrate different concepts in emulation an uncertainty quantification.
 
 <div align="center"><img width="160" src="https://github.com/amzn/emukit-playground/raw/master/img/taxi.png" />        <img width="400" src="https://github.com/amzn/emukit-playground/raw/master/img/bayes.png" /></div>
 
@@ -19,8 +19,8 @@ computer-based simulation model with some controllable inputs. It is generally t
 An emulator is therefore the 'model of a model': it is an statistical model that aims to predict the unknown outputs of simulation model.
 
 Emukit, has been designed with the idea of facilitate the used of emulators in decision loops. To illustrate these ideas 
-alongside with Emukit we have released the [Emukit-playground](https://github.com/amzn/emukit-playground), an interactive learning tool for teaching users 
-about emulation-based decision making. The playground allows users to train a working emulator in their browser based on visually driven simulations.
+alongside with Emukit we have released the [Emukit-playground](https://github.com/amzn/emukit-playground), an interactive learning tool developed by Adam Hirst 
+for teaching users about emulation-based decision making. The playground allows users to train a working emulator in their browser based on visually driven simulations.
 
 
 <p align="center"><a href="https://amzn.github.io/emukit-playground" class="btn btn-primary">Launch Playground</a>

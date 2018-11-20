@@ -5,7 +5,8 @@ categories: jekyll update
 img: multi-fidelity.png
 ---
 
-Modelling scenarios where data of different levels of accuracy are available.
+Use Emukit to build emulators in scenarios where data of different levels of accuracy are available. Use this models in 
+ decision loops.
 
 A common issue encountered when applying machine learning to environmental sciences and engineering problems is the 
 difficulty or cost required to obtain sufficient data for building robust models. Possible examples include aerospace 
@@ -91,9 +92,9 @@ to do Multi-fidelity emulation with with Emukit. You can also check the Emukit [
 We’re always open to contributions! Please read our [contribution guidelines](CONTRIBUTING.md) for more information. We are particularly interested in contributions
 regarding examples and tutorials.
 
-#### References on Multi-fidelity Gaussian processes
+#### References on Muti-fidelity emulation
 
-- [1] Forrester, Alexander I.J., Sóbester, András and Keane, Andy J. (2007) []Multi-fidelity optimization via surrogate modelling](https://eprints.soton.ac.uk/64698/). *Proceedings of the Royal Society of London A*, 463 (2088), 3251-3269.
+- [1] Forrester, Alexander I.J., Sóbester, András and Keane, Andy J. (2007) [Multi-fidelity optimization via surrogate modelling](https://eprints.soton.ac.uk/64698/). *Proceedings of the Royal Society of London A*, 463 (2088), 3251-3269.
 
 - [2] Kennedy, M.C. and O'Hagan, A., 2000. [Predicting the output from a complex computer code when fast approximations are available](https://www.jstor.org/stable/2673557?seq=1#page_scan_tab_contents). *Biometrika*, 87(1), pp.1-13.
 
