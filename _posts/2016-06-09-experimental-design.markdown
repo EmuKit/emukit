@@ -38,7 +38,7 @@ parameter_space = ParameterSpace([ContinuousParameter('x1', -5, 10),
                                   ContinuousParameter('x2', 0, 15)])
 ```
 
-Emukit support both, model-free and model-based experimental design strategies. To start, as we don't have any other information about the function we first collect 20 points 
+Emukit supports both model-free and model-based experimental design strategies. To start, as we don't have any other information about the function, we first collect 20 points 
 using a Latin design.
 
 ```python
