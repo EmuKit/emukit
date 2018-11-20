@@ -1,4 +1,4 @@
-# MXNet Examples
+# Emukit Examples
 
 This page contains a curated list of Emukit examples and links to other tutorials. It is heavily inspired on [contributing
 examples](https://github.com/apache/incubator-mxnet/blob/master/example/README.md) section of [MXnet](https://mxnet.apache.org/).
@@ -9,7 +9,6 @@ examples](https://github.com/apache/incubator-mxnet/blob/master/example/README.m
 
 
 ## <a name="Contributing"></a>Contributing
-------------------
 
 If you want to contribute to this of, please open a new pull request.
 
@@ -23,7 +22,8 @@ and ideally should be delivered together with a small illustrative notebook.
 ### Examples location
 
 Example applications or scripts should be submitted in this `emukit/examples` folder.  Each example must live in a separated 
-folder that can contain some extra files an dependencies.
+folder that can contain some extra files an dependencies. Please make sure that you update this `README.md` file with the information 
+about you example.
 
 
 #### Examples tests
@@ -45,14 +45,12 @@ Notebook tutorials should be submitted in the `/notebooks` folder.
 Do not forget to update the `notebooks/index.ipynb` for your tutorial to show up on the website.
 
 ## <a name="list-of-examples"></a>List of examples
-------------------
 
-* [Mountain car](https://github.com/amzn/emukit/tree/develop/emukit/examples/emulation_montain_car_simulator) - Optimization of the control policy of the mountain car simulator. Optimization is applied using an emulator of the reward and of the dynamics of the simulator.
+* [Cost sensitive Bayesian optimization](https://github.com/amzn/emukit/tree/develop/emukit/examples/cost_sensitive_bayesian_optimization) - Wrapper for using Bayesian optimization when there is a cost involved in the evaluation of the objective.
 * [Gaussian process Bayesian Optimization](https://github.com/amzn/emukit/tree/develop/emukit/examples/gp_bayesian_optimization) - Wrapper for using Bayesian optimization with Gaussian processes.
 * [Modes](https://github.com/amzn/emukit/tree/develop/emukit/examples/models) - Implementation of a variety of models that can be used in combination with other Emukit features.
-* [Cost sensitive Bayesian optimization](https://github.com/amzn/emukit/tree/develop/emukit/examples/cost_sensitive_bayesian_optimization) - Wrapper for using Bayesian optimization when there is a cost involved in the evaluation of the objective.
+* [Mountain car](https://github.com/amzn/emukit/tree/develop/emukit/examples/emulation_montain_car_simulator) - Optimization of the control policy of the mountain car simulator. Optimization is applied using an emulator of the reward and of the dynamics of the simulator.
 
 
 ## <a name="list-of-tutorials"></a>List of tutorials
-------------------
 Visit the [index of tutorials](http://nbviewer.jupyter.org/github/amzn/emukit/blob/develop/notebooks/index.ipynb).
