@@ -9,7 +9,7 @@ examples](https://github.com/apache/incubator-mxnet/blob/master/example/README.m
 
 
 ## <a name="Contributing"></a>Contributing
-If you want to contribute to this of, please open a new pull request.
+If you want to contribute to this folder, please open a new pull request.
 
 
 ### Examples
