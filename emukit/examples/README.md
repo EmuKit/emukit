@@ -21,7 +21,7 @@ come with an illustrative notebook.
 #### Examples location
 
 Example applications or scripts should be submitted in this `emukit/examples` folder.  Each example must live in a separated 
-folder that can contain some extra files an dependencies. Please make sure that you update this `README.md` file with the information 
+folder that can contain some extra files and dependencies. Please make sure that you update this `README.md` file with the information 
 about you example when submitting a PR.
 
 
