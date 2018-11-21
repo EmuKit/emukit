@@ -15,7 +15,7 @@ If you want to contribute to this of, please open a new pull request.
 ### Examples
 
 Examples can be either notebooks that tell a story about a problem/question using Emukit, *e.g* the analysis of the properties of a simulator, or
-they contain the implementation of some specific method. Examples can live in a .py file, and ideally have tests and 
+they can contain an implementation of some specific method. Examples can live in a .py file, and ideally have tests and 
 come with an illustrative notebook. 
 
 #### Examples location
