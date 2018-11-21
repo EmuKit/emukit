@@ -28,7 +28,7 @@ about you example when submitting a PR.
 #### Examples tests
 
 As part of making sure all our examples are running correctly with the latest version of Emukit, yor can add your own tests 
-here `emukit/tests/examples/test_example.py`. (If you forget, don't worry your PR will not pass the sanity check).
+here `emukit/tests/examples/test_example.py` (if you forget, don't worry, we'll remind you during the review).
 
 #### Tutorials
 
