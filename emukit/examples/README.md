@@ -1,6 +1,6 @@
 # Emukit Examples
 
-This page contains a curated list of Emukit examples and links to other tutorials. It is heavily inspired on [contributing
+This page contains a curated list of Emukit examples and links to other tutorials. It is heavily inspired by [contributing
 examples](https://github.com/apache/incubator-mxnet/blob/master/example/README.md) section of [MXnet](https://mxnet.apache.org/).
  
   - [Contributing](#contributing)
