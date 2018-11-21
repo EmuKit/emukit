@@ -3,7 +3,7 @@ import numpy as np
 
 from emukit.core import ParameterSpace, ContinuousParameter
 from emukit.core.loop.user_function import UserFunctionWrapper
-from emukit.examples.cost_sensitive_bayesian_optimization_loop import CostSensitiveBayesianOptimizationLoop
+from emukit.examples.cost_sensitive_bayesian_optimization.cost_sensitive_bayesian_optimization_loop import CostSensitiveBayesianOptimizationLoop
 from emukit.model_wrappers import GPyModelWrapper
 
 
