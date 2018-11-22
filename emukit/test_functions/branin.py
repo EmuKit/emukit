@@ -40,11 +40,11 @@ def _branin(x):
     :return: n_points x 1 array of function evaluations
     """
     a = 1
-    b = 5.1/(4 * np.pi**2)
-    c = 5/np.pi
+    b = 5.1 / (4 * np.pi**2)
+    c = 5 / np.pi
     r = 6
     s = 10
-    t = 1/(8 * np.pi)
+    t = 1 / (8 * np.pi)
     x1 = x[:, 0]
     x2 = x[:, 1]
     y = a * (x2 - b * x1**2 + c * x1 - r)**2 + s * (1 - t) * np.cos(x1) + s

@@ -2,4 +2,4 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from .models import ICalculateVarianceReduction
+from .models import ICalculateVarianceReduction  # noqa: F401

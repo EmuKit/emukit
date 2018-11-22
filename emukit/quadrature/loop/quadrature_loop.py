@@ -14,6 +14,7 @@ from emukit.core.parameter_space import ParameterSpace
 from emukit.core.acquisition import Acquisition
 
 
+# TODO: change acquisition type to Union of suitable ones for VBQ
 class VanillaBayesianQuadratureLoop(OuterLoop):
     def __init__(self, model: VanillaBayesianQuadrature, space: ParameterSpace, acquisition: Acquisition = None,
                  model_updater: ModelUpdater = None):

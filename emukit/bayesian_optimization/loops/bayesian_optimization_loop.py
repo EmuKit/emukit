@@ -22,7 +22,7 @@ class BayesianOptimizationLoop(OuterLoop):
         :param model: The model that approximates the underlying function
         :param space: Input space where the optimization is carried out.
         :param acquisition: The acquisition function that will be used to collect new points (default, EI). If batch
-                            size is greater than one, this acquisition must output positive values only. 
+                            size is greater than one, this acquisition must output positive values only.
         :param batch_size: How many points to evaluate in one iteration of the optimization loop. Defaults to 1.
         :param model_updaters: Defines how and when the model is updated if new data arrives.
                               Defaults to updating hyper-parameters every iteration.

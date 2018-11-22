@@ -2,5 +2,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from .model_variance import ModelVariance
-from .integrated_variance import IntegratedVarianceReduction
+from .model_variance import ModelVariance  # noqa: F401
+from .integrated_variance import IntegratedVarianceReduction  # noqa: F401

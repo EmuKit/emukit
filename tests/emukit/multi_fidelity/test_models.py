@@ -21,7 +21,7 @@ class TestModels:
         n_fidelities = len(functions)
         x_init = np.zeros((5 * n_fidelities, 2))
         for i in range(n_fidelities):
-            x_init[i*5:(i+1)*5, 0] = np.random.rand(5)
+            x_init[i * 5:(i + 1) * 5, 0] = np.random.rand(5)
             x_init[i * 5:(i + 1) * 5, 1] = i
         return x_init
 

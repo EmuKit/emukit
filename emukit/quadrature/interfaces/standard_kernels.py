@@ -11,7 +11,7 @@ class IStandardKernel:
     Inherit from this class to construct wrappers for specific kernels e.g., the rbf
     """
 
-    def K(self, x: np.ndarray, x2: np.ndarray) -> np.float:
+    def K(self, x: np.ndarray, x2: np.ndarray) -> np.ndarray:
         """
         The kernel evaluated at x and x2
 
@@ -46,9 +46,9 @@ class IRBF(IStandardKernel):
     """
 
     @property
-    def lengthscale(self):
+    def lengthscale(self) -> np.float:
         raise NotImplementedError
 
     @property
-    def variance(self):
+    def variance(self) -> np.float:
         raise NotImplementedError

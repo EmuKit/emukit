@@ -33,7 +33,8 @@ class ExperimentalDesignLoop(OuterLoop):
         if batch_size == 1:
             candidate_point_calculator = Sequential(acquisition, acquisition_optimizer)
         elif batch_size > 1:
-            candidate_point_calculator = GreedyBatchPointCalculator(model, acquisition, acquisition_optimizer, batch_size)
+            candidate_point_calculator = \
+                GreedyBatchPointCalculator(model, acquisition, acquisition_optimizer, batch_size)
         else:
             raise ValueError('Batch size value of ' + str(batch_size) + ' is invalid.')
 

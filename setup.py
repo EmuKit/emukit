@@ -27,15 +27,15 @@ with open('requirements/requirements.txt', 'r') as req:
 assert sys.version_info >= (3,), 'This package requires Python 3.'
 
 setup(
-    name = "emukit",
-    version = __version__,
-    description = 'Toolkit for decision making under uncertainty.',
-    long_description = long_description,
-    long_description_content_type = 'text/markdown',
-    url = 'https://github.com/amzn/emukit',
-    packages = find_packages(exclude=['test*']),
-    include_package_data = True,
-    install_requires = requires,
+    name="emukit",
+    version=__version__,
+    description='Toolkit for decision making under uncertainty.',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
+    url='https://github.com/amzn/emukit',
+    packages=find_packages(exclude=['test*']),
+    include_package_data=True,
+    install_requires=requires,
     python_requires='>=3',
     license='Apache License 2.0',
     classifiers=(

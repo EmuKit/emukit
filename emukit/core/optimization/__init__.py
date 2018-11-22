@@ -2,4 +2,4 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from .acquisition_optimizer import AcquisitionOptimizer
+from .acquisition_optimizer import AcquisitionOptimizer  # noqa: F401
