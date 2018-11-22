@@ -17,7 +17,7 @@ class IntegralBounds:
         """
         :param name: Name of parameter
         :param bounds: List of D tuples, where D is the dimensionality of the integral and the tuples contain the
-        lower and upper bound of the integral i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)]
+        lower and upper bounds of the integral i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)]
         """
 
         self.name = name
