@@ -1,19 +1,31 @@
 import numpy as np
 import pytest
-
-from GPy.models import GPRegression
 from GPy.kern import RBF
+from GPy.models import GPRegression
 
-from emukit.model_wrappers.gpy_model_wrappers import GPyModelWrapper
 from emukit.bayesian_optimization.acquisitions import EntropySearch
+from emukit.bayesian_optimization.acquisitions.entropy_search import MultiInformationSourceEntropySearch
 from emukit.bayesian_optimization.util.mcmc_sampler import AffineInvariantEnsembleSampler
-from emukit.core import ContinuousParameter, ParameterSpace
+from emukit.core import ContinuousParameter, InformationSourceParameter, ParameterSpace
+from emukit.model_wrappers.gpy_model_wrappers import GPyModelWrapper
+
+
+@pytest.fixture
+def multi_source_acquisition():
+    rng = np.random.RandomState(42)
+    x_init = rng.rand(5, 1)
+    x_init = np.concatenate([x_init, np.ones((5, 1))], axis=1)
+    y_init = rng.rand(5, 1)
+    model = GPyModelWrapper(GPRegression(x_init, y_init, RBF(1, lengthscale=0.1)))
+
+    space = ParameterSpace([ContinuousParameter('x1', 0, 1), InformationSourceParameter(2)])
+    return MultiInformationSourceEntropySearch(model, space, num_representer_points=10)
 
 
 @pytest.fixture
 def acquisition():
     rng = np.random.RandomState(42)
-    x_init = rng.rand(5, 2)
+    x_init = rng.rand(5, 1)
     y_init = rng.rand(5, 1)
     model = GPyModelWrapper(GPRegression(x_init, y_init, RBF(1, lengthscale=0.1)))
 
@@ -36,7 +48,7 @@ def test_entropy_search_update_pmin(acquisition):
 
     assert logP.shape[0] == acquisition.num_representer_points
     # Check if representer points are inside the bounds
-    assert np.all(acquisition.space.check_points_in_domain(acquisition.representer_points))
+    assert np.all((acquisition.representer_points > 0) & (acquisition.representer_points < 1))
 
 
 def test_innovations(acquisition):
@@ -54,3 +66,10 @@ def test_innovations(acquisition):
     dm, dv = acquisition._innovations(x)
     assert np.any(np.abs(dm) > 1e-3)
     assert np.any(np.abs(dv) > 1e-3)
+
+
+def test_multi_information_source_entropy_search_shape(multi_source_acquisition):
+
+    x_test = np.array([[1.5, 0], [2.5, 1]])
+    result = multi_source_acquisition.evaluate(x_test)
+    assert (result.shape == (2, 1))
