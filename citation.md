@@ -4,6 +4,8 @@ title: Citation
 permalink: /citation/
 ---
 
+<h1>Citation</h1>
+
 If you use Emukit, please cite:
 
 ```
