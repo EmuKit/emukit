@@ -47,7 +47,8 @@ class UserFunctionWrapper(UserFunction):
         :return: List of function results
         """
         if inputs.ndim != 2:
-            raise ValueError("User function should receive 2d array as an input, actual input dimensionality is {}".format(inputs.ndim))
+            raise ValueError("User function should receive 2d array as an input, "
+                             "actual input dimensionality is {}".format(inputs.ndim))
 
         _log.info("Evaluating user function for {} point(s)".format(inputs.shape[0]))
         outputs = self.f(inputs)
@@ -88,12 +89,14 @@ class MultiSourceFunctionWrapper(UserFunction):
         """
         Evaluates the python functions corresponding to the appropriate information source
 
-        :param inputs: A list of inputs to evaluate the function at with information source index appended as last column
+        :param inputs: A list of inputs to evaluate the function at
+                       with information source index appended as last column
         :return: A list of function outputs
         """
 
         if inputs.ndim != 2:
-            raise ValueError("User function should receive 2d array as an input, actual input dimensionality is {}".format(inputs.ndim))
+            raise ValueError("User function should receive 2d array as an input, "
+                             "actual input dimensionality is {}".format(inputs.ndim))
 
         n_sources = len(self.f)
 
@@ -111,4 +114,3 @@ class MultiSourceFunctionWrapper(UserFunction):
         for x, y in zip(inputs, outputs_array):
             results.append(UserFunctionResult(x, y))
         return results
-

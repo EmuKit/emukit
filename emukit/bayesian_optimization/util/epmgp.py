@@ -95,7 +95,7 @@ def min_factor(Mu, Sigma, k, gamma=1):
     for count in range(50):
         diff = 0
         for i in range(D - 1):
-            l = i if i < k else i + 1
+            l = i if i < k else i + 1  # noqa: E741 to be consistent with paper notation
             try:
                 M, V, P[i], MP[i], logS[i], d = lt_factor(k, l, M, V,
                                                           MP[i], P[i], gamma)

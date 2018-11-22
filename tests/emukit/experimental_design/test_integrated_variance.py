@@ -30,7 +30,8 @@ def test_integrated_variance_acquisition(model):
 
 def test_integrated_variance_fails_with_out_of_domain_test_points(model):
     """
-    Checks that if the user supplies x_monte_carlo to the function, and they are out of the domain of the parameter space a ValueError is raised.
+    Checks that if the user supplies x_monte_carlo to the function
+    and they are out of the domain of the parameter space a ValueError is raised.
     """
     space = ParameterSpace([ContinuousParameter('x1', 0, 1), ContinuousParameter('x2', 0, 1)])
 
