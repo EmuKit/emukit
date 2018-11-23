@@ -7,16 +7,34 @@ from typing import List
 import numpy as np
 import GPyOpt
 
+from . import Parameter
 from . import ContinuousParameter
 from .discrete_parameter import DiscreteParameter, InformationSourceParameter
 
 
-class CategoricalParameter(object):
+
+
+
+
+class CategoricalParameter(Parameter):
     def __init__(self, name: str, categories: List, encodings: np.ndarray):
         self.name = name
 
         self.categories = categories
         self.encodings = encodings
+
+    def transform_to_model(self, category):
+        idx = categories.index(category)
+        return encodings[idx]
+
+    def transform_to_user_function(self, x):
+        max_idx = np.argmax(x)
+        new_x = np.zeros(x.shape, dtype)
+        new_x[max_idx] = 1
+
+    @property
+    def model_dim(self):
+        return self.encodings.shape[1]
 
     # def check_in_domain(self, x: Union[np.ndarray, str]) -> bool:
     #     """
@@ -54,6 +72,24 @@ class ParameterSpace(object):
             if param.name == name:
                 return param
         raise ValueError('Parameter with name ' + name + ' not found.')
+
+    def transform_to_model(self, x):
+        result = []
+        for i, param in enumerate(self.parameters):
+            param_column = x[:, i:(i + 1)]
+            result.append(param.transform_to_model(param_column))
+
+        return np.column_stack(result)
+
+    def transform_to_user_function(self, x):
+        result = []
+        current_idx = 0
+        for param in self.parameters:
+            param_columns = x[:, current_idx:(current_idx + param.model_dim)]
+            result.append(param.transform_to_user_function(param_columns))
+            current_idx += param.model_dim
+
+        return np.column_stack(result)
 
     def convert_to_gpyopt_design_space(self):
         """

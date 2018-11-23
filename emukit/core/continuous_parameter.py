@@ -6,8 +6,9 @@ from typing import List, Union
 
 import numpy as np
 
+from . import Parameter
 
-class ContinuousParameter(object):
+class ContinuousParameter(Parameter):
     """
     A univariate continuous parameter with a domain defined in a range between two values
     """
