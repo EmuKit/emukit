@@ -22,10 +22,9 @@ def test_mean_squared_error_metric():
     loop_state.metrics = dict()
 
     mse = MeanSquaredErrorMetric(x_test, y_test)
-    mse.evaluate(mock_loop, loop_state)
+    metric_value = mse.evaluate(mock_loop, loop_state)
 
-    assert loop_state.metrics['mean_squared_error'][0].shape == (2,)
-    assert np.all(np.isclose(loop_state.metrics['mean_squared_error'][0], np.zeros(2)))
+    assert metric_value.shape == (2,)
 
 
 def test_minimum_observed_value_metric():
@@ -43,9 +42,9 @@ def test_minimum_observed_value_metric():
     loop_state.metrics = dict()
 
     metric = MinimumObservedValueMetric()
-    metric.evaluate(mock_loop, loop_state)
+    metric_value = metric.evaluate(mock_loop, loop_state)
 
-    assert loop_state.metrics['minimum_observed_value'][0].shape == (2,)
+    assert metric_value.shape == (2,)
 
 
 def test_time_metric():
@@ -65,6 +64,6 @@ def test_time_metric():
     name = 'time'
     metric = TimeMetric(name)
     metric.reset()
-    metric.evaluate(mock_loop, loop_state)
+    metric_value = metric.evaluate(mock_loop, loop_state)
 
-    assert len(loop_state.metrics[name]) == 1
+    assert metric_value.shape == (1,)

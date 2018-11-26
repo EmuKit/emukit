@@ -2,7 +2,7 @@ from time import time
 
 import numpy as np
 
-from emukit.core.loop import LoopState, OuterLoop
+from ...core.loop import LoopState, OuterLoop
 
 
 class Metric:
@@ -26,7 +26,7 @@ class MeanSquaredErrorMetric(Metric):
         self.y_test = y_test
         self.name = name
 
-    def evaluate(self, loop: OuterLoop, loop_state: LoopState) -> None:
+    def evaluate(self, loop: OuterLoop, loop_state: LoopState) -> np.ndarray:
         """
         Calculate and store mean squared error
 
@@ -36,8 +36,7 @@ class MeanSquaredErrorMetric(Metric):
         # Calculate mean squared error
         predictions = loop.model_updaters[0].model.predict(self.x_test)[0]
         mse = np.mean(np.square(self.y_test - predictions), axis=0)
-        # Add to metrics dictionary in loop state
-        _add_value_to_metrics_dict(loop_state, mse, self.name)
+        return mse
 
 
 class MinimumObservedValueMetric(Metric):
@@ -47,7 +46,7 @@ class MinimumObservedValueMetric(Metric):
     def __init__(self, name: str='minimum_observed_value'):
         self.name = name
 
-    def evaluate(self, loop, loop_state) -> None:
+    def evaluate(self, loop: OuterLoop, loop_state: LoopState) -> np.ndarray:
         """
         Evaluates minimum observed value
 
@@ -55,26 +54,30 @@ class MinimumObservedValueMetric(Metric):
         :param loop_state: Object containing history of the loop that we add results to
         """
         y_min = np.min(loop_state.Y, axis=0)
-        # Add to metrics dictionary in loop state
-        _add_value_to_metrics_dict(loop_state, y_min, self.name)
+        return y_min
 
 
 class TimeMetric(Metric):
+    """
+    Time taken between each iteration of the loop
+    """
     def __init__(self, name: str='time'):
+        """
+        :param name: Name of the metric. Defaults to "time"
+        """
         self.start_time = None
         self.name = name
 
-    def reset(self) -> None:
-        self.start_time = time()
-
-    def evaluate(self, loop: OuterLoop, loop_state: LoopState) -> None:
+    def evaluate(self, loop: OuterLoop, loop_state: LoopState) -> np.ndarray:
+        """
+        Returns difference between time now and when the reset method was last called
+        """
         time_since_start = time() - self.start_time
         # Add to metrics dictionary in loop state
-        _add_value_to_metrics_dict(loop_state, time_since_start, self.name)
+        return np.array([time_since_start])
 
-
-def _add_value_to_metrics_dict(loop_state, value, key_name):
-    if key_name in loop_state.metrics:
-        loop_state.metrics[key_name] = np.concatenate([loop_state.metrics[key_name], [value]], axis=0)
-    else:
-        loop_state.metrics[key_name] = np.array([value])
+    def reset(self) -> None:
+        """
+        Resets the start time
+        """
+        self.start_time = time()

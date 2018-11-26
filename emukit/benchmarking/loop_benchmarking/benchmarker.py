@@ -1,4 +1,5 @@
 import logging
+import numpy as np
 from typing import Callable, List, Tuple, Union
 
 from ...core import ParameterSpace
@@ -61,11 +62,7 @@ class Benchmarker:
 
                 this_loop = loop(initial_loop_state.X, initial_loop_state.Y)
                 this_loop.loop_state.metrics = dict()
-                # Add metrics to loop
-                for metric in self.metrics:
-                    this_loop.loop_start_event.append(metric.evaluate)
-                    this_loop.iteration_end_event.append(metric.evaluate)
-                    metric.reset()
+                self._subscribe_metrics_to_loop_events(this_loop)
 
                 this_loop.run_loop(self.test_function, n_iterations)
 
@@ -73,7 +70,36 @@ class Benchmarker:
                     result.add_results(loop_name, j, metric_name, metric_value)
         return result
 
+    def _subscribe_metrics_to_loop_events(self, outer_loop):
+        """
+        Subscribe metric calls to events on outer loop object
+        """
+        if self.metrics is not None:
+            for metric in self.metrics:
+                metric.reset()
+
+                def update_metric(loop, loop_state):
+                    value = metric.evaluate(loop, loop_state)
+                    _add_value_to_metrics_dict(loop_state, value, metric.name)
+
+                # Subscribe to events
+                outer_loop.loop_start_event.append(update_metric)
+                outer_loop.iteration_end_event.append(update_metric)
+
     def _create_initial_loop_state(self, n_initial_data):
         x_init = self.initial_design.get_samples(n_initial_data)
         results = self.test_function.evaluate(x_init)
         return LoopState(results)
+
+
+def _add_value_to_metrics_dict(loop_state, value, key_name):
+    """
+    Add new metric evaluation to dictionary in loop state using the metric name as the key in the dictionary
+    """
+
+    if key_name in loop_state.metrics:
+        # Array already exists - append new value
+        loop_state.metrics[key_name] = np.concatenate([loop_state.metrics[key_name], [value]], axis=0)
+    else:
+        # Initialise array
+        loop_state.metrics[key_name] = np.array([value])
