@@ -1,10 +1,11 @@
 import GPy
+import numpy as np
 import pytest
 
 import emukit.test_functions
 from emukit.bayesian_optimization.loops import BayesianOptimizationLoop
 from emukit.benchmarking.loop_benchmarking.benchmarker import Benchmarker
-from emukit.benchmarking.loop_benchmarking.metrics import MinimumObservedValueMetric
+from emukit.benchmarking.loop_benchmarking.metrics import MeanSquaredErrorMetric, MinimumObservedValueMetric, TimeMetric
 from emukit.core import ContinuousParameter, ParameterSpace
 from emukit.model_wrappers import GPyModelWrapper
 
@@ -23,7 +24,10 @@ def loops():
 
 def test_benchmarker_runs(loops):
     test_fcn, parameter_space = emukit.test_functions.forrester_function()
-    benchmark = Benchmarker(loops, test_fcn, parameter_space, [MinimumObservedValueMetric()])
+
+    x_test = np.random.rand(50, 1)
+    benchmark = Benchmarker(loops, test_fcn, parameter_space, [MinimumObservedValueMetric(), TimeMetric(),
+                                                               MeanSquaredErrorMetric(x_test, test_fcn(x_test))])
     results = benchmark.run_benchmark()
 
 

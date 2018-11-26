@@ -34,7 +34,7 @@ class MeanSquaredErrorMetric(Metric):
         :param loop_state: Object containing history of the loop that we add results to
         """
         # Calculate mean squared error
-        predictions = loop.model_updater.model.predict(self.x_test)[0]
+        predictions = loop.model_updaters[0].model.predict(self.x_test)[0]
         mse = np.mean(np.square(self.y_test - predictions), axis=0)
         # Add to metrics dictionary in loop state
         _add_value_to_metrics_dict(loop_state, mse, self.name)

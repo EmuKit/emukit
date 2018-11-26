@@ -16,7 +16,7 @@ def test_mean_squared_error_metric():
     model_updater_mock = mock.create_autospec(ModelUpdater)
     model_updater_mock.model = mock_model
     mock_loop = mock.create_autospec(OuterLoop)
-    mock_loop.model_updater = model_updater_mock
+    mock_loop.model_updaters = [model_updater_mock]
 
     loop_state = LoopState([])
     loop_state.metrics = dict()
@@ -37,7 +37,7 @@ def test_minimum_observed_value_metric():
     model_updater_mock = mock.create_autospec(ModelUpdater)
     model_updater_mock.model = mock_model
     mock_loop = mock.create_autospec(OuterLoop)
-    mock_loop.model_updater = model_updater_mock
+    mock_loop.model_updaters = [model_updater_mock]
 
     loop_state = create_loop_state(x_observations, y_observations)
     loop_state.metrics = dict()
