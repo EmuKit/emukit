@@ -36,7 +36,7 @@ class BenchmarkResult:
         """
         self._results[loop_name][metric_name][i_repeat] = np.array(metric_values).flatten()
 
-    def extract_metric_as_array(self, loop_name: str, metric_name: str):
+    def extract_metric_as_array(self, loop_name: str, metric_name: str) -> np.ndarray:
         """
         Returns results over all repeats and iterations for a specific metric and loop name pair
 
