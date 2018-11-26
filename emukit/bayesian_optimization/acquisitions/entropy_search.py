@@ -235,7 +235,7 @@ class MultiInformationSourceEntropySearch(EntropySearch):
         """
 
         # Find information source parameter in parameter space
-        info_source_parameter, source_idx = MultiInformationSourceEntropySearch._find_source_parameter(space)
+        info_source_parameter, source_idx = _find_source_parameter(space)
         self.source_idx = source_idx
 
         # Assume we are in a multi-fidelity setting and the highest index is the highest fidelity
@@ -264,21 +264,6 @@ class MultiInformationSourceEntropySearch(EntropySearch):
         repr_points = np.insert(repr_points, self.source_idx, idx, axis=1)
         return repr_points, repr_points_log
 
-    @staticmethod
-    def _find_source_parameter(space):
-        # Find information source parameter in parameter space
-        info_source_parameter = None
-        source_idx = None
-        for i, param in enumerate(space.parameters):
-            if isinstance(param, InformationSourceParameter):
-                info_source_parameter = param
-                source_idx = i
-
-        if info_source_parameter is None:
-            raise ValueError('No information source parameter found in the parameter space')
-
-        return info_source_parameter, source_idx
-
     def _get_proposal_function(self, model, space):
 
         # Define proposal function for multi-fidelity
@@ -297,3 +282,18 @@ class MultiInformationSourceEntropySearch(EntropySearch):
                 return np.array([np.NINF])
 
         return proposal_func
+
+
+def _find_source_parameter(space):
+    # Find information source parameter in parameter space
+    info_source_parameter = None
+    source_idx = None
+    for i, param in enumerate(space.parameters):
+        if isinstance(param, InformationSourceParameter):
+            info_source_parameter = param
+            source_idx = i
+
+    if info_source_parameter is None:
+        raise ValueError('No information source parameter found in the parameter space')
+
+    return info_source_parameter, source_idx
