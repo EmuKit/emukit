@@ -60,7 +60,7 @@ class MinimumObservedValueMetric(Metric):
 
 
 class TimeMetric(Metric):
-    def __init__(self, name='time'):
+    def __init__(self, name: str='time'):
         self.start_time = None
         self.name = name
 
