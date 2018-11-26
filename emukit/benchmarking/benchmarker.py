@@ -21,7 +21,7 @@ class Benchmarker:
         :param test_function: The function to benchmark the loop against
         :param parameter_space: Parameter space describing the input domain of the function to be benchmarked against
         :param metrics: List of metric objects that assess the performance of the loop at every iteration
-        :param initial_design: An object that returns an set of samples in the input domain that are used as the initial
+        :param initial_design: An object that returns a set of samples in the input domain that are used as the initial
                                data set
         """
 
