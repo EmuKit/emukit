@@ -12,18 +12,18 @@ from ..local_penalization_calculator import LocalPenalizationPointCalculator
 
 
 class BayesianOptimizationLoop(OuterLoop):
-    def __init__(self, model: IModel, space: ParameterSpace, acquisition: Acquisition = None, batch_size: int = 1,
-                 update_interval: int = 1):
+    def __init__(self, space: ParameterSpace, model: IModel, acquisition: Acquisition = None, update_interval: int = 1,
+                 batch_size: int = 1):
 
         """
         Emukit class that implement a loop for building modular Bayesian optimization
 
-        :param model: The model that approximates the underlying function
         :param space: Input space where the optimization is carried out.
+        :param model: The model that approximates the underlying function
         :param acquisition: The acquisition function that will be used to collect new points (default, EI). If batch
                             size is greater than one, this acquisition must output positive values only.
-        :param batch_size: How many points to evaluate in one iteration of the optimization loop. Defaults to 1.
         :param update_interval: Number of iterations between optimization of model hyper-parameters. Defaults to 1.
+        :param batch_size: How many points to evaluate in one iteration of the optimization loop. Defaults to 1.
         """
 
         if acquisition is None:

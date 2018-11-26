@@ -14,15 +14,15 @@ from ...core.parameter_space import ParameterSpace
 
 
 class CostSensitiveBayesianOptimizationLoop(OuterLoop):
-    def __init__(self, model_objective: IModel, model_cost: IModel, space: ParameterSpace,
+    def __init__(self, space: ParameterSpace, model_objective: IModel, model_cost: IModel,
                  acquisition: Acquisition = None, update_interval: int = 1):
 
         """
         Emukit class that implement a loop for building modular cost sensitive Bayesian optimization.
 
+        :param space: Input space where the optimization is carried out.
         :param model_objective: The model that approximates the underlying objective function
         :param model_cost: The model that approximates the cost of evaluating the objective function
-        :param space: Input space where the optimization is carried out.
         :param acquisition: The acquisition function that will be used to collect new points (default, EI).
         :param update_interval:  Number of iterations between optimization of model hyper-parameters. Defaults to 1.
         """
