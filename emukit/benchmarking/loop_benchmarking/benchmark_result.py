@@ -25,7 +25,7 @@ class BenchmarkResult:
                 for i in range(n_repeats):
                     self._results[loop_name][metric_name].append([])
 
-    def add_results(self, loop_name: str, i_repeat: int, metric_name: str, metric_values: list) -> None:
+    def add_results(self, loop_name: str, i_repeat: int, metric_name: str, metric_values: np.ndarray) -> None:
         """
         Add results for a specific loop, metric and repeat combination
 
@@ -34,7 +34,7 @@ class BenchmarkResult:
         :param metric_name: Name of metric
         :param metric_values: Metric values to add
         """
-        self._results[loop_name][metric_name][i_repeat] = np.array(metric_values).flatten()
+        self._results[loop_name][metric_name][i_repeat] = metric_values.flatten()
 
     def extract_metric_as_array(self, loop_name: str, metric_name: str) -> np.ndarray:
         """
