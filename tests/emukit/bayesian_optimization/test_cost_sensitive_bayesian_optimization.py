@@ -26,7 +26,7 @@ def test_cost_sensitive_bayesian_optimization_loop():
     model_objective = GPyModelWrapper(gpy_model_objective)
     model_cost = GPyModelWrapper(gpy_model_cost)
 
-    loop = CostSensitiveBayesianOptimizationLoop(model_objective, model_cost, space)
+    loop = CostSensitiveBayesianOptimizationLoop(space, model_objective, model_cost)
     loop.run_loop(user_fcn, 10)
 
     assert loop.loop_state.X.shape[0] == 20
