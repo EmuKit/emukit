@@ -3,7 +3,7 @@ import numpy as np
 from ...bayesian_optimization.acquisitions import ExpectedImprovement, ProbabilityOfImprovement, \
     NegativeLowerConfidenceBound
 from ...core import ParameterSpace
-from ...core.loop import OuterLoop, FixedIntervalUpdater, Sequential
+from ...core.loop import OuterLoop, FixedIntervalUpdater, SequentialPointCalculator
 from ...core.loop.loop_state import create_loop_state
 from ...core.optimization import AcquisitionOptimizer
 from ..models.bohamiann import Bohamiann
@@ -48,7 +48,7 @@ def create_bayesian_optimization_loop(x_init: np.ndarray, y_init: np.ndarray, pa
         raise ValueError('Unrecognised acquisition type: ' + str(acquisition_type))
 
     acquisition_optimizer = AcquisitionOptimizer(parameter_space)
-    candidate_point_calculator = Sequential(acquisition, acquisition_optimizer)
+    candidate_point_calculator = SequentialPointCalculator(acquisition, acquisition_optimizer)
     loop_state = create_loop_state(x_init, y_init)
     model_updater = FixedIntervalUpdater(model, 1)
     return OuterLoop(candidate_point_calculator, model_updater, loop_state)
