@@ -9,7 +9,7 @@ class Metric:
     def evaluate(self, loop: OuterLoop, loop_state: LoopState) -> None:
         pass
 
-    def reset(self):
+    def reset(self) -> None:
         pass
 
 
@@ -64,10 +64,10 @@ class TimeMetric(Metric):
         self.start_time = None
         self.name = name
 
-    def reset(self):
+    def reset(self) -> None:
         self.start_time = time()
 
-    def evaluate(self, loop: OuterLoop, loop_state: LoopState):
+    def evaluate(self, loop: OuterLoop, loop_state: LoopState) -> None:
         time_since_start = time() - self.start_time
         # Add to metrics dictionary in loop state
         _add_value_to_metrics_dict(loop_state, time_since_start, self.name)
