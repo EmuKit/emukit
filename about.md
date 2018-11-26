@@ -4,51 +4,47 @@ title: About
 permalink: /about/
 ---
 
-<h1>Emukit: the first open source toolkit for statistical emulation and decision making under uncertainty</h1>
+<h1>Emukit: open source toolkit for statistical emulation and decision making under uncertainty</h1>
 
-*December 2018, Cambridge, UK.*
-
-We are launching Emukit, a highly adaptable Python toolkit for enriching decision making under uncertainty. This is 
-particularly pertinent to complex systems where data is scarce or difficult to acquire. In these scenarios, 
+Emukit is a highly adaptable Python toolkit for enriching decision making under uncertainty. This is 
+particularly pertinent to model complex systems where data is scarce or difficult to acquire. In these scenarios, 
 propagating well-calibrated uncertainty estimates within a design loop or computational 
 pipeline ensures that constrained resources are used effectively.
 
-Some features of Emukit are:
 
-- Emukit brings together under the same code framework several for uncertainty quantification and decision making tools. 
-Sensitivity analysis, Bayesian optimization, Experimental design of multi-fidelity modelling can be now performed within 
-the same integrated code repository.
+Some features of Emukit:
 
-- Emukit has been build using reusable components. Its main goal is to provide tools that ease 
-the creation of new methods for uncertainty quantification and decision making.
+- *Emukit separates models from decisions*. Methods like Bayesian optimization, Bandits, Experimental design (active learning) or Bayesian quadrature 
+can be jointly analyzed as Markov decision processes in some believe space. Emukit allows you to build such believe space and use it 
+in several decision scenarios. 
 
-- Emukit is agnostic to the underlying modelling framework, which means you can use any tool of your choice in the Python ecosystem to 
-build the machine learning model that is used in your decision pipeline. Models written in GPy, TensorFlow, MXnet, etc can easily be
+- *Emukit is agnostic to the underlying modelling framework.* This means you can use any tool of your choice in the Python ecosystem to 
+build the machine learning model and use it in a decision loop. Models written in GPy, TensorFlow, MXnet, etc can easily be
 wrapped in Emukit and used in several sequential decision making problems. 
 
-
-<h3> 1. Sequential decison making under uncertainty</h3>
-
-
-
-<div align="center"><img width="460" src="../images/loop.jpeg" />       </div>
+- *Emukit has been built using reusable components.* Its main goal is to provide tools that ease 
+the creation of new methods for uncertainty quantification and decision making.
 
 
-<h3> One loop to run them all </h3>
 
 
-<div align="center"><img width="460" src="../images/application_loops.jpeg" />      </div>
+<h3> Main components of Emukit</h3>
 
+In a nutshell, decision making methods implemented in Emukit are represented in the following high-level chart.
+
+
+<div align="center"><img width="560" src="../images//emukit_vision.svg" />       </div>
+
+*Models* are probabilistic data-driven representation of the process/simulator that the user is working with. There is normally a modelling framework that is used to create a model. Examples: neural network, Gaussian process, random forest. 
+
+*Methods* are low-level techniques that are aimed that either understanding, quantifying or using uncertainty that the model provides. Examples: Bayesian optimization, experimental design. 
+
+*Tasks* are high level goals that owners of the process/simulator might be actually interested in. Examples: measure quality of a simulator, explain complex system behavior. 
 
 <h3> Build your model, run your method, solve your task </h3>
 
 
-We see emulation comprising of three main parts:
-- **Models**. This is a probabilistic data-driven representation of the process/simulator that the user is working with. There is normally a modelling framework that is used to create a model. Examples: neural network, Gaussian process, random forest. 
-- **Methods**. Relatively low-level techniques that are aimed that either understanding, quantifying or using uncertainty that the model provides. Examples: Bayesian optimization, experimental design. 
-- **Tasks**. High level goals that owners of the process/simulator might be actually interested in. Examples: measure quality of a simulator, explain complex system behavior. 
-
-The typical workflow that we envision for a user interested in emulation is:
+The typical workflow that we envision for a user interested in using Emukit is:
 1. Figure out which questions/tasks are important for them in regard to their process/simulation.
 2. Understand which emulation techniques are needed to accomplish the chosen task.
 3. Build an emulator of the process. That can be a very involved step, that may include a lot of fine tuning and validation.
@@ -58,7 +54,6 @@ The typical workflow that we envision for a user interested in emulation is:
 
 
 
-Here is Emukit approach towards each of three parts of emulation.
 
 <h4> Models </h4>
 
@@ -80,9 +75,10 @@ This is the main focus of Emukit. Emukit defines a general sctructure of a decis
  
  
 <h4> Tasks </h4>
- Emukit does not contribute much to this part at the moment. However Emukit team are on lookuout for typical use cases for Emukit, and if a reoccuring pattern emerges, it may become a part of the library.
+We expect this section to grow in the future. So far, we have integrated in the core part of the library 
+ a simple benchmarking tool to compare differetn Bayesian optimization methods. You can check [this](https://github.com/amzn/emukit/tree/develop/emukit/examples) folder for more examples.
 
 
 
 
-<h3> What else? </h3>
+

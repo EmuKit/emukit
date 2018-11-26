@@ -1,14 +1,29 @@
 ---
-layout: page
+layout: default
 title: Installation
 permalink: /installation/
 ---
 
-Currently only installation from sources is supported.
+<h1>Installation</h1>
+
+Installation from sources and using pip are both supported.
 
 #### Dependencies / Prerequisites
-Emukit's primary dependencies are Numpy, GPy and GPyOpt.
-See [requirements](requirements/requirements.txt).
+Emukit requires Python 3.5 or above and NumPy for basic functionality. Some core features also need [GPy](https://sheffieldml.github.io/GPy/) and [GPyOpt](https://sheffieldml.github.io/GPyOpt/). Some advanced elements may have their own dependencies, but their installation is optional.
+
+Required dependecies can be installed from the [requirements](https://github.com/amzn/emukit/blob/develop/requirements/requirements.txt) file via 
+
+{% highlight ruby %}
+pip install -r requirements/requirements.txt
+{% endhighlight %}
+
+#### Install using pip 
+Just write:
+
+{% highlight ruby %}
+pip install emukit
+{% endhighlight %}
+
 
 #### Install from sources
 To install Emukit from source, create a local folder where you would like to put Emukit source code, and run following commands:
@@ -25,4 +40,3 @@ Alternatively you can run
 pip install git+https://github.com/amzn/Emukit.git
 {% endhighlight %}
 
-#### For developers
