@@ -51,7 +51,7 @@ class BenchmarkPlot:
 
         if (x_axis is not None) and (x_axis in self.metrics_to_plot):
             if x_axis not in self.metrics_to_plot:
-                raise ValueError('x_axis ' + x_axis + ' is not a valid loop name')
+                raise ValueError('x_axis ' + x_axis + ' is not a valid metric name')
             self.metrics_to_plot.remove(x_axis)
 
         if x_axis is None:
