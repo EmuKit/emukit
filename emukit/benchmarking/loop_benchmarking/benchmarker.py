@@ -1,10 +1,10 @@
 import logging
 from typing import Callable, List, Tuple, Union
 
-from emukit.core import ParameterSpace
-from emukit.core.loop import LoopState, UserFunction, UserFunctionWrapper
-from emukit.experimental_design import RandomDesign
-from emukit.experimental_design.model_free.base import ModelFreeDesignBase
+from ...core import ParameterSpace
+from ...core.loop import LoopState, UserFunction, UserFunctionWrapper
+from ...experimental_design import RandomDesign
+from ...experimental_design.model_free.base import ModelFreeDesignBase
 from .benchmark_result import BenchmarkResult
 from .metrics import Metric
 
