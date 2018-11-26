@@ -51,7 +51,7 @@ class Benchmarker:
         :param n_initial_data: Number of points in the initial data set
         :param n_iterations: Number of iterations to run the loop for
         :param n_repeats: Number of times to run each loop with a different initial data set
-        :return: A numpy array with the resulting loop state
+        :return: An instance of BenchmarkResult that contains all the tracked metrics for each loop
         """
         result = BenchmarkResult(self.loop_names, n_repeats, self.metric_names)
         for j in range(n_repeats):
@@ -77,11 +77,3 @@ class Benchmarker:
         x_init = self.initial_design.get_samples(n_initial_data)
         results = self.test_function.evaluate(x_init)
         return LoopState(results)
-
-    def _initialise_results(self):
-        results = dict()
-        for loop_name in self.loop_names:
-            results[loop_name] = dict()
-            for metric in self.metrics:
-                results[loop_name][metric.name] = []
-        return results

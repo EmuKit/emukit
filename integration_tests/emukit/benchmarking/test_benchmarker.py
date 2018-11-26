@@ -1,16 +1,24 @@
+import GPy
 import pytest
 
 import emukit.test_functions
+from emukit.bayesian_optimization.loops import BayesianOptimizationLoop
 from emukit.benchmarking.benchmarker import Benchmarker
 from emukit.benchmarking.metrics import MinimumObservedValueMetric
-from emukit.core import ContinuousParameter
-from emukit.examples.gp_bayesian_optimization.single_objective_bayesian_optimization import GPBayesianOptimization
+from emukit.core import ContinuousParameter, ParameterSpace
+from emukit.model_wrappers import GPyModelWrapper
 
 
 @pytest.fixture
 def loops():
-    vars = [ContinuousParameter('x', 0, 1)]
-    return [('GP', lambda X, Y: GPBayesianOptimization(vars, X, Y, False))]
+    space = ParameterSpace([ContinuousParameter('x', 0, 1)])
+
+    def make_loop(x_init, y_init):
+        gpy_model = GPy.models.GPRegression(x_init, y_init)
+        model = GPyModelWrapper(gpy_model)
+        return BayesianOptimizationLoop(model, space)
+
+    return [('GP', make_loop)]
 
 
 def test_benchmarker_runs(loops):

@@ -75,6 +75,6 @@ class TimeMetric(Metric):
 
 def _add_value_to_metrics_dict(loop_state, value, key_name):
     if key_name in loop_state.metrics:
-        loop_state.metrics[key_name].append(value)
+        loop_state.metrics[key_name] = np.concatenate([loop_state.metrics[key_name], value], axis=0)
     else:
-        loop_state.metrics[key_name] = [value]
+        loop_state.metrics[key_name] = np.array([value])
