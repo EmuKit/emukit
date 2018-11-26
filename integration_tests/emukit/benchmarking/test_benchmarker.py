@@ -3,8 +3,8 @@ import pytest
 
 import emukit.test_functions
 from emukit.bayesian_optimization.loops import BayesianOptimizationLoop
-from emukit.benchmarking.benchmarker import Benchmarker
-from emukit.benchmarking.metrics import MinimumObservedValueMetric
+from emukit.benchmarking.loop_benchmarking.benchmarker import Benchmarker
+from emukit.benchmarking.loop_benchmarking.metrics import MinimumObservedValueMetric
 from emukit.core import ContinuousParameter, ParameterSpace
 from emukit.model_wrappers import GPyModelWrapper
 

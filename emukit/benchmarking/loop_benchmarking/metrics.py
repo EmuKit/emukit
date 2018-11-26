@@ -2,7 +2,7 @@ from time import time
 
 import numpy as np
 
-from ..core.loop import LoopState, OuterLoop
+from emukit.core.loop import LoopState, OuterLoop
 
 
 class Metric:
