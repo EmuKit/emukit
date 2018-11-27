@@ -13,7 +13,7 @@ class IntegralBounds:
     """
     The integral bounds i.e., the edges of the domain of the integral
     """
-    def __init__(self, name: str, bounds: List[Tuple]):
+    def __init__(self, name: str, bounds: List):
         """
         :param name: Name of parameter
         :param bounds: List of D tuples, where D is the dimensionality of the integral and the tuples contain the
@@ -32,9 +32,10 @@ class IntegralBounds:
         """
         for bounds_d in self.bounds:
             lb_d, ub_d = bounds_d
-            assert lb_d<ub_d, "upper integral bound must be larger than lower bound"
+            if lb_d >= ub_d:
+                raise ValueError("Upper integral bound must be larger than lower bound")
 
-    def get_bounds_as_separate_arrays(self) -> Tuple[np.ndarray, np.ndarray]:
+    def get_lower_and_upper_bounds(self) -> Tuple[np.ndarray, np.ndarray]:
         """
         returns two arrays, one containing all lower bounds and one containing all upper bounds.
         :return: lower bounds, upper bounds of integral
@@ -45,7 +46,7 @@ class IntegralBounds:
             lb_d, ub_d = bounds_d
             lower_bounds[i] = lb_d
             upper_bounds[i] = ub_d
-        return lower_bounds, upper_bounds
+        return lower_bounds.T, upper_bounds.T
 
     def convert_to_list_of_continuous_parameters(self) -> List[ContinuousParameter]:
         """
@@ -55,8 +56,7 @@ class IntegralBounds:
         continuous_parameters = []
         for i, bounds_d in enumerate(self.bounds):
             lb_d, ub_d = bounds_d
-            name_d = self.name+'_'+str(i)
+            name_d = self.name + '_' + str(i)
             param = ContinuousParameter(name=name_d, min_value=lb_d, max_value=ub_d)
             continuous_parameters.append(param)
-        assert len(continuous_parameters) == self.dim
         return continuous_parameters

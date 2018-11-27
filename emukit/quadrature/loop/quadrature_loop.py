@@ -5,40 +5,36 @@
 from emukit.core.loop.loop_state import create_loop_state
 from emukit.core.loop import OuterLoop, Sequential, FixedIntervalUpdater, ModelUpdater
 from emukit.core.optimization import AcquisitionOptimizer
-from emukit.quadrature.methods import VanillaBayesianQuadrature
-# TODO: replace this with BQ acquisition
-from emukit.bayesian_optimization.acquisitions import NegativeLowerConfidenceBound
-#from emukit.quadrature.acquisitions import IntegratedVarianceReduction
-
 from emukit.core.parameter_space import ParameterSpace
 from emukit.core.acquisition import Acquisition
+from emukit.quadrature.methods import VanillaBayesianQuadrature
+from emukit.quadrature.acquisitions import IntegralVarianceReduction
 
 
-# TODO: change acquisition type to Union of suitable ones for VBQ
 class VanillaBayesianQuadratureLoop(OuterLoop):
-    def __init__(self, model: VanillaBayesianQuadrature, space: ParameterSpace, acquisition: Acquisition = None,
+    def __init__(self, model: VanillaBayesianQuadrature, acquisition: Acquisition = None,
                  model_updater: ModelUpdater = None):
         """
-        Emukit class that implement a loop for building modular Bayesian optimization
+        The loop for vanilla Bayesian Quadrature
 
         :param model: the vanilla Bayesian quadrature method
-        :param space: the domain of the integral
-        :param acquisition: The acquisition function that is be used to collect new points. default, variance reduction
+        :param acquisition: The acquisition function that is be used to collect new points.
+        default, IntegralVarianceReduction
         :param model_updater: Defines how and when the quadrature model is updated if new data arrives.
                               Defaults to updating hyper-parameters every iteration.
         """
 
+        self.model = model
 
-        # TODO: this need to be e.g., variance reduction
         if acquisition is None:
-            acquisition = NegativeLowerConfidenceBound(model)
-            #acquisition = IntegratedVarianceReduction(model)
+            acquisition = IntegralVarianceReduction(self.model)
 
         if model_updater is None:
-            model_updater = FixedIntervalUpdater(model, 1)
+            model_updater = FixedIntervalUpdater(self.model, 1)
 
+        space = ParameterSpace(self.model.integral_bounds.convert_to_list_of_continuous_parameters())
         acquisition_optimizer = AcquisitionOptimizer(space)
         candidate_point_calculator = Sequential(acquisition, acquisition_optimizer)
-        loop_state = create_loop_state(model.X, model.Y)
+        loop_state = create_loop_state(self.model.X, self.model.Y)
 
         super().__init__(candidate_point_calculator, model_updater, loop_state)

@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from . import interfaces
-from . import kernels
-from . import loop
-from . import methods
+from . import interfaces  # noqa: F401
+from . import kernels  # noqa: F401
+from . import loop  # noqa: F401
+from . import methods  # noqa: F401

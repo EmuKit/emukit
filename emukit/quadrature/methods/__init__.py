@@ -2,5 +2,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from .warped_bq_model import WarpedBayesianQuadratureModel
-from .vanilla_bq import VanillaBayesianQuadrature
+from .warped_bq_model import WarpedBayesianQuadratureModel  # noqa: F401
+from .vanilla_bq import VanillaBayesianQuadrature  # noqa: F401

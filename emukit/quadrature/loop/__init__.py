@@ -2,4 +2,4 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from .quadrature_loop import VanillaBayesianQuadratureLoop
+from .quadrature_loop import VanillaBayesianQuadratureLoop  # noqa: F401

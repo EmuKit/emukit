@@ -2,5 +2,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from .squared_correlation import SquaredCorrelation
-from .squared_correlation import SquaredCorrelation as IntegratedVarianceReduction
+from .squared_correlation import SquaredCorrelation  # noqa: F401
+from .squared_correlation import SquaredCorrelation as IntegralVarianceReduction  # noqa: F401

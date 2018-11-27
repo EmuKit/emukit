@@ -3,16 +3,17 @@
 
 
 import numpy as np
-from typing import Tuple
+from typing import Tuple, List
 
 from emukit.core.interfaces.models import IModel
-from ..interfaces.base_gp import IBaseGaussianProcess
+from emukit.quadrature.interfaces.base_gp import IBaseGaussianProcess
+from emukit.quadrature.kernels.integral_bounds import IntegralBounds
 
 
 class WarpedBayesianQuadratureModel(IModel):
     """
     The general class for Bayesian quadrature (BQ) with a warped Gaussian process.
-    
+
     Inference is performed with the warped GP, but the integral is computed on a Gaussian approximation.
     The warping of the base GP is encoded in the methods 'transform' and 'inverse_transform'
 
@@ -23,7 +24,7 @@ class WarpedBayesianQuadratureModel(IModel):
     - ...
     """
     def __init__(self, base_gp: IBaseGaussianProcess) -> None:
-        """    
+        """
         :param base_gp: the underlying GP model
         """
         self.base_gp = base_gp
@@ -35,6 +36,14 @@ class WarpedBayesianQuadratureModel(IModel):
     @property
     def Y(self):
         return self.base_gp.Y
+
+    @ property
+    def integral_bounds(self) -> IntegralBounds:
+        return self.base_gp.kern.integral_bounds
+
+    @property
+    def integral_parameters(self) -> List:
+        return self.base_gp.kern.integral_bounds.convert_to_list_of_continuous_parameters()
 
     def transform(self, Y: np.ndarray) -> np.ndarray:
         """
@@ -85,9 +94,8 @@ class WarpedBayesianQuadratureModel(IModel):
 
     def integrate(self) -> Tuple[float, float]:
         """
-        Computes an estimator of the integral as well as its variance. 
+        Computes an estimator of the integral as well as its variance.
 
         :returns: estimator of integral and its variance
         """
         raise NotImplemented
-

@@ -7,29 +7,28 @@ import numpy as np
 
 class IStandardKernel:
     """
-    Interface for a standard kernel kernel that in principle can be integrated
+    Interface for a standard kernel k(x, x') that in principle can be integrated
     Inherit from this class to construct wrappers for specific kernels e.g., the rbf
     """
 
-    def K(self, x: np.ndarray, x2: np.ndarray) -> np.ndarray:
+    def K(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
         """
-        The kernel evaluated at x and x2
+        The kernel k(x1, x2) evaluated at x1 and x2
 
-        :param x: the first argument of the kernel with shape (number of points N, input_dim)
-        :param x2: the second argument of the kernel with shape (number of points M, input_dim)
-
-        :return: the kernel matrix with shape (N, M)
+        :param x1: first argument of the kernel
+        :param x2: second argument of the kernel
+        :returns: kernel evaluated at x1, x2
         """
         raise NotImplementedError
 
-    def dK_dx(self, x: np.ndarray, x2: np.ndarray) -> np.ndarray:
+    # the following methods are gradients of the kernel
+    def dK_dx1(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
         """
-        Gradient of the kernel. This method is required if a quadrature kernel with gradients is constructed
+        gradient of the kernel wrt x1 evaluated at pair x1, x2
 
-        :param x: first location at which to evaluate the kernel and component wrt which derivative has been taken
-        :param x2: second location to evaluate
-
-        :return: the gradient at x
+        :param x1: first argument of the kernel, shape = (n_points N, input_dim)
+        :param x2: second argument of the kernel, shape = (n_points M, input_dim)
+        :return: the gradient of the kernel wrt x1 evaluated at (x1, x2), shape (input_dim, N, M)
         """
         raise NotImplementedError
 
@@ -52,3 +51,12 @@ class IRBF(IStandardKernel):
     @property
     def variance(self) -> np.float:
         raise NotImplementedError
+
+    def dKdiag_dx(self, x: np.ndarray) -> np.ndarray:
+        """
+        gradient of the diagonal of the kernel v(x):=k(x, x) evaluated at x.
+
+        :param x: argument of the kernel, shape = (n_points M, input_dim)
+        :return: the gradient of the diagonal of the kernel evaluated at x, shape (input_dim, M)
+        """
+        raise np.zeros((x.shape[1], x.shape[0]))

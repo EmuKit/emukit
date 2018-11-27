@@ -7,8 +7,8 @@ from typing import Tuple, List
 
 from emukit.quadrature.interfaces.standard_kernels import IRBF
 from emukit.quadrature.interfaces import IBaseGaussianProcess
-from emukit.quadrature.kernels.integral_bounds import IntegralBounds
-from emukit.quadrature.interfaces import IStandardKernel
+from emukit.quadrature.kernels.quadrature_kernels import QuadratureKernel
+from emukit.quadrature.kernels.quadrature_rbf import QuadratureRBF
 
 
 class BaseGaussianProcessGPy(IBaseGaussianProcess):
@@ -17,12 +17,16 @@ class BaseGaussianProcessGPy(IBaseGaussianProcess):
 
     An instance of this can be passed as 'base_gp' to an ApproximateWarpedGPSurrogate object
     """
-    def __init__(self, standard_kern: IStandardKernel, gpy_model, integral_bounds: IntegralBounds):
+
+    def __init__(self, kern: QuadratureKernel, gpy_model, noise_free: bool=True):
         """
-        :param standard_kern: a standard kernel
+        :param kern: a quadrature kernel
         :param gpy_model: A GPy GP regression model, GPy.models.GPRegression
+        :param noise_free: if True then the observation noise is set to 1e-10
         """
-        super().__init__(standard_kern=standard_kern, integral_bounds=integral_bounds)
+        super().__init__(kern=kern)
+        if noise_free:
+            gpy_model.Gaussian_noise.constrain_fixed(1.e-10)
         self.gpy_model = gpy_model
 
     @property
@@ -110,47 +114,33 @@ class RBFGPy(IRBF):
     def variance(self) -> np.float:
         return self.gpy_rbf.variance
 
-    def K(self, x, x2=None) -> np.ndarray:
+    def K(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
         """
-        The kernel evaluated at x and x2
+        The kernel k(x1, x2) evaluated at x1 and x2
 
-        :param x: N points at which to evaluate, np.ndarray with x.shape = (N, input_dim)
-        :param x2: M points at which to evaluate, np.ndarray with x2.shape = (M, input_dim)
-
-        :return: the gradient of K with shape (N, M)
+        :param x1: first argument of the kernel
+        :param x2: second argument of the kernel
+        :returns: kernel evaluated at x1, x2
         """
-        return self.gpy_rbf.K(x, x2)
+        return self.gpy_rbf.K(x1, x2)
 
-    def dK_dx(self, x, x2) -> np.ndarray:
+    def dK_dx1(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
         """
-        gradient of the kernel wrt x
+        gradient of the kernel wrt x1 evaluated at pair x1, x2.
+        We use the scaled squared distance defined as:
 
-        :param x: N points at which to evaluate, np.ndarray with x.shape = (N, input_dim)
-        :param x2: M points at which to evaluate, np.ndarray with x2.shape = (M, input_dim)
+        ..math::
 
-        :return: the gradient of K with shape (input_dim, N, M)
+            r^2(x_1, x_2) = \sum_{d=1}^D (x_1^d - x_2^d)^2/\lambda^2
+
+        :param x1: first argument of the kernel, shape = (n_points N, input_dim)
+        :param x2: second argument of the kernel, shape = (n_points M, input_dim)
+        :return: the gradient of the kernel wrt x1 evaluated at (x1, x2), shape (input_dim, N, M)
         """
-        return self.gpy_rbf.dK_dr_via_X(x, x2)[None, ...] * self._dr_dx(x, x2)
-
-    # helper
-    def _dr_dx(self, x, x2) -> np.ndarray:
-        """
-        Derivative of the radius
-
-        .. math::
-
-            r = \sqrt{ \frac{||x - x_2||^2}{\lambda^2} }
-
-        name mapping:
-            \lambda: self.rbf.lengthscale
-
-        :param x: N points at which to evaluate, np.ndarray with x.shape = (N, input_dim)
-        :param x2: M points at which to evaluate, np.ndarray with x2.shape = (M, input_dim)
-
-        :return: the gradient of K with shape (input_dim, N, M)
-        """
-        return (x.T[:, :, None] - x2.T[:, None, :]) / \
-               (self.lengthscale ** 2 * (x.T[:, :, None] - x2.T[:, None, :]) / (self.lengthscale * np.sqrt(2)))
+        K = self.K(x1, x2)
+        scaled_vector_diff = (x1.T[:, :, None] - x2.T[:, None, :]) / self.lengthscale**2
+        dK_dx1 = - K[None, ...] * scaled_vector_diff
+        return dK_dx1
 
 
 def convert_gpy_model_to_emukit_model(gpy_model, integral_bounds: List, integral_name: str='') \
@@ -162,19 +152,17 @@ def convert_gpy_model_to_emukit_model(gpy_model, integral_bounds: List, integral
     :param integral_bounds: List of D tuples, where D is the dimensionality of the integral and the tuples contain the
         lower and upper bounds of the integral i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)]
     :param integral_name: the (variable) name(s) of the integral
-    (lower bounds of dimension i, upper bound of dimension i) for i=1,...,integral dim.
 
     :return: emukit model for quadrature witg GPy backend (IBaseGaussianProcessGPy)
     """
 
-    # get the integral bounds
-    bounds = IntegralBounds(name=integral_name, bounds=integral_bounds)
-
-    # warp the standard kernel
+    # wrap standard kernel and get quadrature kernel
     if gpy_model.kern.name is 'rbf':
-        standard_kernel = RBFGPy(gpy_model.kern)
+        standard_kernel_emukit = RBFGPy(gpy_model.kern)
+        quadrature_kernel_emukit = QuadratureRBF(standard_kernel_emukit, integral_bounds=integral_bounds,
+                                                 integral_name=integral_name)
     else:
         raise NotImplementedError("Only the GPy rbf-kernel is supported right now.")
 
-    # wrap the model
-    return BaseGaussianProcessGPy(standard_kern=standard_kernel, gpy_model=gpy_model, integral_bounds=bounds)
+    # wrap the base-gp model
+    return BaseGaussianProcessGPy(kern=quadrature_kernel_emukit, gpy_model=gpy_model)

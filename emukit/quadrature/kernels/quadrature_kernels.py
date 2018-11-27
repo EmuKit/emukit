@@ -3,6 +3,7 @@
 
 
 import numpy as np
+from typing import List
 
 from emukit.quadrature.interfaces.standard_kernels import IStandardKernel
 from .integral_bounds import IntegralBounds
@@ -19,23 +20,25 @@ class QuadratureKernel:
     An example of a specific QuadratureKernel and IStandardKernel pair is QuadratureRBF and IRBF.
     """
 
-    def __init__(self, kern: IStandardKernel, integral_bounds: IntegralBounds) -> None:
+    def __init__(self, kern: IStandardKernel, integral_bounds: List, integral_name: str='') -> None:
         """
-        :param kern: standard kernel object IStandardKernel
-        :param integral_bounds: defines the domain of the integral
+        :param kern: standard emukit kernel
+        :param integral_bounds: defines the domain of the integral. List of D tuples, where D is the dimensionality
+        of the integral and the tuples contain the lower and upper bounds of the integral
+        i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)]
+        :param integral_name: the (variable) name(s) of the integral
         """
         self.kern = kern
-        self.bounds = integral_bounds
-        self.input_dim = integral_bounds.dim
-        self.lower_bounds, self.upper_bounds = integral_bounds.get_bounds_as_separate_arrays()
+        self.integral_bounds = IntegralBounds(name=integral_name, bounds=integral_bounds)
+        self.input_dim = self.integral_bounds.dim
+        self.lower_bounds, self.upper_bounds = self.integral_bounds.get_lower_and_upper_bounds()
 
     def K(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
         """
-        definition of covariance function (aka. kernel) k(x,x')
+        The kernel k(x1, x2) evaluated at x1 and x2
 
         :param x1: first argument of the kernel
         :param x2: second argument of the kernel
-
         :returns: kernel evaluated at x1, x2
         """
         return self.kern.K(x1, x2)
@@ -45,9 +48,8 @@ class QuadratureKernel:
         """
         Kernel with the first component integrated out aka. kernel mean
 
-        :param x2: only remaining argument of the once integrated kernel, shape (N, input_dim)
-
-        :returns: of kernel mean at locations x2, shape (1, N)
+        :param x2: remaining argument of the once integrated kernel, shape (n_points N, input_dim)
+        :returns: kernel mean at location x2, shape (1, N)
         """
         raise NotImplementedError
 
@@ -55,9 +57,8 @@ class QuadratureKernel:
         """
         Kernel with the second component integrated out aka. kernel mean
 
-        :param x1: only remaining argument of the once integrated kernel, shape (N, input_dim)
-
-        :returns: kernel mean at locations x1, shape (N, 1)
+        :param x1: remaining argument of the once integrated kernel, shape (n_points N, input_dim)
+        :returns: kernel mean at location x1, shape (N, 1)
         """
         raise NotImplementedError
 
@@ -70,31 +71,51 @@ class QuadratureKernel:
         raise NotImplementedError
 
     # the following methods are gradients of a quadrature kernel
-    def dK_dx(self, x: np.ndarray, x2: np.ndarray) -> np.ndarray:
+    def dK_dx1(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
         """
-        gradient of the kernel wrt x
+        gradient of the kernel wrt x1 evaluated at pair x1, x2
 
-        :param x: N points at which to evaluate, shape = (N, input_dim)
-        :param x2: M points at which to evaluate, shape = (M, input_dim)
-
-        :return: the gradient of K with shape (input_dim, N, M)
+        :param x1: first argument of the kernel, shape = (n_points N, input_dim)
+        :param x2: second argument of the kernel, shape = (n_points M, input_dim)
+        :return: the gradient of the kernel wrt x1 evaluated at (x1, x2), shape (input_dim, N, M)
         """
-        return self.kern.dK_dx(x, x2)
+        return self.kern.dK_dx1(x1, x2)
 
-    def dqK_dx(self, x: np.ndarray) -> np.ndarray:
+    def dK_dx2(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
         """
-        gradient of the kernel mean evaluated at x
-        :param x: N points at which to evaluate, shape = (N, input_dim)
+        gradient of the kernel wrt x2 evaluated at pair x1, x2
+        Note that it is the transposed gradient wrt x1 evaluated at (x2, x1), i.e., the arguments are switched.
 
+        :param x1: first argument of the kernel, shape = (n_points N, N, input_dim)
+        :param x2: second argument of the kernel, shape = (n_points N, M, input_dim)
+        :return: the gradient of the kernel wrt x2 evaluated at (x1, x2), shape (input_dim, N, M)
+        """
+        return np.transpose(self.dK_dx1(x1=x2, x2=x1), (0, 2, 1))
+
+    def dKdiag_dx(self, x: np.ndarray) -> np.ndarray:
+        """
+        gradient of the diagonal of the kernel (the variance) v(x):=k(x, x) evaluated at x
+
+        :param x: argument of the kernel, shape = (n_points M, input_dim)
+        :return: the gradient of the diagonal of the kernel evaluated at x, shape (input_dim, M)
+        """
+        dK_dx1_diag = np.diagonal(self.dK_dx1(x, x), offset=0, axis1=1, axis2=2)
+        dK_dx2_diag = np.diagonal(self.dK_dx2(x, x), offset=0, axis1=1, axis2=2)
+        return dK_dx1_diag + dK_dx2_diag
+
+    def dqK_dx(self, x2: np.ndarray) -> np.ndarray:
+        """
+        gradient of the kernel mean (integrated in first argument) evaluated at x2
+
+        :param x2: N points at which to evaluate, shape = (n_points N, N, input_dim)
         :return: the gradient with shape (input_dim, N)
         """
         raise NotImplementedError
 
-    def dKq_dx(self, x: np.ndarray) -> np.ndarray:
+    def dKq_dx(self, x1: np.ndarray) -> np.ndarray:
         """
-        gradient of the transposed kernel mean evaluated at x
-        :param x: N points at which to evaluate, shape = (N, input_dim)
-
+        gradient of the kernel mean (integrated in second argument) evaluated at x1
+        :param x1: N points at which to evaluate, shape = (n_points N, N, input_dim)
         :return: the gradient with shape (N, input_dim)
         """
         raise NotImplementedError

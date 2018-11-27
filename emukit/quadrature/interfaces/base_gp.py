@@ -6,20 +6,14 @@ import numpy as np
 from typing import Tuple
 
 from emukit.core.interfaces import IModel
-from emukit.quadrature.kernels.quadrature_rbf import QuadratureRBF
-from emukit.quadrature.interfaces.standard_kernels import IStandardKernel, IRBF
-from emukit.quadrature.kernels.integral_bounds import IntegralBounds
+from emukit.quadrature.kernels.quadrature_kernels import QuadratureKernel
 
 
 class IBaseGaussianProcess(IModel):
     """Interface for the quadrature base-GP model"""
 
-    def __init__(self, standard_kern: IStandardKernel, integral_bounds: IntegralBounds) -> None:
-
-        if isinstance(standard_kern, IRBF):
-            self.kern = QuadratureRBF(rbf_kernel=standard_kern, integral_bounds=integral_bounds)
-        else:
-            raise NotImplementedError("Only RBF kernel is supported right now.")
+    def __init__(self, kern: QuadratureKernel) -> None:
+        self.kern = kern
 
     @property
     def observation_noise_variance(self) -> np.float:
@@ -40,9 +34,9 @@ class IBaseGaussianProcess(IModel):
 
     def gram_chol(self) -> np.ndarray:
         """
-        The lower triangular cholesky decomposition of the kernel Gram matrix
+        The lower triangular cholesky decomposition of the Gram matrix :math:`G(X, X) = K(X, X) + \sigma^2 I`.
 
-        :return: a lower triangular matrix being the cholesky matrix of the kernel Gram matrix
+        :return: a lower triangular cholesky of G(X, X)
         """
         raise NotImplementedError
 
@@ -59,4 +53,3 @@ class IBaseGaussianProcess(IModel):
         :return: the inverse Gram matrix multiplied with the mean-corrected data with shape: (number of datapoints, 1)
         """
         raise NotImplementedError
-

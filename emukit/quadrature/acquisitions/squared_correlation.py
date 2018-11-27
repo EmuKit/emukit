@@ -4,6 +4,7 @@
 
 import numpy as np
 from scipy.linalg import lapack
+from typing import Tuple
 
 from emukit.core.acquisition import Acquisition
 from emukit.quadrature.methods import VanillaBayesianQuadrature
@@ -11,12 +12,12 @@ from emukit.quadrature.methods import VanillaBayesianQuadrature
 
 class SquaredCorrelation(Acquisition):
     """
-    This acquisition function is the correlation between the integral and the new point(s)
+    This acquisition function is the correlation between the integral and the new point(s) under a GP-model.
 
-    For GP-models, this acquisition function is identical to the integral-variance-reduction acquisition!
+    SquaredCorrelation is identical to the integral-variance-reduction acquisition up to a global normalizing constant!
 
     .. math::
-        \rho^2(x) = \frac{(\int k_N(x_1, x)\mathrm{d}x_1)^2}{\mathfrac{v}_N v_N(x)}
+        \rho^2(x) = \frac{(\int k_N(x_1, x)\mathrm{d}x_1)^2}{\mathfrac{v}_N v_N(x)}\in [0, 1]
 
     where :math:`\mathfrac{v}_N` is the current integral variance given N observations X, :math:`v_N(x)` is the
     predictive integral variance if point x was added newly, and :math:`k_N(x_1, x)` is the posterior kernel function.
@@ -35,96 +36,96 @@ class SquaredCorrelation(Acquisition):
         """
         Evaluates the acquisition function at x.
 
-        :param x: location where to evaluate (M, input_dim)
-        :return: the acquisition function value at x
+        :param x: (n_points x input_dim) locations where to evaluate
+        :return: (n_points x 1) the acquisition function value at x
         """
-        integral_current_var, integral_predictive_var, integral_predictive_cov = self._corr2_terms(x)
-        return integral_predictive_cov**2 / (integral_current_var * integral_predictive_var)
+        return self.evaluate_with_gradients(x)[0]
 
-    def _corr2_terms(self, x):
+    def evaluate_with_gradients(self, x: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Evaluate the acquisition function with gradient
+
+        :param x: (n_points x input_dim) locations where to evaluate
+        :return: acquisition value and corresponding gradient at x, shapes (n_points, 1) and (n_points, input_dim)
+        """
+        # value
+        integral_current_var, y_predictive_var, predictive_cov = self._value_terms(x)
+        squared_correlation = predictive_cov**2 / (integral_current_var * y_predictive_var)
+
+        # gradient
+        d_y_predictive_var_dx, d_predictive_cov_dx = self._gradient_terms(x)
+        first_term = 2. * predictive_cov * d_predictive_cov_dx
+        second_term = (predictive_cov**2 / y_predictive_var) * d_y_predictive_var_dx
+        normalization = integral_current_var * y_predictive_var
+        squared_correlation_gradient = (first_term - second_term) / normalization
+
+        return squared_correlation, squared_correlation_gradient
+
+    def _value_terms(self, x: np.ndarray) -> Tuple[np.float, np.ndarray, np.ndarray]:
         """
         computes the terms needed for the squared correlation
 
-        :param x: new candidate point x, contains the location and the fidelity to be evaluated
-        :return: current integral variance, predictive variance + noise, once integrated predictive covariance
+        :param x: (n_points x input_dim) locations where to evaluate
+        :return: current integral variance, predictive variance + noise, predictive covariance between integral and x,
+           shapes of the latter two arrays are (n_points, 1).
         """
         integral_current_var = self.model.integrate()[1]
-        integral_predictive_var = self.model.predict(x)[1] + self.model.base_gp.observation_noise_variance
+        y_predictive_var = self.model.predict(x)[1] + self.model.base_gp.observation_noise_variance
 
         qKx = self.model.base_gp.kern.qK(x)
         qKX = self.model.base_gp.kern.qK(self.model.base_gp.X)
 
-        integral_predictive_cov = qKx - np.dot(qKX, self._Kinv_Kx(x))
-        return integral_current_var, integral_predictive_var, integral_predictive_cov
+        predictive_cov = np.transpose(qKx - np.dot(qKX, self._graminv_Kx(x)))
+        return integral_current_var, y_predictive_var, predictive_cov
 
-    # following methods are for gradients
-    def evaluate_with_gradients(self, x):
-        """
-        Evaluate the acquisition function with gradient
-
-        :param x: location and fidelity
-        :return: the acquisition function and its gradient evaluated at x
-        """
-
-        grad = self._corr2_gradient(x)
-        return self.evaluate(x=x), grad
-
-    def _corr2_gradient(self, x):
-        """
-        Computes the gradient of the acquisition function
-
-        :param x: location at which to evaluate the gradient
-        :return: the gradient at x
-        """
-        integral_current_var, integral_predictive_var, integral_predictive_cov = self._corr2_terms(x)
-        d_predictive_var_dx, d_integral_predictive_cov_dx = self._corr2_gradient_terms(x)
-
-        first_term = 2. * integral_predictive_cov * d_integral_predictive_cov_dx
-        second_term = (1./integral_predictive_var) * d_predictive_var_dx * integral_predictive_cov**2
-        normalization = integral_current_var * integral_predictive_var
-
-        return (first_term - second_term) / normalization
-
-    def _corr2_gradient_terms(self, x):
+    def _gradient_terms(self, x):
         """
         Computes the terms needed for the gradient of the squared correlation
 
-        :param x: location at which to evaluate the gradient, contains fidelity levels
-        :return: the gradient of (pred_var, int_pred_cov) at x
+        :param x: (n_points x input_dim) locations where to evaluate
+        :return: the gradient of (y_predictive_var, predictive_cov) wrt. x at param x, shapes (n_points, input_dim)
         """
-        d_predictive_var_dx = -2. * (self.model.base_gp.kern.dK_dx(x, self.model.X) *
-                                     self._Kinv_Kx(x).T).sum(axis=2, keepdims=True)
+        # gradient of predictive variance of y
+        dvar_dx = self.model.base_gp.kern.dKdiag_dx(x)
+        dKxX_dx1 = self.model.base_gp.kern.dK_dx1(x, self.model.X)
+        graminv_KXx = self._graminv_Kx(x)
 
-        d_integral_predictive_cov_dx = self.model.base_gp.kern.dqK_dx(x) \
-                         - np.dot(self.model.base_gp.kern.dK_dx(x, self.model.X), self._Kinv_Kq())
+        d_y_predictive_var_dx = dvar_dx - 2. * (dKxX_dx1 * np.transpose(graminv_KXx)).sum(axis=2, keepdims=False)
 
-        return d_predictive_var_dx, d_integral_predictive_cov_dx
+        # gradient of predictive covariance between integral and (x, y)-pair
+        dqKx_dx = np.transpose(self.model.base_gp.kern.dqK_dx(x))
+        qKX_graminv = self._qK_graminv()  # (1, N)
+        dKXx_dx2 = self.model.base_gp.kern.dK_dx2(self.model.X, x)
+        d_predictive_cov_dx = dqKx_dx - np.dot(qKX_graminv, np.transpose(dKXx_dx2))[0, :, :]
+
+        return np.transpose(d_y_predictive_var_dx), d_predictive_cov_dx
 
     # helpers
-    def _Kinv_Kx(self, x):
+    def _graminv_Kx(self, x):
         """
-        Inverse kernel Gram matrix multiplied with kernel function k(x, x') evaluated at existing
-        datapoints x1=X and x2=x.
+        Inverse kernel Gram matrix multiplied with kernel function k(x, x') evaluated at existing training datapoints
+        and location x.
 
         .. math::
-            K(X, X)^{-1} K (X, x)
+            [K(X, X) + \sigma^2 I]^{-1} K (X, x)
 
-        :param x: M locations at which to evaluate, shape ()
-        :return: K(X,X)^-1 K(X, x) with shape (X.shape[0], M)
+        :param x: (n_points x input_dim) locations where to evaluate
+        :return: (n_train_points, n_points)
         """
         lower_chol = self.model.base_gp.gram_chol()
         KXx = self.model.base_gp.kern.K(self.model.base_gp.X, x)
         return lapack.dtrtrs(lower_chol.T, (lapack.dtrtrs(lower_chol, KXx, lower=1)[0]), lower=0)[0]
 
-    def _Kinv_Kq(self):
+    def _qK_graminv(self):
         """
-        Inverse kernel Gram matrix multiplied with kernel mean at self.models.X and high fidelity
-        .. math::
-            K(X, X)^{-1} \int K (X, x) dx
+        Inverse kernel mean multiplied with inverse kernel Gram matrix, all evaluated at training locations.
 
-        :param x: N locations at which to evaluate
-        :return: K(X,X)^-1 K(X, x) with shape (self.models.X.shape[0], N)
+        .. math::
+            \int k(x, X)\mathrm{d}x [k(X, X) + \sigma^2 I]^{-1}
+
+        :return: weights of shape (1, n_train_points)
         """
         lower_chol = self.model.base_gp.gram_chol()
-        qK = self.model.base_gp.kern.qK(x=self.model.base_gp.X)
-        return lapack.dtrtrs(lower_chol.T, (lapack.dtrtrs(lower_chol, qK.T, lower=1)[0]), lower=0)[0]
+        qK = self.model.base_gp.kern.qK(self.model.base_gp.X)
+        graminv_qK_trans = lapack.dtrtrs(lower_chol.T, (lapack.dtrtrs(lower_chol, qK.T, lower=1)[0]), lower=0)[0]
+        return np.transpose(graminv_qK_trans)
