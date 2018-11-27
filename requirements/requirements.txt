@@ -1,5 +1,8 @@
-numpy>=1.14.5
-GPy>=1.9.5
-GPyOpt>=1.2.5
+numpy==1.14.5
+# This is unfortunate - we don't need matplotlib
+# but until GPy and GPyOpt get their dependencies straight
+# we need GPy's plotting extra to ensure smooth installation
+GPy[plotting]==1.9.5
+GPyOpt==1.2.5
 emcee==2.2.1
 scipy==1.1.0

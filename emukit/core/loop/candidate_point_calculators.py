@@ -25,7 +25,7 @@ class CandidatePointCalculator(abc.ABC):
         pass
 
 
-class Sequential(CandidatePointCalculator):
+class SequentialPointCalculator(CandidatePointCalculator):
     """ This candidate point calculator chooses one candidate point at a time """
     def __init__(self, acquisition: Acquisition, acquisition_optimizer: AcquisitionOptimizerBase) -> None:
         """

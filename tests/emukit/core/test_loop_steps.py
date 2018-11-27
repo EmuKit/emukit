@@ -4,7 +4,7 @@ import numpy as np
 from emukit.core import ContinuousParameter, ParameterSpace
 from emukit.core.acquisition import Acquisition
 from emukit.core.interfaces import IModel
-from emukit.core.loop import (FixedIntervalUpdater, FixedIterationsStoppingCondition, LoopState, Sequential,
+from emukit.core.loop import (FixedIntervalUpdater, FixedIterationsStoppingCondition, LoopState, SequentialPointCalculator,
                               UserFunctionWrapper)
 from emukit.core.optimization import AcquisitionOptimizer
 
@@ -71,15 +71,15 @@ def test_every_iteration_model_updater_with_cost():
 
 
 def test_sequential_evaluator():
-    # Sequential should just return result of the acquisition optimizer
+    # SequentialPointCalculator should just return result of the acquisition optimizer
     mock_acquisition = mock.create_autospec(Acquisition)
     mock_acquisition_optimizer = mock.create_autospec(AcquisitionOptimizer)
     mock_acquisition_optimizer.optimize.return_value = (np.array([[0.]]), None)
     loop_state_mock = mock.create_autospec(LoopState)
-    seq = Sequential(mock_acquisition, mock_acquisition_optimizer)
+    seq = SequentialPointCalculator(mock_acquisition, mock_acquisition_optimizer)
     next_points = seq.compute_next_points(loop_state_mock)
 
-    # "Sequential" should only ever return 1 value
+    # "SequentialPointCalculator" should only ever return 1 value
     assert(len(next_points) == 1)
     # Value should be result of acquisition optimization
     assert(np.equal(np.array([[0.]]), next_points[0]))
@@ -93,10 +93,10 @@ def test_sequential_with_context():
     acquisition_optimizer = AcquisitionOptimizer(space)
 
     loop_state_mock = mock.create_autospec(LoopState)
-    seq = Sequential(mock_acquisition, acquisition_optimizer)
+    seq = SequentialPointCalculator(mock_acquisition, acquisition_optimizer)
     next_points = seq.compute_next_points(loop_state_mock, context={'x': 0.25})
 
-    # "Sequential" should only ever return 1 value
+    # "SequentialPointCalculator" should only ever return 1 value
     assert(len(next_points) == 1)
     # Context value should be what we set
     assert np.isclose(next_points[0, 0], 0.25)
@@ -110,7 +110,7 @@ def test_sequential_with_all_parameters_fixed():
     acquisition_optimizer = AcquisitionOptimizer(space)
 
     loop_state_mock = mock.create_autospec(LoopState)
-    seq = Sequential(mock_acquisition, acquisition_optimizer)
+    seq = SequentialPointCalculator(mock_acquisition, acquisition_optimizer)
     next_points = seq.compute_next_points(loop_state_mock, context={'x': 0.25, 'y': 0.25})
     assert np.array_equiv(next_points, np.array([0.25, 0.25]))
 

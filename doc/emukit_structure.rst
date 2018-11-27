@@ -43,7 +43,7 @@ model has prediction derivatives available.
 Candidate Point Calculator
 __________________________
 This class decides which point to evaluate next.
-The simplest implementation, ``Sequential``, collects one point at a time by finding where the acquisition is a maximum
+The simplest implementation, ``SequentialPointCalculator``, collects one point at a time by finding where the acquisition is a maximum
 by applying the acquisition optimizer to the acquisition function.
 More complex implementations will enable batches of points to be collected so that the user function can be evaluated
 in parallel.

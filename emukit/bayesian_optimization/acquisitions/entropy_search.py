@@ -2,11 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import Union
+from typing import Union, Callable
 
 import scipy
 import numpy as np
 
+from emukit.core import InformationSourceParameter
 from ...core.acquisition import Acquisition
 from ...core.interfaces import IModel
 from ...core.parameter_space import ParameterSpace
@@ -21,7 +22,7 @@ class EntropySearch(Acquisition):
 
     def __init__(self, model: Union[IModel, IEntropySearchModel], space: ParameterSpace, sampler: McmcSampler = None,
                  num_samples: int = 100, num_representer_points: int = 50,
-                 proposal_function: Acquisition = None, burn_in_steps: int = 50) -> None:
+                 proposal_function: Callable = None, burn_in_steps: int = 50) -> None:
 
         """
         Entropy Search acquisition function approximates the distribution of the global
@@ -46,7 +47,6 @@ class EntropySearch(Acquisition):
             raise RuntimeError("Model is not supported for Entropy Search")
 
         self.model = model
-        self.space = space
         self.num_representer_points = num_representer_points
         self.burn_in_steps = burn_in_steps
 
@@ -56,23 +56,24 @@ class EntropySearch(Acquisition):
             self.sampler = sampler
 
         # (unnormalized) density from which to sample the representer points to approximate pmin
-        self.proposal_function = proposal_function
-        if self.proposal_function is None:
+        if proposal_function is None:
 
             ei = ExpectedImprovement(model)
 
             def prop_func(x):
-
                 if len(x.shape) == 1:
                     x_ = x[None, :]
                 else:
                     x_ = x
-                if self.space.check_points_in_domain(x_):
+
+                if space.check_points_in_domain(x_):
                     return np.log(np.clip(ei.evaluate(x_)[0], 0., np.PINF))
                 else:
                     return np.array([np.NINF])
 
             self.proposal_function = prop_func
+        else:
+            self.proposal_function = proposal_function
 
         # This is used later to calculate derivative of the stochastic part for the loss function
         # Derived following Ito's Lemma, see for example https://en.wikipedia.org/wiki/It%C3%B4%27s_lemma
@@ -214,3 +215,85 @@ class EntropySearch(Acquisition):
     def has_gradients(self) -> bool:
         """Returns that this acquisition has gradients"""
         return False
+
+
+class MultiInformationSourceEntropySearch(EntropySearch):
+    """
+    Entropy search acquisition for multi-information source problems where the objective function is the output of one
+    of the information sources. The other information sources provide auxiliary information about the objective function
+    """
+    def __init__(self, model: Union[IModel, IEntropySearchModel], space: ParameterSpace,
+                 target_information_source_index: int=None, num_samples: int = 100,
+                 num_representer_points: int = 50, burn_in_steps: int = 50):
+        """
+        :param model: Gaussian process model of the objective function that implements IEntropySearchModel
+        :param space: Parameter space of the input domain
+        :param target_information_source_index: The index of the information source we want to minimise
+        :param num_samples: Integer determining how many samples to draw for each candidate input
+        :param num_representer_points: Integer determining how many representer points to sample
+        :param burn_in_steps: Integer that defines the number of burn-in steps when sampling the representer points
+        """
+
+        # Find information source parameter in parameter space
+        info_source_parameter, source_idx = _find_source_parameter(space)
+        self.source_idx = source_idx
+
+        # Assume we are in a multi-fidelity setting and the highest index is the highest fidelity
+        if target_information_source_index is None:
+            target_information_source_index = max(info_source_parameter.domain)
+        self.target_information_source_index = target_information_source_index
+
+        # Sampler of representer points should sample x location at the target information source only so make a
+        # parameter space without the information source parameter
+        parameters_without_info_source = space.parameters.copy()
+        parameters_without_info_source.remove(info_source_parameter)
+        space_without_info_source = ParameterSpace(parameters_without_info_source)
+
+        # Create sampler of representer points
+        sampler = AffineInvariantEnsembleSampler(space_without_info_source)
+
+        proposal_func = self._get_proposal_function(model, space)
+
+        super().__init__(model, space, sampler, num_samples, num_representer_points, proposal_func, burn_in_steps)
+
+    def _sample_representer_points(self):
+        repr_points, repr_points_log = super()._sample_representer_points()
+
+        # Add fidelity index to representer points
+        idx = np.ones((repr_points.shape[0], 1)) * self.target_information_source_index
+        repr_points = np.insert(repr_points, self.source_idx, idx, axis=1)
+        return repr_points, repr_points_log
+
+    def _get_proposal_function(self, model, space):
+
+        # Define proposal function for multi-fidelity
+        ei = ExpectedImprovement(model)
+
+        def proposal_func(x):
+            x_ = x[None, :]
+
+            # Add information source parameter into array
+            idx = np.ones((x_.shape[0], 1)) * self.target_information_source_index
+            x_ = np.insert(x_, self.source_idx, idx, axis=1)
+
+            if space.check_points_in_domain(x_):
+                return np.log(np.clip(ei.evaluate(x_)[0], 0., np.PINF))
+            else:
+                return np.array([np.NINF])
+
+        return proposal_func
+
+
+def _find_source_parameter(space):
+    # Find information source parameter in parameter space
+    info_source_parameter = None
+    source_idx = None
+    for i, param in enumerate(space.parameters):
+        if isinstance(param, InformationSourceParameter):
+            info_source_parameter = param
+            source_idx = i
+
+    if info_source_parameter is None:
+        raise ValueError('No information source parameter found in the parameter space')
+
+    return info_source_parameter, source_idx
