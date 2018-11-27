@@ -1,5 +1,9 @@
 # Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
+
+
+import numpy as np
+
 from ..acquisitions import ExpectedImprovement
 from ..acquisitions.log_acquisition import LogAcquisition
 from ..local_penalization_calculator import LocalPenalizationPointCalculator
@@ -28,6 +32,8 @@ class BayesianOptimizationLoop(OuterLoop):
                               Defaults to updating hyper-parameters every iteration.
         """
 
+        self.model = model
+
         if acquisition is None:
             acquisition = ExpectedImprovement(model)
 
@@ -48,3 +54,12 @@ class BayesianOptimizationLoop(OuterLoop):
         loop_state = create_loop_state(model.X, model.Y)
 
         super().__init__(candidate_point_calculator, model_updaters, loop_state)
+
+    def get_current_best(self) -> dict:
+        """
+        Returns a dictionary with the current best found location (minimum) and its value.
+
+        """
+        return {'minimum': self.loop_state.X[np.argmin(self.loop_state.Y),None], 'value':np.min(self.loop_state.Y)}
+
+
