@@ -7,7 +7,7 @@ import numpy as np
 from ...bayesian_optimization.acquisitions import ExpectedImprovement
 from ...core.acquisition import Acquisition, acquisition_per_expected_cost
 from ...core.interfaces import IModel
-from ...core.loop import CandidatePointCalculator, FixedIntervalUpdater, ModelUpdater, OuterLoop, Sequential
+from ...core.loop import CandidatePointCalculator, FixedIntervalUpdater, ModelUpdater, OuterLoop, SequentialPointCalculator
 from ...core.loop.loop_state import create_loop_state
 from ...core.optimization import AcquisitionOptimizer
 from ...core.parameter_space import ParameterSpace
@@ -34,7 +34,7 @@ class CostSensitiveBayesianOptimizationLoop(OuterLoop):
         :param model_updater_cost: Defines how and how often the model for the cost function
         will be updated if new data arrives (default, FixedIntervalUpdater)
         :param candidate_point_calculator: Optimizes the acquisition function to find the
-        next candidate to evaluate (default, Sequential)
+        next candidate to evaluate (default, SequentialPointCalculator)
         """
 
         if acquisition is None:
@@ -48,7 +48,7 @@ class CostSensitiveBayesianOptimizationLoop(OuterLoop):
 
         if candidate_point_calculator is None:
             acquisition_optimizer = AcquisitionOptimizer(space)
-            candidate_point_calculator = Sequential(acquisition, acquisition_optimizer)
+            candidate_point_calculator = SequentialPointCalculator(acquisition, acquisition_optimizer)
 
         loop_state = create_loop_state(X_init, Y_init, cost_init)
 

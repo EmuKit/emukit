@@ -4,7 +4,7 @@ import pytest
 
 from emukit.core import ContinuousParameter, InformationSourceParameter, ParameterSpace
 from emukit.core.acquisition import Acquisition
-from emukit.core.loop import LoopState, Sequential
+from emukit.core.loop import LoopState, SequentialPointCalculator
 from emukit.core.optimization import AcquisitionOptimizer
 from emukit.core.optimization.multi_source_acquisition_optimizer import MultiSourceAcquisitionOptimizer
 
@@ -18,15 +18,15 @@ def multi_source_optimizer():
 
 
 def test_multi_source_optimizer_returns_one_point(multi_source_optimizer):
-    # Sequential should just return result of the acquisition optimizer
+    # SequentialPointCalculator should just return result of the acquisition optimizer
     next_points, _ = multi_source_optimizer.optimize(mock.create_autospec(Acquisition))
 
-    # "Sequential" should only ever return 1 value
+    # "SequentialPointCalculator" should only ever return 1 value
     assert(len(next_points) == 1)
 
 
 def test_multi_source_optimizer_returns_2d_array(multi_source_optimizer):
-    # Sequential should just return result of the acquisition optimizer
+    # SequentialPointCalculator should just return result of the acquisition optimizer
     next_points, _ = multi_source_optimizer.optimize(mock.create_autospec(Acquisition))
 
     # Check output is 2d
@@ -34,7 +34,7 @@ def test_multi_source_optimizer_returns_2d_array(multi_source_optimizer):
 
 
 def test_multi_source_optimizer_returns_correct_result(multi_source_optimizer):
-    # Sequential should just return result of the acquisition optimizer
+    # SequentialPointCalculator should just return result of the acquisition optimizer
     next_points = multi_source_optimizer.optimize(mock.create_autospec(Acquisition))
     # Value should be result of acquisition optimization
     assert np.equal(np.array([0.]), next_points[0])
@@ -52,10 +52,10 @@ def test_multi_source_sequential_with_context():
     multi_source_acquisition_optimizer = MultiSourceAcquisitionOptimizer(acquisition_optimizer, space)
 
     loop_state_mock = mock.create_autospec(LoopState)
-    seq = Sequential(mock_acquisition, multi_source_acquisition_optimizer)
+    seq = SequentialPointCalculator(mock_acquisition, multi_source_acquisition_optimizer)
     next_points = seq.compute_next_points(loop_state_mock, context={'x': 0.25})
 
-    # "Sequential" should only ever return 1 value
+    # "SequentialPointCalculator" should only ever return 1 value
     assert(len(next_points) == 1)
     # Context value should be what we set
     assert np.isclose(next_points[0, 0], 0.25)
@@ -73,10 +73,10 @@ def test_multi_source_sequential_with_source_context():
     multi_source_acquisition_optimizer = MultiSourceAcquisitionOptimizer(acquisition_optimizer, space)
 
     loop_state_mock = mock.create_autospec(LoopState)
-    seq = Sequential(mock_acquisition, multi_source_acquisition_optimizer)
+    seq = SequentialPointCalculator(mock_acquisition, multi_source_acquisition_optimizer)
     next_points = seq.compute_next_points(loop_state_mock, context={'source': 1.0})
 
-    # "Sequential" should only ever return 1 value
+    # "SequentialPointCalculator" should only ever return 1 value
     assert(len(next_points) == 1)
     # Context value should be what we set
     assert np.isclose(next_points[0, 1], 1.)

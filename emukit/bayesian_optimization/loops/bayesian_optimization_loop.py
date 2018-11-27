@@ -5,7 +5,7 @@ from ..acquisitions.log_acquisition import LogAcquisition
 from ..local_penalization_calculator import LocalPenalizationPointCalculator
 from ...core.interfaces import IDifferentiable
 from ...core.loop.loop_state import create_loop_state
-from ...core.loop import OuterLoop, Sequential, FixedIntervalUpdater, ModelUpdater
+from ...core.loop import OuterLoop, SequentialPointCalculator, FixedIntervalUpdater, ModelUpdater
 from ...core.optimization import AcquisitionOptimizer
 from ...core.parameter_space import ParameterSpace
 from ...core.acquisition import Acquisition
@@ -36,7 +36,7 @@ class BayesianOptimizationLoop(OuterLoop):
 
         acquisition_optimizer = AcquisitionOptimizer(space)
         if batch_size == 1:
-            candidate_point_calculator = Sequential(acquisition, acquisition_optimizer)
+            candidate_point_calculator = SequentialPointCalculator(acquisition, acquisition_optimizer)
         else:
             if not isinstance(model, IDifferentiable):
                 raise ValueError('Model must implement ' + str(IDifferentiable) +
