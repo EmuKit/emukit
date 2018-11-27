@@ -7,7 +7,6 @@
 
 # Site settings
 title: Emukit
-email: emukit-mailist@amazon.com
 description: > # this means to ignore newlines until "baseurl:"
   Emukit is a highly adaptable Python toolkit for enriching decision making under uncertainty.
   
@@ -33,14 +32,13 @@ paginate: 6
 paginate_path: /page:num/
 
 # Tracker
-analytics: UA-83979019-1
+analytics:
 
 # Comments
 
 #social
 twitter: http://twitter.com/@emukitUQ
 github: https://github.com/amzn/emukit
-email: emukit-mailist@amazon.com
 
 # Sass style
 sass:
