@@ -3,7 +3,7 @@
 
 
 from emukit.core.loop.loop_state import create_loop_state
-from emukit.core.loop import OuterLoop, Sequential, FixedIntervalUpdater, ModelUpdater
+from emukit.core.loop import OuterLoop, SequentialPointCalculator, FixedIntervalUpdater, ModelUpdater
 from emukit.core.optimization import AcquisitionOptimizer
 from emukit.core.parameter_space import ParameterSpace
 from emukit.core.acquisition import Acquisition
@@ -34,7 +34,7 @@ class VanillaBayesianQuadratureLoop(OuterLoop):
 
         space = ParameterSpace(self.model.integral_bounds.convert_to_list_of_continuous_parameters())
         acquisition_optimizer = AcquisitionOptimizer(space)
-        candidate_point_calculator = Sequential(acquisition, acquisition_optimizer)
+        candidate_point_calculator = SequentialPointCalculator(acquisition, acquisition_optimizer)
         loop_state = create_loop_state(self.model.X, self.model.Y)
 
         super().__init__(candidate_point_calculator, model_updater, loop_state)
