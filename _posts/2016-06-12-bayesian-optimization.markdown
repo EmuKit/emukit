@@ -35,7 +35,7 @@ sequence of *decision* problems (of where to select the best next location). In 
 are solved using principles of *statistical inference* and *decision theory*.
 
 How is it done? The first step is to build a model for the objective function. This model should
-captures our prior beliefs on the function and can be either generic or it can be some sort of structural knowledge about the problem.
+captures our prior beliefs on the function and can be either generic or it can encode some prior structural knowledge about the problem.
 Every time we evaluate the objective the model is updated with the collected data. Following with our example, let's
 start by collecting 5 points at random and use them to train a Gaussian process [[2]](#references-on-bayesian-optimization) with [GPy](https://github.com/SheffieldML/GPy).
 
@@ -51,10 +51,10 @@ model_gpy = GPRegression(X,Y) # Train and wrap the model in Emukit
 model_emukit = GPyModelWrapper(model_gpy)
 ```
 
-The next in Bayesian optimization is to define an acquisition function able to
+The next step in Bayesian optimization is to define an acquisition function able to
 quantify the utility of evaluating each point the input domain. The central idea of the acquisition function is to trade
-off the exploration in regions of the input space where the model is still uncertain and the exploitation of
-the model's confidence about the good regions of the input space. There are a variety of acquisition functions in Emukit. In this
+off the *exploration* of regions where the model is uncertain and the *exploitation* of
+the model's confidence about good areas of the input space. There are a variety of acquisition functions in Emukit. In this
 example the expected improvement [[3]](#references-on-bayesian-optimization), that computes in expectation how much we can improve with 
 respect to the current best observed location. 
 
@@ -92,9 +92,9 @@ bayesopt_loop.run_loop(f, stopping_condition)
 ```
 And that's it! You can check the obtained the result looking into the state of the loop. Note that you can use other models and acquisitions of your own in this loop.
 
-Check our list of [notebooks]() if you want to learn more about how to do Bayesian optimization other methods with Emukit. You can also check the Emukit [documentation]().
+Check our list of [notebooks](http://nbviewer.jupyter.org/github/amzn/emukit/blob/develop/notebooks/index.ipynb) and [examples](https://github.com/amzn/emukit/tree/develop/emukit/examples) if you want to learn more about how to do Bayesian optimization and other methods with Emukit. You can also check the Emukit [documentation](https://emukit.readthedocs.io/en/latest/).
 
-We’re always open to contributions! Please read our [contribution guidelines](CONTRIBUTING.md) for more information. We are particularly interested in contributions
+We’re always open to contributions! Please read our [contribution guidelines](https://github.com/amzn/emukit/blob/develop/CONTRIBUTING.md) for more information. We are particularly interested in contributions
 regarding examples and tutorials.
 
 #### References on Bayesian optimization

@@ -5,10 +5,10 @@ categories: jekyll update
 img: bayesian_quadrature.png
 ---
 
-Bayesian quadrature [[1, 2]](#refereces-on-quadrature) is an active learning method for the value of an integral given queries of the integrand 
+Bayesian quadrature  is an active learning method for the value of an integral given queries of the integrand 
 on a finite and usually small amount of input locations.
 
-Bayesian quadrature returns not only an estimator, but a full posterior distribution on the integral value
+Bayesian quadrature [[1, 2]](#refereces-on-quadrature) returns not only an estimator, but a full posterior distribution on the integral value
 which can subsequently be used in decision making or uncertainty analysis.
 
 Bayesian quadrature is especially useful when integrand evaluations are expensive and sampling schemes 
@@ -43,9 +43,10 @@ implement the integration of the emulator, the acquisition scheme and the active
 and try out novel Bayesian quadrature methods.
 
 
-We're always open to contributions! Please read our [contribution guidelines](CONTRIBUTING.md) for more information. 
-We are particularly interested in contributions regarding translations and tutorials. 
+Check our list of [notebooks](http://nbviewer.jupyter.org/github/amzn/emukit/blob/develop/notebooks/index.ipynb) and [examples](https://github.com/amzn/emukit/tree/develop/emukit/examples) if you want to learn more about how to do Bayesian quadrature and other methods with Emukit. You can also check the Emukit [documentation](https://emukit.readthedocs.io/en/latest/).
 
+We’re always open to contributions! Please read our [contribution guidelines](https://github.com/amzn/emukit/blob/develop/CONTRIBUTING.md) for more information. We are particularly interested in contributions
+regarding examples and tutorials.
 
 #### Refereces on Quadrature
 
