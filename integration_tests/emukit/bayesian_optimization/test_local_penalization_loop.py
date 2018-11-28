@@ -23,8 +23,9 @@ def test_local_penalization():
     base_acquisition = ExpectedImprovement(model)
 
     batch_size = 10
+    update_interval = 1
 
-    lp = BayesianOptimizationLoop(model, parameter_space, base_acquisition, batch_size)
+    lp = BayesianOptimizationLoop(parameter_space, model, base_acquisition, update_interval, batch_size)
     lp.run_loop(branin_fcn, 5)
 
     assert len(lp.loop_state.Y) == 60
