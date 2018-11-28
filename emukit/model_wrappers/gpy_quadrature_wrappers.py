@@ -22,7 +22,8 @@ class BaseGaussianProcessGPy(IBaseGaussianProcess):
         """
         :param kern: a quadrature kernel
         :param gpy_model: A GPy GP regression model, GPy.models.GPRegression
-        :param noise_free: if True then the observation noise is set to 1e-10
+        :param noise_free: if False, the observation noise variance will be treated as a model parameter,
+        if True it is set to 1e-10, defaults to True
         """
         super().__init__(kern=kern)
         if noise_free:

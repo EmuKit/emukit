@@ -39,7 +39,20 @@ class SquaredCorrelation(Acquisition):
         :param x: (n_points x input_dim) locations where to evaluate
         :return: (n_points x 1) the acquisition function value at x
         """
-        return self.evaluate_with_gradients(x)[0]
+        return self._evaluate(x)[0]
+
+    def _evaluate(self, x: np.ndarray) -> Tuple[np.ndarray, np.float, np.ndarray, np.ndarray]:
+        """
+        Evaluates the acquisition function at x.
+
+        :param x: (n_points x input_dim) locations where to evaluate
+        :return: the acquisition function value at x, shape (n_points x 1), current integral variance,
+        predictive variance + noise, predictive covariance between integral and x, shapes of the latter
+        two (n_points, 1).
+        """
+        integral_current_var, y_predictive_var, predictive_cov = self._value_terms(x)
+        squared_correlation = predictive_cov**2 / (integral_current_var * y_predictive_var)
+        return squared_correlation, integral_current_var, y_predictive_var, predictive_cov
 
     def evaluate_with_gradients(self, x: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
@@ -49,8 +62,7 @@ class SquaredCorrelation(Acquisition):
         :return: acquisition value and corresponding gradient at x, shapes (n_points, 1) and (n_points, input_dim)
         """
         # value
-        integral_current_var, y_predictive_var, predictive_cov = self._value_terms(x)
-        squared_correlation = predictive_cov**2 / (integral_current_var * y_predictive_var)
+        squared_correlation, integral_current_var, y_predictive_var, predictive_cov = self._evaluate(x)
 
         # gradient
         d_y_predictive_var_dx, d_predictive_cov_dx = self._gradient_terms(x)
