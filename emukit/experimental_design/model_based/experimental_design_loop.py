@@ -3,7 +3,7 @@
 from .acquisitions import ModelVariance
 from ...core.acquisition import Acquisition
 from ...core.interfaces.models import IModel
-from ...core.loop import OuterLoop, Sequential, FixedIntervalUpdater
+from ...core.loop import OuterLoop, SequentialPointCalculator, FixedIntervalUpdater
 from ...core.loop.candidate_point_calculators import GreedyBatchPointCalculator
 from ...core.loop.loop_state import create_loop_state
 from ...core.optimization import AcquisitionOptimizer
@@ -31,7 +31,7 @@ class ExperimentalDesignLoop(OuterLoop):
 
         # Construct emukit classes
         if batch_size == 1:
-            candidate_point_calculator = Sequential(acquisition, acquisition_optimizer)
+            candidate_point_calculator = SequentialPointCalculator(acquisition, acquisition_optimizer)
         elif batch_size > 1:
             candidate_point_calculator = \
                 GreedyBatchPointCalculator(model, acquisition, acquisition_optimizer, batch_size)

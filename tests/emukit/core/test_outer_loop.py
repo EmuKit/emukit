@@ -6,7 +6,7 @@ import pytest
 from emukit.core import ContinuousParameter, ParameterSpace
 from emukit.core.interfaces import IModel
 from emukit.core.loop import (OuterLoop, ModelUpdater, StoppingCondition, CandidatePointCalculator, UserFunctionResult,
-                              UserFunction, Sequential, FixedIntervalUpdater)
+                              UserFunction, SequentialPointCalculator, FixedIntervalUpdater)
 from emukit.core.loop.loop_state import create_loop_state
 from emukit.core.optimization import AcquisitionOptimizer
 from emukit.experimental_design.model_based.acquisitions import ModelVariance
@@ -150,7 +150,7 @@ def test_iteration_end_event():
 
     acquisition = ModelVariance(model)
     acquisition_optimizer = AcquisitionOptimizer(space)
-    candidate_point_calculator = Sequential(acquisition, acquisition_optimizer)
+    candidate_point_calculator = SequentialPointCalculator(acquisition, acquisition_optimizer)
     model_updater = FixedIntervalUpdater(model)
 
     loop = OuterLoop(candidate_point_calculator, model_updater, loop_state)
