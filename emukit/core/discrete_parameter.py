@@ -6,7 +6,8 @@ from typing import Iterable, Union, Tuple
 
 import numpy as np
 
-from . import Parameter
+from .parameter import Parameter
+
 
 class DiscreteParameter(Parameter):
     """

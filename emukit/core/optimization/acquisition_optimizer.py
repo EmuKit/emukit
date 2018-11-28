@@ -74,11 +74,10 @@ class AcquisitionOptimizer(AcquisitionOptimizerBase):
             _log.info("Starting gradient-free optimization of acquisition function {}".format(type(acquisition)))
             x, f_min = self.gpyopt_acquisition_optimizer.optimize(f, None, None)
 
-        print("Before zipping: " + x)
-        x = self.gpyopt_space.zip_inputs(x)
-        print("After zipping: " + x)
+        rounded_x = self.space.round(x)
+        rounded_f_min = acquisition.evaluate(rounded_x)
 
-        return x, f_min
+        return rounded_x, rounded_f_min
 
     def _validate_context_parameters(self, context):
         for context_name, context_value in context.items():

@@ -1,10 +1,28 @@
-class Parameter(object):
-    def transform_to_model(self, x):
-        return x
+# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 
-    def transform_to_user_function(self, x):
-        return x
+
+import numpy as np
+from typing import List
+
+
+class Parameter(object):
+    @property
+    def model_dimension(self) -> int:
+        return 1
 
     @property
-    def model_dim(self):
-        return 1
+    def model_params(self) -> List:
+        return [self]
+
+    def round(self, x) -> np.ndarray:
+        return x
+
+    def check_in_domain(self, x: np.ndarray) -> bool:
+        """
+        Verifies that given values lie within the parameter's domain
+
+        :param x: Value to be checked
+        :return: A boolean value which indicates whether all points lie in the domain
+        """
+        raise NotImplemented
