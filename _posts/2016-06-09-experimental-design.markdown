@@ -27,7 +27,7 @@ Gaussian processes have a long tradition of being the 'model of choice' for desi
 you can use them in Emukit for this purpose. Of course you can generalize these ideas to other models too. 
 
 We start by loading the [Branin function](https://www.sfu.ca/~ssurjano/branin.html). 
-We define the input space to be $[-5,10]\times [0,15]$.
+We define the input space to be [-5,10]x[0,15].
 
 ```python
 from emukit.test_functions import branin_function
@@ -97,11 +97,9 @@ expdesign_loop.run_loop(f, stopping_condition)
 If you are running physical experiments you  can just run one iteration, collect the 5 points and repeat the process over for the next batch.
 
 
-Check our list of [tutorial notebooks](https://github.com/amzn/emukit/tree/develop/notebooks) and 
-[examples](https://github.com/amzn/emukit/tree/develop/emukit/examples) if you want to learn more about how 
-to do experimental design with with Emukit. You can also check the Emukit [documentation](https://emukit.readthedocs.io/en/latest/).
+Check our list of [notebooks](http://nbviewer.jupyter.org/github/amzn/emukit/blob/develop/notebooks/index.ipynb) and [examples](https://github.com/amzn/emukit/tree/develop/emukit/examples) if you want to learn more about how to do experimental design and other methods with Emukit. You can also check the Emukit [documentation](https://emukit.readthedocs.io/en/latest/).
 
-We’re always open to contributions! Please read our [contribution guidelines](CONTRIBUTING.md) for more information. We are particularly interested in contributions
+We’re always open to contributions! Please read our [contribution guidelines](https://github.com/amzn/emukit/blob/develop/CONTRIBUTING.md) for more information. We are particularly interested in contributions
 regarding examples and tutorials.
 
 #### References on experimental design
