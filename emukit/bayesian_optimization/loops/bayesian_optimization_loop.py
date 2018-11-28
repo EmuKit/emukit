@@ -2,13 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+from typing import Tuple
+
 import numpy as np
 
 from ..acquisitions import ExpectedImprovement
 from ..acquisitions.log_acquisition import LogAcquisition
 from ..local_penalization_calculator import LocalPenalizationPointCalculator
 from ...core.interfaces import IDifferentiable
-from ...core.loop.loop_state import create_loop_state
+from ...core.loop.loop_state import create_loop_state, LoopState
 from ...core.loop import OuterLoop, SequentialPointCalculator, FixedIntervalUpdater, ModelUpdater
 from ...core.optimization import AcquisitionOptimizer
 from ...core.parameter_space import ParameterSpace
@@ -55,11 +57,32 @@ class BayesianOptimizationLoop(OuterLoop):
 
         super().__init__(candidate_point_calculator, model_updaters, loop_state)
 
-    def get_current_best(self) -> dict:
-        """
-        Returns a dictionary with the current best found location (minimum) and its value.
+    def get_results(self):
+        return BayesianOptimizationResults(self.loop_state)
+
+
+class BayesianOptimizationResults:
+    def __init__(self,loop_state: LoopState):
 
         """
-        return {'minimum': self.loop_state.X[np.argmin(self.loop_state.Y),None], 'value':np.min(self.loop_state.Y)}
+        Emukit class that takes as input the loop state and computes some results.
 
+        :param loop_state: The loop state it its current form. Currently it only contains X and Y.
+        """
+
+        self.minimum_location = loop_state.X[np.argmin(loop_state.Y),:]
+        self.minimum_value = np.min(loop_state.Y)
+        self.best_found_value_per_iteration = self._current_best_vector(loop_state.Y)
+
+    def _current_best_vector(self,Y) -> np.array:
+        '''
+        Returns a one-dimensional numpy array whose ith element us the minimum of the components 0:i of Y.
+
+        :param Y: the numpy array with the current best found value per iteration,
+        '''
+
+        Y_best = Y.flatten().copy()
+        for i in range(Y_best.shape[0]):
+            Y_best[i] = Y[:(i + 1)].min()
+        return Y_best
 
