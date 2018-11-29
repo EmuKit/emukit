@@ -24,7 +24,7 @@ class CategoricalParameter(Parameter):
             self._cont_params.append(cont_param)
 
     @property
-    def encodings(self):
+    def encodings(self) -> np.ndarray:
         return self.encoding.encodings
 
     @property
