@@ -55,4 +55,4 @@ def test_batch_loop_fails_without_gradients_implemented():
     batch_size = 10
 
     with pytest.raises(ValueError):
-        BayesianOptimizationLoop(model, parameter_space, base_acquisition, batch_size)
+        BayesianOptimizationLoop(parameter_space, model, base_acquisition, batch_size)
