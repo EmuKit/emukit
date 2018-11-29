@@ -17,7 +17,7 @@ def loops():
     def make_loop(x_init, y_init):
         gpy_model = GPy.models.GPRegression(x_init, y_init)
         model = GPyModelWrapper(gpy_model)
-        return BayesianOptimizationLoop(model, space)
+        return BayesianOptimizationLoop(space, model)
 
     return [('GP', make_loop)]
 
