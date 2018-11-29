@@ -45,7 +45,8 @@ using a Latin design.
 from emukit.experimental_design.model_free.latin_design import LatinDesign
 
 design = LatinDesign(parameter_space) 
-X = design.get_samples(num_data_points = 20)
+num_data_points = 20
+X = design.get_samples(num_data_points)
 ```
 
 Now we evaluate the function at the selected points and we fit a model with [GPy](https://github.com/SheffieldML/GPy).
@@ -88,10 +89,8 @@ the data collection process. Let's run 10 experiments with 5 points each.
  
 
 ```python
-from emukit.core.loop import FixedIterationsStoppingCondition
-
-stopping_condition = FixedIterationsStoppingCondition(i_max = 10)
-expdesign_loop.run_loop(f, stopping_condition)
+max_iterations = 10
+expdesign_loop.run_loop(f, max_iterations)
 ```
 
 If you are running physical experiments you  can just run one iteration, collect the 5 points and repeat the process over for the next batch.
