@@ -21,7 +21,7 @@ class Parameter(object):
         """
         return [self]
 
-    def round(self, x) -> np.ndarray:
+    def round(self, x: np.ndarray) -> np.ndarray:
         """
         Rounds the values of x to fit to the parameter domain, if needed.
 
