@@ -5,10 +5,10 @@ categories: jekyll update
 img: bayesian_quadrature.png
 ---
 
-Bayesian quadrature  is an active learning method for the value of an integral given queries of the integrand 
+Bayesian quadrature [[1, 2]](#refereces-on-quadrature) is an active learning method for the value of an integral given queries of the integrand 
 on a finite and usually small amount of input locations.
 
-Bayesian quadrature [[1, 2]](#refereces-on-quadrature) returns not only an estimator, but a full posterior distribution on the integral value
+Bayesian quadrature returns not only an estimator, but a full posterior distribution on the integral value
 which can subsequently be used in decision making or uncertainty analysis.
 
 Bayesian quadrature is especially useful when integrand evaluations are expensive and sampling schemes 
@@ -31,16 +31,89 @@ The actual integration that yields the distribution over the integral value is t
 of the integrand function, which is often analytic for certain choices of Gaussian processes, or 
 an analytic approximation (e.g., for WSABI [[3]](#refereces-on-quadrature)). 
 
-Thus, the success of Bayesian quadrature is based on three things: i) replacing an intractable integral with an inference 
+Thus, the success of Bayesian quadrature is based on three things: i) replacing an intractable integral with a regression 
 problem on the integrand function ii) replacing the actual integration with an easier, analytic integration of the surrogate model
 on the integrand function, and iii) actively choosing locations for integrand evaluations such that the budget is optimally used
 in the sense encoded by the acquisition scheme.
 
 #### Bayesian Quadrature in Emukit
-Emukit provides basic functionality for vanilla Bayesian quadrature [[1, 2]](#refereces-on-quadrature), 
-but also for more elaborate methods like WSABI [[3]](#refereces-on-quadrature). It alleviates the need to research and 
-implement the integration of the emulator, the acquisition scheme and the active loop while providing a frame to implement 
-and try out novel Bayesian quadrature methods.
+Emukit at the moment provides basic functionality for vanilla Bayesian quadrature where a GP surrogate model is placed upon 
+the integrand which is then integrated directly. 
+This is how it is done:
+
+First we define the function that we want to integrate, also called the *integrand*. Here we will chose the 1-dimensional
+Hennig1D function which is already implemented in Emukit. We also choose the integration bounds: a lower bound and an upper bound.
+
+```python
+from emukit.test_functions import hennig1D
+
+user_function = hennig1D()[0]
+lb = -3. # lower integral bound
+ub = 3. # upper integral bound
+```
+
+Next we choose three locations for some initial evaluations to get an initial model of the integrand, also called the initial design.
+Here we use the GP regression model of [GPy](https://github.com/SheffieldML/GPy) since a wrapper already exists in Emukit. Note that in BQ we are usually restricted
+in the choice of the kernel function. Emukit at the moment supports the RBF/Gaussian kernel for Baysian quadrature.
+
+```python
+import GPy
+
+X = np.array([[-2.],[-0.5], [-0.1]])
+Y = user_function(X) # inital integrand evaluations at locations X 
+gpy_model = GPy.models.GPRegression(X=X, Y=Y, 
+                                    kernel=GPy.kern.RBF(input_dim=X.shape[1], 
+                                    lengthscale=0.5, 
+                                    variance=1.0))
+```
+
+Now we convert the [GPy](https://github.com/SheffieldML/GPy) GP model into an Emukit quadrature GP. 
+Note that we also need to wrap the RBF kernel of the GPy model since Bayesian quadrature essentially integrates the kernel function. 
+
+```python
+from emukit.quadrature.kernels import QuadratureRBF
+from emukit.model_wrappers.gpy_quadrature_wrappers import RBFGPy, \
+BaseGaussianProcessGPy
+
+emukit_rbf = RBFGPy(gpy_model.kern)
+emukit_qrbf = QuadratureRBF(emukit_rbf, integral_bounds=[(lb, ub)])
+emukit_model = BaseGaussianProcessGPy(kern=emukit_qrbf, gpy_model=gpy_model)
+```
+
+There are several Bayesian quadrature methods out there. Emukit at the moment supports vanilla Bayesian quadrature where
+the GP model is directly placed over the integrand function and then integrated analytically. Note that the integration method is different from the GP model,
+for example other approaches (e.g., [[3]](#refereces-on-quadrature)) first transform the GP model before they integrate it.
+
+```python
+from emukit.quadrature.methods import VanillaBayesianQuadrature
+
+emukit_method = VanillaBayesianQuadrature(base_gp=emukit_model)
+```
+
+Now we define the active learning loop. The essential piece in the loop is the acquisition function. The vanilla BQ loop 
+by default uses the integral-variance-reduction acquisition (IVR) which is a global quantity of the space.
+
+```python
+from emukit.quadrature.loop import VanillaBayesianQuadratureLoop
+
+emukit_loop = VanillaBayesianQuadratureLoop(model=emukit_method)
+```
+
+Finally, we run the loop for `num_iter = 20` iterations. This will collect 20 additional observations, chosen by 
+optimizing the acqusition function at every step. After each newly collected observations, the vanilla BQ model is updated 
+and fitted to the new dataset.
+
+```python                           
+num_iter = 20          
+emukit_loop.run_loop(user_function=hennig1D()[0], stopping_condition=num_iter)
+```
+
+And that's it! You can retrieve the integral and variance estimator by running
+ 
+```python
+intgeral_mean, integral_variance = emukit_loop.model.integrate()
+``` 
+
 
 
 Check our list of [notebooks](http://nbviewer.jupyter.org/github/amzn/emukit/blob/develop/notebooks/index.ipynb) and [examples](https://github.com/amzn/emukit/tree/develop/emukit/examples) if you want to learn more about how to do Bayesian quadrature and other methods with Emukit. You can also check the Emukit [documentation](https://emukit.readthedocs.io/en/latest/).
