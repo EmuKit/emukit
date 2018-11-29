@@ -45,7 +45,8 @@ from GPy.models import GPRegression
 from emukit.model_wrappers import GPyModelWrapper
 
 design = RandomDesign(parameter_space) # Collect random points
-X = design.get_samples(num_data_points = 5)
+num_data_points = 5
+X = design.get_samples(num_data_points)
 Y = f(X)
 model_gpy = GPRegression(X,Y) # Train and wrap the model in Emukit
 model_emukit = GPyModelWrapper(model_gpy)
@@ -84,13 +85,17 @@ bayesopt_loop = BayesianOptimizationLoop(model = model_emukit,
 The bach size is set to one in this example as we'll collect evaluations sequentially but parallel evaluations are allowed. Once the loop is created we run it for some iterations,
 20 in our example.
 
+```python
+max_iterations = 30
+bayesopt_loop.run_loop(f, max_iterations)
 ```
-from emukit.core.loop import FixedIterationsStoppingCondition
+And that's it! You can check the obtained the results looking into the state of the loop or by running
+ 
+```python
+results = bayesopt_loop.get_results()
+``` 
 
-stopping_condition = FixedIterationsStoppingCondition(i_max = 20)
-bayesopt_loop.run_loop(f, stopping_condition)
-```
-And that's it! You can check the obtained the result looking into the state of the loop. Note that you can use other models and acquisitions of your own in this loop.
+Note that you can use other models and acquisitions of your own in this loop.
 
 Check our list of [notebooks](http://nbviewer.jupyter.org/github/amzn/emukit/blob/develop/notebooks/index.ipynb) and [examples](https://github.com/amzn/emukit/tree/develop/emukit/examples) if you want to learn more about how to do Bayesian optimization and other methods with Emukit. You can also check the Emukit [documentation](https://emukit.readthedocs.io/en/latest/).
 
