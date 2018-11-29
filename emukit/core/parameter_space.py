@@ -14,7 +14,16 @@ from .discrete_parameter import DiscreteParameter, InformationSourceParameter
 
 
 class ParameterSpace(object):
+    """
+    Represents parameter space for a given problem.
+    """
+
     def __init__(self, parameters: List):
+        """
+        Creates a new instance of a parameter space.
+
+        :param parameters: A list of parameters in the space.
+        """
         self._parameters = parameters
 
         # Check no more than one InformationSource parameter
@@ -28,20 +37,42 @@ class ParameterSpace(object):
             raise ValueError('Parameter names are not unique')
 
     @property
-    def parameters(self):
+    def parameters(self) -> List:
+        """
+        Returns the list of parameters in the space.
+        """
+
         return self._parameters
 
     @property
-    def parameter_names(self):
+    def parameter_names(self) -> List:
+        """
+        Returns the list of names of parameters in the space.
+        """
+
         return [p.name for p in self._parameters]
 
-    def get_parameter_by_name(self, name):
+    def get_parameter_by_name(self, name: str) -> Parameter:
+        """
+        Returns parameter with the given name
+
+        :param name: Parameter name
+        :returns: A parameter object
+        """
+
         for param in self.parameters:
             if param.name == name:
                 return param
         raise ValueError('Parameter with name ' + name + ' not found.')
 
     def round(self, x: np.ndarray) -> np.ndarray:
+        """
+        Rounds given values x to closest valid values within the space.
+
+        :param x: A 2d array of values to be rounded
+        :returns: A 2d array of rounded values
+        """
+
         x_rounded = []
         current_idx = 0
         for param in self.parameters:
