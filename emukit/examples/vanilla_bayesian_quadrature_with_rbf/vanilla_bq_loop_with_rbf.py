@@ -12,7 +12,8 @@ from emukit.model_wrappers.gpy_quadrature_wrappers import QuadratureRBF, RBFGPy,
 
 
 def create_vanilla_bq_loop_with_rbf_kernel(X: np.ndarray, Y: np.ndarray, integral_bounds: List,
-                                           rbf_lengthscale: np.float=1.0, rbf_variance: np.float=1.0):
+                                           rbf_lengthscale: float=1.0, rbf_variance: np.float=1.0) -> \
+        VanillaBayesianQuadratureLoop:
     """
 
     :param X: initial training point locations, shape (n_points, input_dim)
@@ -22,15 +23,18 @@ def create_vanilla_bq_loop_with_rbf_kernel(X: np.ndarray, Y: np.ndarray, integra
     [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)].
     :param rbf_lengthscale: the lengthscale of the rbf kernel, defaults to 1.
     :param rbf_variance: the variance of the rbf kernel, defaults to 1.
-    :return:
+    :return: The vanilla BQ loop
     """
 
     if not len(integral_bounds) == X.shape[1]:
-        raise ValueError("number of integral bounds provided does not match the input dimension.")
+        D_bounds = len(integral_bounds)
+        input_dim = X.shape[1]
+        raise ValueError("number of integral bounds " + str(D_bounds) + " provided does not match the input dimension "
+                                                                        + str(input_dim) + ".")
     if rbf_lengthscale <= 0:
-        raise ValueError("rbf lengthscale must be positive.")
+        raise ValueError("rbf lengthscale must be positive. The current value is " + str(rbf_lengthscale) + ".")
     if rbf_variance <= 0:
-        raise ValueError("rbf variance must be positive.")
+        raise ValueError("rbf variance must be positive. The current value is " + str(rbf_variance) + ".")
 
     gpy_model = GPy.models.GPRegression(X=X, Y=Y, kernel=GPy.kern.RBF(input_dim=X.shape[1],
                                                                       lengthscale=rbf_lengthscale,
