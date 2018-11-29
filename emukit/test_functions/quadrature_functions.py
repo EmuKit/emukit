@@ -17,7 +17,7 @@ def hennig1D() -> Tuple[UserFunctionWrapper, Callable]:
     .. math::
 
         e^{-x^2 -\sin^2(3x)}
-        
+
     """
     return UserFunctionWrapper(_hennig1D), _hennig1D
 
@@ -27,7 +27,7 @@ def _hennig1D(x: np.ndarray) -> np.ndarray:
     :param x: (num_points, 1)
     :return: the function values at x, shape (num_points, 1)
     """
-    return np.exp(- x**2 - np.sin(3.*x)**2)
+    return np.exp(- x**2 - np.sin(3. * x)**2)
 
 
 def circular_gaussian() -> Tuple[UserFunctionWrapper, Callable]:
@@ -42,7 +42,7 @@ def _circular_gaussian(x: np.ndarray, mean: np.float, variance: np.float):
     :param mean: mean of Gaussian in radius (must be > 0)
     """
     norm_x = np.sqrt((x**2).sum(axis=1))
-    return norm_x**2 * np.exp(- (norm_x - mean)**2/(2.*variance)) / np.sqrt(2. * np.pi * variance)
+    return norm_x**2 * np.exp(- (norm_x - mean)**2 / (2. * variance)) / np.sqrt(2. * np.pi * variance)
 
 
 # these integrators help with testing and illustrations
