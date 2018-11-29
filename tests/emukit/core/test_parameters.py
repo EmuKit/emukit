@@ -2,7 +2,6 @@ import pytest
 import numpy as np
 
 from emukit.core import DiscreteParameter, InformationSourceParameter
-from emukit.core.discrete_parameter import create_discrete_parameter_for_categories
 
 
 def test_discrete_parameter():

@@ -8,14 +8,26 @@ from typing import List
 
 class Parameter(object):
     @property
-    def model_dimension(self) -> int:
+    def dimension(self) -> int:
+        """
+        Gives the dimension of the parameter.
+        """
         return 1
 
     @property
-    def model_params(self) -> List:
+    def model_parameters(self) -> List:
+        """
+        Gives the list of single dimentional model parameters the parameter corresponds to.
+        """
         return [self]
 
     def round(self, x) -> np.ndarray:
+        """
+        Rounds the values of x to fit to the parameter domain, if needed.
+
+        :param x: 2d array of values to be rounded.
+        :returns: A 2d array of rounded values.
+        """
         return x
 
     def check_in_domain(self, x: np.ndarray) -> bool:

@@ -4,4 +4,5 @@
 from .categorical_parameter import CategoricalParameter  # noqa: F401
 from .continuous_parameter import ContinuousParameter  # noqa: F401
 from .discrete_parameter import DiscreteParameter, InformationSourceParameter  # noqa: F401
+from .encodings import OneHotEncoding, OrdinalEncoding  # noqa: F401
 from .parameter_space import ParameterSpace  # noqa: F401

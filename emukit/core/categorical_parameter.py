@@ -5,25 +5,30 @@
 import numpy as np
 from typing import List
 
+from .encodings import Encoding
 from .parameter import Parameter
 from .continuous_parameter import ContinuousParameter
 
 class CategoricalParameter(Parameter):
-    def __init__(self, name: str, encodings: np.ndarray):
+    def __init__(self, name: str, encoding: Encoding):
         self.name = name
 
         # ensure float just in case we were given integers
-        self.encodings = encodings.astype(float)
+        self.encoding = encoding
 
         self._cont_params = []
-        for column_idx in range(encodings.shape[1]):
+        for column_idx in range(self.encodings.shape[1]):
             cont_param = ContinuousParameter(name + '_' + str(column_idx),
                                              np.min(self.encodings[:, column_idx]),
                                              np.max(self.encodings[:, column_idx]))
             self._cont_params.append(cont_param)
 
     @property
-    def model_params(self) -> List:
+    def encodings(self):
+        return self.encoding.encodings
+
+    @property
+    def model_parameters(self) -> List:
         return self._cont_params
 
     def round(self, x: np.ndarray) -> np.ndarray:
@@ -35,7 +40,7 @@ class CategoricalParameter(Parameter):
         return np.row_stack(x_rounded)
 
     @property
-    def model_dimension(self) -> int:
+    def dimension(self) -> int:
         return self.encodings.shape[1]
 
     def check_in_domain(self, x: np.ndarray) -> bool:

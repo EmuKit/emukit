@@ -3,9 +3,8 @@ import numpy as np
 
 from emukit.core import ParameterSpace, ContinuousParameter, CategoricalParameter, OneHotEncoding
 
-from emukit.bayesian_optimization.acquisitions import ExpectedImprovement
-from emukit.bayesian_optimization.loops import BayesianOptimizationLoop
-from emukit.experimental_design import RandomDesign
+from emukit.experimental_design.model_based.experimental_design_loop import ExperimentalDesignLoop
+from emukit.experimental_design import LatinDesign
 from emukit.model_wrappers import GPyModelWrapper
 
 
@@ -22,7 +21,7 @@ def test_categorical_variables():
         CategoricalParameter('categorical_param', encoding)
     ])
 
-    random_design = RandomDesign(parameter_space)
+    random_design = LatinDesign(parameter_space)
     x_init = random_design.get_samples(10)
 
     assert x_init.shape == (10, 4)
@@ -34,9 +33,7 @@ def test_categorical_variables():
     gpy_model.Gaussian_noise.fix(1)
     model = GPyModelWrapper(gpy_model)
 
-    acquisition = ExpectedImprovement(model)
-
-    loop = BayesianOptimizationLoop(model, parameter_space, acquisition)
+    loop = ExperimentalDesignLoop(parameter_space, model)
     loop.run_loop(objective, 5)
 
     assert len(loop.loop_state.Y) == 15

@@ -45,9 +45,9 @@ class ParameterSpace(object):
         x_rounded = []
         current_idx = 0
         for param in self.parameters:
-            param_columns = x[:, current_idx:(current_idx + param.model_dimension)]
+            param_columns = x[:, current_idx:(current_idx + param.dimension)]
             x_rounded.append(param.round(param_columns))
-            current_idx += param.model_dimension
+            current_idx += param.dimension
 
         return np.column_stack(x_rounded)
 
@@ -68,7 +68,7 @@ class ParameterSpace(object):
                                 'dimensionality': 1}
                 gpyopt_parameters.append(gpyopt_param)
             elif isinstance(parameter, CategoricalParameter):
-                for i, cat_sub_param in enumerate(parameter.model_params):
+                for i, cat_sub_param in enumerate(parameter.model_parameters):
                     gpyopt_param = {'name': parameter.name + '_' + str(i), 'type': 'continuous', 'domain': (cat_sub_param.min, cat_sub_param.max),
                             'dimensionality': 1}
                     gpyopt_parameters.append(gpyopt_param)
