@@ -17,7 +17,7 @@ class Parameter(object):
     @property
     def model_parameters(self) -> List:
         """
-        Gives the list of single dimentional model parameters the parameter corresponds to.
+        Gives the list of single dimensional model parameters the parameter corresponds to.
         """
         return [self]
 
