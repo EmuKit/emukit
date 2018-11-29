@@ -41,7 +41,7 @@ class ParameterSpace(object):
                 return param
         raise ValueError('Parameter with name ' + name + ' not found.')
 
-    def round(self, x):
+    def round(self, x: np.ndarray) -> np.ndarray:
         x_rounded = []
         current_idx = 0
         for param in self.parameters:
