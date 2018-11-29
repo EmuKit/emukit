@@ -2,13 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import Tuple
-
 import numpy as np
 
 from ...core.acquisition import Acquisition
 from ...core.interfaces import IDifferentiable, IModel
-from ...core.loop import FixedIntervalUpdater, ModelUpdater, OuterLoop, SequentialPointCalculator
+from ...core.loop import FixedIntervalUpdater, OuterLoop, SequentialPointCalculator
 from ...core.loop.loop_state import create_loop_state
 from ...core.optimization import AcquisitionOptimizer
 from ...core.parameter_space import ParameterSpace
