@@ -72,17 +72,4 @@ class BayesianOptimizationResults:
 
         self.minimum_location = loop_state.X[np.argmin(loop_state.Y),:]
         self.minimum_value = np.min(loop_state.Y)
-        self.best_found_value_per_iteration = self._current_best_vector(loop_state.Y)
-
-    def _current_best_vector(self,Y) -> np.array:
-        '''
-        Returns a one-dimensional numpy array whose ith element us the minimum of the components 0:i of Y.
-
-        :param Y: the numpy array with the current best found value per iteration,
-        '''
-
-        Y_best = Y.flatten().copy()
-        for i in range(Y_best.shape[0]):
-            Y_best[i] = Y[:(i + 1)].min()
-        return Y_best
-
+        self.best_found_value_per_iteration = np.minimum.accumulate(loop_state.Y)
