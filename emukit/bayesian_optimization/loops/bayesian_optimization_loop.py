@@ -72,4 +72,4 @@ class BayesianOptimizationResults:
 
         self.minimum_location = loop_state.X[np.argmin(loop_state.Y),:]
         self.minimum_value = np.min(loop_state.Y)
-        self.best_found_value_per_iteration = np.minimum.accumulate(loop_state.Y)
+        self.best_found_value_per_iteration = np.minimum.accumulate(loop_state.Y).flatten()
