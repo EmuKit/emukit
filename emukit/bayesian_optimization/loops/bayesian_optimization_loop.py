@@ -1,9 +1,13 @@
 # Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
+
+
+import numpy as np
+
 from ...core.acquisition import Acquisition
 from ...core.interfaces import IDifferentiable, IModel
-from ...core.loop import FixedIntervalUpdater, ModelUpdater, OuterLoop, SequentialPointCalculator
-from ...core.loop.loop_state import create_loop_state
+from ...core.loop import FixedIntervalUpdater, OuterLoop, SequentialPointCalculator
+from ...core.loop.loop_state import create_loop_state, LoopState
 from ...core.optimization import AcquisitionOptimizer
 from ...core.parameter_space import ParameterSpace
 from ..acquisitions import ExpectedImprovement
@@ -26,6 +30,8 @@ class BayesianOptimizationLoop(OuterLoop):
         :param batch_size: How many points to evaluate in one iteration of the optimization loop. Defaults to 1.
         """
 
+        self.model = model
+
         if acquisition is None:
             acquisition = ExpectedImprovement(model)
 
@@ -45,3 +51,20 @@ class BayesianOptimizationLoop(OuterLoop):
         loop_state = create_loop_state(model.X, model.Y)
 
         super().__init__(candidate_point_calculator, model_updaters, loop_state)
+
+    def get_results(self):
+        return BayesianOptimizationResults(self.loop_state)
+
+
+class BayesianOptimizationResults:
+    def __init__(self,loop_state: LoopState):
+
+        """
+        Emukit class that takes as input the loop state and computes some results.
+
+        :param loop_state: The loop state it its current form. Currently it only contains X and Y.
+        """
+
+        self.minimum_location = loop_state.X[np.argmin(loop_state.Y),:]
+        self.minimum_value = np.min(loop_state.Y)
+        self.best_found_value_per_iteration = np.minimum.accumulate(loop_state.Y).flatten()
