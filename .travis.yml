@@ -13,7 +13,7 @@ before_install: |
    brew outdated openssl || brew upgrade openssl
    brew outdated readline || brew upgrade readline
    # Update pyenv
-   brew outdated pyenv || brew upgrade pyenv
+   brew upgrade pyenv
    # Install specified Python version
    pyenv install $PYTHON
    # Set environment variables
