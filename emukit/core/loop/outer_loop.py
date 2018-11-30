@@ -72,7 +72,7 @@ class OuterLoop(object):
             user_function = UserFunctionWrapper(user_function)
 
         if isinstance(stopping_condition, int):
-            stopping_condition = FixedIterationsStoppingCondition(stopping_condition)
+            stopping_condition = FixedIterationsStoppingCondition(stopping_condition + self.loop_state.iteration)
 
         _log.info("Starting outer loop")
 

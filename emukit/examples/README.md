@@ -47,6 +47,7 @@ Do not forget to update the `notebooks/index.ipynb` for your tutorial to show up
 
 * [Cost sensitive Bayesian optimization](https://github.com/amzn/emukit/tree/develop/emukit/examples/cost_sensitive_bayesian_optimization) - Wrapper for using Bayesian optimization when there is a cost involved in the evaluation of the objective.
 * [Gaussian process Bayesian Optimization](https://github.com/amzn/emukit/tree/develop/emukit/examples/gp_bayesian_optimization) - Wrapper for using Bayesian optimization with Gaussian processes.
+* [Vanilla Bayesian Quadrature](https://github.com/amzn/emukit/tree/develop/emukit/examples/vanilla_bayesian_quadrature_with_rbf) - Wrapper for vanilla Bayesian quadrature that uses a Gaussian processes with an RBF kernel.
 * [Models](https://github.com/amzn/emukit/tree/develop/emukit/examples/models) - Implementation of a variety of models that can be used in combination with other Emukit features.
 * [Mountain car](https://github.com/amzn/emukit/tree/develop/emukit/examples/emulation_montain_car_simulator) - Optimization of the control policy of the mountain car simulator. Optimization is applied using an emulator of the reward and of the dynamics of the simulator.
 
