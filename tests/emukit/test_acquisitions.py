@@ -1,3 +1,5 @@
+from collections import namedtuple
+
 import numpy as np
 import pytest
 import pytest_lazyfixture
@@ -12,20 +14,35 @@ from emukit.core.acquisition.acquisition_per_cost import CostAcquisition
 
 from emukit.bayesian_optimization.acquisitions import ProbabilityOfImprovement
 from emukit.experimental_design.model_based.acquisitions import ModelVariance, IntegratedVarianceReduction
+from emukit.model_wrappers.gpy_quadrature_wrappers import convert_gpy_model_to_emukit_model
 from emukit.quadrature.acquisitions import SquaredCorrelation
+from emukit.quadrature.methods import VanillaBayesianQuadrature
 
+
+# This is the step sized used by scipy.optimize.check_grad to calculate the numerical gradient
+gradient_check_step_size = 1e-8
 default_grad_tol = 1e-7
-gradient_acquisitions = [('negative_lower_confidence_bound_acquisition', default_grad_tol),
-                         ('expected_improvement_acquisition', default_grad_tol),
-                         ('cost_acquisition', default_grad_tol),
-                         ('log_acquisition', 1e-5),
-                         ('probability_of_improvement_acquisition', default_grad_tol),
-                         ('model_variance_acquisition', 1e-5),
-                         ('squared_correlation_acquisition', 1e-3)]
+# rmse_gradient_tolerance is the maximum allowed root mean squared error as calculated by scipy.optimize.check_grad
+# before the test will fail
+acquisition_test_tuple = namedtuple('AcquisitionTest', ['name', 'has_gradients', 'rmse_gradient_tolerance'])
+acquisition_tests = [acquisition_test_tuple('negative_lower_confidence_bound_acquisition', True, default_grad_tol),
+                     acquisition_test_tuple('expected_improvement_acquisition', True, default_grad_tol),
+                     acquisition_test_tuple('cost_acquisition', True, default_grad_tol),
+                     acquisition_test_tuple('log_acquisition', True, 1e-5),
+                     acquisition_test_tuple('probability_of_improvement_acquisition', True, default_grad_tol),
+                     acquisition_test_tuple('model_variance_acquisition', True, 1e-5),
+                     acquisition_test_tuple('squared_correlation_acquisition', True, 1e-3),
+                     acquisition_test_tuple('entropy_search_acquisition', False, np.nan),
+                     acquisition_test_tuple('multi_source_entropy_search_acquisition', False, np.nan),
+                     acquisition_test_tuple('integrated_variance_acquisition', False, np.nan)]
 
-non_gradient_acquisitions = ['entropy_search_acquisition',
-                             'multi_source_entropy_search_acquisition',
-                             'integrated_variance_acquisition']
+
+# Vanilla bq model for squared correlation test
+@pytest.fixture
+def vanilla_bq_model(gpy_model, continuous_space, n_dims):
+    integral_bounds = continuous_space.convert_to_gpyopt_design_space().get_bounds()
+    model = convert_gpy_model_to_emukit_model(gpy_model.model, integral_bounds)
+    return VanillaBayesianQuadrature(model)
 
 
 # Acquisition function fixtures
@@ -77,19 +94,23 @@ def multi_source_entropy_search_acquisition(gpy_model):
 
 
 # Helpers for creating parameterized fixtures
-def create_all_fixtures():
-    gradient_acquisitions_names = [tup[0] for tup in gradient_acquisitions]
-    acquisition_names = gradient_acquisitions_names + non_gradient_acquisitions
-    return [pytest.param(pytest_lazyfixture.lazy_fixture(name), id=name) for name in acquisition_names]
+def create_acquisition_fixture_parameters():
+    return [pytest.param(pytest_lazyfixture.lazy_fixture(acq.name), id=acq.name) for acq in acquisition_tests]
 
 
 def create_gradient_acquisition_fixtures():
-    # Create list of tuples of parameters with (fixture, tolerance)
-    return [pytest.param(pytest_lazyfixture.lazy_fixture(acq[0]), acq[1], id=acq[0]) for acq in gradient_acquisitions]
+    # Create list of tuples of parameters with (fixture, tolerance) for acquisitions that gave gradients only
+    parameters = []
+    for acquisition in acquisition_tests:
+        if acquisition.has_gradients:
+            acquisition_name = acquisition.name
+            lazy_fixture = pytest_lazyfixture.lazy_fixture(acquisition.name)
+            parameters.append(pytest.param(lazy_fixture, acquisition.rmse_gradient_tolerance, id=acquisition_name))
+    return parameters
 
 
 # Tests
-@pytest.mark.parametrize('acquisition', create_all_fixtures())
+@pytest.mark.parametrize('acquisition', create_acquisition_fixture_parameters())
 def test_acquisition_evaluate_shape(acquisition, n_dims):
     x = np.random.rand(10, n_dims)
     acquisition_value = acquisition.evaluate(x)
@@ -105,7 +126,7 @@ def test_acquisition_gradient_computation(acquisition, n_dims, tol):
     grad = lambda x: acquisition.evaluate_with_gradients(np.array([x]))[1][0]
 
     for xi in x_test:
-        err = check_grad(acq, grad, xi, epsilon=1e-8)
+        err = check_grad(acq, grad, xi, epsilon=gradient_check_step_size)
         assert err < tol
 
 

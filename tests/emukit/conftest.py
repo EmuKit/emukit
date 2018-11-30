@@ -1,16 +1,19 @@
+"""
+This file is where to put fixtures that are to be shared across different test files
+"""
+
 import GPy
 import numpy as np
 import pytest
 
 from emukit.core import ContinuousParameter, ParameterSpace
 from emukit.model_wrappers import GPyModelWrapper
-from emukit.model_wrappers.gpy_quadrature_wrappers import convert_gpy_model_to_emukit_model
-from emukit.quadrature.methods import VanillaBayesianQuadrature
 
 
 @pytest.fixture
 def n_dims():
-    # default to 2 dimensional inputs for tests, but can be overridden by individual tests if desired
+    # default to 2 dimensional inputs for tests, but can be overridden by individual tests if desired by using the
+    # following decorator: @pytest.mark.parametrize('n_dims', [xxx]) where xxx is the number of desired dimensions
     return 2
 
 
@@ -30,9 +33,3 @@ def continuous_space(n_dims):
     params = [ContinuousParameter('x' + str(i), 0, 1) for i in range(n_dims)]
     return ParameterSpace(params)
 
-
-@pytest.fixture
-def vanilla_bq_model(gpy_model, continuous_space, n_dims):
-    integral_bounds = continuous_space.convert_to_gpyopt_design_space().get_bounds()
-    model = convert_gpy_model_to_emukit_model(gpy_model.model, integral_bounds)
-    return VanillaBayesianQuadrature(model)
