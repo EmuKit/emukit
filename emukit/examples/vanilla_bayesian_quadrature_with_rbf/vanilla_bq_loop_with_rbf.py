@@ -12,7 +12,7 @@ from emukit.model_wrappers.gpy_quadrature_wrappers import QuadratureRBF, RBFGPy,
 
 
 def create_vanilla_bq_loop_with_rbf_kernel(X: np.ndarray, Y: np.ndarray, integral_bounds: List,
-                                           rbf_lengthscale: float=1.0, rbf_variance: np.float=1.0) -> \
+                                           rbf_lengthscale: float=1.0, rbf_variance: float=1.0) -> \
         VanillaBayesianQuadratureLoop:
     """
 
