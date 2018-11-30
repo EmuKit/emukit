@@ -30,6 +30,7 @@ class OuterLoop(object):
     2. Emukit only calculates the next points(s) to try and you evaluate your function or perform the experiment.
 
     This object exposes the following events. See ``emukit.core.event_handler`` for details of how to subscribe:
+         - ``loop_start_event`` called at the start of the `run_loop` method
          - ``iteration_end_event`` called at the end of each iteration
     """
     def __init__(self, candidate_point_calculator: CandidatePointCalculator,
@@ -49,6 +50,8 @@ class OuterLoop(object):
         self.loop_state = loop_state
         if self.loop_state is None:
             self.loop_state = LoopState([])
+
+        self.loop_start_event = EventHandler()
         self.iteration_end_event = EventHandler()
 
     def run_loop(self, user_function: Union[UserFunction, Callable], stopping_condition: Union[StoppingCondition, int],
@@ -72,6 +75,8 @@ class OuterLoop(object):
             stopping_condition = FixedIterationsStoppingCondition(stopping_condition + self.loop_state.iteration)
 
         _log.info("Starting outer loop")
+
+        self.loop_start_event(self, self.loop_state)
 
         while not stopping_condition.should_stop(self.loop_state):
             _log.info("Iteration {}".format(self.loop_state.iteration))
