@@ -74,7 +74,11 @@ class AcquisitionOptimizer(AcquisitionOptimizerBase):
             _log.info("Starting gradient-free optimization of acquisition function {}".format(type(acquisition)))
             x, f_min = self.gpyopt_acquisition_optimizer.optimize(f, None, None)
 
+        # Optimizer sees variables that represent encoded categories as a bunch of continuous values in a range
+        # So the output of the optimizer does not necesseraly match any encoding exactly
+        # Rounding operation here fins the closes encoding
         rounded_x = self.space.round(x)
+        # We may have changed the value of x, so we need to re-evaluate acquisition to make sure f_min is correct
         rounded_f_min = acquisition.evaluate(rounded_x)
 
         return rounded_x, rounded_f_min
