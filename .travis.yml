@@ -8,6 +8,7 @@ python:
   - '3.6'
 before_install: |
  if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
+   sw_vers
    # Recommended for pyenv
    brew outdated openssl || brew upgrade openssl
    brew outdated readline || brew upgrade readline
