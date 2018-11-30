@@ -6,8 +6,10 @@ from typing import Iterable, Union
 
 import numpy as np
 
+from .parameter import Parameter
 
-class DiscreteParameter(object):
+
+class DiscreteParameter(Parameter):
     """
     A parameter that takes a discrete set of values where the order and spacing of values is important
     """

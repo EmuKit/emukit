@@ -17,4 +17,6 @@ class RandomDesign(ModelFreeDesignBase):
         self.gpyopt_random_design = GPyOpt.experiment_design.RandomDesign(self.gpyopt_design_space)
 
     def get_samples(self, point_count):
-        return self.gpyopt_random_design.get_samples(point_count)
+        samples = self.gpyopt_random_design.get_samples(point_count)
+        rounded_samples = self.parameter_space.round(samples)
+        return rounded_samples

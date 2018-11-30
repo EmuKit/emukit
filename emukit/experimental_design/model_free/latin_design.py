@@ -16,4 +16,6 @@ class LatinDesign(ModelFreeDesignBase):
         self.gpyopt_latin_design = GPyOpt.experiment_design.LatinDesign(self.gpyopt_design_space)
 
     def get_samples(self, point_count):
-        return self.gpyopt_latin_design.get_samples(point_count)
+        samples = self.gpyopt_latin_design.get_samples(point_count)
+        rounded_samples = self.parameter_space.round(samples)
+        return rounded_samples
