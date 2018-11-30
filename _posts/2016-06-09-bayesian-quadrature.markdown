@@ -5,10 +5,10 @@ categories: jekyll update
 img: bayesian_quadrature.png
 ---
 
-Bayesian quadrature [[1, 2]](#refereces-on-quadrature) is an active learning method for the value of an integral given queries of the integrand 
+Bayesian quadrature is an active learning method for the value of an integral given queries of the integrand 
 on a finite and usually small amount of input locations.
 
-Bayesian quadrature returns not only an estimator, but a full posterior distribution on the integral value
+Bayesian quadrature [[1, 2]](#refereces-on-quadrature) returns not only an estimator, but a full posterior distribution on the integral value
 which can subsequently be used in decision making or uncertainty analysis.
 
 Bayesian quadrature is especially useful when integrand evaluations are expensive and sampling schemes 
@@ -37,12 +37,13 @@ on the integrand function, and iii) actively choosing locations for integrand ev
 in the sense encoded by the acquisition scheme.
 
 #### Bayesian Quadrature in Emukit
-Emukit at the moment provides basic functionality for vanilla Bayesian quadrature where a GP surrogate model is placed upon 
+Emukit at the moment provides basic functionality for vanilla Bayesian quadrature where a Gaussian process surrogate model is placed upon 
 the integrand which is then integrated directly. 
 This is how it is done:
 
-First we define the function that we want to integrate, also called the *integrand*. Here we will chose the 1-dimensional
-Hennig1D function which is already implemented in Emukit. We also choose the integration bounds: a lower bound and an upper bound.
+First we define the function that we want to integrate, also called the *integrand*. Here we choose the 1-dimensional
+Hennig1D function (see [here](http://nbviewer.jupyter.org/github/amzn/emukit/blob/develop/notebooks/Emukit-tutorial-Bayesian-quadrature-introduction.ipynb) 
+for a visualization) which is already implemented in Emukit. We also choose the integration bounds: a lower bound and an upper bound.
 
 ```python
 from emukit.test_functions import hennig1D
@@ -54,7 +55,7 @@ ub = 3. # upper integral bound
 
 Next we choose three locations for some initial evaluations to get an initial model of the integrand, also called the initial design.
 Here we use the GP regression model of [GPy](https://github.com/SheffieldML/GPy) since a wrapper already exists in Emukit. Note that in BQ we are usually restricted
-in the choice of the kernel function. Emukit at the moment supports the RBF/Gaussian kernel for Baysian quadrature.
+in the choice of the kernel function. Emukit at the moment supports the RBF/Gaussian kernel for Bayesian quadrature.
 
 ```python
 import GPy
@@ -111,7 +112,7 @@ emukit_loop.run_loop(user_function=hennig1D()[0], stopping_condition=num_iter)
 And that's it! You can retrieve the integral and variance estimator by running
  
 ```python
-intgeral_mean, integral_variance = emukit_loop.model.integrate()
+integral_mean, integral_variance = emukit_loop.model.integrate()
 ``` 
 
 
