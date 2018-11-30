@@ -105,6 +105,9 @@ class OneHotEncoding(Encoding):
         and generates one hot encodings for given categories.
         Categories are assigned 1's in the order they appear in the provided list.
 
+        An example reference about one hot encoding:
+        https://www.kaggle.com/dansbecker/using-categorical-data-with-one-hot-encoding
+
         :param categories: List of categories to encode
         """
         encodings = []
@@ -137,6 +140,9 @@ class OrdinalEncoding(Encoding):
         The encoding is a list of integer numbers [1, .. , n]
         where n is the number of categories.
         Categories are assigned codes in the order they appear in the provided list.
+
+        Note that encoding categories with ordinal encoding is effectively the same as
+        treating them as a discrete variable.
 
         :param categories: List of categories to encode
         """
