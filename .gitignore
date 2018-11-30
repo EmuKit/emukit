@@ -15,7 +15,7 @@ __pycache__/
 *.xml
 .ipynb_checkpoints/
 
-/.coverage
+.coverage
 /.coverage.*
 /.cache
 
