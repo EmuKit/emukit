@@ -36,7 +36,7 @@ def test_categorical_variables():
 
     acquisition = ExpectedImprovement(model)
 
-    loop = BayesianOptimizationLoop(model, parameter_space, acquisition)
+    loop = BayesianOptimizationLoop(parameter_space, model, acquisition)
     loop.run_loop(objective, 5)
 
     assert len(loop.loop_state.Y) == 15

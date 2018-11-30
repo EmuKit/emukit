@@ -38,6 +38,12 @@ def test_loop():
     # Check we got the correct number of points
     assert bo.loop_state.X.shape[0] == n_iterations + 5
 
+    # Check the obtained results
+    results = bo.get_results()
+
+    assert results.minimum_location.shape[0] == 1
+    assert results.best_found_value_per_iteration.shape[0] == n_iterations + 5
+
 
 def test_batch_loop_fails_without_gradients_implemented():
     parameter_space = ParameterSpace([ContinuousParameter('x', 0, 1)])
@@ -49,4 +55,4 @@ def test_batch_loop_fails_without_gradients_implemented():
     batch_size = 10
 
     with pytest.raises(ValueError):
-        BayesianOptimizationLoop(model, parameter_space, base_acquisition, batch_size)
+        BayesianOptimizationLoop(parameter_space, model, base_acquisition, batch_size)
