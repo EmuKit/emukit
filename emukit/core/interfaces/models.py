@@ -1,19 +1,24 @@
+# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+
 import numpy as np
 from typing import Tuple
 
 
 class IModel:
-    def predict(self, X: np.ndarray) -> np.ndarray:
+    def predict(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
-        Predict values for given points
+        Predict mean and variance values for given points
 
-        :param X: points to run prediction for
+        :param X: array of shape (n_points x n_inputs) of points to run prediction for
+        :return: Tuple of mean and variance which are 2d arrays of shape (n_points x n_outputs)
         """
         raise NotImplementedError
 
-    def update_data(self, X: np.ndarray, Y: np.ndarray) -> None:
+    def set_data(self, X: np.ndarray, Y: np.ndarray) -> None:
         """
-        Updates model with new data points.
+        Sets training data in model
 
         :param X: new points
         :param Y: function values at new points X

@@ -90,7 +90,7 @@ from the top level directory. This also does coverage checks.
 ### Generating docs
 Documentation contributions are much appreciated! If you see something incorrect or poorly explained, feel free to fix it and send the update!
 
-If you'd like to generate the docs locally, from inside the "docs" directory, run:
+If you'd like to generate the docs locally, from inside the "doc" directory, run:
 
 ```
 make html

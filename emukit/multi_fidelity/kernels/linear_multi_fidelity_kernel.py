@@ -1,3 +1,7 @@
+# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+
 """
 Contains kernel for use with Linear Multi Fidelity model
 """
@@ -176,7 +180,7 @@ class LinearMultiFidelityKernel(CombinationKernel):
                 scale = np.prod(self.scaling_param[j:i]**2)
                 dk_dki[j][idx] += scale
 
-        # Set graidents in sub-kernels
+        # Set gradients in sub-kernels
         for i in range(self.n_fidelities):
             self.kernels[i].update_gradients_diag(dL_dKdiag * dk_dki[i], X)
 
@@ -252,7 +256,7 @@ class LinearMultiFidelityKernel(CombinationKernel):
                     if i != j:
                         dk_dki[k][idx_t] += scale
 
-        # Set graidents in sub-kernels
+        # Set gradients in sub-kernels
         for i in range(self.n_fidelities):
             self.kernels[i].update_gradients_full(dL_dK * dk_dki[i], X, X2)
 
@@ -307,7 +311,7 @@ class LinearMultiFidelityKernel(CombinationKernel):
                     # Take product of scaling parameters from l to n
                     scale_params_1 = np.prod(
                         self.scaling_param[i_kern:min_fidelity])
-                    # Product of scaling parameters from l to j, ommiting i
+                    # Product of scaling parameters from l to j, omitting i
                     scale_params_2 = np.prod(
                         self.scaling_param[i_kern:i_scaling])
                     scale_params_3 = \

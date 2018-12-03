@@ -48,12 +48,14 @@ class TestNonLinearModel:
         Test for sensible error message if we pass arrays rather than lists to constructor
         """
         base_kernel = GPy.kern.RBF
+        X_init = np.random.rand(5, 3)
+        Y_init = np.random.rand(5, 3)
         with pytest.raises(TypeError):
-            emukit.multi_fidelity.models.NonLinearMultiFidelityModel([np.random.rand(5, 3)], [np.random.rand(5, 3)], base_kernel,
-                                                        n_samples=70)
+            emukit.multi_fidelity.models.NonLinearMultiFidelityModel([X_init], [Y_init], base_kernel,
+                                                                     n_samples=70)
         with pytest.raises(TypeError):
-            emukit.multi_fidelity.models.NonLinearMultiFidelityModel([np.random.rand(5, 3)], np.random.rand(5, 3), base_kernel,
-                                                        n_samples=70)
+            emukit.multi_fidelity.models.NonLinearMultiFidelityModel([X_init], Y_init, base_kernel,
+                                                                     n_samples=70)
 
     def test_get_fmin(self, non_linear_model):
         """
@@ -82,7 +84,7 @@ class TestNonLinearModel:
         for i in range(3):
             y[i * 5:(i + 1) * 5, :] = np.random.randn(5, 1)
 
-        non_linear_model.update_data(x, y)
+        non_linear_model.set_data(x, y)
 
         assert non_linear_model.models[0].X.shape == (5, 2)
         assert non_linear_model.models[1].X.shape == (5, 3)
@@ -134,47 +136,24 @@ class TestNonLinearModel:
         assert dmean_dx.shape == (2, 2)
         assert dvar_dx.shape == (2, 2)
 
-    def test_non_linear_sample_mean_gradient_highest_fidelity(self, non_linear_model):
+    @pytest.mark.parametrize(
+        "fidelity_idx,func_idx,grad_idx", [
+            pytest.param(2, 0, 1, id='mean_gradient_highest_fidelity'),
+            pytest.param(2, 2, 3, id='var_gradient_highest_fidelity'),
+            pytest.param(1, 0, 1, id='mean_gradient_middle_fidelity'),
+            pytest.param(1, 2, 3, id='var_gradient_middle_fidelity'),
+            pytest.param(0, 0, 1, id='mean_gradient_lowest_fidelity'),
+            pytest.param(0, 2, 3, id='var_gradient_lowest_fidelity')
+        ])
+    def test_non_linear_sample_fidelities_gradient(self, non_linear_model, fidelity_idx, func_idx, grad_idx):
         np.random.seed(1234)
         x0 = np.random.rand(2)
 
-        assert check_grad(lambda x: np.sum(non_linear_model._predict_samples_with_gradients(x[None, :], 2)[0], axis=0),
-                          lambda x: np.sum(non_linear_model._predict_samples_with_gradients(x[None, :], 2)[1], axis=0), x0) < 1e-6
-
-    def test_non_linear_sample_var_gradient_highest_fidelity(self, non_linear_model):
-        np.random.seed(1234)
-        x0 = np.random.rand(2)
-
-        assert check_grad(lambda x: np.sum(non_linear_model._predict_samples_with_gradients(x[None, :], 2)[2], axis=0),
-                          lambda x: np.sum(non_linear_model._predict_samples_with_gradients(x[None, :], 2)[3], axis=0), x0) < 1e-6
-
-    def test_non_linear_sample_mean_gradient_middle_fidelity(self, non_linear_model):
-        np.random.seed(1234)
-        x0 = np.random.rand(2)
-
-        assert check_grad(lambda x: np.sum(non_linear_model._predict_samples_with_gradients(x[None, :], 1)[0], axis=0),
-                          lambda x: np.sum(non_linear_model._predict_samples_with_gradients(x[None, :], 1)[1], axis=0), x0) < 1e-6
-
-    def test_non_linear_sample_var_gradient_middle_fidelity(self, non_linear_model):
-        np.random.seed(1234)
-        x0 = np.random.rand(2)
-
-        assert check_grad(lambda x: np.sum(non_linear_model._predict_samples_with_gradients(x[None, :], 1)[2], axis=0),
-                          lambda x: np.sum(non_linear_model._predict_samples_with_gradients(x[None, :], 1)[3], axis=0), x0) < 1e-6
-
-    def test_non_linear_sample_var_gradient_lowest_fidelity(self, non_linear_model):
-        np.random.seed(1234)
-        x0 = np.random.rand(2)
-
-        assert np.all(check_grad(lambda x: non_linear_model._predict_samples_with_gradients(x[None, :], 0)[2],
-                                 lambda x: non_linear_model._predict_samples_with_gradients(x[None, :], 0)[3], x0) < 1e-6)
-
-    def test_non_linear_sample_mean_gradient_lowest_fidelity(self, non_linear_model):
-        np.random.seed(1234)
-        x0 = np.random.rand(2)
-
-        assert np.all(check_grad(lambda x: non_linear_model._predict_samples_with_gradients(x[None, :], 0)[0],
-                                 lambda x: non_linear_model._predict_samples_with_gradients(x[None, :], 0)[1], x0) < 1e-6)
+        func = lambda x: np.sum(non_linear_model._predict_samples_with_gradients(x[None, :], fidelity_idx)[func_idx],
+                                axis=0)
+        grad = lambda x: np.sum(non_linear_model._predict_samples_with_gradients(x[None, :], fidelity_idx)[grad_idx],
+                                axis=0)
+        assert check_grad(func, grad, x0) < 1e-6
 
     def test_non_linear_model_mean_gradient(self, non_linear_model):
         """
@@ -212,3 +191,13 @@ class TestNonLinearModel:
             return non_linear_model.get_prediction_gradients(x_full)[1]
 
         assert np.all(check_grad(wrap_func, wrap_gradients, x0) < 1e-6)
+
+
+def test_non_linear_kernel_ard():
+    """
+    Test that the kernels that act on the input space have the correct number of lengthscales when ARD is true
+    """
+    kernels = make_non_linear_kernels(GPy.kern.RBF, 2, 2, ARD=True)
+    assert len(kernels[0].lengthscale) == 2
+    assert len(kernels[1].bias_kernel_fidelity2.lengthscale) == 2
+    assert len(kernels[1].mul.scale_kernel_fidelity2.lengthscale) == 2

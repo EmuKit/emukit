@@ -1,3 +1,7 @@
+# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+
 from typing import Tuple, Union
 
 from GPyOpt.util.general import get_quantiles
@@ -56,15 +60,16 @@ class ExpectedImprovement(Acquisition):
         y_minimum = np.min(self.model.Y, axis=0)
 
         dmean_dx, dvariance_dx = self.model.get_prediction_gradients(x)
-        dstandard_devidation_dx = dvariance_dx / (2*standard_deviation)
+        dstandard_deviation_dx = dvariance_dx / (2 * standard_deviation)
 
         pdf, cdf, u = get_quantiles(self.jitter, y_minimum, mean, standard_deviation)
 
         improvement = standard_deviation * (u * cdf + pdf)
-        dimprovement_dx = dstandard_devidation_dx * pdf - cdf * dmean_dx
+        dimprovement_dx = dstandard_deviation_dx * pdf - cdf * dmean_dx
 
         return improvement, dimprovement_dx
 
+    @property
     def has_gradients(self) -> bool:
         """Returns that this acquisition has gradients"""
-        return True
+        return isinstance(self.model, IDifferentiable)

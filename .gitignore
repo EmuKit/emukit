@@ -15,11 +15,14 @@ __pycache__/
 *.xml
 .ipynb_checkpoints/
 
-/.coverage
+.coverage
 /.coverage.*
 /.cache
 
-/doc/_autosummary/
+/doc/_build/
+/doc/generated/
+/doc/examples/
+/doc/notebooks/
 /build
 /dist
 .pytest_cache

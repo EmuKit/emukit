@@ -1,9 +1,15 @@
+# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+
 from typing import Union
 
 import numpy as np
 
+from .parameter import Parameter
 
-class ContinuousParameter(object):
+
+class ContinuousParameter(Parameter):
     """
     A univariate continuous parameter with a domain defined in a range between two values
     """

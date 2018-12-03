@@ -1,2 +1,6 @@
+# For random forest model
+scikit-learn
+# For BNN model
 -e git+https://github.com/automl/pybnn.git#egg=pybnn
--e git+https://github.com/automl/random_forest_run.git#egg=pyrfr
+# For Lating design
+PyDOE>=0.3.0

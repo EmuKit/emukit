@@ -1,3 +1,7 @@
+# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+
 """
 Contains integrated variance acquisition
 """
@@ -15,7 +19,9 @@ class IntegratedVarianceReduction(Acquisition):
     Acquisition function for integrated variance reduction
     """
 
-    def __init__(self, model: ICalculateVarianceReduction, space: ParameterSpace, x_monte_carlo=None, num_monte_carlo_points: int=int(1e5)) -> None:
+    def __init__(self,
+                 model: ICalculateVarianceReduction, space: ParameterSpace,
+                 x_monte_carlo=None, num_monte_carlo_points: int=int(1e5)) -> None:
         """
         :param model: The emulation model
         :param space: The parameter space to select points within
@@ -28,7 +34,8 @@ class IntegratedVarianceReduction(Acquisition):
         self.model = model
 
         if x_monte_carlo is None:
-            # Use RandomDesign to generate random points to do Monte Carlo integration while respecting any constraints
+            # Use RandomDesign to generate random points to do Monte Carlo integration
+            # while respecting any constraints
             random_design = RandomDesign(space)
             self._x_monte_carlo = random_design.get_samples(num_monte_carlo_points)
         else:
@@ -41,7 +48,8 @@ class IntegratedVarianceReduction(Acquisition):
     def evaluate(self, x: np.ndarray) -> np.ndarray:
         """
         :param x: The new training point(s) to evaluate with shape (n_points x 1)
-        :return: A numpy array with shape (n_points x 1) containing the values of the acquisition evaluated at each x row
+        :return: A numpy array with shape (n_points x 1)
+                 containing the values of the acquisition evaluated at each x row
         """
 
         n_eval_points = x.shape[0]
@@ -54,5 +62,6 @@ class IntegratedVarianceReduction(Acquisition):
 
         return integrated_variance
 
+    @property
     def has_gradients(self):
         return False

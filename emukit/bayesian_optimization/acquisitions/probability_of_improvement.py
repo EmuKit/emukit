@@ -1,3 +1,7 @@
+# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+
 from typing import Tuple, Union
 
 import numpy as np
@@ -57,5 +61,6 @@ class ProbabilityOfImprovement(Acquisition):
 
         return cdf, dcdf_dx
 
+    @property
     def has_gradients(self):
-        return True
+        return isinstance(self.model, IDifferentiable)

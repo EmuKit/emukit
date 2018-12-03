@@ -39,10 +39,12 @@ pip install git+https://github.com/amzn/Emukit.git
 ```
 
 ## Getting started
-For examples see our [tutorial notebooks](examples/notebooks).
+For examples see our [tutorial notebooks](notebooks).
 
-## API documentation
-Coming soon!
+## Documentation
+To learn more about Emukit, refer to our [documentation](https://emukit.readthedocs.io).
+
+To learn about emulation as a concept, check out the [Emukit playground](https://github.com/amzn/Emukit-playground) project.
 
 ## License
 

@@ -6,13 +6,14 @@ import GPy
 import emukit.multi_fidelity
 from emukit.model_wrappers.gpy_model_wrappers import GPyMultiOutputWrapper
 from emukit.multi_fidelity.models import GPyLinearMultiFidelityModel
+import emukit.test_functions.forrester
 
 
 class TestModels:
     @pytest.fixture()
     def functions(self):
-        return [emukit.multi_fidelity.example_functions.forrester_low,
-                emukit.multi_fidelity.example_functions.forrester_high]
+        return [lambda x: emukit.test_functions.forrester.forrester_low(x, 0),
+                lambda x: emukit.test_functions.forrester.forrester(x, 0)]
 
     @pytest.fixture()
     def x_init(self, functions):
@@ -20,7 +21,7 @@ class TestModels:
         n_fidelities = len(functions)
         x_init = np.zeros((5 * n_fidelities, 2))
         for i in range(n_fidelities):
-            x_init[i*5:(i+1)*5, 0] = np.random.rand(5)
+            x_init[i * 5:(i + 1) * 5, 0] = np.random.rand(5)
             x_init[i * 5:(i + 1) * 5, 1] = i
         return x_init
 
@@ -30,7 +31,7 @@ class TestModels:
         y_init = np.zeros((5 * n_fidelities, 1))
         for i in range(n_fidelities):
             is_this_fidelity = x_init[:, -1] == i
-            y_init[is_this_fidelity, :] = functions[i](x_init[is_this_fidelity, :-1])[:, None]
+            y_init[is_this_fidelity, :] = functions[i](x_init[is_this_fidelity, :-1])
         return y_init
 
     @pytest.fixture
@@ -91,7 +92,7 @@ class TestModels:
         new_x = np.array([[0.5, 0], [0.5, 1]])
         new_y = np.array([[0.5], [0.5]])
 
-        model.update_data(new_x, new_y)
+        model.set_data(new_x, new_y)
 
         assert model.gpy_model.X.shape[0] == 2
         assert model.gpy_model.Y.shape[0] == 2
@@ -112,7 +113,7 @@ class TestModels:
         y_new = np.concatenate([model.gpy_model.Y, np.array([[0.]])], axis=0)
 
         old_var = model.predict(x_test_high)[1]
-        model.update_data(X_new, y_new)
+        model.set_data(X_new, y_new)
         new_var = model.predict(x_test_high)[1]
 
         var_diff = old_var - new_var

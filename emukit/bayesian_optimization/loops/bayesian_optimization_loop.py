@@ -1,47 +1,70 @@
+# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+
 import numpy as np
 
-from ...core.loop import OuterLoop, Sequential, FixedIntervalUpdater, LoopState, \
-    UserFunctionResult, ModelUpdater, CandidatePointCalculator
+from ...core.acquisition import Acquisition
+from ...core.interfaces import IDifferentiable, IModel
+from ...core.loop import FixedIntervalUpdater, OuterLoop, SequentialPointCalculator
+from ...core.loop.loop_state import create_loop_state, LoopState
 from ...core.optimization import AcquisitionOptimizer
 from ...core.parameter_space import ParameterSpace
-from ...core.acquisition import Acquisition
-from ...core.interfaces import IModel
-
-from ..acquisitions.expected_improvement import ExpectedImprovement
+from ..acquisitions import ExpectedImprovement
+from ..acquisitions.log_acquisition import LogAcquisition
+from ..local_penalization_calculator import LocalPenalizationPointCalculator
 
 
 class BayesianOptimizationLoop(OuterLoop):
-    def __init__(self, model: IModel, space: ParameterSpace, X_init: np.array, Y_init: np.array,
-                 acquisition: Acquisition = None, candidate_point_calculator: CandidatePointCalculator = None,
-                 model_updater: ModelUpdater = None):
+    def __init__(self, space: ParameterSpace, model: IModel, acquisition: Acquisition = None, update_interval: int = 1,
+                 batch_size: int = 1):
 
         """
         Emukit class that implement a loop for building modular Bayesian optimization
 
-        :param model: The model that approximates the underlying function
         :param space: Input space where the optimization is carried out.
-        :param acquisition: The acquisition function that will be used to collect new points (default, EI).
-        :param X_init: x values for initial function evaluations
-        :param Y_init: y values for initial function evaluations
-        :param model_updater: Defines how and how often the model will be updated if new data
-        arrives (default, FixedIntervalUpdater)
-        :param candidate_point_calculator: Optimizes the acquisition function to find the
-        next candidate to evaluate (default, Sequential)
+        :param model: The model that approximates the underlying function
+        :param acquisition: The acquisition function that will be used to collect new points (default, EI). If batch
+                            size is greater than one, this acquisition must output positive values only.
+        :param update_interval: Number of iterations between optimization of model hyper-parameters. Defaults to 1.
+        :param batch_size: How many points to evaluate in one iteration of the optimization loop. Defaults to 1.
         """
+
+        self.model = model
 
         if acquisition is None:
             acquisition = ExpectedImprovement(model)
 
-        if model_updater is None:
-            model_updater = FixedIntervalUpdater(model, 1)
+        model_updaters = FixedIntervalUpdater(model, update_interval)
 
-        if candidate_point_calculator is None:
-            acquisition_optimizer = AcquisitionOptimizer(space)
-            candidate_point_calculator = Sequential(acquisition, acquisition_optimizer)
+        acquisition_optimizer = AcquisitionOptimizer(space)
+        if batch_size == 1:
+            candidate_point_calculator = SequentialPointCalculator(acquisition, acquisition_optimizer)
+        else:
+            if not isinstance(model, IDifferentiable):
+                raise ValueError('Model must implement ' + str(IDifferentiable) +
+                                 ' for use with Local Penalization batch method.')
+            log_acquisition = LogAcquisition(acquisition)
+            candidate_point_calculator = LocalPenalizationPointCalculator(log_acquisition, acquisition_optimizer, model,
+                                                                          space, batch_size)
 
-        initial_results = []
-        for i in range(X_init.shape[0]):
-            initial_results.append(UserFunctionResult(X_init[i], Y_init[i]))
-        loop_state = LoopState(initial_results)
+        loop_state = create_loop_state(model.X, model.Y)
 
-        super(BayesianOptimizationLoop, self).__init__(candidate_point_calculator, model_updater, loop_state)
+        super().__init__(candidate_point_calculator, model_updaters, loop_state)
+
+    def get_results(self):
+        return BayesianOptimizationResults(self.loop_state)
+
+
+class BayesianOptimizationResults:
+    def __init__(self,loop_state: LoopState):
+
+        """
+        Emukit class that takes as input the loop state and computes some results.
+
+        :param loop_state: The loop state it its current form. Currently it only contains X and Y.
+        """
+
+        self.minimum_location = loop_state.X[np.argmin(loop_state.Y),:]
+        self.minimum_value = np.min(loop_state.Y)
+        self.best_found_value_per_iteration = np.minimum.accumulate(loop_state.Y).flatten()
