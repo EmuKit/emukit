@@ -28,7 +28,8 @@ class CostSensitiveBayesianOptimizationLoop(OuterLoop):
         """
 
         if not np.all(np.isclose(model_objective.X, model_cost.X)):
-            raise ValueError('Emukit currently only supports identical training inputs for the cost and objective model')
+            raise ValueError('Emukit currently only supports identical '
+                             'training inputs for the cost and objective model')
 
         if acquisition is None:
             expected_improvement = ExpectedImprovement(model_objective)
