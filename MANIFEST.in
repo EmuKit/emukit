@@ -1,0 +1,9 @@
+include README.md
+include requirements/requirements.txt
+include requirements/test_requirements.txt
+include requirements/integration_test_requirements.txt
+include requirements/doc_requirements.txt
+include CODE_OF_CONDUCT.md
+include CONTRIBUTING.md
+include LICENSE
+include NOTICE
