@@ -57,7 +57,7 @@ class BayesianOptimizationLoop(OuterLoop):
 
 
 class BayesianOptimizationResults:
-    def __init__(self,loop_state: LoopState):
+    def __init__(self, loop_state: LoopState):
 
         """
         Emukit class that takes as input the loop state and computes some results.
@@ -65,6 +65,6 @@ class BayesianOptimizationResults:
         :param loop_state: The loop state it its current form. Currently it only contains X and Y.
         """
 
-        self.minimum_location = loop_state.X[np.argmin(loop_state.Y),:]
+        self.minimum_location = loop_state.X[np.argmin(loop_state.Y), :]
         self.minimum_value = np.min(loop_state.Y)
         self.best_found_value_per_iteration = np.minimum.accumulate(loop_state.Y).flatten()
