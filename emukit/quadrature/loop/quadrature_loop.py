@@ -24,17 +24,17 @@ class VanillaBayesianQuadratureLoop(OuterLoop):
                               Defaults to updating hyper-parameters every iteration.
         """
 
-        self.model = model
-
         if acquisition is None:
-            acquisition = IntegralVarianceReduction(self.model)
+            acquisition = IntegralVarianceReduction(model)
 
         if model_updater is None:
-            model_updater = FixedIntervalUpdater(self.model, 1)
+            model_updater = FixedIntervalUpdater(model, 1)
 
-        space = ParameterSpace(self.model.integral_bounds.convert_to_list_of_continuous_parameters())
+        space = ParameterSpace(model.integral_bounds.convert_to_list_of_continuous_parameters())
         acquisition_optimizer = AcquisitionOptimizer(space)
         candidate_point_calculator = SequentialPointCalculator(acquisition, acquisition_optimizer)
-        loop_state = create_loop_state(self.model.X, self.model.Y)
+        loop_state = create_loop_state(model.X, model.Y)
 
         super().__init__(candidate_point_calculator, model_updater, loop_state)
+
+        self.model = model
