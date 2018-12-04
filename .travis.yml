@@ -1,6 +1,11 @@
 # turn off notifications until build is stable
 notifications:
   email: false
+language: python
+os: linux
+python:
+  - '3.5'
+  - '3.6'
 before_install: |
  if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
    # Recommended for pyenv
@@ -8,7 +13,6 @@ before_install: |
    brew outdated readline || brew upgrade readline
    # Update pyenv
    brew outdated pyenv || brew upgrade pyenv
-   pyenv install --list
    # Install specified Python version
    pyenv install $PYTHON
    # Set environment variables
@@ -35,20 +39,9 @@ after_success:
   - codecov
 jobs:
   include:
-    - os: linux
-      python: 3.5
-    - os: linux
-      python: 3.6
-    - os: linux
-      python: 3.7
-      dist: xenial
-      sudo: true
     - os: osx
       language: generic
       env: PYTHON=3.5.2
     - os: osx
       language: generic
       env: PYTHON=3.6.5
-    - os: osx
-      language: generic
-      env: PYTHON=3.7-dev
