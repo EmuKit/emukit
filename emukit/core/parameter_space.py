@@ -100,11 +100,14 @@ class ParameterSpace(object):
                 gpyopt_parameters.append(gpyopt_param)
             elif isinstance(parameter, CategoricalParameter):
                 for i, cat_sub_param in enumerate(parameter.model_parameters):
-                    gpyopt_param = {'name': parameter.name + '_' + str(i), 'type': 'continuous', 'domain': (cat_sub_param.min, cat_sub_param.max),
-                            'dimensionality': 1}
+                    gpyopt_param = {'name': parameter.name + '_' + str(i),
+                                    'type': 'continuous',
+                                    'domain': (cat_sub_param.min, cat_sub_param.max),
+                                    'dimensionality': 1}
                     gpyopt_parameters.append(gpyopt_param)
             else:
-                raise NotImplementedError("Only continuous, discrete and categorical parameters are supported, received " + type(parameter))
+                raise NotImplementedError("Only continuous, discrete and categorical parameters are supported"
+                                          ", received " + type(parameter))
 
         return GPyOpt.core.task.space.Design_space(gpyopt_parameters)
 

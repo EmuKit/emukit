@@ -32,4 +32,3 @@ def gpy_model(n_dims):
 def continuous_space(n_dims):
     params = [ContinuousParameter('x' + str(i), 0, 1) for i in range(n_dims)]
     return ParameterSpace(params)
-

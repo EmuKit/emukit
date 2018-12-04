@@ -9,6 +9,7 @@ from emukit.core import OneHotEncoding, OrdinalEncoding
 def categories():
     return ['one', 'two', 'three']
 
+
 def test_one_hot_encoding(categories):
     encoding = OneHotEncoding(categories)
 
