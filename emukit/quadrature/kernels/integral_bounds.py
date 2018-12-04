@@ -38,7 +38,7 @@ class IntegralBounds:
     def get_lower_and_upper_bounds(self) -> Tuple[np.ndarray, np.ndarray]:
         """
         returns two arrays, one containing all lower bounds and one containing all upper bounds.
-        :return: lower bounds, upper bounds of integral
+        :return: lower bounds, upper bounds of integral, shapes (1, input_dim)
         """
         lower_bounds = np.zeros([self.dim, 1])
         upper_bounds = np.zeros([self.dim, 1])
