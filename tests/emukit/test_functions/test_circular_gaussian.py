@@ -13,5 +13,6 @@ def test_circular_gaussian_return_shape():
     """
     _, circular_gaussian_func = circular_gaussian()
     x = np.ones((3, 2))
-    assert circular_gaussian_func(x).ndim == 2
-    assert circular_gaussian_func(x).shape == (3, 1)
+    result = circular_gaussian_func(x)
+    assert result.ndim == 2
+    assert result.shape == (3, 1)

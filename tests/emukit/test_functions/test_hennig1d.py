@@ -13,5 +13,6 @@ def test_hennig1D_return_shape():
     """
     _, hennig1d_func = hennig1D()
     x = np.zeros((2, 1))
-    assert hennig1d_func(x).ndim == 2
-    assert hennig1d_func(x).shape == (2, 1)
+    result = hennig1d_func(x)
+    assert result.ndim == 2
+    assert result.shape == (2, 1)

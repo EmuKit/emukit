@@ -16,6 +16,8 @@ def test_vanilla_bq_transformations():
     mock_gp = mock.create_autospec(IBaseGaussianProcess)
     method = VanillaBayesianQuadrature(base_gp=mock_gp)
 
+    # we can use equal comparison here because vanilla bq uses the identity transform. For non-trivial transforms
+    # with numerical errors use a closeness test instead.
     assert_array_equal(method.inverse_transform(Y), Y)
     assert_array_equal(method.transform(Y), Y)
     assert_array_equal(method.inverse_transform(method.transform(Y)), Y)

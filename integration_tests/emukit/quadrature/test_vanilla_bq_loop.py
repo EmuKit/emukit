@@ -18,8 +18,9 @@ def func(x):
 
 
 def test_vanilla_bq_loop():
-    x_init = np.random.rand(5, 2)
-    y_init = np.random.rand(5, 1)
+    init_size = 5
+    x_init = np.random.rand(init_size, 2)
+    y_init = np.random.rand(init_size, 1)
     bounds = [(-1, 1), (0, 1)]
 
     gpy_model = GPy.models.GPRegression(X=x_init, Y=y_init, kernel=GPy.kern.RBF(input_dim=x_init.shape[1],
@@ -32,8 +33,8 @@ def test_vanilla_bq_loop():
     num_iter = 5
     emukit_loop.run_loop(user_function=UserFunctionWrapper(func), stopping_condition=num_iter)
 
-    assert emukit_loop.loop_state.X.shape[0] == num_iter + 5
-    assert emukit_loop.loop_state.Y.shape[0] == num_iter + 5
+    assert emukit_loop.loop_state.X.shape[0] == num_iter + init_size
+    assert emukit_loop.loop_state.Y.shape[0] == num_iter + init_size
 
 
 def test_vanilla_bq_loop_initial_state():
@@ -51,3 +52,4 @@ def test_vanilla_bq_loop_initial_state():
 
     assert_array_equal(emukit_loop.loop_state.X, x_init)
     assert_array_equal(emukit_loop.loop_state.Y, y_init)
+    assert emukit_loop.loop_state.iteration == 0

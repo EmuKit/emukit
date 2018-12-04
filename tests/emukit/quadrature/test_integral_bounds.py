@@ -23,7 +23,7 @@ def test_integral_bounds_values():
     assert bounds.name == 'test_name'
 
 
-def test_integral_bounds_validity():
+def test_integral_bounds_wrong_bounds():
     bounds_wrong = [(-1, 1), (0, -2)]
 
     with pytest.raises(ValueError):
