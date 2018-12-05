@@ -18,7 +18,7 @@ The main features currently available in Emukit are:
 * **Bayesian optimisation:** optimise physical experiments and tune parameters of machine learning algorithms;
 * **Experimental design/Active learning:** design the most informative experiments and perform active learning with machine learning models;
 * **Sensitivity analysis:** analyse the influence of inputs on the outputs of a given system;
-* **Bayesian quadrature [coming soon]:** efficiently compute the integrals of functions that are expensive to evaluate.
+* **Bayesian quadrature:** efficiently compute the integrals of functions that are expensive to evaluate.
 
 Emukit is agnostic to the underlying modelling framework, which means you can use any tool of your choice in the Python ecosystem to build the machine learning model, and still be able to use Emukit.
 
