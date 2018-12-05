@@ -8,7 +8,6 @@ python:
   - '3.6'
 before_install: |
  if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
-   brew update
    # Recommended for pyenv
    brew outdated openssl || brew upgrade openssl
    brew outdated readline || brew upgrade readline
@@ -45,4 +44,4 @@ jobs:
       env: PYTHON=3.5.2
     - os: osx
       language: generic
-      env: PYTHON=3.6.6
+      env: PYTHON=3.6.5
