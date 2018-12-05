@@ -2,8 +2,13 @@
 
 [![Master Branch Build Status](https://travis-ci.org/amzn/emukit.svg?branch=master)](https://travis-ci.org/amzn/emukit) |
 [![Develop Branch Build Status](https://travis-ci.org/amzn/emukit.svg?branch=develop)](https://travis-ci.org/amzn/emukit) |
+[![Documentation Status](https://readthedocs.org/projects/emukit/badge/?version=latest)](https://emukit.readthedocs.io/en/latest/?badge=latest) |
 [![Tests Coverage](https://codecov.io/gh/amzn/emukit/branch/master/graph/badge.svg)](https://codecov.io/gh/amzn/emukit) |
 [![GitHub License](https://img.shields.io/github/license/amzn/emukit.svg)](https://github.com/amzn/emukit/blob/master/LICENSE)
+
+[Website](https://amzn.github.io/emukit/) |
+[Documentation](https://emukit.readthedocs.io/) |
+[Contribution Guide](CONTRIBUTING.md)
 
 Emukit is a highly adaptable Python toolkit for enriching decision making under uncertainty. This is particularly pertinent to complex systems where data is scarce or difficult to acquire. In these scenarios, propagating well-calibrated uncertainty estimates within a design loop or computational pipeline ensures that constrained resources are used effectively.
 
