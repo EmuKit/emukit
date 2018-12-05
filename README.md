@@ -44,7 +44,7 @@ pip install git+https://github.com/amzn/Emukit.git
 ```
 
 ## Getting started
-For examples see our [tutorial notebooks](notebooks).
+For examples see our [tutorial notebooks](http://nbviewer.jupyter.org/github/amzn/emukit/blob/master/notebooks/index.ipynb).
 
 ## Documentation
 To learn more about Emukit, refer to our [documentation](https://emukit.readthedocs.io).
