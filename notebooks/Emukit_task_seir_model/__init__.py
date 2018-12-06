@@ -3,7 +3,6 @@
 
 
 from .base_models import SIR, SEIR
-from .sir_ode import SIRThermodynamicLimit
 from .sir_gillespie import SIRGillespie
 from .seir_gillespie import SEIRGillespie
 from .gillespie_analysis import MeanMaxInfectionGillespie, GammaPrior, UniformPrior

@@ -28,11 +28,11 @@ class SEIRGillespie(GillespieBase):
     def _get_state_index_infected(self) -> int:
         return int(2)
 
-    def update_state(self):
+    def _get_possible_state_updates(self):
         """ possible updates of compartment counts """
         return np.array([[-1, 1, 0], [0, -1, 1], [0, 0, -1]], dtype=np.int)
 
-    def _current_rates(self, state):
+    def _get_current_rates(self, state):
         """
         Returns an array of the current rates of infection/incubation/recovery (1/2/3),
         i.e. the un-normalized probabilities for these events to occur next

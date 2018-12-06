@@ -47,13 +47,13 @@ class GammaPrior(AlphaPrior):
 
 class UniformPrior(AlphaPrior):
     """ Uniform prior on the infection/recovery rate parameter """
-    def __init__(self, xmin: float, xmax: float):
+    def __init__(self, alpha_min: float, alpha_max: float):
         """
-        :param xmin: left interval bound
-        :param xmax: right interval bound
+        :param alpha_min: left interval bound
+        :param alpha_max: right interval bound
         """
-        self.xmin = xmin
-        self.xmax = xmax
+        self.alpha_min = alpha_min
+        self.alpha_max = alpha_max
         super(UniformPrior, self).__init__(name='uniform prior')
 
     def evaluate(self, alpha: float) -> float:
@@ -61,7 +61,7 @@ class UniformPrior(AlphaPrior):
         :param alpha: the ratio of infection rate and recovery rate
         :return: the probability density at alpha
         """
-        return 1./(self.xmax - self.xmin)
+        return 1./(self.alpha_max - self.alpha_min)
 
 
 # statistics of gillespie runs
@@ -69,17 +69,17 @@ class MeanMaxInfectionGillespie:
     """
     Statistics for the time occurrence and height of the infection peak of the gillespie simulation.
     """
-    def __init__(self, gillespie_model: SIRGillespie, num_gil: int, t_end: float, alpha_prior: AlphaPrior):
+    def __init__(self, gillespie_model: SIRGillespie, num_gil: int, time_end: float, alpha_prior: AlphaPrior):
         """
         :param gillespie_model: a SIRGillespie model
         :param alpha_prior: the prior over alpha
         :param num_gil: number of Gillespie samples to average over
-        :param t_end: end time of simulation
+        :param time_end: end time of simulation
         """
         self.gillespie = gillespie_model
         self.alpha_prior = alpha_prior
         self.num_gil = num_gil
-        self.t_end = t_end
+        self.time_end = time_end
 
     def evaluate_bare(self, alpha: float) -> Tuple[float, float]:
         """
@@ -87,7 +87,7 @@ class MeanMaxInfectionGillespie:
         :return: Estimated (mean over num_gil simulations runs) time and height of the infection peak for given alpha.
         """
         self.gillespie.model.update_alpha(alpha)
-        peak_time, peak_height = self.gillespie.mean_maximum_infected(self.num_gil, self.t_end)
+        peak_time, peak_height = self.gillespie.run_simulation_height_and_time_of_peak(self.num_gil, self.time_end)
         return peak_time, peak_height
 
     def evaluate(self, alpha: float) -> Tuple[float, float]:

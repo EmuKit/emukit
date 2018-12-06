@@ -18,7 +18,7 @@ class SIRGillespie(GillespieBase):
     """
 
     def __init__(self, model: SIR):
-        """
+        """x
         :param model: A SIR model
         """
         super().__init__(model)
@@ -29,11 +29,11 @@ class SIRGillespie(GillespieBase):
     def _get_state_index_infected(self):
         return int(1)
 
-    def update_state(self) -> np.ndarray:
+    def _get_possible_state_updates(self) -> np.ndarray:
         """ possible updates of compartment counts """
         return np.array([[-1, 1], [0, -1]], dtype=np.int)
 
-    def _current_rates(self, state: np.ndarray) -> np.ndarray:
+    def _get_current_rates(self, state: np.ndarray) -> np.ndarray:
         """
         Returns an array of the current rates of infection/recovery (1/2),
         i.e. the un-normalized probabilities for these events to occur next
@@ -41,4 +41,3 @@ class SIRGillespie(GillespieBase):
         rate_1 = self.model.alpha * state[0] * state[1] / self.model.N
         rate_2 = state[1]
         return np.asarray([rate_1, rate_2])
-
