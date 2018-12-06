@@ -21,8 +21,8 @@ class BenchmarkPlot:
         :param benchmark_results: The output of a benchmark run
         :param loop_colours: Colours to use for each loop. Defaults to standard matplotlib colour palette
         :param loop_line_styles: Line style to use for each loop. Defaults to solid line style for all lines
-        :param x_axis_metric_name: Which metric to use as the x axis in plots. None means it will be plotted against iteration
-                       number.
+        :param x_axis_metric_name: Which metric to use as the x axis in plots.
+                                   None means it will be plotted against iteration number.
         :param metrics_to_plot: A list of metric names to plot. Defaults to all metrics apart from the one used as the
                                 x axis.
         """
@@ -30,19 +30,13 @@ class BenchmarkPlot:
         self.loop_names = benchmark_results.loop_names
 
         if loop_colours is None:
-            self.loop_colours = _get_default_colours()
+            self.loop_colours = _get_default_colours(len(self.loop_names))
         else:
-            if len(benchmark_results.loop_names) != len(loop_colours):
-                raise ValueError(str(len(benchmark_results.loop_names)) + ' loops but only ' + str(len(loop_colours)) +
-                                 ' colours defined')
             self.loop_colours = loop_colours
 
         if loop_line_styles is None:
             self.loop_line_styles = ['-']
         else:
-            if len(benchmark_results.loop_names) != len(loop_line_styles):
-                raise ValueError(str(len(benchmark_results.loop_names)) + ' loops but only ' + str(len(loop_colours)) +
-                                 ' line styles defined')
             self.loop_line_styles = loop_line_styles
 
         if metrics_to_plot is None:
@@ -53,7 +47,7 @@ class BenchmarkPlot:
                     raise ValueError(metric_name + ' not found in saved metrics from benchmark results.')
             self.metrics_to_plot = metrics_to_plot
 
-        if (x_axis_metric_name is not None) and (x_axis_metric_name in self.metrics_to_plot):
+        if x_axis_metric_name is not None:
             if x_axis_metric_name not in self.metrics_to_plot:
                 raise ValueError('x_axis ' + x_axis_metric_name + ' is not a valid metric name')
             self.metrics_to_plot.remove(x_axis_metric_name)
