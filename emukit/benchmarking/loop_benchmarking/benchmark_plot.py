@@ -30,7 +30,7 @@ class BenchmarkPlot:
         self.loop_names = benchmark_results.loop_names
 
         if loop_colours is None:
-            self.loop_colours = _get_default_colours(len(self.loop_names))
+            self.loop_colours = _get_default_colours()
         else:
             self.loop_colours = loop_colours
 
