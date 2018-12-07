@@ -33,8 +33,8 @@ class UserFunctionWrapper(UserFunction):
     def __init__(self, f: Callable):
         """
         :param f: A python function that takes in a 2d numpy ndarray of inputs and returns a either a 2d numpy array
-                  of function outputs or a tuple of (outputs, evaluation_costs) where the outputs are 2d and the
-                  cost is 1d
+                  of function outputs or a tuple of (outputs, evaluation_costs) where both the outputs and the
+                  cost are 2d
         """
         self.f = f
 
@@ -56,12 +56,15 @@ class UserFunctionWrapper(UserFunction):
         if isinstance(outputs, tuple):
             user_fcn_outputs = outputs[0]
             cost = outputs[1]
-        else:
+        elif isinstance(outputs, np.ndarray):
             user_fcn_outputs = outputs
-            cost = np.array([None] * user_fcn_outputs.shape[0])
+            cost = [None] * user_fcn_outputs.shape[0]
+        else:
+            raise ValueError("User provided function should return a tuple or an ndarray, "
+                             "{} received".format(type(outputs)))
 
         if user_fcn_outputs.ndim != 2:
-            raise ValueError("User function should return 2d array or a tuple of 2d array as an output, "
+            raise ValueError("User function should return 2d array or a tuple of 2d arrays as an output, "
                              "actual output dimensionality is {}".format(outputs.ndim))
 
         results = []
