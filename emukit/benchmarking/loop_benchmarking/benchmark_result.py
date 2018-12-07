@@ -9,7 +9,6 @@ class BenchmarkResult:
 
         :param loop_names: List of loop names
         :param n_repeats: Number of random restarts in benchmarking
-        :param n_iterations: Number of iterations in each loop
         :param metric_names: List of metric names
         """
 
