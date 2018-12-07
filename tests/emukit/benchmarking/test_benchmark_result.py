@@ -8,18 +8,15 @@ from emukit.benchmarking.loop_benchmarking.benchmark_result import BenchmarkResu
 def test_benchmark_result_initialization():
     br = BenchmarkResult(['loop1', 'loop2'], 5, ['mae', 'mse'])
 
-    mae_data = br.extract_metric_as_array('loop1', 'mae')
+    for loop in ['loop1', 'loop2']:
+        for metric in ['mae', 'mse']:
+            metric_data = br.extract_metric_as_array(loop, metric)
 
-    assert mae_data.size == 0
-    assert mae_data.shape == (5, 0)
-
-    mse_data = br.extract_metric_as_array('loop1', 'mse')
-
-    assert mse_data.size == 0
-    assert mse_data.shape == (5, 0)
+            assert metric_data.size == 0
+            assert metric_data.shape == (5, 0)
 
 
-def test_benchmark_result_invalid_names():
+def test_benchmark_result_extract_invalid_names():
     br = BenchmarkResult(['loop1', 'loop2'], 5, ['mae', 'mse'])
 
     with pytest.raises(KeyError):
