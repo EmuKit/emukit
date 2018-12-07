@@ -32,6 +32,15 @@ class IStandardKernel:
         """
         raise NotImplementedError
 
+    def dKdiag_dx(self, x: np.ndarray) -> np.ndarray:
+        """
+        gradient of the diagonal of the kernel (the variance) v(x):=k(x, x) evaluated at x
+
+        :param x: argument of the kernel, shape = (n_points M, input_dim)
+        :return: the gradient of the diagonal of the kernel evaluated at x, shape (input_dim, M)
+        """
+        raise NotImplementedError
+
 
 class IRBF(IStandardKernel):
     """

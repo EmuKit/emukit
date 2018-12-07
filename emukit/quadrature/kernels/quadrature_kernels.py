@@ -99,9 +99,7 @@ class QuadratureKernel:
         :param x: argument of the kernel, shape = (n_points M, input_dim)
         :return: the gradient of the diagonal of the kernel evaluated at x, shape (input_dim, M)
         """
-        dK_dx1_diag = np.diagonal(self.dK_dx1(x, x), offset=0, axis1=1, axis2=2)
-        dK_dx2_diag = np.diagonal(self.dK_dx2(x, x), offset=0, axis1=1, axis2=2)
-        return dK_dx1_diag + dK_dx2_diag
+        return self.kern.dKdiag_dx(x)
 
     def dqK_dx(self, x2: np.ndarray) -> np.ndarray:
         """

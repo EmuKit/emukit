@@ -16,8 +16,12 @@ class BaseGaussianProcessGPy(IBaseGaussianProcess):
     Wrapper for GPy GPRegression
 
     An instance of this can be passed as 'base_gp' to an ApproximateWarpedGPSurrogate object
-    """
 
+    If this GP is initialized with data, use the raw evaluations Y of the integrand and not transformed values as
+    this is a general class that can be used with various quadrature methods. The transformation will be performed
+    automatically when the quadrature method is initialized subsequently.
+    :param kern: a quadrature kernel
+    """
     def __init__(self, kern: QuadratureKernel, gpy_model, noise_free: bool=True):
         """
         :param kern: a quadrature kernel
@@ -54,15 +58,23 @@ class BaseGaussianProcessGPy(IBaseGaussianProcess):
         """
         self.gpy_model.set_XY(X, Y)
 
-    def predict(self, X_pred: np.ndarray, full_cov=False) -> Tuple[np.ndarray, np.ndarray]:
+    def predict(self, X_pred: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
         Predictive mean and (co)variance at the locations X_pred
 
         :param X_pred: points at which to predict, with shape (number of points, dimension)
-        :param full_cov: if True, return the full covariance matrix instead of just the variance
-        :return: Predictive mean, predictive (co)variance
+        :return: Predictive mean, predictive variances shapes (num_points, 1) and (num_points, 1)
         """
-        return self.gpy_model.predict(X_pred, full_cov)
+        return self.gpy_model.predict(X_pred, full_cov=False)
+
+    def predict_with_full_covariance(self, X_pred: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Predictive mean and (co)variance at the locations X_pred
+
+        :param X_pred: points at which to predict, with shape (num_points, input_dim)
+        :return: Predictive mean, predictive full co-variance shapes (num_points, 1) and (num_points, num_points)
+        """
+        return self.gpy_model.predict(X_pred, full_cov=True)
 
     def gram_chol(self) -> np.ndarray:
         """
@@ -87,7 +99,7 @@ class BaseGaussianProcessGPy(IBaseGaussianProcess):
         return self.gpy_model.posterior.woodbury_vector
 
     def optimize(self) -> None:
-        """ Optimize the hyperparameters of the model """
+        """ Optimize the hyperparameters of the GP """
         self.gpy_model.optimize()
 
 
@@ -142,6 +154,16 @@ class RBFGPy(IRBF):
         scaled_vector_diff = (x1.T[:, :, None] - x2.T[:, None, :]) / self.lengthscale**2
         dK_dx1 = - K[None, ...] * scaled_vector_diff
         return dK_dx1
+
+    def dKdiag_dx(self, x: np.ndarray) -> np.ndarray:
+        """
+        gradient of the diagonal of the kernel (the variance) v(x):=k(x, x) evaluated at x
+
+        :param x: argument of the kernel, shape = (n_points M, input_dim)
+        :return: the gradient of the diagonal of the kernel evaluated at x, shape (input_dim, M)
+        """
+        num_points, input_dim = x.shape
+        return np.zeros((input_dim, num_points))
 
 
 def convert_gpy_model_to_emukit_model(gpy_model, integral_bounds: List, integral_name: str='') \
