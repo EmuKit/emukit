@@ -52,7 +52,7 @@ def test_benchmark_plot_x_axis_metric_name(benchmark_result):
         BenchmarkPlot(benchmark_result, x_axis_metric_name='invalid metric')
 
 
-def test_benchmark_plot_make_plote(benchmark_result):
+def test_benchmark_plot_make_plot(benchmark_result):
     bp = BenchmarkPlot(benchmark_result)
     bp.make_plot()
 
