@@ -16,7 +16,6 @@ class SIRGillespie(GillespieBase):
     http://be150.caltech.edu/2016/handouts/gillespie_simulation.html
     (retrieved on Aug. 23, 2018)
     """
-
     def __init__(self, model: SIR):
         """x
         :param model: A SIR model

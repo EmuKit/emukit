@@ -10,7 +10,7 @@ from . import SIR
 
 
 class GillespieBase:
-
+    """Base class for a Gillespie simulations of a compartments model."""
     def __init__(self, model: SIR):
         """
         :param model: A SEIR model
@@ -37,7 +37,6 @@ class GillespieBase:
         """
         raise NotImplementedError
 
-    # implemented methods
     def _draw_next_event(self, state: np.ndarray) -> Tuple[float, float]:
         """Draws which event of infection or recovery happens next"""
         # Compute current rates and the sum thereof

@@ -15,7 +15,6 @@ class SEIRGillespie(GillespieBase):
     The model (with birth and death rates, as opposed to ours) is described at:
     https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology#The_SEIR_model
     """
-
     def __init__(self, model: SEIR):
         """
         :param model: A SEIR model

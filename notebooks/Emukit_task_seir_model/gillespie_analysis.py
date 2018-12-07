@@ -9,7 +9,6 @@ from scipy.stats import gamma
 from .sir_gillespie import SIRGillespie
 
 
-# priors for alpha
 class AlphaPrior:
     """ Defines possible priors over the parameter alpha """
     def __init__(self, name):
@@ -64,7 +63,6 @@ class UniformPrior(AlphaPrior):
         return 1./(self.alpha_max - self.alpha_min)
 
 
-# statistics of gillespie runs
 class MeanMaxInfectionGillespie:
     """
     Statistics for the time occurrence and height of the infection peak of the gillespie simulation.
@@ -86,7 +84,7 @@ class MeanMaxInfectionGillespie:
         :param alpha: the ratio of infection rate and recovery rate
         :return: Estimated (mean over num_gil simulations runs) time and height of the infection peak for given alpha.
         """
-        self.gillespie.model.update_alpha(alpha)
+        self.gillespie.model.set_alpha(alpha)
         peak_time, peak_height = self.gillespie.run_simulation_height_and_time_of_peak(self.num_gil, self.time_end)
         return peak_time, peak_height
 
@@ -113,7 +111,8 @@ class MeanMaxInfectionGillespie:
         return self.evaluate(alpha)[1]
 
 
-# user functions
+# the following functions collect specific statistics of the Gillespie simulation and are used as emukit user-functions
+# in the corresponding task notebook.
 def _f_height_of_peak_weighted(alpha, meanmax: MeanMaxInfectionGillespie):
     if isinstance(alpha, np.ndarray):
         return np.asarray([meanmax.evaluate_height(float(alpha_i)) for alpha_i in alpha])[:, None]

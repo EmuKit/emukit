@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-class SIR:
+class SIR(object):
     """
     3 compartment model for the spread of a disease
     susceptible -> infected -> recovered
@@ -16,7 +16,7 @@ class SIR:
         self.N = N
         self.alpha = alpha
 
-    def update_alpha(self, alpha: float) -> None:
+    def set_alpha(self, alpha: float) -> None:
         self.alpha = alpha
 
 
