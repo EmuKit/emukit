@@ -38,8 +38,8 @@ def test_vanilla_bq_model():
     mock_gp = mock.create_autospec(IBaseGaussianProcess, kern=mock_kern, X=X_train, Y=Y_train)
     method = VanillaBayesianQuadrature(base_gp=mock_gp)
 
-    assert np.all(method.X == X_train)
-    assert np.all(method.Y == Y_train)
+    assert_array_equal(method.X, X_train)
+    assert_array_equal(method.Y, Y_train)
     # we assert this to make sure that integral bounds in the kernel match, since that is where the integration happens.
     # the test is restrictive but easier to do than behavioral test when integral bounds are changed.
     assert method.integral_bounds == mock_bounds

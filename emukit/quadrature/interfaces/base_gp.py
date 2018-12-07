@@ -14,9 +14,9 @@ class IBaseGaussianProcess(IModel):
 
     def __init__(self, kern: QuadratureKernel) -> None:
         """
-        If this GP is initialized with data, use the raw evaluations Y of the integrand and not transformed values as
-        this is a general class that can be used with various quadrature methods. The transformation will be performed
-        automatically when the quadrature method is initialized subsequently.
+        If this GP is initialized with data X, Y, use the raw evaluations Y of the integrand and not transformed values
+        as this is a general class that can be used with various quadrature methods. The transformation will be
+        performed automatically when the quadrature method is initialized subsequently.
         :param kern: a quadrature kernel
         """
         self.kern = kern
