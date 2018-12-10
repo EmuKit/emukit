@@ -10,7 +10,12 @@ from emukit.quadrature.kernels.quadrature_kernels import QuadratureKernel
 
 
 class IBaseGaussianProcess(IModel):
-    """Interface for the quadrature base-GP model"""
+    """
+    Interface for the quadrature base-GP model
+    An instance of this can be passed as 'base_gp' to an ApproximateWarpedGPSurrogate object.
+
+    If this GP is initialized with data, use the raw evaluations Y of the integrand and not transformed values.
+    """
 
     def __init__(self, kern: QuadratureKernel) -> None:
         """

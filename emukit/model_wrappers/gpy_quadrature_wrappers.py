@@ -14,13 +14,9 @@ from emukit.quadrature.kernels.quadrature_rbf import QuadratureRBF
 class BaseGaussianProcessGPy(IBaseGaussianProcess):
     """
     Wrapper for GPy GPRegression
+    An instance of this can be passed as 'base_gp' to an ApproximateWarpedGPSurrogate object.
 
-    An instance of this can be passed as 'base_gp' to an ApproximateWarpedGPSurrogate object
-
-    If this GP is initialized with data, use the raw evaluations Y of the integrand and not transformed values as
-    this is a general class that can be used with various quadrature methods. The transformation will be performed
-    automatically when the quadrature method is initialized subsequently.
-    :param kern: a quadrature kernel
+    If this GP is initialized with data, use the raw evaluations Y of the integrand and not transformed values.
     """
     def __init__(self, kern: QuadratureKernel, gpy_model, noise_free: bool=True):
         """
