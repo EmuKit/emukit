@@ -56,7 +56,7 @@ class BaseGaussianProcessGPy(IBaseGaussianProcess):
 
     def predict(self, X_pred: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
-        Predictive mean and (co)variance at the locations X_pred
+        Predictive mean and covariance at the locations X_pred
 
         :param X_pred: points at which to predict, with shape (number of points, dimension)
         :return: Predictive mean, predictive variances shapes (num_points, 1) and (num_points, 1)
@@ -65,10 +65,10 @@ class BaseGaussianProcessGPy(IBaseGaussianProcess):
 
     def predict_with_full_covariance(self, X_pred: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
-        Predictive mean and (co)variance at the locations X_pred
+        Predictive mean and covariance at the locations X_pred
 
         :param X_pred: points at which to predict, with shape (num_points, input_dim)
-        :return: Predictive mean, predictive full co-variance shapes (num_points, 1) and (num_points, num_points)
+        :return: Predictive mean, predictive full covariance shapes (num_points, 1) and (num_points, num_points)
         """
         return self.gpy_model.predict(X_pred, full_cov=True)
 
@@ -162,7 +162,7 @@ class RBFGPy(IRBF):
         return np.zeros((input_dim, num_points))
 
 
-def convert_gpy_model_to_emukit_model(gpy_model, integral_bounds: List, integral_name: str='') \
+def convert_gpy_model_to_emukit_model(gpy_model, integral_bounds: List, integral_name: str = '') \
         -> BaseGaussianProcessGPy:
     """
     Wraps a GPy model and returns an emukit quadrature model
