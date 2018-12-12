@@ -10,9 +10,20 @@ from emukit.quadrature.kernels.quadrature_kernels import QuadratureKernel
 
 
 class IBaseGaussianProcess(IModel):
-    """Interface for the quadrature base-GP model"""
+    """
+    Interface for the quadrature base-GP model
+    An instance of this can be passed as 'base_gp' to an ApproximateWarpedGPSurrogate object.
+
+    If this GP is initialized with data, use the raw evaluations Y of the integrand and not transformed values.
+    """
 
     def __init__(self, kern: QuadratureKernel) -> None:
+        """
+        If this GP is initialized with data X, Y, use the raw evaluations Y of the integrand and not transformed values
+        as this is a general class that can be used with various quadrature methods. The transformation will be
+        performed automatically when the quadrature method is initialized subsequently.
+        :param kern: a quadrature kernel
+        """
         self.kern = kern
 
     @property
@@ -27,8 +38,8 @@ class IBaseGaussianProcess(IModel):
         """
         Predictive mean and full co-variance at the locations X_pred
 
-        :param X_pred: points at which to predict, with shape (number of points, dimension)
-        :return: Predictive mean, predictive full co-variance
+        :param X_pred: points at which to predict, with shape (num_points, input_dim)
+        :return: Predictive mean, predictive full co-variance shapes (num_points, num_points)
         """
         raise NotImplementedError
 

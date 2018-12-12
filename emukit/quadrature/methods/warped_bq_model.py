@@ -23,19 +23,21 @@ class WarpedBayesianQuadratureModel(IModel):
     - no approximation if there is no warping (Vanilla BQ)
     - ...
     """
-    def __init__(self, base_gp: IBaseGaussianProcess) -> None:
+    def __init__(self, base_gp: IBaseGaussianProcess):
         """
         :param base_gp: the underlying GP model
         """
         self.base_gp = base_gp
+        # this is to ensure that the base_gp get the correct transform
+        self.set_data(base_gp.X, base_gp.Y)
 
     @property
-    def X(self):
+    def X(self) -> np.ndarray:
         return self.base_gp.X
 
     @property
-    def Y(self):
-        return self.base_gp.Y
+    def Y(self) -> np.ndarray:
+        return self.transform(self.base_gp.Y)
 
     @ property
     def integral_bounds(self) -> IntegralBounds:
@@ -57,39 +59,55 @@ class WarpedBayesianQuadratureModel(IModel):
         """
         raise NotImplemented
 
-    def predict_base(self, X_pred: np.ndarray, return_full_cov: bool) -> Tuple:
+    def predict_base(self, X_pred: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
-        Computes predictive means and (co-)variances of the warped GP as well as the base GP
+        Computes predictive means and variances of the warped GP as well as the base GP
 
         :param X_pred: Locations at which to predict
-        :param return_full_cov: If True, full covariance matrices will be returned. Otherwise variances only.
-
-        :returns: predictive mean and (co-)variance of warped GP, predictive mean and (co-)variance of base-GP.
+        :returns: predictive mean and variances of warped GP, and predictive mean and variances of base-GP in that order
+        all shapes (n_points, 1).
         """
         raise NotImplemented
 
-    def predict_with_full_covariance(self, X_pred: np.ndarray) -> Tuple:
+    def predict_base_with_full_covariance(self, X_pred: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray,
+                                                                             np.ndarray]:
+        """
+        Computes predictive means and covariance of the warped GP as well as the base GP
+
+        :param X_pred: Locations at which to predict, shape (n_points, input_dim)
+        :returns: predictive mean and covariance of warped GP, predictive mean and covariance of base-GP in that order.
+        mean shapes both (n_points, 1) and covariance shapes both (n_points, n_points)
+        """
+        raise NotImplemented
+
+    def predict_with_full_covariance(self, X_pred: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
         Computes approximate predictive means and full co-variances of warped GP.
 
-        :param X_pred: Locations at which to predict
-        :return: predictive mean, predictive full co-variance of warped-GP
+        :param X_pred: Locations at which to predict, shape (n_points, input_dim)
+        :return: predictive mean, predictive full covariance of warped-GP, shapes (n_points, 1) and (n_points, n_points)
         """
-        return self.predict_base(X_pred, return_full_cov=True)[:2]
+        return self.predict_base_with_full_covariance(X_pred)[:2]
 
-    def predict(self, X_pred: np.ndarray) -> Tuple:
+    def predict(self, X_pred: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
         Computes predictive means and variances of warped-GP.
 
-        :param X_pred: Locations at which to predict
-        :return: predictive mean, predictive variances of warped-GP
+        :param X_pred: Locations at which to predict, shape (n_points, input_dim)
+        :return: predictive mean, predictive variances of warped-GP, both shapes (n_points, 1)
         """
-        return self.predict_base(X_pred, return_full_cov=False)[:2]
+        return self.predict_base(X_pred)[:2]
 
-    def set_data(self, X: np.ndarray, Y: np.ndarray):
-        self.base_gp.set_data(X, Y)
+    def set_data(self, X: np.ndarray, Y: np.ndarray) -> None:
+        """
+        This method transforms the integrand y values and sets the data
+        :param X: observed locations
+        :param Y: observed integrand values
+        """
+        self.base_gp.set_data(X, self.inverse_transform(Y))
 
-    def optimize(self):
+    def optimize(self) -> None:
+        """Optimizes the hyperparameters of the base GP"""
         self.base_gp.optimize()
 
     def integrate(self) -> Tuple[float, float]:
