@@ -28,8 +28,8 @@ def test_user_function_wrapper_evaluation_with_cost():
 
     assert len(output) == function_input.shape[0]
     for i, record in enumerate(output):
-        assert output[i].X == function_input[i]
-        assert output[i].Y == function(function_input[i])[0]
+        assert_array_equal(output[i].X, function_input[i])
+        assert_array_equal(output[i].Y, function(function_input[i])[0])
         assert_array_equal(output[i].cost, function(function_input[i])[1][0])
 
 
