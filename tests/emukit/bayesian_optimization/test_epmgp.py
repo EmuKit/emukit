@@ -1,6 +1,6 @@
 import numpy as np
 
-from emukit.bayesian_optimization.util import epmgp
+from emukit.bayesian_optimization import epmgp
 
 
 def test_joint_min():
