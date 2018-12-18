@@ -9,6 +9,11 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+.. automodule:: emukit.core.optimization.multi_source_acquisition_optimizer
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

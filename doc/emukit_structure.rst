@@ -31,7 +31,7 @@ All ``Emukit`` loops need a probabilistic model of the underlying system.
 Emukit does not provide functionality to build models as there are already many good modelling frameworks available in python.
 Instead, we provide a way of interfacing third part modelling libraries with Emukit. 
 We already provide a wrapper for using a model created with ``GPy``.
-For instructions on how to include your own model please see :doc:`this notebook </notebooks/Emukit-custom-model>`.
+For instructions on how to include your own model please see `this notebook <notebooks/Emukit-tutorial-custom-model.ipynb>`_.
 
 Different models and modelling frameworks will provide different functionality. 
 For instance a Gaussian process will usually have derivatives of the predictions available but random forests will not. 

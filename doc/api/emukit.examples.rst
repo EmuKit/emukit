@@ -6,16 +6,9 @@ Subpackages
 
 .. toctree::
 
+    emukit.examples.gp_bayesian_optimization
     emukit.examples.models
-
-Submodules
-----------
-
-.. automodule:: emukit.examples.single_objective_bayesian_optimization
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
+    emukit.examples.vanilla_bayesian_quadrature_with_rbf
 
 Module contents
 ---------------

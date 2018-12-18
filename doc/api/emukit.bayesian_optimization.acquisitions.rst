@@ -19,6 +19,11 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+.. automodule:: emukit.bayesian_optimization.acquisitions.log_acquisition
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 .. automodule:: emukit.bayesian_optimization.acquisitions.negative_lower_confidence_bound
     :members:
     :undoc-members:

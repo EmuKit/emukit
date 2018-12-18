@@ -1,15 +1,15 @@
-emukit.model\_wrappers package
-==============================
+emukit.core.acquisition package
+===============================
 
 Submodules
 ----------
 
-.. automodule:: emukit.model_wrappers.gpy_model_wrappers
+.. automodule:: emukit.core.acquisition.acquisition
     :members:
     :undoc-members:
     :show-inheritance:
 
-.. automodule:: emukit.model_wrappers.gpy_quadrature_wrappers
+.. automodule:: emukit.core.acquisition.acquisition_per_cost
     :members:
     :undoc-members:
     :show-inheritance:
@@ -18,7 +18,7 @@ Submodules
 Module contents
 ---------------
 
-.. automodule:: emukit.model_wrappers
+.. automodule:: emukit.core.acquisition
     :members:
     :undoc-members:
     :show-inheritance:
