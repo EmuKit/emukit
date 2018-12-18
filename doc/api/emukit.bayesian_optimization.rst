@@ -9,7 +9,20 @@ Subpackages
     emukit.bayesian_optimization.acquisitions
     emukit.bayesian_optimization.interfaces
     emukit.bayesian_optimization.loops
-    emukit.bayesian_optimization.util
+
+Submodules
+----------
+
+.. automodule:: emukit.bayesian_optimization.epmgp
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. automodule:: emukit.bayesian_optimization.local_penalization_calculator
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

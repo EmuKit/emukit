@@ -1,15 +1,15 @@
-emukit.model\_wrappers package
-==============================
+emukit.quadrature.methods package
+=================================
 
 Submodules
 ----------
 
-.. automodule:: emukit.model_wrappers.gpy_model_wrappers
+.. automodule:: emukit.quadrature.methods.vanilla_bq
     :members:
     :undoc-members:
     :show-inheritance:
 
-.. automodule:: emukit.model_wrappers.gpy_quadrature_wrappers
+.. automodule:: emukit.quadrature.methods.warped_bq_model
     :members:
     :undoc-members:
     :show-inheritance:
@@ -18,7 +18,7 @@ Submodules
 Module contents
 ---------------
 
-.. automodule:: emukit.model_wrappers
+.. automodule:: emukit.quadrature.methods
     :members:
     :undoc-members:
     :show-inheritance:

@@ -9,6 +9,11 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+.. automodule:: emukit.bayesian_optimization.loops.cost_sensitive_bayesian_optimization_loop
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------
