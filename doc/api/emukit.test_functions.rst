@@ -31,6 +31,11 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+.. automodule:: emukit.test_functions.quadrature_functions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

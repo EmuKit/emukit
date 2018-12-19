@@ -7,11 +7,14 @@ Subpackages
 .. toctree::
 
     emukit.bayesian_optimization
+    emukit.benchmarking
     emukit.core
     emukit.examples
     emukit.experimental_design
     emukit.model_wrappers
     emukit.multi_fidelity
+    emukit.quadrature
+    emukit.samplers
     emukit.sensitivity
     emukit.test_functions
 

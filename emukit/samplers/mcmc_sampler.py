@@ -4,7 +4,7 @@
 
 import emcee
 
-from emukit.experimental_design.model_free.random_design import RandomDesign
+from ..experimental_design.model_free.random_design import RandomDesign
 
 
 class McmcSampler(object):

@@ -9,6 +9,11 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+.. automodule:: emukit.model_wrappers.gpy_quadrature_wrappers
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

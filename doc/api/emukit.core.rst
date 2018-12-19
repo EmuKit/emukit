@@ -6,6 +6,7 @@ Subpackages
 
 .. toctree::
 
+    emukit.core.acquisition
     emukit.core.interfaces
     emukit.core.loop
     emukit.core.optimization
@@ -13,7 +14,7 @@ Subpackages
 Submodules
 ----------
 
-.. automodule:: emukit.core.acquisition
+.. automodule:: emukit.core.categorical_parameter
     :members:
     :undoc-members:
     :show-inheritance:
@@ -24,6 +25,21 @@ Submodules
     :show-inheritance:
 
 .. automodule:: emukit.core.discrete_parameter
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. automodule:: emukit.core.encodings
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. automodule:: emukit.core.event_handler
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. automodule:: emukit.core.parameter
     :members:
     :undoc-members:
     :show-inheritance:

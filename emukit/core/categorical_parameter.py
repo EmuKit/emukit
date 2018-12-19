@@ -9,6 +9,7 @@ from .encodings import Encoding
 from .parameter import Parameter
 from .continuous_parameter import ContinuousParameter
 
+
 class CategoricalParameter(Parameter):
     def __init__(self, name: str, encoding: Encoding):
         self.name = name
@@ -32,12 +33,7 @@ class CategoricalParameter(Parameter):
         return self._cont_params
 
     def round(self, x: np.ndarray) -> np.ndarray:
-        x_rounded = []
-        for row in x:
-            idx = (np.linalg.norm(self.encodings - row, axis=1)).argmin()
-            x_rounded.append(self.encodings[idx].copy())
-
-        return np.row_stack(x_rounded)
+        return self.encoding.round(x)
 
     @property
     def dimension(self) -> int:

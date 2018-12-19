@@ -2,9 +2,7 @@ import numpy as np
 import pytest
 
 from emukit.bayesian_optimization.acquisitions import EntropySearch
-from emukit.bayesian_optimization.acquisitions.entropy_search import MultiInformationSourceEntropySearch
-from emukit.bayesian_optimization.util.mcmc_sampler import AffineInvariantEnsembleSampler
-from emukit.core import ContinuousParameter, InformationSourceParameter, ParameterSpace
+from emukit.samplers import AffineInvariantEnsembleSampler
 
 
 @pytest.fixture

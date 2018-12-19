@@ -7,15 +7,15 @@ from typing import Union, Callable
 import scipy
 import numpy as np
 
-from emukit.core import InformationSourceParameter
+from ...core import InformationSourceParameter
 from ...core.acquisition import Acquisition
 from ...core.interfaces import IModel
 from ...core.parameter_space import ParameterSpace
+from ...samplers import AffineInvariantEnsembleSampler, McmcSampler
 
 from ..acquisitions import ExpectedImprovement
 from ..interfaces import IEntropySearchModel
-from ..util import epmgp
-from ..util.mcmc_sampler import AffineInvariantEnsembleSampler, McmcSampler
+from .. import epmgp
 
 
 class EntropySearch(Acquisition):

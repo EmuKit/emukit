@@ -5,31 +5,25 @@
 import numpy as np
 from scipy import special
 
+
 # some variables
 sq2 = np.sqrt(2)
 eps = np.finfo(np.float32).eps
 l2p = np.log(2) + np.log(np.pi)
 
 
-def joint_min(mu: np.ndarray, var: np.ndarray, with_derivatives: bool = False):
+def joint_min(mu: np.ndarray, var: np.ndarray, with_derivatives: bool=False) -> np.ndarray:
     """
     Computes the probability of every given point to be the minimum
     based on the EPMGP[1] algorithm.
     [1] J. Cunningham, P. Hennig, and S. Lacoste-Julien.
     Gaussian probabilities and expectation propagation.
     under review. Preprint at arXiv, November 2011.
-    Parameters
-    ----------
-    mu: np.ndarray(N,)
-        Mean value of each of the N points.
-    var: np.ndarray(N, N)
-        Covariance matrix for all points
-    with_derivatives: bool
-        If true than also the gradients are computed
-    Returns
-    -------
-    np.ndarray(N,1)
-        pmin distribution
+
+    :param mu: Mean value of each of the N points, dims (N,).
+    :param var: Covariance matrix for all points, dims (N, N).
+    :param with_derivatives: If True than also the gradients are computed.
+    :returns: pmin distribution, dims (N,1).
     """
 
     logP = np.zeros(mu.shape)
