@@ -50,7 +50,7 @@ To send us a pull request, please:
 2. Modify the source; please focus on the specific change you are contributing. If you also reformat all the code, it will be hard to focus on your change.
 3. Ensure local tests pass.
 4. Commit to your fork using clear commit messages.
-5. Send us a pull request, making sure you've answered the questions in the pull request checklist (see below.)
+5. Send us a pull request, making sure you've answered the questions in the pull request checklist (see below).
 6. Pay attention to any automated CI failures reported in the pull request, and stay involved in the conversation.
 
 GitHub provides additional document on [forking a repository](https://help.github.com/articles/fork-a-repo/) and [creating a pull request](https://help.github.com/articles/creating-a-pull-request/).
