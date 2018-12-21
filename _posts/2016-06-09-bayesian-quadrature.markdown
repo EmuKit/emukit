@@ -42,7 +42,7 @@ the integrand which is then integrated directly.
 This is how it is done:
 
 First we define the function that we want to integrate, also called the *integrand*. Here we choose the 1-dimensional
-Hennig1D function (see [here](http://nbviewer.jupyter.org/github/amzn/emukit/blob/develop/notebooks/Emukit-tutorial-Bayesian-quadrature-introduction.ipynb) 
+Hennig1D function (see [here](http://nbviewer.jupyter.org/github/amzn/emukit/blob/master/notebooks/Emukit-tutorial-Bayesian-quadrature-introduction.ipynb) 
 for a visualization) which is already implemented in Emukit. We also choose the integration bounds: a lower bound and an upper bound.
 
 ```python
@@ -117,9 +117,9 @@ integral_mean, integral_variance = emukit_loop.model.integrate()
 
 
 
-Check our list of [notebooks](http://nbviewer.jupyter.org/github/amzn/emukit/blob/develop/notebooks/index.ipynb) and [examples](https://github.com/amzn/emukit/tree/develop/emukit/examples) if you want to learn more about how to do Bayesian quadrature and other methods with Emukit. You can also check the Emukit [documentation](https://emukit.readthedocs.io/en/latest/).
+Check our list of [notebooks](http://nbviewer.jupyter.org/github/amzn/emukit/blob/master/notebooks/index.ipynb) and [examples](https://github.com/amzn/emukit/tree/master/emukit/examples) if you want to learn more about how to do Bayesian quadrature and other methods with Emukit. You can also check the Emukit [documentation](https://emukit.readthedocs.io/en/latest/).
 
-We’re always open to contributions! Please read our [contribution guidelines](https://github.com/amzn/emukit/blob/develop/CONTRIBUTING.md) for more information. We are particularly interested in contributions
+We’re always open to contributions! Please read our [contribution guidelines](https://github.com/amzn/emukit/blob/master/CONTRIBUTING.md) for more information. We are particularly interested in contributions
 regarding examples and tutorials.
 
 #### Refereces on Quadrature

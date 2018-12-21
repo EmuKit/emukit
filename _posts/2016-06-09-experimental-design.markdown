@@ -96,9 +96,9 @@ expdesign_loop.run_loop(f, max_iterations)
 If you are running physical experiments you  can just run one iteration, collect the 5 points and repeat the process over for the next batch.
 
 
-Check our list of [notebooks](http://nbviewer.jupyter.org/github/amzn/emukit/blob/develop/notebooks/index.ipynb) and [examples](https://github.com/amzn/emukit/tree/develop/emukit/examples) if you want to learn more about how to do experimental design and other methods with Emukit. You can also check the Emukit [documentation](https://emukit.readthedocs.io/en/latest/).
+Check our list of [notebooks](http://nbviewer.jupyter.org/github/amzn/emukit/blob/master/notebooks/index.ipynb) and [examples](https://github.com/amzn/emukit/tree/master/emukit/examples) if you want to learn more about how to do experimental design and other methods with Emukit. You can also check the Emukit [documentation](https://emukit.readthedocs.io/en/latest/).
 
-We’re always open to contributions! Please read our [contribution guidelines](https://github.com/amzn/emukit/blob/develop/CONTRIBUTING.md) for more information. We are particularly interested in contributions
+We’re always open to contributions! Please read our [contribution guidelines](https://github.com/amzn/emukit/blob/master/CONTRIBUTING.md) for more information. We are particularly interested in contributions
 regarding examples and tutorials.
 
 #### References on experimental design

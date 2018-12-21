@@ -11,7 +11,7 @@ Installation from sources and using pip are both supported.
 #### Dependencies / Prerequisites
 Emukit requires Python 3.5 or above and NumPy for basic functionality. Some core features also need [GPy](https://sheffieldml.github.io/GPy/) and [GPyOpt](https://sheffieldml.github.io/GPyOpt/). Some advanced elements may have their own dependencies, but their installation is optional.
 
-Required dependecies can be installed from the [requirements](https://github.com/amzn/emukit/blob/develop/requirements/requirements.txt) file via 
+Required dependecies can be installed from the [requirements](https://github.com/amzn/emukit/blob/master/requirements/requirements.txt) file via 
 
 {% highlight ruby %}
 pip install -r requirements/requirements.txt

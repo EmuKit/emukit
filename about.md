@@ -80,11 +80,11 @@ This is the component and focus of Emukit. Emukit defines a general sctructure o
  
 <h5> Solve your task </h5>
 We expect this section to grow in the future. So far, we have integrated in the core part of the library 
- a simple benchmarking tool to compare differetn Bayesian optimization methods. You can check [this](https://github.com/amzn/emukit/tree/develop/emukit/examples) folder for more examples.
+ a simple benchmarking tool to compare differetn Bayesian optimization methods. You can check [this](https://github.com/amzn/emukit/tree/master/emukit/examples) folder for more examples.
 
 
 <h3> Get started!</h3>
 
-If you want to start using Emukit just have a look to the different examples in the landing page of have a look to the [tutorials](http://nbviewer.jupyter.org/github/amzn/emukit/blob/develop/notebooks/index.ipynb).
+If you want to start using Emukit just have a look to the different examples in the landing page of have a look to the [tutorials](http://nbviewer.jupyter.org/github/amzn/emukit/blob/master/notebooks/index.ipynb).
 
 
