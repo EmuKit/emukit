@@ -40,7 +40,7 @@ acquisition_tests = [acquisition_test_tuple('negative_lower_confidence_bound_acq
 # Vanilla bq model for squared correlation test
 @pytest.fixture
 def vanilla_bq_model(gpy_model, continuous_space, n_dims):
-    integral_bounds = continuous_space.convert_to_gpyopt_design_space().get_bounds()
+    integral_bounds = continuous_space.get_bounds()
     model = convert_gpy_model_to_emukit_model(gpy_model.model, integral_bounds)
     return VanillaBayesianQuadrature(model)
 

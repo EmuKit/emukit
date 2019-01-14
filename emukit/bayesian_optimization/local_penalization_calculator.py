@@ -86,7 +86,7 @@ def _estimate_lipschitz_constant(space: ParameterSpace, model: IDifferentiable):
 
     # Run optimizer to find point of highest gradient
     res = scipy.optimize.minimize(lambda x: negative_gradient_norm(x[None, :]), x0,
-                                  bounds=space.convert_to_gpyopt_design_space().get_bounds(),
+                                  bounds=space.get_bounds(),
                                   options={'maxiter': MAX_ITER})
     lipschitz_constant = -res.fun[0]
 
