@@ -45,9 +45,9 @@ class MultiSourceAcquisitionOptimizer(AcquisitionOptimizerBase):
         :param acquisition: The acquisition function to be optimized
         :param context: Contains variables to fix through optimization of acquisition function. The dictionary key is
                         the parameter name and the value is the value to fix the parameter to.
-        :return: A tuple of (location of optimum, acquisition value at optimum)
+        :return: A tuple of (location of maximum, acquisition value at maximizer)
         """
-        f_mins = np.zeros((len(self.source_parameter.domain)))
+        f_maxs = np.zeros((len(self.source_parameter.domain)))
         x_opts = []
 
         if context is None:
@@ -61,7 +61,7 @@ class MultiSourceAcquisitionOptimizer(AcquisitionOptimizerBase):
             # Fix the source using a dictionary, the key is the name of the parameter to fix and the value is the
             # value to which the parameter is fixed
             context[self.source_parameter.name] = self.source_parameter.domain[i]
-            x, f_mins[i] = self.acquisition_optimizer.optimize(acquisition, context)
+            x, f_maxs[i] = self.acquisition_optimizer.optimize(acquisition, context)
             x_opts.append(x)
-        best_source = np.argmin(f_mins)
-        return x_opts[best_source], np.min(f_mins)
+        best_source = np.argmax(f_maxs)
+        return x_opts[best_source], np.max(f_maxs)
