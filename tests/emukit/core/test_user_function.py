@@ -59,7 +59,7 @@ def test_user_function_wrapper_invalid_input():
 
 def test_multi_source_function_wrapper_evaluation_no_cost():
     functions = [lambda x: 2 * x, lambda x: 4 * x]
-    function_input = np.array([[1, 0], [2, 1], [3, 0], [4, 1]])
+    function_input = np.array([[1, 0], [2, 1], [3, 0], [4, 0], [5, 1]])
     source_index = -1
     msfw = MultiSourceFunctionWrapper(functions, source_index)
 
@@ -77,7 +77,7 @@ def test_multi_source_function_wrapper_evaluation_no_cost():
 def test_multi_source_function_wrapper_evaluation_with_cost():
     functions = [lambda x: (2 * x, np.array([[1]] * x.shape[0])),
                  lambda x: (4 * x, np.array([[2]] * x.shape[0]))]
-    function_input = np.array([[1, 0], [2, 1], [3, 0], [4, 1]])
+    function_input = np.array([[1, 0], [2, 1], [3, 0], [4, 0], [5, 1]])
     source_index = -1
     msfw = MultiSourceFunctionWrapper(functions, source_index)
 
