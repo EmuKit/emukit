@@ -125,10 +125,10 @@ class MultiSourceFunctionWrapper(UserFunction):
                 raise ValueError("User provided function should return a tuple or an ndarray, "
                                  "{} received".format(type(outputs)))
 
-        indices_array = np.concatenate(indices, axis=0)
+        sort_indices = np.argsort(np.concatenate(indices, axis=0))
         outputs_array = np.concatenate(outputs, axis=0)
         costs_array = np.concatenate(costs, axis=0)
         results = []
-        for x, y, c in zip(inputs, outputs_array[indices_array], costs_array[indices_array]):
+        for x, y, c in zip(inputs, outputs_array[sort_indices], costs_array[sort_indices]):
             results.append(UserFunctionResult(x, y, c))
         return results
