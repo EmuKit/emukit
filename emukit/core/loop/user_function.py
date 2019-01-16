@@ -105,15 +105,19 @@ class MultiSourceFunctionWrapper(UserFunction):
 
         _log.info("Evaluating multi-source user function for {} point(s)".format(inputs.shape[0]))
         # Run each source function for all inputs at that source
-        outputs = []
+        indices, outputs = [], []
+        source_indices = inputs[:, self.source_index]
+        source_inputs = np.delete(inputs, self.source_index, axis=1)
         for i_source in range(n_sources):
             # Find inputs at that source
-            is_this_source = inputs[:, self.source_index] == i_source
-            this_source_inputs = np.delete(inputs[is_this_source, :], self.source_index, axis=1)
+            this_source_input_indices = np.flatnonzero(source_indices == i_source)
+            indices.append(this_source_input_indices)
+            this_source_inputs = source_inputs[this_source_input_indices]
             outputs.append(self.f[i_source](this_source_inputs))
 
+        indices_array = np.concatenate(indices, axis=0)
         outputs_array = np.concatenate(outputs, axis=0)
         results = []
-        for x, y in zip(inputs, outputs_array):
+        for x, y in zip(inputs, outputs_array[indices_array]):
             results.append(UserFunctionResult(x, y))
         return results
