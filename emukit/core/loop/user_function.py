@@ -105,7 +105,7 @@ class MultiSourceFunctionWrapper(UserFunction):
 
         _log.info("Evaluating multi-source user function for {} point(s)".format(inputs.shape[0]))
         # Run each source function for all inputs at that source
-        indices, outputs = [], []
+        indices, outputs, costs = [], [], []
         source_indices = inputs[:, self.source_index]
         source_inputs = np.delete(inputs, self.source_index, axis=1)
         for i_source in range(n_sources):
@@ -113,11 +113,22 @@ class MultiSourceFunctionWrapper(UserFunction):
             this_source_input_indices = np.flatnonzero(source_indices == i_source)
             indices.append(this_source_input_indices)
             this_source_inputs = source_inputs[this_source_input_indices]
-            outputs.append(self.f[i_source](this_source_inputs))
+            this_outputs = self.f[i_source](this_source_inputs)
+
+            if isinstance(this_outputs, tuple):
+                outputs.append(this_outputs[0])
+                costs.append(this_outputs[1])
+            elif isinstance(this_outputs, np.ndarray):
+                outputs.append(this_outputs)
+                costs.append(np.full(this_outputs.shape[0], None))
+            else:
+                raise ValueError("User provided function should return a tuple or an ndarray, "
+                                 "{} received".format(type(outputs)))
 
         indices_array = np.concatenate(indices, axis=0)
         outputs_array = np.concatenate(outputs, axis=0)
+        costs_array = np.concatenate(costs, axis=0)
         results = []
-        for x, y in zip(inputs, outputs_array[indices_array]):
-            results.append(UserFunctionResult(x, y))
+        for x, y, c in zip(inputs, outputs_array[indices_array], costs_array[indices_array]):
+            results.append(UserFunctionResult(x, y, c))
         return results
