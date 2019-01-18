@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import Union
+from typing import Union, Tuple, List
 
 import numpy as np
 
@@ -31,3 +31,10 @@ class ContinuousParameter(Parameter):
         :return: A boolean value which indicates whether all points lie in the domain
         """
         return np.all([(self.min < x), (self.max > x)], axis=0)
+
+    @property
+    def bounds(self) -> List[Tuple]:
+        """
+        Returns a list containing one tuple of minimum and maximum values parameter can take
+        """
+        return [(self.min, self.max)]

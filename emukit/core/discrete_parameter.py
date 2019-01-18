@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import Iterable, Union
+from typing import Iterable, Union, Tuple, List
 
 import numpy as np
 
@@ -31,6 +31,13 @@ class DiscreteParameter(Parameter):
         if np.isscalar(x):
             x = [x]
         return set(x).issubset(set(self.domain))
+
+    @property
+    def bounds(self) -> List[Tuple]:
+        """
+        Returns a list containing one tuple of min and max values parameter can take
+        """
+        return [(min(self.domain), max(self.domain))]
 
 
 class InformationSourceParameter(DiscreteParameter):

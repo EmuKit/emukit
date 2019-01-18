@@ -1,8 +1,7 @@
 # Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
-
-
-from typing import List
+import itertools
+from typing import List, Tuple
 
 import numpy as np
 import GPyOpt
@@ -64,6 +63,19 @@ class ParameterSpace(object):
             if param.name == name:
                 return param
         raise ValueError('Parameter with name ' + name + ' not found.')
+
+    def get_bounds(self) -> List[Tuple]:
+        """
+        Returns a list of tuples containing the min and max value each parameter can take.
+
+        If the parameter space contains categorical variables, the min and max values correspond to each variable used
+        to encode the categorical variables.
+        """
+
+        # bounds is a list of lists
+        bounds = [param.bounds for param in self.parameters]
+        # Convert list of lists to one list
+        return list(itertools.chain.from_iterable(bounds))
 
     def round(self, x: np.ndarray) -> np.ndarray:
         """
