@@ -3,6 +3,7 @@ import numpy as np
 from numpy.testing import assert_array_equal
 
 from emukit.core.loop import UserFunctionWrapper, UserFunctionResult
+from emukit.core.loop.user_function import MultiSourceFunctionWrapper
 
 
 def test_user_function_wrapper_evaluation_no_cost():
@@ -54,6 +55,64 @@ def test_user_function_wrapper_invalid_input():
         function_input = np.array([[1]])
         ufw = UserFunctionWrapper(function)
         ufw.evaluate(function_input)
+
+
+def test_multi_source_function_wrapper_evaluation_no_cost():
+    functions = [lambda x: 2 * x, lambda x: 4 * x]
+    function_input = np.array([[1, 0], [2, 1], [3, 0], [4, 0], [5, 1]])
+    source_index = -1
+    msfw = MultiSourceFunctionWrapper(functions, source_index)
+
+    output = msfw.evaluate(function_input)
+
+    assert len(output) == function_input.shape[0]
+    for i, record in enumerate(output):
+        assert_array_equal(output[i].X, function_input[i])
+        this_function = functions[function_input[i, source_index]]
+        this_function_input = np.delete(function_input[i], source_index)
+        assert_array_equal(output[i].Y, this_function(this_function_input))
+        assert output[i].cost is None
+
+
+def test_multi_source_function_wrapper_evaluation_with_cost():
+    functions = [lambda x: (2 * x, np.array([[1]] * x.shape[0])),
+                 lambda x: (4 * x, np.array([[2]] * x.shape[0]))]
+    function_input = np.array([[1, 0], [2, 1], [3, 0], [4, 0], [5, 1]])
+    source_index = -1
+    msfw = MultiSourceFunctionWrapper(functions, source_index)
+
+    output = msfw.evaluate(function_input)
+
+    assert len(output) == function_input.shape[0]
+    for i, record in enumerate(output):
+        assert_array_equal(output[i].X, function_input[i])
+        this_function = functions[function_input[i, source_index]]
+        this_function_input = np.delete(function_input[i], source_index)
+        assert_array_equal(output[i].Y, this_function(this_function_input)[0])
+        assert_array_equal(output[i].cost, this_function(this_function_input)[1][0])
+
+
+def test_multi_source_function_wrapper_invalid_input():
+    # invalid input
+    with pytest.raises(ValueError):
+        functions = [lambda x: 2 * x]
+        function_input = np.array([1, 0])
+        msfw = MultiSourceFunctionWrapper(functions)
+        msfw.evaluate(function_input)
+
+    # invalid function output
+    with pytest.raises(ValueError):
+        functions = [lambda x: np.array([2])]
+        function_input = np.array([[1, 0]])
+        msfw = MultiSourceFunctionWrapper(functions)
+        msfw.evaluate(function_input)
+
+    # invalid function output type
+    with pytest.raises(ValueError):
+        functions = [lambda x: [2]]
+        function_input = np.array([[1, 0]])
+        msfw = MultiSourceFunctionWrapper(functions)
+        msfw.evaluate(function_input)
 
 
 def test_user_function_result_validation():
