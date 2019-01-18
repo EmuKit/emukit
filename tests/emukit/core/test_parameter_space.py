@@ -1,7 +1,8 @@
 import pytest
 import numpy as np
 
-from emukit.core import ContinuousParameter, ParameterSpace, InformationSourceParameter
+from emukit.core import ContinuousParameter, ParameterSpace, InformationSourceParameter, DiscreteParameter, \
+    CategoricalParameter, OneHotEncoding
 
 
 @pytest.fixture
@@ -49,3 +50,11 @@ def test_duplicate_parameter_names_fail():
 
     with pytest.raises(ValueError):
         ParameterSpace([p1, p2])
+
+
+def test_get_bounds():
+    p1 = ContinuousParameter('c', 1.0, 5.0)
+    p2 = DiscreteParameter('d', [1, 2, 3])
+    p3 = CategoricalParameter('cat', OneHotEncoding(['Maine Coon', 'Siamese']))
+    space = ParameterSpace([p1, p2, p3])
+    assert space.get_bounds() == [(1., 5.), (1., 3.), (0, 1), (0, 1)]

@@ -3,7 +3,7 @@
 
 
 import numpy as np
-from typing import List
+from typing import List, Tuple
 
 from .encodings import Encoding
 from .parameter import Parameter
@@ -34,6 +34,14 @@ class CategoricalParameter(Parameter):
 
     def round(self, x: np.ndarray) -> np.ndarray:
         return self.encoding.round(x)
+
+    @property
+    def bounds(self) -> List[Tuple]:
+        """
+        Returns a list of tuples containing where each tuple contains the minimum and maximum of the variables used to
+        encode the categorical parameter..
+        """
+        return [(param.min, param.max) for param in self._cont_params]
 
     @property
     def dimension(self) -> int:

@@ -3,7 +3,7 @@
 
 
 import numpy as np
-from typing import List
+from typing import List, Tuple
 
 
 class Parameter(object):
@@ -20,6 +20,13 @@ class Parameter(object):
         Gives the list of single dimensional model parameters the parameter corresponds to.
         """
         return [self]
+
+    @property
+    def bounds(self) -> List[Tuple]:
+        """
+        Returns bounds of the parameter in a form of list of tuples
+        """
+        raise NotImplemented
 
     def round(self, x: np.ndarray) -> np.ndarray:
         """
