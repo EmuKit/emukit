@@ -38,14 +38,14 @@ class MultiSourceAcquisitionOptimizer(AcquisitionOptimizerBase):
 
     def optimize(self, acquisition: Acquisition, context: dict=None) -> Tuple[np.ndarray, np.ndarray]:
         """
-        Computes the location and source of the next point to evaluate by finding the optimum input location at each
+        Computes the location and source of the next point to evaluate by finding the maximum input location at each
         information source, then picking the information source where the value of the acquisition at the optimum input
         location is highest.
 
         :param acquisition: The acquisition function to be optimized
         :param context: Contains variables to fix through optimization of acquisition function. The dictionary key is
                         the parameter name and the value is the value to fix the parameter to.
-        :return: A tuple of (location of maximum, acquisition value at maximizer)
+        :return: A tuple of (location of maximum, acquisition value at maximum)
         """
         f_maxs = np.zeros((len(self.source_parameter.domain)))
         x_opts = []
