@@ -3,3 +3,4 @@
 
 
 from .acquisition_optimizer import AcquisitionOptimizer  # noqa: F401
+from .multi_source_acquisition_optimizer import MultiSourceAcquisitionOptimizer  # noqa: F401

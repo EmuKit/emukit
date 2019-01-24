@@ -42,7 +42,7 @@ class AcquisitionOptimizer(AcquisitionOptimizerBase):
         :param acquisition: The acquisition function to be optimized
         :param context: Optimization context.
                         Determines whether any variable values should be fixed during the optimization
-        :return: Tuple of (location of maximum, acquisition value at maximizer)
+        :return: Tuple of (location of maximum, acquisition value at maximum)
         """
 
         # Take negative of acquisition function because they are to be maximised and the optimizers minimise
@@ -79,9 +79,9 @@ class AcquisitionOptimizer(AcquisitionOptimizerBase):
         # Rounding operation here fins the closes encoding
         rounded_x = self.space.round(x)
         # We may have changed the value of x, so we need to re-evaluate acquisition to make sure f_min is correct
-        rounded_f_min = acquisition.evaluate(rounded_x)
+        acquisition_max = acquisition.evaluate(rounded_x)
 
-        return rounded_x, -rounded_f_min
+        return rounded_x, acquisition_max
 
     def _validate_context_parameters(self, context):
         for context_name, context_value in context.items():
