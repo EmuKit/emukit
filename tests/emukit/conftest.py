@@ -6,7 +6,7 @@ import GPy
 import numpy as np
 import pytest
 
-from emukit.core import ContinuousParameter, ParameterSpace
+from emukit.core import ContinuousParameter, ParameterSpace, OneHotEncoding
 from emukit.model_wrappers import GPyModelWrapper
 
 
@@ -32,3 +32,9 @@ def gpy_model(n_dims):
 def continuous_space(n_dims):
     params = [ContinuousParameter('x' + str(i), 0, 1) for i in range(n_dims)]
     return ParameterSpace(params)
+
+
+@pytest.fixture
+def encoding():
+    # different types of volcanoes
+    return OneHotEncoding(['strato', 'shield', 'dome'])

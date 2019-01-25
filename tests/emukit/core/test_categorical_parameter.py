@@ -1,15 +1,8 @@
 import mock
-import pytest
 import numpy as np
 from numpy.testing import assert_array_equal
 
-from emukit.core import CategoricalParameter, OneHotEncoding
-
-
-@pytest.fixture
-def encoding():
-    # different types of volcanoes
-    return OneHotEncoding(['strato', 'shield', 'dome'])
+from emukit.core import CategoricalParameter
 
 
 def test_categorical_parameter(encoding):
