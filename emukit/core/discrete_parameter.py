@@ -44,7 +44,7 @@ class DiscreteParameter(Parameter):
         Rounds each row in x to represent a valid value for this discrete variable
 
         :param x: A 2d array Nx1 to be rounded
-        :returns: An array where each row represents a value from the domain
+        :returns: An array Nx1 where each row represents a value from the domain
                   that is closest to the corresponding row in x
         """
         if x.ndim != 2:
