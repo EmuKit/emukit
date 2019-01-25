@@ -2,7 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import GPyOpt
+import numpy as np
+try:
+    import pyDOE
+except ImportError:
+    raise ImportError('pyDOE needs to be installed in order to use latin design')
 
 from .base import ModelFreeDesignBase
 
@@ -13,9 +17,18 @@ class LatinDesign(ModelFreeDesignBase):
     """
     def __init__(self, parameter_space):
         super(LatinDesign, self).__init__(parameter_space)
-        self.gpyopt_latin_design = GPyOpt.experiment_design.LatinDesign(self.gpyopt_design_space)
 
     def get_samples(self, point_count):
-        samples = self.gpyopt_latin_design.get_samples(point_count)
-        rounded_samples = self.parameter_space.round(samples)
-        return rounded_samples
+        bounds = self.parameter_space.get_bounds()
+        X_design_aux = pyDOE.lhs(len(bounds), point_count, criterion='center')
+        ones = np.ones((X_design_aux.shape[0], 1))
+
+        lower_bound = np.asarray(bounds)[:, 0].reshape(1, len(bounds))
+        upper_bound = np.asarray(bounds)[:, 1].reshape(1, len(bounds))
+        diff = upper_bound - lower_bound
+
+        X_design = np.dot(ones, lower_bound) + X_design_aux * np.dot(ones, diff)
+
+        samples = self.parameter_space.round(X_design)
+
+        return samples
