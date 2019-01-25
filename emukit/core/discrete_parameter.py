@@ -39,6 +39,28 @@ class DiscreteParameter(Parameter):
         """
         return [(min(self.domain), max(self.domain))]
 
+    def round(self, x: np.ndarray) -> np.ndarray:
+        """
+        Rounds each row in x to represent a valid value for this discrete variable
+
+        :param x: A 2d array Nx1 to be rounded
+        :returns: An array where each row represents a value from the domain
+                  that is closest to the corresponding row in x
+        """
+        if x.ndim != 2:
+            raise ValueError("Expected 2d array, got " + str(x.ndim))
+
+        if x.shape[1] != 1:
+            raise ValueError("Expected single column array, got {}".format(x.shape[1]))
+
+        x_rounded = []
+        for row in x:
+            value = row[0]
+            rounded_value = min(self.domain, key=lambda d: abs(d - value))
+            x_rounded.append([rounded_value])
+
+        return np.row_stack(x_rounded)
+
 
 class InformationSourceParameter(DiscreteParameter):
     def __init__(self, n_sources: int) -> None:
