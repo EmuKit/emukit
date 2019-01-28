@@ -23,24 +23,16 @@ Emukit is agnostic to the underlying modelling framework, which means you can us
 
 ## Installation
 
-Currently only installation from sources is supported.
+To install emukit, simply run
+```
+pip install emukit
+```
+
+For other install options, see our [documentation](https://emukit.readthedocs.io/en/latest/installation.html).
 
 ### Dependencies / Prerequisites
 Emukit's primary dependencies are Numpy, GPy and GPyOpt.
 See [requirements](requirements/requirements.txt).
-
-### Install from sources
-To install Emukit from source, create a local folder where you would like to put Emukit source code, and run following commands:
-```
-git clone https://github.com/amzn/Emukit.git
-cd Emukit
-python setup.py install
-```
-
-Alternatively you can run
-```
-pip install git+https://github.com/amzn/Emukit.git
-```
 
 ## Getting started
 For examples see our [tutorial notebooks](http://nbviewer.jupyter.org/github/amzn/emukit/blob/master/notebooks/index.ipynb).
