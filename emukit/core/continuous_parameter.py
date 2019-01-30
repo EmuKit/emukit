@@ -30,7 +30,7 @@ class ContinuousParameter(Parameter):
         :param x: 1d numpy array of points to check or float of single point to check
         :return: A boolean value which indicates whether all points lie in the domain
         """
-        return np.all([(self.min < x), (self.max > x)], axis=0)
+        return np.all([self.min <= x <= self.max])
 
     @property
     def bounds(self) -> List[Tuple]:

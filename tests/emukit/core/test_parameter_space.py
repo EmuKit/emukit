@@ -25,8 +25,8 @@ def test_parameter_space_has_all_parameters(space_2d):
     assert len(space_2d.parameters) == 2
 
 
-def test_check_in_domain(space_2d):
-    x_test = np.array([[1.5, 6.0], [1.5, 2.0]])
+def test_check_in_domain(space_2d, space_3d_mixed):
+    x_test = np.array([[1.5, 6.1], [1.5, 2.0]])
     in_domain = space_2d.check_points_in_domain(x_test)
     assert np.array_equal(in_domain, np.array([False, True]))
 
