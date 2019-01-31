@@ -132,7 +132,9 @@ class ParameterSpace(object):
         """
         len_encoding = sum(len(param.model_parameters) for param in self.parameters)
         if x.shape[1] != len_encoding:
-            raise ValueError('x should have number of columns equal to the sum of all parameter encodings')
+            raise ValueError('x should have number of columns equal to the sum'
+                             'of all parameter encodings, expected {} actual {}'
+                             .format(x.shape[1], len_encoding))
 
         in_domain = np.ones(x.shape[0], dtype=bool)
         encoding_index = 0
