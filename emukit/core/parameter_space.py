@@ -135,13 +135,13 @@ class ParameterSpace(object):
             raise ValueError('x should have number of columns equal to the sum of all parameter encodings')
 
         in_domain = np.ones(x.shape[0], dtype=bool)
-        enc_ix = 0
+        encoding_index = 0
         for param in self._parameters:
             # First check if this particular parameter is in domain
             param_in_domain = [
-                param.check_in_domain(x[[point_ix], enc_ix:(enc_ix + param.dimension)])
+                param.check_in_domain(x[[point_ix], encoding_index:(encoding_index + param.dimension)])
                 for point_ix in range(x.shape[0])]
             # Set in_domain to be False if this parameter or any previous parameter is out of domain
             in_domain = np.all([in_domain, param_in_domain], axis=0)
-            enc_ix += param.dimension
+            encoding_index += param.dimension
         return in_domain
