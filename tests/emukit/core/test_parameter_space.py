@@ -13,13 +13,25 @@ def space_2d():
     return ParameterSpace([p1, p2])
 
 
+@pytest.fixture
+def space_3d_mixed():
+    p1 = ContinuousParameter('c', 1.0, 5.0)
+    p2 = DiscreteParameter('d', [1, 2, 3])
+    p3 = CategoricalParameter('cat', OneHotEncoding(['Maine Coon', 'Siamese']))
+    return ParameterSpace([p1, p2, p3])
+
+
 def test_parameter_space_has_all_parameters(space_2d):
     assert len(space_2d.parameters) == 2
 
 
-def test_check_in_domain(space_2d):
-    x_test = np.array([[1.5, 6.0], [1.5, 2.0]])
+def test_check_in_domain(space_2d, space_3d_mixed):
+    x_test = np.array([[1.5, 6.1], [1.5, 2.0]])
     in_domain = space_2d.check_points_in_domain(x_test)
+    assert np.array_equal(in_domain, np.array([False, True]))
+
+    x_mixed_test = np.array([[1.5, 0, 1, 1], [1.5, 1, 1., 0.]])
+    in_domain = space_3d_mixed.check_points_in_domain(x_mixed_test)
     assert np.array_equal(in_domain, np.array([False, True]))
 
 
@@ -52,9 +64,5 @@ def test_duplicate_parameter_names_fail():
         ParameterSpace([p1, p2])
 
 
-def test_get_bounds():
-    p1 = ContinuousParameter('c', 1.0, 5.0)
-    p2 = DiscreteParameter('d', [1, 2, 3])
-    p3 = CategoricalParameter('cat', OneHotEncoding(['Maine Coon', 'Siamese']))
-    space = ParameterSpace([p1, p2, p3])
-    assert space.get_bounds() == [(1., 5.), (1., 3.), (0, 1), (0, 1)]
+def test_get_bounds(space_3d_mixed):
+    assert space_3d_mixed.get_bounds() == [(1., 5.), (1., 3.), (0, 1), (0, 1)]
