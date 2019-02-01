@@ -51,9 +51,13 @@ class CategoricalParameter(Parameter):
         """
         Verifies that given values lie within the parameter's domain
 
-        :param x: Value to be checked
+        :param x: 2d numpy array with shape (points, encoding) of points to check
         :return: A boolean value which indicates whether all points lie in the domain
         """
+        if x.ndim != 2 or x.shape[1] != self.dimension:
+            raise ValueError("Expected x shape (points, {}), actual is {}"
+                             .format(self.dimension, x.shape))
+
         for i, param in enumerate(self._cont_params):
             # First check if this particular parameter is in domain
             param_in_domain = param.check_in_domain(x[:, i])
