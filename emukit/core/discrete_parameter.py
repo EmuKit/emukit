@@ -21,15 +21,24 @@ class DiscreteParameter(Parameter):
         self.name = name
         self.domain = domain
 
-    def check_in_domain(self, x: Union[Iterable, float]) -> bool:
+    def check_in_domain(self, x: Union[np.ndarray, Iterable, float]) -> bool:
         """
         Checks if the points in x are in the set of allowed values
 
         :param x: 1d numpy array of points to check
+        :param x:    1d numpy array of points to check
+                  or 2d numpy array with shape (n_points, 1) of points to check
+                  or Iterable of points to check
+                  or float of single point to check
         :return: A boolean indicating whether each point is in domain
         """
         if np.isscalar(x):
             x = [x]
+        elif isinstance(x, np.ndarray):
+            if x.ndim == 2 and x.shape[1] == 1:
+                x = x.ravel()
+            elif x.ndim > 1:
+                raise ValueError("Expected x shape (n,) or (n, 1), actual is {}".format(x.shape))
         return set(x).issubset(set(self.domain))
 
     @property

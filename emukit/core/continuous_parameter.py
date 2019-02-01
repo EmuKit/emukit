@@ -27,10 +27,17 @@ class ContinuousParameter(Parameter):
         """
         Checks if all the points in x lie between the min and max allowed values
 
-        :param x: 1d numpy array of points to check or float of single point to check
+        :param x:    1d numpy array of points to check
+                  or 2d numpy array with shape (n_points, 1) of points to check
+                  or float of single point to check
         :return: A boolean value which indicates whether all points lie in the domain
         """
-        return np.all([(self.min < x), (self.max > x)], axis=0)
+        if isinstance(x, np.ndarray):
+            if x.ndim == 2 and x.shape[1] == 1:
+                x = x.ravel()
+            elif x.ndim > 1:
+                raise ValueError("Expected x shape (n,) or (n, 1), actual is {}".format(x.shape))
+        return np.all([self.min <= x, x <= self.max])
 
     @property
     def bounds(self) -> List[Tuple]:
