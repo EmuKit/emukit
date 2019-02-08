@@ -1,6 +1,6 @@
 # For random forest model
 scikit-learn
 # For BNN model
--e git+https://github.com/automl/pybnn.git#egg=pybnn
-# For Lating design
+pybnn==0.0.3
+# For Latin design
 PyDOE>=0.3.0
