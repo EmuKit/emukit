@@ -1,6 +1,6 @@
 # For random forest model
 scikit-learn
 # For BNN model
-pybnn==0.0.4
+pybnn==0.0.5
 # For Latin design
 PyDOE>=0.3.0
