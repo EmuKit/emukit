@@ -87,7 +87,7 @@ class OuterLoop(object):
             self.loop_state.update(results)
             self.iteration_end_event(self, self.loop_state)
 
-            self._update_models()
+        self._update_models()
         _log.info("Finished outer loop")
 
     def _update_models(self):
