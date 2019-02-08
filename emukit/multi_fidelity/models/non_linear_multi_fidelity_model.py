@@ -320,7 +320,7 @@ class NonLinearMultiFidelityModel(IModel, IDifferentiable):
         """
 
         # Optimize the first model
-        self.models[0].optimize_restarts(self.optimization_restarts, verbose=self.verbose)
+        self.models[0].optimize_restarts(self.optimization_restarts, verbose=self.verbose, robust=True)
 
         # Optimize all models for all fidelities but lowest fidelity
         for i in range(1, self.n_fidelities):
@@ -330,7 +330,7 @@ class NonLinearMultiFidelityModel(IModel, IDifferentiable):
             self.models[i].set_X(augmented_input)
 
             # Optimize parameters
-            self.models[i].optimize_restarts(self.optimization_restarts, verbose=self.verbose)
+            self.models[i].optimize_restarts(self.optimization_restarts, verbose=self.verbose, robust=True)
 
     def get_f_minimum(self) -> np.ndarray:
         """
