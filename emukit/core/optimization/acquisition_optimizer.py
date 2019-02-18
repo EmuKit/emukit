@@ -42,7 +42,7 @@ class AcquisitionOptimizer(AcquisitionOptimizerBase):
         :param acquisition: The acquisition function to be optimized
         :param context: Optimization context.
                         Determines whether any variable values should be fixed during the optimization
-        :return: Tuple of (location of maximum, acquisition value at maximum)
+        :return: Tuple of (location of maximum as a 2d array, acquisition value at maximum as a 2d array)
         """
 
         # Take negative of acquisition function because they are to be maximised and the optimizers minimise
