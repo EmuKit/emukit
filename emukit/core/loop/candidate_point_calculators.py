@@ -46,7 +46,7 @@ class SequentialPointCalculator(CandidatePointCalculator):
         """
         self.acquisition.update_parameters()
         x, _ = self.acquisition_optimizer.optimize(self.acquisition, context)
-        return np.atleast_2d(x)
+        return x
 
 
 class GreedyBatchPointCalculator(CandidatePointCalculator):
