@@ -12,11 +12,11 @@ expensive to evaluate.
 
 Bayesian optimization (see [[1]](#references-on-bayesian-optimization) for a review) focuses on global optimization problems
 where the objective is not directly accessible. This can be the case when evaluating the objective comes with a very high
-cost, *e.g.* training a large neural network in a large dataset, or because it is embodied in some physical process, *e. g.* optimizing a synthetic gene
+cost, *e.g.* training a large neural network in a large dataset, or because it is embodied in some physical process, *e.g.* optimizing a synthetic gene
 to over produce a protein in a cell. Other examples are problems in robotics, inference with intractable likelihoods,
-compilers optimization, etc.
+compiler optimization, etc.
 
-Given some function f defined in a constrained input space the goal id to find the location of its minimum (or maximum). For illustrative purposes of how to solve 
+Given some function defined in a constrained input space, the goal is to find the location of its minimum (or maximum). For illustrative purposes of how to solve 
 these problems with Emukit, we start by loading the [Branin function](https://www.sfu.ca/~ssurjano/branin.html). We define the input space to be $$[-5,10]\times [0,15]$$.
 
 ```python
@@ -28,16 +28,16 @@ parameter_space = ParameterSpace([ContinuousParameter('x1', -5, 10),
                                   ContinuousParameter('x2', 0, 15)])
 ```
 
-In general cases we assume that the function does not have explicit form and that it is expensive to evaluate. This means that to find the optimum
-we'll need to run a finite, and typically small, number of evaluations. Selecting these evaluations smartly is the key to approaching
-to the optimum with a minimal cost. This transforms the original *optimization* problem in a
-sequence of *decision* problems (of where to select the best next location). In Bayesian optimization these problems
-are solved using principles of *statistical inference* and *decision theory*.
+In general cases we assume that the function does not have explicit form and that it is expensive to evaluate. 
+This means that to find the optimum we'll need to run a finite, and typically small, number of evaluations. 
+Selecting these evaluations smartly is the key to approaching the optimum with a minimal cost. 
+This transforms the original *optimization* problem into a sequence of *decision* problems (of where to select the best next location). 
+In Bayesian optimization these problems are solved using principles of *statistical inference* and *decision theory*.
 
-How is it done? The first step is to build a model for the objective function. This model should
-captures our prior beliefs on the function and can be either generic or it can encode some prior structural knowledge about the problem.
-Every time we evaluate the objective the model is updated with the collected data. Following with our example, let's
-start by collecting 5 points at random and use them to train a Gaussian process [[2]](#references-on-bayesian-optimization) with [GPy](https://github.com/SheffieldML/GPy).
+How is it done? The first step is to build a model for the objective function. 
+This model should capture our prior beliefs about the function and can be either generic or it can encode some prior structural knowledge about the problem.
+Every time we evaluate the objective the model is updated with the collected data. 
+Following with our example, let's start by collecting 5 points at random and use them to train a Gaussian process [[2]](#references-on-bayesian-optimization) with [GPy](https://github.com/SheffieldML/GPy).
 
 ```python
 from emukit.experimental_design.model_free.random_design import RandomDesign
@@ -52,12 +52,10 @@ model_gpy = GPRegression(X,Y) # Train and wrap the model in Emukit
 model_emukit = GPyModelWrapper(model_gpy)
 ```
 
-The next step in Bayesian optimization is to define an acquisition function able to
-quantify the utility of evaluating each point the input domain. The central idea of the acquisition function is to trade
-off the *exploration* of regions where the model is uncertain and the *exploitation* of
-the model's confidence about good areas of the input space. There are a variety of acquisition functions in Emukit. In this
-example the expected improvement [[3]](#references-on-bayesian-optimization), that computes in expectation how much we can improve with 
-respect to the current best observed location. 
+The next step in Bayesian optimization is to define an acquisition function able to quantify the utility of evaluating each point the input domain. 
+The central idea of the acquisition function is to trade off the *exploration* of regions where the model is uncertain and the *exploitation* of the model's confidence about good areas of the input space. 
+There are a variety of acquisition functions in Emukit. 
+In this example the expected improvement [[3]](#references-on-bayesian-optimization), that computes in expectation how much we can improve with respect to the current best observed location. 
 
 ```python
 from emukit.bayesian_optimization.acquisitions import ExpectedImprovement
@@ -82,14 +80,14 @@ bayesopt_loop = BayesianOptimizationLoop(model = model_emukit,
                                          acquisition = expected_improvement,
                                          batch_size = 1)
 ```
-The bach size is set to one in this example as we'll collect evaluations sequentially but parallel evaluations are allowed. Once the loop is created we run it for some iterations,
-20 in our example.
+The bach size is set to one in this example as we'll collect evaluations sequentially but parallel evaluations are allowed. 
+Once the loop is created we run it for some iterations, 30 in our example.
 
 ```python
 max_iterations = 30
 bayesopt_loop.run_loop(f, max_iterations)
 ```
-And that's it! You can check the obtained the results looking into the state of the loop or by running
+And that's it! You can check the obtained the results looking into the state of the loop or by running:
  
 ```python
 results = bayesopt_loop.get_results()
