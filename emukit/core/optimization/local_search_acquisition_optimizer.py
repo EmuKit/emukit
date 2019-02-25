@@ -103,8 +103,8 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         acq_max = np.empty((self.num_samples,))
         for sample in range(self.num_samples):  # this loop could be parallelized
             _log.info("Start local search {}/{}".format(sample + 1, self.num_samples))
-            X_max[sample], acq_max = self._one_local_search(acquisition, X_init[sample])
-        max_index = np.argmax(acq_max)
-        rounded_max_sample = self.space.round(X_max[[max_index]])
+            X_max[sample], acq_max[sample] = self._one_local_search(acquisition, X_init[sample])
+        max_sample = np.argmax(acq_max)
+        rounded_max_sample = self.space.round(X_max[[max_sample]])
         rounded_max_value = acquisition.evaluate(rounded_max_sample)
         return rounded_max_sample, rounded_max_value
