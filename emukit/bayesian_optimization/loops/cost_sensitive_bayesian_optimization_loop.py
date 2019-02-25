@@ -10,12 +10,14 @@ from ...core.interfaces import IModel
 from ...core.loop import FixedIntervalUpdater, OuterLoop, SequentialPointCalculator
 from ...core.loop.loop_state import create_loop_state
 from ...core.optimization import AcquisitionOptimizer
+from ...core.optimization.acquisition_optimizer import AcquisitionOptimizerBase
 from ...core.parameter_space import ParameterSpace
 
 
 class CostSensitiveBayesianOptimizationLoop(OuterLoop):
     def __init__(self, space: ParameterSpace, model_objective: IModel, model_cost: IModel,
-                 acquisition: Acquisition = None, update_interval: int = 1):
+                 acquisition: Acquisition = None, update_interval: int = 1,
+                 acquisition_optimizer: AcquisitionOptimizerBase = None):
 
         """
         Emukit class that implements a loop for building modular cost sensitive Bayesian optimization.
@@ -25,6 +27,7 @@ class CostSensitiveBayesianOptimizationLoop(OuterLoop):
         :param model_cost: The model that approximates the cost of evaluating the objective function
         :param acquisition: The acquisition function that will be used to collect new points (default, EI).
         :param update_interval:  Number of iterations between optimization of model hyper-parameters. Defaults to 1.
+        :param acquisition_optimizer: Uses gradient based optimizer if None. Defaults to None.
         """
 
         if not np.all(np.isclose(model_objective.X, model_cost.X)):
@@ -38,7 +41,8 @@ class CostSensitiveBayesianOptimizationLoop(OuterLoop):
         model_updater_objective = FixedIntervalUpdater(model_objective, update_interval)
         model_updater_cost = FixedIntervalUpdater(model_cost, update_interval, lambda state: state.cost)
 
-        acquisition_optimizer = AcquisitionOptimizer(space)
+        if acquisition_optimizer is None:
+            acquisition_optimizer = AcquisitionOptimizer(space)
         candidate_point_calculator = SequentialPointCalculator(acquisition, acquisition_optimizer)
 
         loop_state = create_loop_state(model_objective.X, model_objective.Y, model_cost.Y)
