@@ -91,19 +91,24 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         :return: Tuple of (maximum point as 1d-array, value of acquisition at this point)
         """
         incumbent_value = acquisition.evaluate(x.reshape(1, -1)).item()
+        _log.debug("Start local search with acquisition={:.4f} at {}"
+                   .format(incumbent_value, x))
         for step in range(self.num_steps):
-            _log.info("Step {}/{}".format(step + 1, self.num_steps))
+            _log.debug("Local search step {}/{}".format(step + 1, self.num_steps))
             neighbours = self._neighbours(x)
             acquisition_values = acquisition.evaluate(neighbours)
             max_index = np.argmax(acquisition_values)
             max_neighbour = neighbours[max_index]
             max_value = acquisition_values[max_index]
             if max_value < incumbent_value:
-                _log.info("Converged")
-                break
+                _log.debug("End after {} steps at minimum of acquisition={:.4f} at {}"
+                           .format(step, incumbent_value, x))
+                return x, incumbent_value
             else:
                 incumbent_value = max_value
                 x = max_neighbour
+        _log.debug("End at step limit with acquisition={:.4f} at {}"
+                   .format(incumbent_value, x))
         return x, incumbent_value
 
     def optimize(self, acquisition: Acquisition, context: dict = None) -> Tuple[np.ndarray, np.ndarray]:
@@ -120,8 +125,9 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         X_init = self.sampler.get_samples(self.num_samples)
         X_max = np.empty_like(X_init)
         acq_max = np.empty((self.num_samples,))
+        _log.info("Starting local optimization of acquisition function {}"
+                  .format(type(acquisition)))
         for sample in range(self.num_samples):  # this loop could be parallelized
-            _log.info("Start local search {}/{}".format(sample + 1, self.num_samples))
             X_max[sample], acq_max[sample] = self._one_local_search(acquisition, X_init[sample])
         max_sample = np.argmax(acq_max)
         rounded_max_sample = self.space.round(X_max[[max_sample]])
