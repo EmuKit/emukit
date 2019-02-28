@@ -31,15 +31,18 @@ def _hennig1D(x: np.ndarray) -> np.ndarray:
 
 
 def circular_gaussian(mean: np.float = 0., variance: np.float = 1.) -> Tuple[UserFunctionWrapper, Callable]:
-    """ 2D toy integrand that is a Gaussian on a circle
     """
-    return UserFunctionWrapper(_circular_gaussian), lambda x: _circular_gaussian(x, mean, variance)
+    2D toy integrand that is a Gaussian on a circle
+    """
+    func = lambda x: _circular_gaussian(x, mean, variance)
+    return UserFunctionWrapper(func), func
 
 
 def _circular_gaussian(x: np.ndarray, mean: np.float, variance: np.float):
     """
     :param x: (num_points, 2)
     :param mean: mean of Gaussian in radius (must be > 0)
+    :return: the function values at x, shape (num_points, 1)
     """
     norm_x = np.sqrt((x ** 2).sum(axis=1, keepdims=True))
     return norm_x**2 * np.exp(- (norm_x - mean)**2 / (2. * variance)) / np.sqrt(2. * np.pi * variance)
