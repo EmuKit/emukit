@@ -12,7 +12,7 @@ _log = logging.getLogger(__name__)
 
 
 class RandomSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
-    """ Optimizes the acquisition function """
+    """ Optimizes the acquisition function by evaluating at random points."""
     def __init__(self, space: ParameterSpace, num_samples: int, **kwargs) -> None:
         self.space = space
         self.num_samples = num_samples

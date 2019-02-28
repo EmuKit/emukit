@@ -16,7 +16,13 @@ _log = logging.getLogger(__name__)
 
 
 class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
-    """ Optimizes the acquisition function """
+    """ Optimizes the acquisition function by greedily following one-exchange neighbours
+        of random initial points.
+
+    One-exchange neighbourhood is defined per parameter type:
+      :Categorical parameter with one-hot encoding: All other categories
+      :Categorical parameter with ordinal encoding: Only preceeding and following categories
+    """
     def __init__(self, space: ParameterSpace, num_steps: int, num_samples: int, **kwargs) -> None:
         """
         :param space: The parameter space spanning the search problem.
@@ -29,6 +35,12 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         self.sampler = RandomDesign(space)
 
     def _neighbours_per_parameter(self, all_features: np.ndarray) -> List[np.ndarray]:
+        """ Generates parameter encodings for one-exchange neighbours of
+            parameters encoded in parameter feature vector
+
+        :param all_features: The encoded parameter point (1d-array)
+        :return: List of numpy arrays. Each array contains all one-exchange encodings of a parameter
+        """
         assert all_features.ndim == 1, "Expected 1d array, got {}d".format(all_features.ndim)
 
         parameters = self.space.parameters
@@ -56,6 +68,11 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         return neighbours
 
     def _neighbours(self, all_features: np.ndarray) -> np.ndarray:
+        """ Generates one-exchange neighbours of encoded parameter.
+
+        :param all_features: The encoded parameter point (1d-array)
+        :return: All one-exchange neighbours as 2d-array (neighbours, features)
+        """
         assert all_features.ndim == 1, "Expected 1d array, got {}d".format(all_features.ndim)
 
         neighbours_per_param = self._neighbours_per_parameter(all_features)
@@ -71,6 +88,12 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         return neighbours
 
     def _one_local_search(self, acquisition: Acquisition, x: np.ndarray):
+        """ Local maximum search on acquisition starting at a single point.
+
+        :param acquisition: The acquisition the maximum is searched of.
+        :param x: The initial point.
+        :return: Tuple of (maximum point as 1d-array, value of acquisition at this point)
+        """
         assert x.ndim == 1, "Expected 1d array, got {}d".format(x.ndim)
 
         incumbent_value = acquisition.evaluate(x.reshape(1, -1)).item()
