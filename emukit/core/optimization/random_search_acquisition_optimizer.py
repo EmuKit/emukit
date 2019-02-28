@@ -27,7 +27,7 @@ class RandomSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         :return: Tuple of (location of maximum, acquisition value at maximizer)
         """
         if context is not None:
-            raise NotImplementedError("Handling context is currently not supported.")
+            raise NotImplementedError("Handling context is currently not implemented.")
 
         _log.info("Starting random search optimization of acquisition function {}"
                   .format(type(acquisition)))

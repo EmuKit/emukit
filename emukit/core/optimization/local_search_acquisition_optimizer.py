@@ -4,6 +4,8 @@ from typing import Tuple
 
 import numpy as np
 
+from .. import ContinuousParameter
+from .. import DiscreteParameter
 from .. import CategoricalParameter
 from .. import OneHotEncoding
 from .. import OrdinalEncoding
@@ -57,11 +59,15 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
                     neighbours.append(parameter.encodings[
                         (parameter.encodings != features).any(axis=1)])
                 else:
-                    raise NotImplementedError("Parameter encoding {} not supported."
-                                              .format(type(parameter.encoding)))
+                    raise TypeError("{} not a supported parameter encoding."
+                                    .format(type(parameter.encoding)))
+            elif isinstance(parameter, DiscreteParameter):
+                raise NotImplementedError("Handling discrete parameter is not yet implemented")
+            elif isinstance(parameter, ContinuousParameter):
+                raise NotImplementedError("Handling continuous parameter is not yet implemented")
             else:
-                raise NotImplementedError("Parameter type {} not supported."
-                                          .format(type(parameter)))
+                raise TypeError("{} not a supported parameter type."
+                                 .format(type(parameter)))
             current_feature += parameter.dimension
         return neighbours
 
@@ -120,7 +126,7 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         :return: Tuple of (location of maximum, acquisition value at maximizer)
         """
         if context is not None:
-            raise NotImplementedError("Handling context is currently not supported.")
+            raise NotImplementedError("Handling context is currently not implemented.")
 
         X_init = self.sampler.get_samples(self.num_samples)
         X_max = np.empty_like(X_init)
