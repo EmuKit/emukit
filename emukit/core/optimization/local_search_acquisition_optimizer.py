@@ -1,14 +1,16 @@
 import logging
-from typing import List, Tuple
+from typing import List
+from typing import Tuple
 
 import numpy as np
 
-from emukit.core import (CategoricalParameter, OneHotEncoding, OrdinalEncoding,
-                         ParameterSpace)
-from emukit.core.acquisition import Acquisition
-from emukit.core.optimization.acquisition_optimizer import \
-    AcquisitionOptimizerBase
-from emukit.experimental_design.model_free.random_design import RandomDesign
+from .. import CategoricalParameter
+from .. import OneHotEncoding
+from .. import OrdinalEncoding
+from .. import ParameterSpace
+from ...experimental_design.model_free.random_design import RandomDesign
+from ..acquisition import Acquisition
+from ..optimization.acquisition_optimizer import AcquisitionOptimizerBase
 
 _log = logging.getLogger(__name__)
 
