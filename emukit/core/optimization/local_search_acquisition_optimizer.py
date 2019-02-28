@@ -41,8 +41,6 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         :param all_features: The encoded parameter point (1d-array)
         :return: List of numpy arrays. Each array contains all one-exchange encodings of a parameter
         """
-        assert all_features.ndim == 1, "Expected 1d array, got {}d".format(all_features.ndim)
-
         parameters = self.space.parameters
         neighbours = []
         current_feature = 0
@@ -68,13 +66,11 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         return neighbours
 
     def _neighbours(self, all_features: np.ndarray) -> np.ndarray:
-        """ Generates one-exchange neighbours of encoded parameter.
+        """ Generates one-exchange neighbours of encoded parameter point.
 
         :param all_features: The encoded parameter point (1d-array)
         :return: All one-exchange neighbours as 2d-array (neighbours, features)
         """
-        assert all_features.ndim == 1, "Expected 1d array, got {}d".format(all_features.ndim)
-
         neighbours_per_param = self._neighbours_per_parameter(all_features)
         num_neighbours = sum(param.shape[0] for param in neighbours_per_param)
         neighbours = np.full((num_neighbours, all_features.shape[0]), all_features)
@@ -94,8 +90,6 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         :param x: The initial point.
         :return: Tuple of (maximum point as 1d-array, value of acquisition at this point)
         """
-        assert x.ndim == 1, "Expected 1d array, got {}d".format(x.ndim)
-
         incumbent_value = acquisition.evaluate(x.reshape(1, -1)).item()
         for step in range(self.num_steps):
             _log.info("Step {}/{}".format(step + 1, self.num_steps))
