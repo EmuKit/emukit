@@ -22,7 +22,10 @@ class ExperimentalDesignLoop(OuterLoop):
         :param acquisition: experimental design acquisition function object. Default: ModelVariance acquisition
         :param update_interval: How many iterations pass before next model optimization
         :param batch_size: Number of points to collect in a batch. Defaults to one.
-        :param acquisition_optimizer: Uses gradient based optimizer if None. Defaults to None.
+        :param acquisition_optimizer: Optimizer selecting next evaluation points
+                                      by maximizing acquisition.
+                                      Gradient based optimizer is used if None.
+                                      Defaults to None.
         """
 
         if acquisition is None:

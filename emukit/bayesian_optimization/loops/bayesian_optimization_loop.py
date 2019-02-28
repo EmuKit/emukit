@@ -29,7 +29,10 @@ class BayesianOptimizationLoop(OuterLoop):
                             size is greater than one, this acquisition must output positive values only.
         :param update_interval: Number of iterations between optimization of model hyper-parameters. Defaults to 1.
         :param batch_size: How many points to evaluate in one iteration of the optimization loop. Defaults to 1.
-        :param acquisition_optimizer: Uses gradient based optimizer if None. Defaults to None.
+        :param acquisition_optimizer: Optimizer selecting next evaluation points
+                                      by maximizing acquisition.
+                                      Gradient based optimizer is used if None.
+                                      Defaults to None.
         """
 
         self.model = model

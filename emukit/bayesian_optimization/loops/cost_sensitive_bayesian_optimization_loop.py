@@ -27,7 +27,10 @@ class CostSensitiveBayesianOptimizationLoop(OuterLoop):
         :param model_cost: The model that approximates the cost of evaluating the objective function
         :param acquisition: The acquisition function that will be used to collect new points (default, EI).
         :param update_interval:  Number of iterations between optimization of model hyper-parameters. Defaults to 1.
-        :param acquisition_optimizer: Uses gradient based optimizer if None. Defaults to None.
+        :param acquisition_optimizer: Optimizer selecting next evaluation points
+                                      by maximizing acquisition.
+                                      Gradient based optimizer is used if None.
+                                      Defaults to None.
         """
 
         if not np.all(np.isclose(model_objective.X, model_cost.X)):
