@@ -100,7 +100,6 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         _log.debug("Start local search with acquisition={:.4f} at {}"
                    .format(incumbent_value, str(x)))
         for step in range(self.num_steps):
-            _log.debug("Local search step {}/{}".format(step + 1, self.num_steps))
             neighbours = self._neighbours(x)
             acquisition_values = acquisition.evaluate(neighbours)
             max_index = np.argmax(acquisition_values)
