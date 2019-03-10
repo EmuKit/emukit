@@ -106,7 +106,7 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
             max_neighbour = neighbours[max_index]
             max_value = np.asscalar(acquisition_values[max_index])
             if max_value < incumbent_value:
-                _log.debug("End after {} steps at minimum of acquisition={:.4f} at {}"
+                _log.debug("End after {} steps at maximum of acquisition={:.4f} at {}"
                            .format(step, incumbent_value, str(x)))
                 return x, incumbent_value
             else:
