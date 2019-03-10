@@ -25,15 +25,20 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
       :Categorical parameter with one-hot encoding: All other categories
       :Categorical parameter with ordinal encoding: Only preceeding and following categories
     """
-    def __init__(self, space: ParameterSpace, num_steps: int, num_samples: int, **kwargs) -> None:
+    def __init__(self, space: ParameterSpace, num_steps: int, num_samples: int,
+                 std_dev: float = 0.02, num_continuous: int = 1, **kwargs) -> None:
         """
         :param space: The parameter space spanning the search problem.
         :param num_steps: Maximum number of steps to follow from each start point.
         :param num_samples: Number of initial sampled points where the local search starts.
+        :param std_dev: Neighbourhood sampling standard deviation of continuous parameters.
+        :param num_continuous: Number of sampled neighbourhoods per continuous parameter.
         """
         self.space = space
         self.num_steps = num_steps
         self.num_samples = num_samples
+        self.std_dev = std_dev
+        self.num_continuous = num_continuous
         self.sampler = RandomDesign(space)
 
     def _neighbours_per_parameter(self, all_features: np.ndarray) -> List[np.ndarray]:
@@ -62,9 +67,17 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
                     raise TypeError("{} not a supported parameter encoding."
                                     .format(type(parameter.encoding)))
             elif isinstance(parameter, DiscreteParameter):
-                raise NotImplementedError("Handling discrete parameter is not yet implemented")
+                current_index = np.argmin(np.abs(
+                    np.subtract(parameter.domain, np.asscalar(features))))
+                this_neighbours = []
+                if current_index > 0:
+                    this_neighbours.append([parameter.domain[current_index - 1]])
+                elif current_index < len(parameter.domain) - 1:
+                    this_neighbours.append([parameter.domain[current_index + 1]])
+                neighbours.append(np.asarray(this_neighbours))
             elif isinstance(parameter, ContinuousParameter):
-                raise NotImplementedError("Handling continuous parameter is not yet implemented")
+                neighbours.append(
+                    np.random.normal(np.asscalar(features), self.std_dev, (self.num_continuous, 1)))
             else:
                 raise TypeError("{} not a supported parameter type."
                                  .format(type(parameter)))
