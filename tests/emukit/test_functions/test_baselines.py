@@ -3,6 +3,7 @@
 
 
 from emukit.test_functions.quadrature.baselines import univariate_approximate_ground_truth_integral
+from emukit.test_functions.quadrature.baselines import bivariate_approximate_ground_truth_integral
 
 
 def test_univariate_approximate_ground_truth_integral_shape():
@@ -12,10 +13,10 @@ def test_univariate_approximate_ground_truth_integral_shape():
     res = univariate_approximate_ground_truth_integral(lambda x: 1., (0., 1.))
     assert len(res) == 2
 
+
 def test_bivariate_approximate_ground_truth_integral_shape():
     """
     Test output dimension is 2d
     """
-    res = univariate_approximate_ground_truth_integral(lambda x: 1., (0., 1.))
+    res = bivariate_approximate_ground_truth_integral(lambda x: 1., 2*[(0., 1.)])
     assert len(res) == 2
-

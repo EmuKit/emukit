@@ -7,7 +7,7 @@ import numpy as np
 from scipy.integrate import quad, dblquad
 
 
-def univariate_approximate_ground_truth_integral(func, integral_bounds: Tuple[float]):
+def univariate_approximate_ground_truth_integral(func, integral_bounds: Tuple[float, float]):
     """
     Uses scipy.integrate.quad to estimate the ground truth integral
 
@@ -20,7 +20,7 @@ def univariate_approximate_ground_truth_integral(func, integral_bounds: Tuple[fl
     return quad(func, lower_bound, upper_bound)
 
 
-def bivariate_approximate_ground_truth_integral(func, integral_bounds: List[Tuple[float]]):
+def bivariate_approximate_ground_truth_integral(func, integral_bounds: List[Tuple[float, float]]):
     """
     Uses scipy.integrate.dblquad to estimate the ground truth integral
 
