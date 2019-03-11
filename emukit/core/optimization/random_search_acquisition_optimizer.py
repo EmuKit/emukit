@@ -4,7 +4,6 @@ from typing import Tuple
 import numpy as np
 
 from .. import ParameterSpace
-from ...experimental_design.model_free.random_design import RandomDesign
 from ..acquisition import Acquisition
 from ..optimization.acquisition_optimizer import AcquisitionOptimizerBase
 
@@ -16,7 +15,6 @@ class RandomSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
     def __init__(self, space: ParameterSpace, num_samples: int, **kwargs) -> None:
         self.space = space
         self.num_samples = num_samples
-        self.sampler = RandomDesign(space)
 
     def optimize(self, acquisition: Acquisition, context: dict = None) -> Tuple[np.ndarray, np.ndarray]:
         """
@@ -31,7 +29,7 @@ class RandomSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
 
         _log.info("Starting random search optimization of acquisition function {}"
                   .format(type(acquisition)))
-        samples = self.sampler.get_samples(self.num_samples)
+        samples = self.space.sample_uniform(self.num_samples)
         acquisition_values = acquisition.evaluate(samples)
         max_sample_index = np.argmax(acquisition_values)
         max_sample = samples[[max_sample_index]]

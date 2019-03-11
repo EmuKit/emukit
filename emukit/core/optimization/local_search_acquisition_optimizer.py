@@ -10,7 +10,6 @@ from .. import CategoricalParameter
 from .. import OneHotEncoding
 from .. import OrdinalEncoding
 from .. import ParameterSpace
-from ...experimental_design.model_free.random_design import RandomDesign
 from ..acquisition import Acquisition
 from ..optimization.acquisition_optimizer import AcquisitionOptimizerBase
 
@@ -39,7 +38,6 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         self.num_samples = num_samples
         self.std_dev = std_dev
         self.num_continuous = num_continuous
-        self.sampler = RandomDesign(space)
 
     def _neighbours_per_parameter(self, all_features: np.ndarray) -> List[np.ndarray]:
         """ Generates parameter encodings for one-exchange neighbours of
@@ -140,7 +138,7 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         if context is not None:
             raise NotImplementedError("Handling context is currently not implemented.")
 
-        X_init = self.sampler.get_samples(self.num_samples)
+        X_init = self.space.sample_uniform(self.num_samples)
         X_max = np.empty_like(X_init)
         acq_max = np.empty((self.num_samples,))
         _log.info("Starting local optimization of acquisition function {}"
