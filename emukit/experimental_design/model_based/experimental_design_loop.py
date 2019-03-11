@@ -6,14 +6,14 @@ from ...core.interfaces.models import IModel
 from ...core.loop import OuterLoop, SequentialPointCalculator, FixedIntervalUpdater
 from ...core.loop.candidate_point_calculators import GreedyBatchPointCalculator
 from ...core.loop.loop_state import create_loop_state
-from ...core.optimization import AcquisitionOptimizer
-from ...core.optimization.acquisition_optimizer import AcquisitionOptimizerBase
+from ...core.optimization import AcquisitionOptimizerBase
+from ...core.optimization import GradientAcquisitionOptimizer
 from ...core.parameter_space import ParameterSpace
 
 
 class ExperimentalDesignLoop(OuterLoop):
     def __init__(self, space: ParameterSpace, model: IModel, acquisition: Acquisition = None, update_interval: int = 1,
-                 batch_size: int=1, acquisition_optimizer: AcquisitionOptimizerBase = None):
+                 batch_size: int = 1, acquisition_optimizer: AcquisitionOptimizerBase = None):
         """
         An outer loop class for use with Experimental design
 
@@ -33,7 +33,7 @@ class ExperimentalDesignLoop(OuterLoop):
 
         # This AcquisitionOptimizer object deals with optimizing the acquisition to find the next point to collect
         if acquisition_optimizer is None:
-            acquisition_optimizer = AcquisitionOptimizer(space)
+            acquisition_optimizer = GradientAcquisitionOptimizer(space)
 
         # Construct emukit classes
         if batch_size == 1:

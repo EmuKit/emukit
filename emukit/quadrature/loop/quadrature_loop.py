@@ -4,7 +4,8 @@
 
 from emukit.core.loop.loop_state import create_loop_state
 from emukit.core.loop import OuterLoop, SequentialPointCalculator, FixedIntervalUpdater, ModelUpdater
-from emukit.core.optimization import AcquisitionOptimizer
+from emukit.core.optimization import AcquisitionOptimizerBase
+from emukit.core.optimization import GradientAcquisitionOptimizer
 from emukit.core.parameter_space import ParameterSpace
 from emukit.core.acquisition import Acquisition
 from emukit.quadrature.methods import VanillaBayesianQuadrature
@@ -13,7 +14,7 @@ from emukit.quadrature.acquisitions import IntegralVarianceReduction
 
 class VanillaBayesianQuadratureLoop(OuterLoop):
     def __init__(self, model: VanillaBayesianQuadrature, acquisition: Acquisition = None,
-                 model_updater: ModelUpdater = None):
+                 model_updater: ModelUpdater = None, acquisition_optimizer: AcquisitionOptimizerBase = None):
         """
         The loop for vanilla Bayesian Quadrature
 
@@ -22,6 +23,8 @@ class VanillaBayesianQuadratureLoop(OuterLoop):
         default, IntegralVarianceReduction
         :param model_updater: Defines how and when the quadrature model is updated if new data arrives.
                               Defaults to updating hyper-parameters every iteration.
+        :param acquisition_optimizer: Optimizer selecting next evaluation points by maximizing acquisition.
+                                      Gradient based optimizer is used if None. Defaults to None.
         """
 
         if acquisition is None:
@@ -31,7 +34,8 @@ class VanillaBayesianQuadratureLoop(OuterLoop):
             model_updater = FixedIntervalUpdater(model, 1)
 
         space = ParameterSpace(model.integral_bounds.convert_to_list_of_continuous_parameters())
-        acquisition_optimizer = AcquisitionOptimizer(space)
+        if acquisition_optimizer is None:
+            acquisition_optimizer = GradientAcquisitionOptimizer(space)
         candidate_point_calculator = SequentialPointCalculator(acquisition, acquisition_optimizer)
         loop_state = create_loop_state(model.X, model.Y)
 

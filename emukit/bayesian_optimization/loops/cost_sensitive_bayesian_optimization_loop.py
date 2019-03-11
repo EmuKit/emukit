@@ -9,8 +9,8 @@ from ...core.acquisition import Acquisition, acquisition_per_expected_cost
 from ...core.interfaces import IModel
 from ...core.loop import FixedIntervalUpdater, OuterLoop, SequentialPointCalculator
 from ...core.loop.loop_state import create_loop_state
-from ...core.optimization import AcquisitionOptimizer
-from ...core.optimization.acquisition_optimizer import AcquisitionOptimizerBase
+from ...core.optimization import AcquisitionOptimizerBase
+from ...core.optimization import GradientAcquisitionOptimizer
 from ...core.parameter_space import ParameterSpace
 
 
@@ -45,7 +45,7 @@ class CostSensitiveBayesianOptimizationLoop(OuterLoop):
         model_updater_cost = FixedIntervalUpdater(model_cost, update_interval, lambda state: state.cost)
 
         if acquisition_optimizer is None:
-            acquisition_optimizer = AcquisitionOptimizer(space)
+            acquisition_optimizer = GradientAcquisitionOptimizer(space)
         candidate_point_calculator = SequentialPointCalculator(acquisition, acquisition_optimizer)
 
         loop_state = create_loop_state(model_objective.X, model_objective.Y, model_cost.Y)

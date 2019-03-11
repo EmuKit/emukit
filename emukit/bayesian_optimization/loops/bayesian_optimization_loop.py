@@ -8,8 +8,8 @@ from ...core.acquisition import Acquisition
 from ...core.interfaces import IDifferentiable, IModel
 from ...core.loop import FixedIntervalUpdater, OuterLoop, SequentialPointCalculator
 from ...core.loop.loop_state import create_loop_state, LoopState
-from ...core.optimization import AcquisitionOptimizer
-from ...core.optimization.acquisition_optimizer import AcquisitionOptimizerBase
+from ...core.optimization import AcquisitionOptimizerBase
+from ...core.optimization import GradientAcquisitionOptimizer
 from ...core.parameter_space import ParameterSpace
 from ..acquisitions import ExpectedImprovement
 from ..acquisitions.log_acquisition import LogAcquisition
@@ -43,7 +43,7 @@ class BayesianOptimizationLoop(OuterLoop):
         model_updaters = FixedIntervalUpdater(model, update_interval)
 
         if acquisition_optimizer is None:
-            acquisition_optimizer = AcquisitionOptimizer(space)
+            acquisition_optimizer = GradientAcquisitionOptimizer(space)
         if batch_size == 1:
             candidate_point_calculator = SequentialPointCalculator(acquisition, acquisition_optimizer)
         else:

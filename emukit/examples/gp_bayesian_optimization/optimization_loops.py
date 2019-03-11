@@ -5,7 +5,8 @@ from ...bayesian_optimization.acquisitions import ExpectedImprovement, Probabili
 from ...core import ParameterSpace
 from ...core.loop import OuterLoop, FixedIntervalUpdater, SequentialPointCalculator
 from ...core.loop.loop_state import create_loop_state
-from ...core.optimization import AcquisitionOptimizer
+from ...core.optimization import AcquisitionOptimizerBase
+from ...core.optimization import GradientAcquisitionOptimizer
 from ..models.bohamiann import Bohamiann
 from ..models.random_forest import RandomForest
 from .enums import AcquisitionType, ModelType
@@ -13,7 +14,8 @@ from .enums import AcquisitionType, ModelType
 
 def create_bayesian_optimization_loop(x_init: np.ndarray, y_init: np.ndarray, parameter_space: ParameterSpace,
                                       acquisition_type: AcquisitionType, model_type: ModelType,
-                                      model_kwargs: dict=None) -> OuterLoop:
+                                      model_kwargs: dict=None,
+                                      acquisition_optimizer: AcquisitionOptimizerBase = None) -> OuterLoop:
     """
     Creates Bayesian optimization loop for Bayesian neural network or random forest models.
 
@@ -23,6 +25,8 @@ def create_bayesian_optimization_loop(x_init: np.ndarray, y_init: np.ndarray, pa
     :param acquisition_type: an AcquisitionType enumeration object describing which acquisition function to use
     :param model_type: A ModelType enumeration object describing which model to use.
     :param model_kwargs: Key work arguments for the model constructor. See individual models for details.
+    :param acquisition_optimizer: Optimizer selecting next evaluation points by maximizing acquisition.
+                                  Gradient based optimizer is used if None. Defaults to None.
     :return: OuterLoop instance
     """
 
@@ -47,7 +51,8 @@ def create_bayesian_optimization_loop(x_init: np.ndarray, y_init: np.ndarray, pa
     else:
         raise ValueError('Unrecognised acquisition type: ' + str(acquisition_type))
 
-    acquisition_optimizer = AcquisitionOptimizer(parameter_space)
+    if acquisition_optimizer is None:
+        acquisition_optimizer = GradientAcquisitionOptimizer(parameter_space)
     candidate_point_calculator = SequentialPointCalculator(acquisition, acquisition_optimizer)
     loop_state = create_loop_state(x_init, y_init)
     model_updater = FixedIntervalUpdater(model, 1)
