@@ -12,11 +12,12 @@ def sombrero2D(freq: float = 1.) -> Tuple[UserFunctionWrapper, List[Tuple[float,
     """
     2D Sombrero function
 
-    Evaluates the function at x.
     .. math::
 
         \frac{\sin(\pi r freq)}{\pi r freq}
 
+    :param freq: frequency of the sombrero (must be > 0, defaults to 1)
+    :return: the wrapped test function, and the integrals bounds (defaults to area [-3, 3]^2).
     """
     func = lambda x: _sombrero2D(x, freq)
     integral_bounds = 2 * [(-3., 3.)]
@@ -25,8 +26,8 @@ def sombrero2D(freq: float = 1.) -> Tuple[UserFunctionWrapper, List[Tuple[float,
 
 def _sombrero2D(x: np.ndarray, freq: float) -> np.ndarray:
     """
-    :param x: (num_points, 2)
-    :param freq: frequency of the sombrero
+    :param x: locations for evaluation (num_points, 2)
+    :param freq: frequency of the sombrero (must be > 0)
     :return: the function values at x, shape (num_points, 1)
     """
     r = np.sqrt((x*x).sum(axis=1))
