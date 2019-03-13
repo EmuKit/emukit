@@ -8,6 +8,7 @@ from typing import Tuple, List
 from emukit.core.interfaces.models import IModel
 from emukit.quadrature.interfaces.base_gp import IBaseGaussianProcess
 from emukit.quadrature.kernels.integral_bounds import IntegralBounds
+from emukit.quadrature.methods.integration_measures import IntegrationMeasure
 
 
 class WarpedBayesianQuadratureModel(IModel):
@@ -110,10 +111,11 @@ class WarpedBayesianQuadratureModel(IModel):
         """Optimizes the hyperparameters of the base GP"""
         self.base_gp.optimize()
 
-    def integrate(self) -> Tuple[float, float]:
+    def integrate(self, measure: IntegrationMeasure = None) -> Tuple[float, float]:
         """
         Computes an estimator of the integral as well as its variance.
 
+        :param measure: The measure which is integrated against
         :returns: estimator of integral and its variance
         """
         raise NotImplemented
