@@ -4,7 +4,7 @@
 
 import numpy as np
 from scipy.special import erf
-from typing import List
+from typing import List, Tuple
 
 from .quadrature_kernels import QuadratureKernel
 from emukit.quadrature.interfaces.standard_kernels import IRBF
@@ -17,7 +17,7 @@ class QuadratureRBF(QuadratureKernel):
     Note that each standard kernel goes with a corresponding quadrature kernel, in this case QuadratureRBF
     """
 
-    def __init__(self, rbf_kernel: IRBF, integral_bounds: List, integral_name: str='') -> None:
+    def __init__(self, rbf_kernel: IRBF, integral_bounds: List[Tuple[float, float]], integral_name: str='') -> None:
         """
         :param rbf_kernel: standard emukit rbf-kernel
         :param integral_bounds: defines the domain of the integral. List of D tuples, where D is the dimensionality
@@ -43,8 +43,10 @@ class QuadratureRBF(QuadratureKernel):
         :param x2: remaining argument of the once integrated kernel, shape (n_point N, input_dim)
         :returns: kernel mean at location x2, shape (1, N)
         """
-        erf_lo = erf(self._scaled_vector_diff(self.lower_bounds, x2))
-        erf_up = erf(self._scaled_vector_diff(self.upper_bounds, x2))
+        lower_bounds = self.integral_bounds.lower_bounds
+        upper_bounds = self.integral_bounds.upper_bounds
+        erf_lo = erf(self._scaled_vector_diff(lower_bounds, x2))
+        erf_up = erf(self._scaled_vector_diff(upper_bounds, x2))
         kernel_mean = self.variance * (self.lengthscale * np.sqrt(np.pi / 2.) * (erf_up - erf_lo)).prod(axis=1)
 
         return kernel_mean.reshape(1, -1)
@@ -64,8 +66,10 @@ class QuadratureRBF(QuadratureKernel):
 
         :returns: double integrated kernel
         """
+        lower_bounds = self.integral_bounds.lower_bounds
+        upper_bounds = self.integral_bounds.upper_bounds
         prefac = self.variance * (2. * self.lengthscale**2)**self.input_dim
-        diff_bounds_scaled = self._scaled_vector_diff(self.upper_bounds, self.lower_bounds)
+        diff_bounds_scaled = self._scaled_vector_diff(upper_bounds, lower_bounds)
         exp_term = np.exp(-diff_bounds_scaled**2) - 1.
         erf_term = erf(diff_bounds_scaled) * diff_bounds_scaled * np.sqrt(np.pi)
 
@@ -79,10 +83,12 @@ class QuadratureRBF(QuadratureKernel):
         :param x2: points at which to evaluate, shape (n_point N, input_dim)
         :return: the gradient with shape (input_dim, N)
         """
-        exp_lo = np.exp(- self._scaled_vector_diff(x2, self.lower_bounds) ** 2)
-        exp_up = np.exp(- self._scaled_vector_diff(x2, self.upper_bounds) ** 2)
-        erf_lo = erf(self._scaled_vector_diff(self.lower_bounds, x2))
-        erf_up = erf(self._scaled_vector_diff(self.upper_bounds, x2))
+        lower_bounds = self.integral_bounds.lower_bounds
+        upper_bounds = self.integral_bounds.upper_bounds
+        exp_lo = np.exp(- self._scaled_vector_diff(x2, lower_bounds) ** 2)
+        exp_up = np.exp(- self._scaled_vector_diff(x2, upper_bounds) ** 2)
+        erf_lo = erf(self._scaled_vector_diff(lower_bounds, x2))
+        erf_up = erf(self._scaled_vector_diff(upper_bounds, x2))
 
         fraction = ((exp_lo - exp_up) / (self.lengthscale * np.sqrt(np.pi / 2.) * (erf_up - erf_lo))).T
 
