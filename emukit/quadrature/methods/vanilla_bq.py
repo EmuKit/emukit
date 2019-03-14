@@ -7,7 +7,6 @@ from scipy.linalg import lapack
 from typing import Tuple, Union
 
 from emukit.quadrature.interfaces.base_gp import IBaseGaussianProcess
-from emukit.quadrature.kernels.integral_bounds import IntegralBounds
 from .warped_bq_model import WarpedBayesianQuadratureModel
 from .integration_measures import GaussianMeasure, UniformMeasure
 
@@ -96,22 +95,26 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel):
 
     def _integrate_uniform(self, measure: UniformMeasure) -> Tuple[float, float]:
         """
-        Computes integral against Uniform measure
+        Computes integral against Uniform measure.
         :param measure: A uniform measure
         :returns: estimator of integral and its variance
         """
-        # Todo: implement
-        # get max of lower bounds and min of upper bounds an integrate over those
+        # get max of both lower bounds and min of both upper bounds and integrate over the resulting bounds.
+        # This is equivalent (up to the uniform density) to integrating with respect to the uniform measure.
         integral_bounds = self.integral_bounds.bounds
         uniform_bounds = measure.bounds
         old_integral_bound_list = self.integral_bounds.bounds.copy()
         new_integral_bound_list = [(max(int_bounds[0], uni_bounds[0]), min(int_bounds[1], uni_bounds[1]))
                                    for int_bounds, uni_bounds in zip(integral_bounds, uniform_bounds)]
 
-        # this also checks bound validity
+        # setting new bounds also checks bound validity
         self.integral_bounds = new_integral_bound_list
-        integral_mean, integral_var = measure.density * self._integrate_lebesgue()
+        integral_mean_lebesgue, integral_var_lebesgue = self._integrate_lebesgue()
+        # revert to old bounds
         self.integral_bounds = old_integral_bound_list
+
+        integral_mean = measure.density * integral_mean_lebesgue
+        integral_var = (measure.density**2) * integral_var_lebesgue
         return integral_mean, integral_var
 
     def _compute_integral_mean_and_kernel_mean(self) -> Tuple[float, np.ndarray]:

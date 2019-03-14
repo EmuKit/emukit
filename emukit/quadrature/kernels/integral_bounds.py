@@ -57,7 +57,7 @@ class IntegralBounds:
             lb_d, ub_d = bounds_d
             if lb_d >= ub_d:
                 raise ValueError("Upper integral bound must be larger than lower bound. Found a pair containing ("
-                                 + str(lb_d) + ", " +str(ub_d) + ").")
+                                 + str(lb_d) + ", " + str(ub_d) + ").")
 
     def get_lower_and_upper_bounds(self) -> Tuple[np.ndarray, np.ndarray]:
         """

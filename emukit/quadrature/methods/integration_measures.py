@@ -7,6 +7,7 @@ from typing import Tuple, List
 
 
 class IntegrationMeasure:
+    """An integration measure"""
 
     def __init__(self, name: str):
         self.name = name
@@ -44,28 +45,19 @@ class UniformMeasure(IntegrationMeasure):
         for bounds_d in self.bounds:
             lb_d, ub_d = bounds_d
             if lb_d >= ub_d:
-                raise ValueError("Upper bound of uniform measure must be larger than lower bound")
+                raise ValueError("Upper bound of uniform measure must be larger than lower bound. Found a pair "
+                                 "containing (" + str(lb_d) + ", " + str(ub_d) + ").")
 
     def _compute_density(self) -> None:
         """computes density value"""
         differences = np.array([x[1] - x[0] for x in self.bounds])
         volume = np.prod(differences)
 
-        # Todo: handle this better (it should not happen if upper bounds > lower bounds)
-        # Todo: handle volume = 0 and return a zero integral?
-        assert volume > 0
+        if not volume > 0:
+            raise NumericalPrecisionError("Domain volume of uniform measure is not positive. Its value is "
+                                          + str(volume) + ". It might be numerical problems...")
         self.density = 1./volume
 
-#    def get_lower_and_upper_bounds(self) -> Tuple[np.ndarray, np.ndarray]:
-#        """
-#        returns two arrays, one containing all lower bounds and one containing all upper bounds.
-#        :return: lower bounds, upper bounds of integral, shapes (input_dim, )
-#        """
-#        dim = len(self.bounds)
-#        lower_bounds = np.zeros(dim)
-#        upper_bounds = np.zeros(dim)
-#        for i, bounds_d in enumerate(self.bounds):
-#            lb_d, ub_d = bounds_d
-#            lower_bounds[i] = lb_d
-#            upper_bounds[i] = ub_d
-#        return lower_bounds, upper_bounds
+
+class NumericalPrecisionError(Exception):
+    pass
