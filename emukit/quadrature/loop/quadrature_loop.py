@@ -18,7 +18,7 @@ class VanillaBayesianQuadratureLoop(OuterLoop):
         The loop for vanilla Bayesian Quadrature
 
         :param model: the vanilla Bayesian quadrature method
-        :param acquisition: The acquisition function that is be used to collect new points.
+        :param acquisition: The acquisition function that is used to collect new points.
         default, IntegralVarianceReduction
         :param model_updater: Defines how and when the quadrature model is updated if new data arrives.
                               Defaults to updating hyper-parameters every iteration.

@@ -23,10 +23,10 @@ def model():
     y_init = rng.rand(5, 1)
 
     gpy_kernel = GPy.kern.RBF(input_dim=x_init.shape[1])
-    gpy_model = GPy.models.GPRegression(X=x_init, Y=y_init, )
-    emukit_qrbf = QuadratureRBF(RBFGPy(gpy_kernel), integral_bounds=x_init.shape[1] * [(-3, 3)])
-    emukit_basegp = BaseGaussianProcessGPy(kern=emukit_qrbf, gpy_model=gpy_model)
-    model = VanillaBayesianQuadrature(base_gp=emukit_basegp)
+    gpy_model = GPy.models.GPRegression(X=x_init, Y=y_init, kernel=gpy_kernel)
+    qrbf = QuadratureRBF(RBFGPy(gpy_kernel), integral_bounds=x_init.shape[1] * [(-3, 3)])
+    basegp = BaseGaussianProcessGPy(kern=qrbf, gpy_model=gpy_model)
+    model = VanillaBayesianQuadrature(base_gp=basegp)
     return model
 
 
