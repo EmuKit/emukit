@@ -9,7 +9,7 @@ from scipy.integrate import quad, dblquad
 
 def univariate_approximate_ground_truth_integral(func, integral_bounds: Tuple[float, float]):
     """
-    Uses scipy.integrate.quad to estimate the ground truth integral
+    Estimate the 1D ground truth integral
 
     :param func: univariate function
     :param integral_bounds: bounds of integral
@@ -22,7 +22,7 @@ def univariate_approximate_ground_truth_integral(func, integral_bounds: Tuple[fl
 
 def bivariate_approximate_ground_truth_integral(func, integral_bounds: List[Tuple[float, float]]):
     """
-    Uses scipy.integrate.dblquad to estimate the ground truth integral
+    Estimate the 2D ground truth integral
 
     :param func: bivariate function
     :param integral_bounds: bounds of integral
@@ -33,8 +33,11 @@ def bivariate_approximate_ground_truth_integral(func, integral_bounds: List[Tupl
         z = np.reshape(z, [1, 2])
         return func(z)
 
-    lower_bound = integral_bounds[0][0]
-    upper_bound = integral_bounds[0][1]
+    lower_bound_x = integral_bounds[0][0]
+    upper_bound_x = integral_bounds[0][1]
 
-    return dblquad(func=func_dblquad, a=lower_bound, b=upper_bound, gfun=lambda x: lower_bound,
-                   hfun=lambda x: upper_bound)
+    lower_bound_y = integral_bounds[1][0]
+    upper_bound_y = integral_bounds[1][1]
+
+    return dblquad(func=func_dblquad, a=lower_bound_x, b=upper_bound_x, gfun=lambda x: lower_bound_y,
+                   hfun=lambda x: upper_bound_y)
