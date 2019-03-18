@@ -4,11 +4,11 @@
 
 import numpy as np
 from scipy.linalg import lapack
-from typing import Tuple
+from typing import Tuple, Union
 
 from emukit.quadrature.interfaces.base_gp import IBaseGaussianProcess
 from .warped_bq_model import WarpedBayesianQuadratureModel
-from .integration_measures import UniformMeasure
+from .integration_measures import UniformMeasure, GaussianMeasure
 
 
 class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel):
@@ -53,7 +53,7 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel):
         m, cov = self.base_gp.predict_with_full_covariance(X_pred)
         return m, cov, m, cov
 
-    def integrate(self, measure: UniformMeasure = None) -> Tuple[float, float]:
+    def integrate(self, measure: Union[UniformMeasure, GaussianMeasure] = None) -> Tuple[float, float]:
         """
         Computes an estimator of the integral as well as its variance.
 
@@ -64,6 +64,8 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel):
             integral_mean, integral_var = self._integrate_lebesgue()
         elif isinstance(measure, UniformMeasure):
             integral_mean, integral_var = self._integrate_uniform(measure)
+        elif isinstance(measure, GaussianMeasure):
+            integral_mean, integral_var = self._integrate_gauss(measure)
         else:
             raise ValueError('unknown measure')
         return integral_mean, integral_var
@@ -100,6 +102,17 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel):
 
         integral_mean = measure.density * integral_mean_lebesgue
         integral_var = (measure.density**2) * integral_var_lebesgue
+        return integral_mean, integral_var
+
+    def _integrate_gauss(self, measure: GaussianMeasure) -> Tuple[float, float]:
+        """
+        Computes integral against Uniform measure.
+        :param measure: A uniform measure
+        :returns: estimator of integral and its variance
+        """
+        # Todo: implement
+        integral_mean = 0.
+        integral_var = 0.
         return integral_mean, integral_var
 
     def _compute_integral_mean_and_kernel_mean(self) -> Tuple[float, np.ndarray]:
