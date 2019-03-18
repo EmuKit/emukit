@@ -4,11 +4,11 @@
 
 import numpy as np
 from scipy.linalg import lapack
-from typing import Tuple, Union
+from typing import Tuple
 
 from emukit.quadrature.interfaces.base_gp import IBaseGaussianProcess
 from .warped_bq_model import WarpedBayesianQuadratureModel
-from .integration_measures import GaussianMeasure, UniformMeasure
+from .integration_measures import UniformMeasure
 
 
 class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel):
@@ -53,7 +53,7 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel):
         m, cov = self.base_gp.predict_with_full_covariance(X_pred)
         return m, cov, m, cov
 
-    def integrate(self, measure: Union[GaussianMeasure, UniformMeasure] = None) -> Tuple[float, float]:
+    def integrate(self, measure: UniformMeasure = None) -> Tuple[float, float]:
         """
         Computes an estimator of the integral as well as its variance.
 
@@ -62,8 +62,6 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel):
         """
         if measure is None:
             integral_mean, integral_var = self._integrate_lebesgue()
-        elif isinstance(measure, GaussianMeasure):
-            integral_mean, integral_var = self._integrate_gaussian(measure)
         elif isinstance(measure, UniformMeasure):
             integral_mean, integral_var = self._integrate_uniform(measure)
         else:
@@ -77,18 +75,6 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel):
         """
         kernel_mean_X = self.base_gp.kern.qK(self.X)
         integral_mean = np.dot(kernel_mean_X, self.base_gp.graminv_residual())[0, 0]
-        integral_var = self.base_gp.kern.qKq() - np.square(lapack.dtrtrs(self.base_gp.gram_chol(), kernel_mean_X.T,
-                                                           lower=1)[0]).sum(axis=0, keepdims=True)[0][0]
-        return integral_mean, integral_var
-
-    def _integrate_gaussian(self, measure: GaussianMeasure) -> Tuple[float, float]:
-        """
-        Computes integral against Gaussian measure
-        :param measure: A Gaussian measure
-        :returns: estimator of integral and its variance
-        """
-        # Todo: implement
-        integral_mean, kernel_mean_X = self._compute_integral_mean_and_kernel_mean()
         integral_var = self.base_gp.kern.qKq() - np.square(lapack.dtrtrs(self.base_gp.gram_chol(), kernel_mean_X.T,
                                                            lower=1)[0]).sum(axis=0, keepdims=True)[0][0]
         return integral_mean, integral_var
@@ -110,7 +96,6 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel):
         # setting new bounds also checks bound validity
         self.integral_bounds = new_integral_bound_list
         integral_mean_lebesgue, integral_var_lebesgue = self._integrate_lebesgue()
-        # revert to old bounds
         self.integral_bounds = old_integral_bound_list
 
         integral_mean = measure.density * integral_mean_lebesgue
@@ -118,7 +103,6 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel):
         return integral_mean, integral_var
 
     def _compute_integral_mean_and_kernel_mean(self) -> Tuple[float, np.ndarray]:
-        # Todo: remove this?
         kernel_mean_X = self.base_gp.kern.qK(self.X)
         integral_mean = np.dot(kernel_mean_X, self.base_gp.graminv_residual())[0, 0]
         return integral_mean, kernel_mean_X
