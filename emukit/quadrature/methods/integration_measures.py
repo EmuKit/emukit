@@ -3,7 +3,7 @@
 
 
 import numpy as np
-from typing import Tuple, List, Union
+from typing import Tuple, List
 
 
 class IntegrationMeasure:

@@ -5,7 +5,7 @@
 import numpy as np
 from typing import List, Tuple
 
-from emukit.quadrature.interfaces.standard_kernels import IStandardKernel
+from ...quadrature.interfaces.standard_kernels import IStandardKernel
 from .integral_bounds import IntegralBounds
 
 

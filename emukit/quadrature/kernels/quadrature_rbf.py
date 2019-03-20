@@ -7,7 +7,7 @@ from scipy.special import erf
 from typing import List, Tuple
 
 from .quadrature_kernels import QuadratureKernel
-from emukit.quadrature.interfaces.standard_kernels import IRBF
+from ...quadrature.interfaces.standard_kernels import IRBF
 
 
 class QuadratureRBF(QuadratureKernel):

@@ -6,7 +6,7 @@ import numpy as np
 
 from typing import Tuple, List
 
-from emukit.core.continuous_parameter import ContinuousParameter
+from ...core.continuous_parameter import ContinuousParameter
 
 
 class IntegralBounds:
