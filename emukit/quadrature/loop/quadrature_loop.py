@@ -2,13 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from emukit.core.loop.loop_state import create_loop_state
-from emukit.core.loop import OuterLoop, SequentialPointCalculator, FixedIntervalUpdater, ModelUpdater
-from emukit.core.optimization import AcquisitionOptimizer
-from emukit.core.parameter_space import ParameterSpace
-from emukit.core.acquisition import Acquisition
-from emukit.quadrature.methods import VanillaBayesianQuadrature
-from emukit.quadrature.acquisitions import IntegralVarianceReduction
+from ...core.loop.loop_state import create_loop_state
+from ...core.loop import OuterLoop, SequentialPointCalculator, FixedIntervalUpdater, ModelUpdater
+from ...core.optimization import AcquisitionOptimizer
+from ...core.parameter_space import ParameterSpace
+from ...core.acquisition import Acquisition
+from ...quadrature.methods import VanillaBayesianQuadrature
+from ...quadrature.acquisitions import IntegralVarianceReduction
 
 
 class VanillaBayesianQuadratureLoop(OuterLoop):

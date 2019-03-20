@@ -5,9 +5,9 @@
 import numpy as np
 from typing import Tuple
 
-from emukit.core.acquisition import Acquisition
+from ...core.acquisition import Acquisition
 from .squared_correlation import SquaredCorrelation
-from emukit.quadrature.methods import VanillaBayesianQuadrature
+from ...quadrature.methods import VanillaBayesianQuadrature
 
 
 class MutualInformation(Acquisition):
