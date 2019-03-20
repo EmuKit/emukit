@@ -3,13 +3,16 @@
 
 
 import numpy as np
-from typing import Tuple, List, Union
+from typing import Tuple, List
 
 
 class IntegrationMeasure:
     """An integration measure"""
 
     def __init__(self, name: str):
+        """
+        :param name: Name of the integration measure
+        """
         self.name = name
 
 
@@ -18,7 +21,8 @@ class UniformMeasure(IntegrationMeasure):
 
     def __init__(self, bounds: List[Tuple[float, float]]):
         """
-        :param bounds:
+        :param bounds: List of D tuples, where D is the dimensionality of the domain and the tuples contain the lower
+        and upper bounds of the box defining the uniform measure i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)]
         """
         super().__init__('UniformMeasure')
         self.bounds = bounds

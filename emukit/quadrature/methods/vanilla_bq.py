@@ -6,7 +6,7 @@ import numpy as np
 from scipy.linalg import lapack
 from typing import Tuple, Union
 
-from emukit.quadrature.interfaces.base_gp import IBaseGaussianProcess
+from ...quadrature.interfaces.base_gp import IBaseGaussianProcess
 from .warped_bq_model import WarpedBayesianQuadratureModel
 from .integration_measures import UniformMeasure, GaussianMeasure
 
