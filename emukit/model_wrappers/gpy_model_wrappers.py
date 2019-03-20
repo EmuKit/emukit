@@ -18,8 +18,8 @@ class GPyModelWrapper(IModel, IDifferentiable, ICalculateVarianceReduction, IEnt
     """
     def __init__(self, gpy_model: GPy.core.Model, n_restarts: int = 1):
         """
-        :param gpy_model: GPy model object to wrap
-        :param n_restarts: Number of restarts during hyper-parameter optimization
+        :param gpy_model: The gpy model object to wrap
+        :param n_restarts: Number of random restarts during hyper-parameter optimization
         """
         self.model = gpy_model
         self.n_restarts = n_restarts

@@ -68,3 +68,29 @@ def convert_xy_lists_to_arrays(x_list: List, y_list: List) -> Tuple[np.ndarray, 
         raise ValueError('Different number of points in x and y at the same fidelity')
 
     return convert_x_list_to_array(x_list), convert_y_list_to_array(y_list)
+
+
+def convert_array_to_lists(x, y):
+    """
+    Convert multi-fidelity data represented as arrays to lists where each entry in the list corresponds to a different
+    fidelity
+
+    :param x: Input array where last column indicate a zero based fidelity index
+    :param y: Array of targets
+    :return:
+    """
+    if y.shape[1] != 1:
+        raise ValueError('Only 1 dimension targets are supported')
+
+    if x.shape[0] != y.shape[0]:
+        raise ValueError('x and y arrays have different number of points')
+
+    x_list = []
+    y_list = []
+
+    fidelity_idxs = np.sort(np.unique(x[:, -1]))
+    for idx in fidelity_idxs:
+        is_fidelity = x[:, -1] == idx
+        x_list.append(x[is_fidelity, :-1])
+        y_list.append(y[is_fidelity, :])
+    return x_list, y_list
