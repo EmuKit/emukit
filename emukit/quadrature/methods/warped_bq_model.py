@@ -5,10 +5,10 @@
 import numpy as np
 from typing import Tuple, List
 
-from emukit.core.interfaces.models import IModel
-from emukit.core.continuous_parameter import ContinuousParameter
-from emukit.quadrature.interfaces.base_gp import IBaseGaussianProcess
-from emukit.quadrature.kernels.integral_bounds import IntegralBounds
+from ...core.continuous_parameter import ContinuousParameter
+from ...core.interfaces.models import IModel
+from ...quadrature.interfaces.base_gp import IBaseGaussianProcess
+from ...quadrature.kernels.integral_bounds import IntegralBounds
 
 
 class WarpedBayesianQuadratureModel(IModel):
