@@ -2,6 +2,7 @@ import logging
 from typing import Tuple
 
 import numpy as np
+from GPyOpt.optimization.acquisition_optimizer import ContextManager
 
 from .. import ParameterSpace
 from ..acquisition import Acquisition
@@ -25,11 +26,19 @@ class RandomSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         :return: Tuple of (location of maximum, acquisition value at maximizer)
         """
         if context is not None:
-            raise NotImplementedError("Handling context is currently not implemented.")
+            context_manager = ContextManager(
+                self.space.convert_to_gpyopt_design_space(), context)
+            noncontext_space = ParameterSpace(
+                [param for param in self.space.parameters if param.name in context])
+        else:
+            context_manager = None
+            noncontext_space = self.space
 
         _log.info("Starting random search optimization of acquisition function {}"
                   .format(type(acquisition)))
-        samples = self.space.sample_uniform(self.num_samples)
+        samples = noncontext_space.sample_uniform(self.num_samples)
+        if context_manager is not None:
+            samples = context_manager._expand_vector(samples)
         acquisition_values = acquisition.evaluate(samples)
         max_sample_index = np.argmax(acquisition_values)
         max_sample = samples[[max_sample_index]]
