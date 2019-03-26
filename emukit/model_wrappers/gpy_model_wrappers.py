@@ -16,8 +16,13 @@ class GPyModelWrapper(IModel, IDifferentiable, ICalculateVarianceReduction, IEnt
     """
     This is a thin wrapper around GPy models to allow users to plug GPy models into Emukit
     """
-    def __init__(self, gpy_model):
+    def __init__(self, gpy_model: GPy.core.Model, n_restarts: int = 1):
+        """
+        :param gpy_model: GPy model object to wrap
+        :param n_restarts: Number of restarts during hyper-parameter optimization
+        """
         self.model = gpy_model
+        self.n_restarts = n_restarts
 
     def predict(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
@@ -48,7 +53,7 @@ class GPyModelWrapper(IModel, IDifferentiable, ICalculateVarianceReduction, IEnt
         """
         Optimizes model hyper-parameters
         """
-        self.model.optimize()
+        self.model.optimize_restarts(self.n_restarts, robust=True)
 
     def calculate_variance_reduction(self, x_train_new: np.ndarray, x_test: np.ndarray) -> np.ndarray:
         """
