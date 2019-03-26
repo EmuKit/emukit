@@ -174,7 +174,8 @@ class GPyMultiOutputWrapper(IModel, IDifferentiable, ICalculateVarianceReduction
         if self.n_optimization_restarts == 1:
             self.gpy_model.optimize()
         elif self.n_optimization_restarts >= 1:
-            self.gpy_model.optimize_restarts(self.n_optimization_restarts, verbose=self.verbose_optimization)
+            self.gpy_model.optimize_restarts(self.n_optimization_restarts, verbose=self.verbose_optimization,
+                                             robust=True)
 
     @property
     def X(self) -> np.ndarray:
