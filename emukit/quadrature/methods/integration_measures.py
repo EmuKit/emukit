@@ -3,7 +3,7 @@
 
 
 import numpy as np
-from typing import Tuple, List
+from typing import Tuple, List, Union
 
 
 class IntegrationMeasure:
@@ -54,7 +54,7 @@ class GaussianMeasure(IntegrationMeasure):
     def __init__(self, mean: np.ndarray, covariance: Union[float, np.ndarray]):
         """
         :param mean: the mean of the Gaussian
-        :param covariance: the covariance matrix of the Gaussian
+        :param covariance: the covariance matrix of the Gaussian.
         """
         super().__init__('GaussianMeasure')
         self._cov_encoding = self._check_input(mean, covariance)
