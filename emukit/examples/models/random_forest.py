@@ -46,6 +46,7 @@ class RandomForest(IModel):
         Predict values for given points
 
         :param X: points to run prediction for
+        :return: Tuple of mean and variance which are 2d arrays of shape (n_points x n_outputs)
         """
 
         preds = []
