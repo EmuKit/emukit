@@ -102,7 +102,7 @@ class DGP_Base(Model):
             for i, (x, y) in enumerate(zip(X, Y)):
                 setattr(self, 'num_data' + str(i), x.shape[0])
                 setattr(self, 'X' + str(i), Minibatch(x, minibatch_size, seed=0))
-                setattr(self, 'Y' + str(i), Minibatch(x, minibatch_size, seed=0))
+                setattr(self, 'Y' + str(i), Minibatch(y, minibatch_size, seed=0))
         else:
             for i, (x, y) in enumerate(zip(X, Y)):
                 setattr(self, 'num_data' + str(i), x.shape[0])
