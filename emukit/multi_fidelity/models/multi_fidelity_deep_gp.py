@@ -57,7 +57,7 @@ def init_layers_mf(Y, Z, kernels, num_outputs=None, Layer=SVGP_Layer):
     :param Layer: The layer object to use
     :return: List of layer objects with which to build a multi-fidelity deep Gaussian process model
     """
-    num_outputs = num_outputs or Y.shape[1]
+    num_outputs = num_outputs or Y[-1].shape[1]
 
     layers = []
     num_layers = len(Z)
