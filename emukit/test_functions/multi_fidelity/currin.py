@@ -7,7 +7,6 @@ from ...core import ContinuousParameter, InformationSourceParameter, ParameterSp
 
 
 def multi_fidelity_currin_function() -> Tuple[MultiSourceFunctionWrapper, ParameterSpace]:
-
     r"""
 
     High fidelity function is given by:

@@ -16,13 +16,6 @@ from emukit.multi_fidelity.models.non_linear_multi_fidelity_model import (
     NonLinearMultiFidelityModel, make_non_linear_kernels)
 
 
-def high_fidelity_gp(X, Y):
-    kernel = GPy.kern.RBF(X[1].shape[1], ARD=True)
-    gpy_model = GPy.models.GPRegression(X[1], Y[1], kernel=kern)
-    GPyModelWrapper(gpy_model)
-
-
-
 class HfGpOnly(IModel):
     """
     GP at high fidelity only
