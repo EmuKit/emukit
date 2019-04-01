@@ -60,7 +60,7 @@ class GradientAcquisitionOptimizer(AcquisitionOptimizerBase):
 
         # Optimizer sees variables that represent encoded categories as a bunch of continuous values in a range
         # So the output of the optimizer does not necesseraly match any encoding exactly
-        # Rounding operation here fins the closes encoding
+        # Rounding operation here finds the closest encoding
         rounded_x = self.space.round(x)
         # We may have changed the value of x, so we need to re-evaluate acquisition to make sure f_min is correct
         acquisition_max = acquisition.evaluate(rounded_x)

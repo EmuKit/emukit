@@ -63,12 +63,14 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
                                             parameter.encoding.round_row(features + 1)])
                     neighbours.append(left_right[left_right != features].reshape(-1, 1))
                 elif isinstance(parameter.encoding, OneHotEncoding):
+                    # All categories apart from current one are valid neighbours with one hot encoding
                     neighbours.append(parameter.encodings[
                         (parameter.encodings != features).any(axis=1)])
                 else:
                     raise TypeError("{} not a supported parameter encoding."
                                     .format(type(parameter.encoding)))
             elif isinstance(parameter, DiscreteParameter):
+                # Find current position in domain while being robust to numerical precision problems
                 current_index = np.argmin(np.abs(
                     np.subtract(parameter.domain, np.asscalar(features))))
                 this_neighbours = []
