@@ -29,7 +29,7 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
       :Categorical parameter with ordinal encoding: Only preceeding and following categories
     """
     def __init__(self, space: ParameterSpace, num_steps: int, num_samples: int,
-                 std_dev: float = 0.02, num_continuous: int = 1, **kwargs) -> None:
+                 std_dev: float = 0.02, num_continuous: int = 1) -> None:
         """
         :param space: The parameter space spanning the search problem.
         :param num_steps: Maximum number of steps to follow from each start point.
