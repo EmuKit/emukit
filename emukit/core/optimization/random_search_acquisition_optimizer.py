@@ -19,6 +19,7 @@ class RandomSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         :param num_samples: Number of random sampled points which are evaluated per optimization.
         """
         self.space = space
+        self.gpyopt_space = space.convert_to_gpyopt_design_space()
         self.num_samples = num_samples
 
     def optimize(self, acquisition: Acquisition, context: dict = None) -> Tuple[np.ndarray, np.ndarray]:
@@ -30,8 +31,7 @@ class RandomSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         :return: Tuple of (location of maximum, acquisition value at maximizer)
         """
         if context is not None:
-            context_manager = ContextManager(
-                self.space.convert_to_gpyopt_design_space(), context)
+            context_manager = ContextManager(self.gpyopt_space, context)
             noncontext_space = ParameterSpace(
                 [param for param in self.space.parameters if param.name in context])
         else:

@@ -38,6 +38,7 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         :param num_continuous: Number of sampled neighbourhoods per continuous parameter.
         """
         self.space = space
+        self.gpyopt_space = space.convert_to_gpyopt_design_space()
         self.num_steps = num_steps
         self.num_samples = num_samples
         self.std_dev = std_dev
@@ -150,8 +151,7 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         :return: Tuple of (location of maximum, acquisition value at maximizer)
         """
         if context is not None:
-            context_manager = ContextManager(
-                self.space.convert_to_gpyopt_design_space(), context)
+            context_manager = ContextManager(self.gpyopt_space, context)
             noncontext_space = ParameterSpace(
                 [param for param in self.space.parameters if param.name in context])
         else:
