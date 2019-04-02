@@ -22,7 +22,7 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
       :Categorical parameter with ordinal encoding: Only preceeding and following categories
     """
     def __init__(self, space: ParameterSpace, num_steps: int, num_samples: int,
-                 std_dev: float = 0.02, num_continuous: int = 1) -> None:
+                 std_dev: float = 0.02, num_continuous: int = 4) -> None:
         """
         :param space: The parameter space spanning the search problem.
         :param num_steps: Maximum number of steps to follow from each start point.
@@ -74,8 +74,12 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
                     this_neighbours.append([parameter.domain[current_index + 1]])
                 neighbours.append(np.asarray(this_neighbours))
             elif isinstance(parameter, ContinuousParameter):
-                neighbours.append(
-                    np.random.normal(np.asscalar(features), self.std_dev, (self.num_continuous, 1)))
+                samples, param_range = [], parameter.max - parameter.min
+                while len(samples) < self.num_continuous:
+                    sample = np.random.normal(np.asscalar(features), self.std_dev * param_range, (1, 1))
+                    if parameter.min <= sample <= parameter.max:
+                        samples.append(sample)
+                neighbours.append(np.vstack(samples))
             else:
                 raise TypeError("{} not a supported parameter type."
                                  .format(type(parameter)))
