@@ -6,8 +6,8 @@ import numpy as np
 from scipy.linalg import lapack
 from typing import Tuple
 
-from emukit.core.acquisition import Acquisition
-from emukit.quadrature.methods import VanillaBayesianQuadrature
+from ...core.acquisition import Acquisition
+from ...quadrature.methods import VanillaBayesianQuadrature
 
 
 class SquaredCorrelation(Acquisition):

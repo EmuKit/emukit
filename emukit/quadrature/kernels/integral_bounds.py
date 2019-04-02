@@ -6,14 +6,14 @@ import numpy as np
 
 from typing import Tuple, List
 
-from emukit.core.continuous_parameter import ContinuousParameter
+from ...core.continuous_parameter import ContinuousParameter
 
 
 class IntegralBounds:
     """
     The integral bounds i.e., the edges of the domain of the integral
     """
-    def __init__(self, name: str, bounds: List):
+    def __init__(self, name: str, bounds: List[Tuple[float, float]]):
         """
         :param name: Name of parameter
         :param bounds: List of D tuples, where D is the dimensionality of the integral and the tuples contain the
@@ -21,19 +21,43 @@ class IntegralBounds:
         """
 
         self.name = name
-        self.bounds = bounds
         self.dim = len(bounds)
+        self._check_bound_validity(bounds)
+        self._bounds = bounds
+        self.lower_bounds, self.upper_bounds = self.get_lower_and_upper_bounds()
 
-        self._check_bound_validity()
+    @property
+    def bounds(self):
+        return self._bounds
 
-    def _check_bound_validity(self) -> None:
+    @bounds.setter
+    def bounds(self, new_bounds: List[Tuple[float, float]]) -> None:
+        """
+        Sets new integral bounds and checks their validity
+        :param new_bounds: List of D tuples, where D is the dimensionality of the integral and the tuples contain the
+        lower and upper bounds of the integral i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)]
+        """
+        if not len(new_bounds) == self.dim:
+            raise ValueError('Length of new integral bounds is ' + str(len(new_bounds)) + ' (length ' + str(self.dim)
+                             + ' expected).')
+
+        self._check_bound_validity(new_bounds)
+        self._bounds = new_bounds
+        self.lower_bounds, self.upper_bounds = self.get_lower_and_upper_bounds()
+
+    def _check_bound_validity(self, bounds: List[Tuple[float, float]]) -> None:
         """
         checks if lower bounds are smaller than upper bounds.
+        :param bounds: List of D tuples, where D is the dimensionality of the integral and the tuples contain the
+        lower and upper bounds of the integral i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)]
         """
-        for bounds_d in self.bounds:
+        if self.dim == 0:
+            raise ValueError("Length of bound list must be > 0; empty list found.")
+        for bounds_d in bounds:
             lb_d, ub_d = bounds_d
             if lb_d >= ub_d:
-                raise ValueError("Upper integral bound must be larger than lower bound")
+                raise ValueError("Upper integral bound must be larger than lower bound. Found a pair containing ("
+                                 + str(lb_d) + ", " + str(ub_d) + ").")
 
     def get_lower_and_upper_bounds(self) -> Tuple[np.ndarray, np.ndarray]:
         """
@@ -42,7 +66,7 @@ class IntegralBounds:
         """
         lower_bounds = np.zeros([self.dim, 1])
         upper_bounds = np.zeros([self.dim, 1])
-        for i, bounds_d in enumerate(self.bounds):
+        for i, bounds_d in enumerate(self._bounds):
             lb_d, ub_d = bounds_d
             lower_bounds[i] = lb_d
             upper_bounds[i] = ub_d
@@ -54,7 +78,7 @@ class IntegralBounds:
         :return: a list if ContinuousParameter objects (one for each dimension)
         """
         continuous_parameters = []
-        for i, bounds_d in enumerate(self.bounds):
+        for i, bounds_d in enumerate(self._bounds):
             lb_d, ub_d = bounds_d
             name_d = self.name + '_' + str(i)
             param = ContinuousParameter(name=name_d, min_value=lb_d, max_value=ub_d)
