@@ -14,12 +14,33 @@ _log = logging.getLogger(__name__)
 
 
 class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
-    """ Optimizes the acquisition function by greedily following one-exchange neighbours
-        of random initial points.
+    """ Optimizes the acquisition function by multiple local searches starting at random points.
+    Each local optimization iteratively evaluates the one-exchange neighbourhoods.
+    Can be used for discrete and continuous acquisition functions.
 
-    One-exchange neighbourhood is defined per parameter type:
+    This kind of optimization is also known as Variable Neighbourhood Search
+    (e.g. see https://en.wikipedia.org/wiki/Variable_neighborhood_search).
+    Neighbourhood definitions and default parameters are based on the search used
+    in SMAC [1].
+
+    .. warning:: The local search heuristic here currently differes to SMAC [1].
+                 The neighbourhood of a point is evaluated completely,
+                 the search continues at the best neighbour (best improvement heuristic).
+                 SMAC iteratively samples neighbours and continues at the first which
+                 is better than the current (first improvement heuristic).
+                 Therefore this implementation is time consuming for large neighbourhoods
+                 (e.g. parameters with hundreds of categories).
+
+    One-exchange neighbourhood is defined for the following parameter types:
       :Categorical parameter with one-hot encoding: All other categories
       :Categorical parameter with ordinal encoding: Only preceeding and following categories
+      :Continuous parameter: Gaussian samples (default: 4) around current value. Standard deviation (default: 0.2) is scaled by parameter value range.
+      :Discrete parameter: Preceeding and following discrete values.
+
+    .. [1] Hutter, Frank, Holger H. Hoos, and Kevin Leyton-Brown.
+           "Sequential model-based optimization for general algorithm configuration."
+           International Conference on Learning and Intelligent Optimization.
+           Springer, Berlin, Heidelberg, 2011.
     """
     def __init__(self, space: ParameterSpace, num_steps: int, num_samples: int,
                  std_dev: float = 0.02, num_continuous: int = 4) -> None:

@@ -13,7 +13,9 @@ _log = logging.getLogger(__name__)
 
 
 class GradientAcquisitionOptimizer(AcquisitionOptimizerBase):
-    """ Optimizes the acquisition function """
+    """ Optimizes the acquisition function using quasi-Newton methods.
+    Can be used for continuous acquisition functions.
+    """
     def __init__(self, space: ParameterSpace, **kwargs) -> None:
         self.space = space
         self.gpyopt_space = space.convert_to_gpyopt_design_space()

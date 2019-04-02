@@ -12,7 +12,9 @@ _log = logging.getLogger(__name__)
 
 
 class RandomSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
-    """ Optimizes the acquisition function by evaluating at random points."""
+    """ Optimizes the acquisition function by evaluating at random points.
+    Can be used for discrete and continuous acquisition functions.
+    """
     def __init__(self, space: ParameterSpace, num_samples: int) -> None:
         """
         :param space: The parameter space spanning the search problem.
