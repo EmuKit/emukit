@@ -162,7 +162,7 @@ class RBFGPy(IRBF):
         return np.zeros((input_dim, num_points))
 
 
-def convert_gpy_model_to_emukit_model(gpy_model, integral_bounds: List, integral_name: str = '') \
+def convert_gpy_model_to_emukit_model(gpy_model, integral_bounds: List[Tuple[float, float]], integral_name: str = '') \
         -> BaseGaussianProcessGPy:
     """
     Wraps a GPy model and returns an emukit quadrature model
