@@ -46,18 +46,15 @@ class RandomForest(IModel):
         Predict values for given points
 
         :param X: points to run prediction for
+        :return: Tuple of mean and variance which are 2d arrays of shape (n_points x n_outputs)
         """
-        mean = np.zeros([X.shape[0], 1])
-        var = np.zeros([X.shape[0], 1])
 
-        for i, x in enumerate(X):
-            preds = []
-            for estimator in self.rf.estimators_:
-                pred = estimator.predict(x.reshape(1, -1))
-                preds.append(pred[0])
-            mean[i] = np.array(preds).mean()
-            var[i] = np.array(preds).std()
-
+        preds = []
+        for estimator in self.rf.estimators_:
+            pred = estimator.predict(X)
+            preds.append(pred)
+        mean = np.array(preds).mean(axis=0)[:, None]
+        var = np.array(preds).var(axis=0)[:, None]
         return mean, var
 
     def set_data(self, X: np.ndarray, Y: np.ndarray) -> None:
