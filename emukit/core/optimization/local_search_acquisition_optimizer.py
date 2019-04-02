@@ -1,19 +1,12 @@
 import logging
-from typing import Sequence
-from typing import List
-from typing import Tuple
-from typing import Optional
+from typing import Sequence, List, Tuple, Optional
 
 import numpy as np
 from GPyOpt.optimization.acquisition_optimizer import ContextManager
 
-from .. import ContinuousParameter
-from .. import DiscreteParameter
-from .. import CategoricalParameter
-from .. import OneHotEncoding
-from .. import OrdinalEncoding
-from .. import Parameter
-from .. import ParameterSpace
+from .. import CategoricalParameter, ContinuousParameter, DiscreteParameter
+from .. import OneHotEncoding, OrdinalEncoding
+from .. import Parameter, ParameterSpace
 from ..acquisition import Acquisition
 from ..optimization.acquisition_optimizer import AcquisitionOptimizerBase
 
