@@ -54,7 +54,7 @@ class HighFidelityGp(IModel):
         raise NotImplementedError()
 
 
-class AutoRegressive1Model(IModel):
+class LinearAutoRegressiveModel(IModel):
     """
     Linear model, AR1 in paper. Optimized with noise fixed at 1e-6 until convergence then the noise parameter is freed
     and the model is optimized again
