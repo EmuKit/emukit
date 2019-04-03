@@ -8,13 +8,14 @@ import logging
 import GPy
 import numpy as np
 
-import emukit
 from ...core.interfaces import IModel
 from ...model_wrappers import GPyMultiOutputWrapper
 from ...multi_fidelity.convert_lists_to_array import convert_xy_lists_to_arrays
+from ...multi_fidelity.kernels import LinearMultiFidelityKernel
 from ...multi_fidelity.models import GPyLinearMultiFidelityModel
 from ...multi_fidelity.models.non_linear_multi_fidelity_model import (
     NonLinearMultiFidelityModel, make_non_linear_kernels)
+
 _log = logging.getLogger(__name__)
 
 
@@ -69,7 +70,7 @@ class LinearAutoRegressiveModel(IModel):
         x_train, y_train = convert_xy_lists_to_arrays(X, Y)
         n_dims = X[0].shape[1]
         kernels = [GPy.kern.RBF(n_dims, ARD=True) for _ in range(len(X))]
-        lin_mf_kernel = emukit.multi_fidelity.kernels.LinearMultiFidelityKernel(kernels)
+        lin_mf_kernel = LinearMultiFidelityKernel(kernels)
         gpy_lin_mf_model = GPyLinearMultiFidelityModel(x_train, y_train, lin_mf_kernel, n_fidelities=len(X))
         gpy_lin_mf_model.mixed_noise.Gaussian_noise.fix(1e-6)
         gpy_lin_mf_model.mixed_noise.Gaussian_noise_1.fix(1e-6)
