@@ -42,19 +42,19 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
            International Conference on Learning and Intelligent Optimization.
            Springer, Berlin, Heidelberg, 2011.
     """
-    def __init__(self, space: ParameterSpace, num_steps: int, num_samples: int,
+    def __init__(self, space: ParameterSpace, num_steps: int, num_init_points: int,
                  std_dev: float = 0.02, num_continuous: int = 4) -> None:
         """
         :param space: The parameter space spanning the search problem.
         :param num_steps: Maximum number of steps to follow from each start point.
-        :param num_samples: Number of initial sampled points where the local search starts.
+        :param num_init_points: Number of initial sampled points where the local search starts.
         :param std_dev: Neighbourhood sampling standard deviation of continuous parameters.
         :param num_continuous: Number of sampled neighbourhoods per continuous parameter.
         """
         self.space = space
         self.gpyopt_space = space.convert_to_gpyopt_design_space()
         self.num_steps = num_steps
-        self.num_samples = num_samples
+        self.num_init_points = num_init_points
         self.std_dev = std_dev
         self.num_continuous = num_continuous
 
@@ -176,12 +176,12 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
             context_manager = None
             noncontext_space = self.space
 
-        X_init = noncontext_space.sample_uniform(self.num_samples)
+        X_init = noncontext_space.sample_uniform(self.num_init_points)
         X_max = np.empty_like(X_init)
-        acq_max = np.empty((self.num_samples,))
+        acq_max = np.empty((self.num_init_points,))
         _log.info("Starting local optimization of acquisition function {}"
                   .format(type(acquisition)))
-        for sample in range(self.num_samples):  # this loop could be parallelized
+        for sample in range(self.num_init_points):  # this loop could be parallelized
             X_max[sample], acq_max[sample] = self._one_local_search(
                 acquisition, X_init[sample], noncontext_space, context_manager)
         max_sample = np.argmax(acq_max)

@@ -15,14 +15,14 @@ class RandomSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
     """ Optimizes the acquisition function by evaluating at random points.
     Can be used for discrete and continuous acquisition functions.
     """
-    def __init__(self, space: ParameterSpace, num_samples: int) -> None:
+    def __init__(self, space: ParameterSpace, num_eval_points: int) -> None:
         """
         :param space: The parameter space spanning the search problem.
-        :param num_samples: Number of random sampled points which are evaluated per optimization.
+        :param num_eval_points: Number of random sampled points which are evaluated per optimization.
         """
         self.space = space
         self.gpyopt_space = space.convert_to_gpyopt_design_space()
-        self.num_samples = num_samples
+        self.num_eval_points = num_eval_points
 
     def optimize(self, acquisition: Acquisition, context: dict = None) -> Tuple[np.ndarray, np.ndarray]:
         """
@@ -42,7 +42,7 @@ class RandomSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
 
         _log.info("Starting random search optimization of acquisition function {}"
                   .format(type(acquisition)))
-        samples = noncontext_space.sample_uniform(self.num_samples)
+        samples = noncontext_space.sample_uniform(self.num_eval_points)
         if context_manager is not None:
             samples = context_manager._expand_vector(samples)
         acquisition_values = acquisition.evaluate(samples)
