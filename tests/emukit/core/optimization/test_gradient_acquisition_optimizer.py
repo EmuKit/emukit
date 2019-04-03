@@ -13,6 +13,8 @@ def test_gradient_acquisition_optimizer(simple_square_acquisition):
         GradientAcquisitionOptimizer(space, optimizer='CMA')
     optimizer = GradientAcquisitionOptimizer(space)
 
+    with pytest.raises(ValueError):
+        optimizer.optimize(simple_square_acquisition, {'y': 3})
     opt_x, opt_val = optimizer.optimize(simple_square_acquisition)
     assert_array_equal(opt_x, np.array([[0.]]))
     assert_array_equal(opt_val, np.array([[1.]]))

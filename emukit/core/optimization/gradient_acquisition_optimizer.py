@@ -1,4 +1,4 @@
-from typing import Tuple
+from typing import Dict, Optional, Tuple
 
 import GPyOpt
 import numpy as np
@@ -43,13 +43,12 @@ class GradientAcquisitionOptimizer(AcquisitionOptimizerBase):
         # Take negative of acquisition function because they are to be maximised and the optimizers minimise
         f = lambda x: -acquisition.evaluate(x)
 
+        self._validate_context_parameters(context)
         self.gpyopt_acquisition_optimizer.context_manager = GPyOpt.optimization.acquisition_optimizer.ContextManager(
             self.gpyopt_space, context)
 
         # Context validation
         if context is not None:
-            self._validate_context_parameters(context)
-
             # Return without optimizing if no parameter left to optimize
             are_all_parameters_fixed = len(context.keys()) == len(self.space.parameter_names)
             if are_all_parameters_fixed:
@@ -78,7 +77,9 @@ class GradientAcquisitionOptimizer(AcquisitionOptimizerBase):
 
         return rounded_x, acquisition_max
 
-    def _validate_context_parameters(self, context):
+    def _validate_context_parameters(self, context: Optional[Dict[str, any]]):
+        if context is None:
+            return
         for context_name, context_value in context.items():
             # Check parameter exists in space
             if context_name not in self.space.parameter_names:
