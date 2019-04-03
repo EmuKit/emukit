@@ -10,7 +10,7 @@ from emukit.model_wrappers import GPyModelWrapper
 from emukit.core.acquisition import Acquisition
 from emukit.core.interfaces import IModel
 from emukit.core.loop.loop_state import create_loop_state
-from emukit.core.optimization import AcquisitionOptimizer
+from emukit.core.optimization import GradientAcquisitionOptimizer
 from emukit.core.loop.candidate_point_calculators import GreedyBatchPointCalculator
 from emukit.experimental_design.model_based.experimental_design_loop import ExperimentalDesignLoop
 
@@ -68,7 +68,7 @@ def test_batch_experimental_design_loop():
 def test_batch_point_calculator(mock_model):
 
     acquisition = mock.create_autospec(Acquisition)
-    acquisition_optimizer = mock.create_autospec(AcquisitionOptimizer)
+    acquisition_optimizer = mock.create_autospec(GradientAcquisitionOptimizer)
     acquisition_optimizer.optimize.return_value = (np.zeros((1, 1)), 0)
     batch_size = 10
 

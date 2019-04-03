@@ -8,7 +8,8 @@ from ...core.acquisition import Acquisition
 from ...core.interfaces import IDifferentiable, IModel
 from ...core.loop import FixedIntervalUpdater, OuterLoop, SequentialPointCalculator
 from ...core.loop.loop_state import create_loop_state, LoopState
-from ...core.optimization import AcquisitionOptimizer
+from ...core.optimization import AcquisitionOptimizerBase
+from ...core.optimization import GradientAcquisitionOptimizer
 from ...core.parameter_space import ParameterSpace
 from ..acquisitions import ExpectedImprovement
 from ..acquisitions.log_acquisition import LogAcquisition
@@ -17,7 +18,7 @@ from ..local_penalization_calculator import LocalPenalizationPointCalculator
 
 class BayesianOptimizationLoop(OuterLoop):
     def __init__(self, space: ParameterSpace, model: IModel, acquisition: Acquisition = None, update_interval: int = 1,
-                 batch_size: int = 1):
+                 batch_size: int = 1, acquisition_optimizer: AcquisitionOptimizerBase = None):
 
         """
         Emukit class that implement a loop for building modular Bayesian optimization
@@ -28,6 +29,10 @@ class BayesianOptimizationLoop(OuterLoop):
                             size is greater than one, this acquisition must output positive values only.
         :param update_interval: Number of iterations between optimization of model hyper-parameters. Defaults to 1.
         :param batch_size: How many points to evaluate in one iteration of the optimization loop. Defaults to 1.
+        :param acquisition_optimizer: Optimizer selecting next evaluation points
+                                      by maximizing acquisition.
+                                      Gradient based optimizer is used if None.
+                                      Defaults to None.
         """
 
         self.model = model
@@ -37,7 +42,8 @@ class BayesianOptimizationLoop(OuterLoop):
 
         model_updaters = FixedIntervalUpdater(model, update_interval)
 
-        acquisition_optimizer = AcquisitionOptimizer(space)
+        if acquisition_optimizer is None:
+            acquisition_optimizer = GradientAcquisitionOptimizer(space)
         if batch_size == 1:
             candidate_point_calculator = SequentialPointCalculator(acquisition, acquisition_optimizer)
         else:

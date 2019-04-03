@@ -7,7 +7,6 @@ from typing import Tuple, Callable
 
 from ...core import ParameterSpace
 from ...core.loop import UserFunctionWrapper
-from ...experimental_design.model_free.random_design import RandomDesign
 from ...core.interfaces.models import IModel
 
 
@@ -25,7 +24,6 @@ class ModelFreeMonteCarloSensitivity(object):
         """
         self.objective = UserFunctionWrapper(objective)
         self.input_domain = input_domain
-        self.random_design = RandomDesign(self.input_domain)
 
     def _generate_samples(self, num_monte_carlo_points: int=int(1e5)) -> None:
         """
@@ -33,8 +31,8 @@ class ModelFreeMonteCarloSensitivity(object):
 
         :param num_monte_carlo_points: number of samples to generate
         """
-        self.main_sample = self.random_design.get_samples(num_monte_carlo_points)
-        self.fixing_sample = self.random_design.get_samples(num_monte_carlo_points)
+        self.main_sample = self.input_domain.sample_uniform(num_monte_carlo_points)
+        self.fixing_sample = self.input_domain.sample_uniform(num_monte_carlo_points)
 
     def saltelli_estimators(self,
                             f_main_sample: np.ndarray, f_fixing_sample: np.ndarray,
