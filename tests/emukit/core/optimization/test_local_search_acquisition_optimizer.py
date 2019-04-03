@@ -1,14 +1,13 @@
+import pytest
 import numpy as np
 from numpy.testing import assert_equal
 from numpy.testing import assert_almost_equal
 
-from emukit.core import CategoricalParameter
-from emukit.core import ContinuousParameter
-from emukit.core import DiscreteParameter
-from emukit.core import InformationSourceParameter
-from emukit.core import OneHotEncoding
-from emukit.core import OrdinalEncoding
-from emukit.core import ParameterSpace
+from emukit.core import CategoricalParameter, ContinuousParameter
+from emukit.core import DiscreteParameter, InformationSourceParameter
+from emukit.core import OneHotEncoding, OrdinalEncoding
+from emukit.core import ParameterSpace, Parameter
+from emukit.core.encodings import Encoding
 from emukit.core.optimization import LocalSearchAcquisitionOptimizer
 
 
@@ -20,6 +19,22 @@ def test_local_search_acquisition_optimizer(simple_square_acquisition):
     # ordinal encoding is as integers 1, 2, ...
     np.testing.assert_array_equal(opt_x, np.array([[1.]]))
     np.testing.assert_array_equal(opt_val, np.array([[0.]]))
+
+    class UnknownParameter(Parameter):
+        def __init__(self, name: str):
+            self.name = name
+    space.parameters.append(UnknownParameter('y'))
+    with pytest.raises(TypeError):
+        optimizer.optimize(simple_square_acquisition)
+    space.parameters.pop()
+
+    class UnknownEncoding(Encoding):
+        def __init__(self):
+            super().__init__([1], [[1]])
+    space.parameters.append(CategoricalParameter('y', UnknownEncoding()))
+    with pytest.raises(TypeError):
+        optimizer.optimize(simple_square_acquisition)
+    space.parameters.pop()
 
 
 def test_local_search_acquisition_optimizer_with_context(simple_square_acquisition):
