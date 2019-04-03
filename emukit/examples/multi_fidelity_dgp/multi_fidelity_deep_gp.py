@@ -9,9 +9,23 @@ This file requires the following packages:
 - gpflow
 - doubly_stochastic_dgp https://github.com/ICL-SML/Doubly-Stochastic-DGP/tree/master/doubly_stochastic_dgp
 """
+import logging
 from typing import List, Tuple
 
 import numpy as np
+from gpflow import ParamList, autoflow, params_as_tensors, settings
+from gpflow.actions import Action, Loop
+from gpflow.kernels import RBF, Linear, White
+from gpflow.likelihoods import Gaussian
+from gpflow.mean_functions import Zero
+from gpflow.models.model import Model
+from gpflow.params import DataHolder, Minibatch
+from gpflow.training import AdamOptimizer
+
+from doubly_stochastic_dgp.utils import BroadcastingLikelihood
+
+from ...core.interfaces import IModel
+from ...multi_fidelity.convert_lists_to_array import convert_x_list_to_array, convert_y_list_to_array
 
 # Import packages that are not required by emukit and throw warning if they are not installed
 try:
@@ -30,20 +44,9 @@ try:
 except ImportError:
     raise ImportError('gpflow is not installed. Please run pip install gpflow==1.1.1')
 
-from doubly_stochastic_dgp.utils import BroadcastingLikelihood
-from gpflow import ParamList, autoflow, params_as_tensors, settings
-from gpflow.actions import Action, Loop
-from gpflow.kernels import RBF, Linear, White
-from gpflow.likelihoods import Gaussian
-from gpflow.mean_functions import Zero
-from gpflow.models.model import Model
-from gpflow.params import DataHolder, Minibatch
-from gpflow.training import AdamOptimizer
-
-from ..convert_lists_to_array import convert_x_list_to_array, convert_y_list_to_array
-from ...core.interfaces import IModel
 
 float_type = settings.float_type
+_log = logging.getLogger(__name__)
 
 
 def init_layers_mf(Y, Z, kernels, num_outputs=None, Layer=SVGP_Layer):
@@ -81,7 +84,7 @@ class DGP_Base(Model):
         :param Y: List of training targets where each element of the list is a numpy array corresponding to the inputs of one fidelity.
         :param likelihood: gpflow likelihood object for use at the final layer
         :param layers: List of doubly_stochastic_dgp.layers.Layer objects
-        :param minibatch_size: Minibatch size if using minibatch training
+        :param minibatch_size: Minibatch size if using minibatch trainingz
         :param num_samples: Number of samples when propagating predictions through layers
         :param kwargs: kwarg inputs to gpflow.models.Model
         """
@@ -318,10 +321,10 @@ class DGP_Base(Model):
 
         num_data = 0
         for i in range(len(X)):
-            print('\nData at Fidelity ', (i + 1))
-            print('X - ', X[i].shape)
-            print('Y - ', Y[i].shape)
-            print('Z - ', Z[i].shape)
+            _log.info('\nData at Fidelity {}'.format(i + 1))
+            _log.info('X - {}'.format(X[i].shape))
+            _log.info('Y - {}'.format(Y[i].shape))
+            _log.info('Z - {}'.format(Z[i].shape))
             num_data += X[i].shape[0]
 
         layers = init_layers_mf(Y, Z, kernels, num_outputs=Dout)
@@ -380,9 +383,8 @@ class PrintAction(Action):
     def run(self, ctx):
         if ctx.iteration % 2000 == 0:
             objective = ctx.session.run(self.model.objective)
-
-            print('ELBO {:.4f};  KL {:.4f}'.format(ctx.session.run(self.model.L), ctx.session.run(self.model.KL)))
-            print('{}: iteration {} objective {:.4f}'.format(self.text, ctx.iteration, objective))
+            _log.info('ELBO {:.4f};  KL {:.4f}'.format(ctx.session.run(self.model.L), ctx.session.run(self.model.KL)))
+            _log.info('{}: iteration {} objective {:.4f}'.format(self.text, ctx.iteration, objective))
 
 
 class MultiFidelityDeepGP(IModel):
@@ -433,7 +435,7 @@ class MultiFidelityDeepGP(IModel):
         """
 
         if self.multi_step_training:
-            print('\n--- Optimization: ', self.name, ' ---\n')
+            _log.info('\n--- Optimization: {} ---\n'.format(self.name))
             self.model.layers[0].q_mu = self._Y[0]
             for i, layer in enumerate(self.model.layers[1:-1]):
                 layer.q_mu = self._Y[i][::2]

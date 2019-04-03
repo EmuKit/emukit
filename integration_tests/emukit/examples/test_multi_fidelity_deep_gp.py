@@ -1,6 +1,6 @@
 import numpy as np
 
-from emukit.multi_fidelity.models import MultiFidelityDeepGP
+from emukit.examples.multi_fidelity_dgp.multi_fidelity_deep_gp import MultiFidelityDeepGP
 
 
 def test():

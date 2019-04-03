@@ -3,20 +3,22 @@ These are emukit model wrappers that contain the specific optimization procedure
 
 The constructor for each model takes X and Y as lists, with each entry of the list corresponding to the
 """
+import logging
 
 import GPy
 import numpy as np
 
 import emukit
-from emukit.core.interfaces import IModel
-from emukit.model_wrappers import GPyMultiOutputWrapper, GPyModelWrapper
-from emukit.multi_fidelity.convert_lists_to_array import convert_xy_lists_to_arrays
-from emukit.multi_fidelity.models import GPyLinearMultiFidelityModel
-from emukit.multi_fidelity.models.non_linear_multi_fidelity_model import (
+from ...core.interfaces import IModel
+from ...model_wrappers import GPyMultiOutputWrapper
+from ...multi_fidelity.convert_lists_to_array import convert_xy_lists_to_arrays
+from ...multi_fidelity.models import GPyLinearMultiFidelityModel
+from ...multi_fidelity.models.non_linear_multi_fidelity_model import (
     NonLinearMultiFidelityModel, make_non_linear_kernels)
+_log = logging.getLogger(__name__)
 
 
-class HfGpOnly(IModel):
+class HighFidelityGp(IModel):
     """
     GP at high fidelity only
     """
@@ -28,7 +30,7 @@ class HfGpOnly(IModel):
         self.name = 'hf_gp'
 
     def optimize(self):
-        print('\n--- Optimization: ',self.name,' ---\n')
+        _log.info('\n--- Optimization: ---\n'.format(self.name))
         self.model.optimize_restarts(10, robust=True)
 
     def predict(self, X):
@@ -46,9 +48,10 @@ class HfGpOnly(IModel):
         raise NotImplementedError()
 
 
-class Ar1Model(IModel):
+class AutoRegressive1Model(IModel):
     """
-    Linear model. Optimized with noise fixed at 1e-6 then this is freed and optimization continues
+    Linear model, AR1 in paper. Optimized with noise fixed at 1e-6 until convergence then the noise parameter is freed
+    and the model is optimized again
     """
     def __init__(self, X, Y, n_restarts=10):
         """
@@ -75,7 +78,7 @@ class Ar1Model(IModel):
         return self.model.predict(X)
 
     def optimize(self):
-        print('\n--- Optimization: ',self.name,' ---\n')
+        _log.info('\n--- Optimization: ---\n'.format(self.name))
         self.model.optimize()
         self.model.gpy_model.mixed_noise.Gaussian_noise.unfix()
         self.model.gpy_model.mixed_noise.Gaussian_noise_1.unfix()
@@ -95,14 +98,14 @@ class Ar1Model(IModel):
         raise NotImplementedError()
 
 
-class Nargp(IModel):
+class NonLinearAutoRegressiveModel(IModel):
     """
-    Non-linear model.
+    Non-linear model, NARGP in paper
     """
     def __init__(self, X, Y, n_restarts=10):
         x_train, y_train = convert_xy_lists_to_arrays(X, Y)
         base_kernel = GPy.kern.RBF
-        kernels = make_non_linear_kernels(base_kernel, len(X), x_train.shape[1] - 1)#, ARD=True)
+        kernels = make_non_linear_kernels(base_kernel, len(X), x_train.shape[1] - 1, ARD=True)
         self.model = NonLinearMultiFidelityModel(x_train, y_train, n_fidelities=len(X), kernels=kernels,
                                                  verbose=True, optimization_restarts=n_restarts)
         self.name = 'nargp'
@@ -111,7 +114,7 @@ class Nargp(IModel):
         return self.model.predict(X)
 
     def optimize(self):
-        print('\n--- Optimization: ',self.name,' ---\n')
+        _log.info('\n--- Optimization: ---\n'.format(self.name))
         self.model.optimize()
 
     def set_data(self, X: np.ndarray, Y: np.ndarray) -> None:
