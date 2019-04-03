@@ -162,7 +162,7 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
 
     def optimize(self, acquisition: Acquisition, context: dict = None) -> Tuple[np.ndarray, np.ndarray]:
         """
-        Optimizes the acquisition function, taking into account gradients if it supports them
+        Optimizes the acquisition function.
         :param acquisition: The acquisition function to be optimized
         :param context: Optimization context.
                         Determines whether any variable values should be fixed during the optimization
