@@ -204,12 +204,11 @@ class DGP_Base(Model):
             var_exp = self.likelihood.variational_expectations(Fmean, Fvar, Y_f)  # S, N, D
         else:
             """
-            KC - The Gaussian likelihood of the observations at the intermediate layers is computed using the noise parameter pertaining to
-            the White noise kernel.
+            KC - The Gaussian likelihood of the observations at the intermediate layers is computed using the noise 
+            parameter pertaining to the White noise kernel.
 
             This assumes that a White kernel should be added to all layers except for the last!
-            If no noise is desired, the variance parameter in the White kernel should be set to 
-            zero and fixed.
+            If no noise is desired, the variance parameter in the White kernel should be set to zero and fixed.
             """
             variance = self.layers[fidelity].kern.kernels[-1].variance
 
@@ -280,8 +279,7 @@ class DGP_Base(Model):
     @classmethod
     def make_mf_dgp(cls, X, Y, Z, add_linear=True, minibatch_size=None):
         """
-        Constructor for convenience. Constructs a mf-dgp model from training data and inducing point locations assuming
-        that
+        Constructor for convenience. Constructs a mf-dgp model from training data and inducing point locations
 
         :param X: List of target
         :param Y:

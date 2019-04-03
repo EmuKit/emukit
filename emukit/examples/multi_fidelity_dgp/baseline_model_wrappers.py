@@ -1,7 +1,7 @@
 """
 These are emukit model wrappers that contain the specific optimization procedures we found worked well for each model.
 
-The constructor for each model takes X and Y as lists, with each entry of the list corresponding to the
+The constructor for each model takes X and Y as lists, with each entry of the list corresponding to data for a fidelity
 """
 import logging
 
@@ -20,7 +20,10 @@ _log = logging.getLogger(__name__)
 
 class HighFidelityGp(IModel):
     """
-    GP at high fidelity only
+    GP at high fidelity only.
+
+    The optimization is restarted from random initial points 10 times.
+    The noise parameter is initialized at 1e-6 for the first optimization round.
     """
 
     def __init__(self, X, Y):
@@ -34,6 +37,9 @@ class HighFidelityGp(IModel):
         self.model.optimize_restarts(10, robust=True)
 
     def predict(self, X):
+        """
+        Predict from high fidelity
+        """
         return self.model.predict(X[:, :-1])
 
     def set_data(self, X: np.ndarray, Y: np.ndarray) -> None:
@@ -75,6 +81,9 @@ class AutoRegressive1Model(IModel):
         self.n_fidelities = len(X)
 
     def predict(self, X):
+        """
+        Predict from high fidelity
+        """
         return self.model.predict(X)
 
     def optimize(self):
@@ -111,6 +120,9 @@ class NonLinearAutoRegressiveModel(IModel):
         self.name = 'nargp'
 
     def predict(self, X):
+        """
+        Predict from high fidelity
+        """
         return self.model.predict(X)
 
     def optimize(self):
