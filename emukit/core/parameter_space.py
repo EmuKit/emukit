@@ -118,8 +118,9 @@ class ParameterSpace(object):
                                     'dimensionality': 1}
                     gpyopt_parameters.append(gpyopt_param)
             else:
-                raise NotImplementedError("Only continuous, discrete and categorical parameters are supported"
-                                          ", received " + type(parameter))
+                raise NotImplementedError(
+                    "Only continuous, discrete and categorical parameters are supported"
+                    ", received {}".format(type(parameter)))
 
         return GPyOpt.core.task.space.Design_space(gpyopt_parameters)
 
