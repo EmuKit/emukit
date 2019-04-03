@@ -13,12 +13,21 @@ _log = logging.getLogger(__name__)
 
 
 class GradientAcquisitionOptimizer(AcquisitionOptimizerBase):
-    """ Optimizes the acquisition function using quasi-Newton methods.
+    """ Optimizes the acquisition function using a quasi-Newton method (L-BFGS).
     Can be used for continuous acquisition functions.
     """
     def __init__(self, space: ParameterSpace, **kwargs) -> None:
+        """
+        :param space: The parameter space spanning the search problem.
+        :param kwargs: Additional keyword arguments supported
+                       by GPyOpt.optimization.AcquisitionOptimizer.
+                       Note: only the 'lbfgs' optimizer is allowed.
+        """
         self.space = space
         self.gpyopt_space = space.convert_to_gpyopt_design_space()
+        if 'optimizer' in kwargs and kwargs['optimizer'] != 'lbfgs':
+            raise ValueError("GradientAcquisitionOptimizer only supports"
+                             "GPyOpt\'s lbfgs optimizer, got {}".format(kwargs['optimizer']))
         self.gpyopt_acquisition_optimizer = GPyOpt.optimization.AcquisitionOptimizer(self.gpyopt_space, **kwargs)
 
     def optimize(self, acquisition: Acquisition, context: dict = None) -> Tuple[np.ndarray, np.ndarray]:
