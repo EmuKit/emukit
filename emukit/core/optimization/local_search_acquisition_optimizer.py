@@ -2,13 +2,13 @@ import logging
 from typing import Sequence, List, Tuple, Optional
 
 import numpy as np
-from GPyOpt.optimization.acquisition_optimizer import ContextManager
 
+from .acquisition_optimizer import AcquisitionOptimizerBase
+from .context_manager import ContextManager
 from .. import CategoricalParameter, ContinuousParameter, DiscreteParameter
 from .. import OneHotEncoding, OrdinalEncoding
 from .. import Parameter, ParameterSpace
 from ..acquisition import Acquisition
-from ..optimization.acquisition_optimizer import AcquisitionOptimizerBase
 
 _log = logging.getLogger(__name__)
 
@@ -128,7 +128,6 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         return neighbours
 
     def _one_local_search(self, acquisition: Acquisition, x: np.ndarray,
-                          noncontext_space: ParameterSpace,
                           context_manager: Optional[ContextManager] = None):
         """ Local maximum search on acquisition starting at a single point.
 
@@ -140,11 +139,8 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         _log.debug("Start local search with acquisition={:.4f} at {}"
                    .format(incumbent_value, str(x)))
         for step in range(self.num_steps):
-            neighbours = self._neighbours(x, noncontext_space.parameters)
-            if context_manager is not None:
-                neighbours_with_context = context_manager._expand_vector(neighbours)
-            else:
-                neighbours_with_context = neighbours
+            neighbours = self._neighbours(x, context_manager.contextfree_space.parameters)
+            neighbours_with_context = context_manager.expand_vector(neighbours)
             acquisition_values = acquisition.evaluate(neighbours_with_context)
             max_index = np.argmax(acquisition_values)
             max_neighbour = neighbours[max_index]
@@ -160,35 +156,22 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
                    .format(incumbent_value, str(x)))
         return x, incumbent_value
 
-    def optimize(self, acquisition: Acquisition, context: dict = None) -> Tuple[np.ndarray, np.ndarray]:
+    def _optimize(self, acquisition: Acquisition, context_manager: ContextManager)\
+        -> Tuple[np.ndarray, np.ndarray]:
         """
-        Optimizes the acquisition function.
-        :param acquisition: The acquisition function to be optimized
-        :param context: Optimization context.
-                        Determines whether any variable values should be fixed during the optimization
-        :return: Tuple of (location of maximum, acquisition value at maximizer)
-        """
-        if context is not None:
-            context_manager = ContextManager(self.gpyopt_space, context)
-            noncontext_space = ParameterSpace(
-                [param for param in self.space.parameters if param.name in context])
-        else:
-            context_manager = None
-            noncontext_space = self.space
+        Implementation of abstract method.
 
-        X_init = noncontext_space.sample_uniform(self.num_init_points)
+        See AcquisitionOptimizerBase._optimizer for parameter descriptions.
+        See class docstring for implementation details.
+        """
+        X_init = context_manager.contextfree_space.sample_uniform(self.num_init_points)
         X_max = np.empty_like(X_init)
-        acq_max = np.empty((self.num_init_points,))
+        acq_max = np.empty((self.num_init_points, 1))
         _log.info("Starting local optimization of acquisition function {}"
                   .format(type(acquisition)))
         for sample in range(self.num_init_points):  # this loop could be parallelized
             X_max[sample], acq_max[sample] = self._one_local_search(
-                acquisition, X_init[sample], noncontext_space, context_manager)
-        max_sample = np.argmax(acq_max)
-        if context_manager is not None:
-            X_max_with_context = context_manager._expand_vector(X_max)
-        else:
-            X_max_with_context = X_max
-        rounded_max_sample = self.space.round(X_max_with_context[[max_sample]])
-        rounded_max_value = acquisition.evaluate(rounded_max_sample)
-        return rounded_max_sample, rounded_max_value
+                acquisition, X_init[sample], context_manager)
+        max_index = np.argmax(acq_max)
+        X_max_with_context = context_manager.expand_vector(X_max)
+        return X_max_with_context[[max_index]], acq_max[[max_index]]

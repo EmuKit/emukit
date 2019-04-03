@@ -2,13 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import Tuple
+from typing import Tuple, Optional
 
 import numpy as np
 
 from .. import InformationSourceParameter, ParameterSpace
 from ..acquisition import Acquisition
 from .acquisition_optimizer import AcquisitionOptimizerBase
+from .context_manager import ContextManager, Context
 
 
 class MultiSourceAcquisitionOptimizer(AcquisitionOptimizerBase):
@@ -36,7 +37,17 @@ class MultiSourceAcquisitionOptimizer(AcquisitionOptimizerBase):
             raise ValueError('No source parameter found')
         return source_parameter[0]
 
-    def optimize(self, acquisition: Acquisition, context: dict=None) -> Tuple[np.ndarray, np.ndarray]:
+    def _optimize(self, acquisition: Acquisition, context_manager: ContextManager)\
+        -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Implementation of abstract method. Does nothing, optimize overwritten instead.
+
+        See AcquisitionOptimizerBase._optimizer for parameter descriptions.
+        See class docstring for implementation details.
+        """
+        pass
+
+    def optimize(self, acquisition: Acquisition, context: Optional[Context] = None) -> Tuple[np.ndarray, np.ndarray]:
         """
         Computes the location and source of the next point to evaluate by finding the maximum input location at each
         information source, then picking the information source where the value of the acquisition at the optimum input
