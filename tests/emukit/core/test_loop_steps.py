@@ -6,7 +6,7 @@ from emukit.core.acquisition import Acquisition
 from emukit.core.interfaces import IModel
 from emukit.core.loop import (FixedIntervalUpdater, FixedIterationsStoppingCondition, LoopState, SequentialPointCalculator,
                               UserFunctionWrapper)
-from emukit.core.optimization import AcquisitionOptimizer
+from emukit.core.optimization import GradientAcquisitionOptimizer
 
 
 def test_fixed_iteration_stopping_condition():
@@ -73,7 +73,7 @@ def test_every_iteration_model_updater_with_cost():
 def test_sequential_evaluator():
     # SequentialPointCalculator should just return result of the acquisition optimizer
     mock_acquisition = mock.create_autospec(Acquisition)
-    mock_acquisition_optimizer = mock.create_autospec(AcquisitionOptimizer)
+    mock_acquisition_optimizer = mock.create_autospec(GradientAcquisitionOptimizer)
     mock_acquisition_optimizer.optimize.return_value = (np.array([[0.]]), None)
     loop_state_mock = mock.create_autospec(LoopState)
     seq = SequentialPointCalculator(mock_acquisition, mock_acquisition_optimizer)
@@ -90,7 +90,7 @@ def test_sequential_with_context():
     mock_acquisition.has_gradients = False
     mock_acquisition.evaluate = lambda x: np.sum(x**2, axis=1)[:, None]
     space = ParameterSpace([ContinuousParameter('x', 0, 1), ContinuousParameter('y', 0, 1)])
-    acquisition_optimizer = AcquisitionOptimizer(space)
+    acquisition_optimizer = GradientAcquisitionOptimizer(space)
 
     loop_state_mock = mock.create_autospec(LoopState)
     seq = SequentialPointCalculator(mock_acquisition, acquisition_optimizer)
@@ -107,7 +107,7 @@ def test_sequential_with_all_parameters_fixed():
     mock_acquisition.has_gradients = False
     mock_acquisition.evaluate = lambda x: np.sum(x**2, axis=1)[:, None]
     space = ParameterSpace([ContinuousParameter('x', 0, 1), ContinuousParameter('y', 0, 1)])
-    acquisition_optimizer = AcquisitionOptimizer(space)
+    acquisition_optimizer = GradientAcquisitionOptimizer(space)
 
     loop_state_mock = mock.create_autospec(LoopState)
     seq = SequentialPointCalculator(mock_acquisition, acquisition_optimizer)

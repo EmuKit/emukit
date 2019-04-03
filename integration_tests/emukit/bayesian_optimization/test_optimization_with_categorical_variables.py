@@ -5,7 +5,6 @@ from emukit.core import ParameterSpace, ContinuousParameter, CategoricalParamete
 
 from emukit.bayesian_optimization.acquisitions import ExpectedImprovement
 from emukit.bayesian_optimization.loops import BayesianOptimizationLoop
-from emukit.experimental_design import RandomDesign
 from emukit.model_wrappers import GPyModelWrapper
 
 
@@ -22,8 +21,7 @@ def test_categorical_variables():
         CategoricalParameter('categorical_param', encoding)
     ])
 
-    random_design = RandomDesign(parameter_space)
-    x_init = random_design.get_samples(10)
+    x_init = parameter_space.sample_uniform(10)
 
     assert x_init.shape == (10, 4)
     assert np.all(np.logical_or(x_init[:, 1:3] == 0.0, x_init[:, 1:3] == 1.0))
