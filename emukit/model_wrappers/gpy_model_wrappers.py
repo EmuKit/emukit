@@ -7,7 +7,7 @@ from typing import Tuple
 import numpy as np
 import GPy
 
-from ..core.interfaces import IModel, IDifferentiable, IMCMC
+from ..core.interfaces import IModel, IDifferentiable, IPriorHyperparameters
 from ..experimental_design.interfaces import ICalculateVarianceReduction
 from ..bayesian_optimization.interfaces import IEntropySearchModel
 
@@ -211,7 +211,7 @@ class GPyMultiOutputWrapper(IModel, IDifferentiable, ICalculateVarianceReduction
         return self.gpy_model.posterior_covariance_between_points(X1, X2)
 
 
-class GPyModelWrapperMCMC(IModel, IDifferentiable, IMCMC):
+class GPyModelWrapperMCMC(IModel, IDifferentiable, IPriorHyperparameters):
     """
     This is a thin wrapper around GPy models that uses Hybrid Monte Carlo inference. It allows users to plug
     GPy models into Emukit.
@@ -232,10 +232,19 @@ class GPyModelWrapperMCMC(IModel, IDifferentiable, IMCMC):
         Generates the samples from the hyperparameters
         """
 
+        # Some default values to guarantee to convergence of the HMC sampler
+        n_burnin = 100
+        subsample_interval  = 10
+        step_size = 1e-1
+        leapfrog_steps = 20
+
         self.model.optimize(max_iters=self.n_restarts)
-        self.hmc = GPy.inference.mcmc.HMC(self.model)
-        samples = self.hmc.sample(num_samples=self.n_samples)
-        return samples
+        self.model.param_array[:] = self.model.param_array * (1.+np.random.randn(self.model.param_array.size)*0.01)
+        hmc = GPy.inference.mcmc.HMC(self.model, stepsize = step_size)
+        samples = hmc.sample(num_samples = n_burnin + self.n_samples * subsample_interval, hmc_iters = leapfrog_steps)
+        hmc_samples = samples[n_burnin::subsample_interval]
+
+        return hmc_samples
 
     @property
     def hyperparameters_samples(self) -> np.ndarray:

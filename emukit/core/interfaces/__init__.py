@@ -2,4 +2,4 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from .models import IModel, IDifferentiable, IMCMC  # noqa: F401
+from .models import IModel, IDifferentiable, IPriorHyperparameters  # noqa: F401

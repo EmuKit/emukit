@@ -50,18 +50,22 @@ class IDifferentiable:
         raise NotImplementedError
 
 
-class IMCMC:
-    def generate_hyperparameters_samples(self) -> None:
+class IPriorHyperparameters:
+    def generate_hyperparameters_samples(self) -> np.ndarray:
         """
         Generates the samples from the hyper-parameters of the model.
+
+        :return: numpy array whose rows are samples from the hyper-parameters of the model.
         """
         raise NotImplementedError
 
     def fix_model_hyperparameters(self,sample_hyperparameters: np.ndarray) -> None:
         """
-        Fixes the model hyper-parameters to certain values of the hyper-parameters that are used to make predictions
-        :return:
+        Fixes the model hyper-parameters to certain values (which can be taken from samples).
+
+        :param sample_hyperparameters: np.ndarray whose rows contain each hyper-parameters set.
         """
+        raise NotImplementedError
 
     @property
     def hyperparameters_samples(self):
