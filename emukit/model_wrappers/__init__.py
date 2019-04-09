@@ -2,5 +2,5 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from .gpy_model_wrappers import GPyModelWrapper, GPyMultiOutputWrapper  # noqa: F401
+from .gpy_model_wrappers import GPyModelWrapper, GPyMultiOutputWrapper, GPyModelWrapperMCMC  # noqa: F401
 from .gpy_quadrature_wrappers import BaseGaussianProcessGPy, RBFGPy  # noqa: F401

@@ -48,3 +48,22 @@ class IDifferentiable:
         :param X: points to compute gradients at
         """
         raise NotImplementedError
+
+
+class IMCMC:
+    def generate_hyperparameters_samples(self) -> None:
+        """
+        Generates the samples from the hyper-parameters of the model.
+        """
+        raise NotImplementedError
+
+    def fix_model_hyperparameters(self,sample_hyperparameters: np.ndarray) -> None:
+        """
+        Fixes the model hyper-parameters to certain values of the hyper-parameters that are used to make predictions
+        :return:
+        """
+
+    @property
+    def hyperparameters_samples(self):
+        raise NotImplementedError
+
