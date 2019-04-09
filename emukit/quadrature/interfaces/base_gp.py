@@ -5,8 +5,8 @@
 import numpy as np
 from typing import Tuple
 
-from emukit.core.interfaces import IModel
-from emukit.quadrature.kernels.quadrature_kernels import QuadratureKernel
+from ...core.interfaces import IModel
+from ...quadrature.kernels.quadrature_kernels import QuadratureKernel
 
 
 class IBaseGaussianProcess(IModel):

@@ -4,8 +4,6 @@
 
 import emcee
 
-from ..experimental_design.model_free.random_design import RandomDesign
-
 
 class McmcSampler(object):
     def __init__(self, space):
@@ -53,7 +51,7 @@ class AffineInvariantEnsembleSampler(McmcSampler):
 
         Returns a tuple of two array: (samples, log_p_function values for samples)
         """
-        X_init = RandomDesign(self.space).get_samples(n_samples)
+        X_init = self.space.sample_uniform(n_samples)
         sampler = emcee.EnsembleSampler(n_samples, X_init.shape[1], log_p_function)
 
         # Burn-In

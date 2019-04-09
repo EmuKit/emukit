@@ -5,6 +5,7 @@
 import numpy as np
 from typing import Tuple, List
 
+from ...core.continuous_parameter import ContinuousParameter
 from ...core.interfaces.models import IModel
 from ...quadrature.interfaces.base_gp import IBaseGaussianProcess
 from ...quadrature.kernels.integral_bounds import IntegralBounds
@@ -39,13 +40,22 @@ class WarpedBayesianQuadratureModel(IModel):
     def Y(self) -> np.ndarray:
         return self.transform(self.base_gp.Y)
 
-    @ property
+    @property
     def integral_bounds(self) -> IntegralBounds:
         return self.base_gp.kern.integral_bounds
 
     @property
-    def integral_parameters(self) -> List:
+    def integral_parameters(self) -> List[ContinuousParameter]:
         return self.base_gp.kern.integral_bounds.convert_to_list_of_continuous_parameters()
+
+    @integral_bounds.setter
+    def integral_bounds(self, new_bounds: List[Tuple[float, float]]) -> None:
+        """
+        Sets new integral bounds and checks their validity
+        :param new_bounds: List of D tuples, where D is the dimensionality of the integral and the tuples contain the
+        lower and upper bounds of the integral i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)]
+        """
+        self.base_gp.kern.integral_bounds.bounds = new_bounds
 
     def transform(self, Y: np.ndarray) -> np.ndarray:
         """
@@ -113,7 +123,6 @@ class WarpedBayesianQuadratureModel(IModel):
     def integrate(self) -> Tuple[float, float]:
         """
         Computes an estimator of the integral as well as its variance.
-
         :returns: estimator of integral and its variance
         """
         raise NotImplemented

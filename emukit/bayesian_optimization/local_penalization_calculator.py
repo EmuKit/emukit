@@ -6,8 +6,7 @@ from ..core.acquisition import Acquisition
 from ..core.interfaces import IDifferentiable
 from ..core.loop import CandidatePointCalculator, LoopState
 from ..bayesian_optimization.acquisitions.local_penalization import LocalPenalization
-from ..core.optimization import AcquisitionOptimizer
-from ..experimental_design.model_free.random_design import RandomDesign
+from ..core.optimization import AcquisitionOptimizerBase
 
 N_SAMPLES = 500  # Number of samples to use when estimating Lipschitz constant
 MAX_ITER = 200  # Maximum number of iterations for optimizer when estimating Lipschitz constant
@@ -21,8 +20,8 @@ class LocalPenalizationPointCalculator(CandidatePointCalculator):
     <https://arxiv.org/abs/1505.08052>`_
     """
 
-    def __init__(self, acquisition: Acquisition, acquisition_optimizer: AcquisitionOptimizer, model: IDifferentiable,
-                 parameter_space: ParameterSpace, batch_size: int):
+    def __init__(self, acquisition: Acquisition, acquisition_optimizer: AcquisitionOptimizerBase,
+                 model: IDifferentiable, parameter_space: ParameterSpace, batch_size: int):
         """
         :param acquisition: Base acquisition function to use without any penalization applied, this acquisition should
                             output positive values only.
@@ -78,8 +77,7 @@ def _estimate_lipschitz_constant(space: ParameterSpace, model: IDifferentiable):
         return -result
 
     # Evaluate at some random samples first and start optimizer from point with highest gradient
-    random_design = RandomDesign(space)
-    samples = random_design.get_samples(N_SAMPLES)
+    samples = space.sample_uniform(N_SAMPLES)
     samples = np.vstack([samples, model.X])
     gradient_norm_at_samples = negative_gradient_norm(samples)
     x0 = samples[np.argmin(gradient_norm_at_samples)][None, :]

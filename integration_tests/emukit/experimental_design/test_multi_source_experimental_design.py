@@ -4,7 +4,7 @@ import numpy as np
 from emukit.core.loop import FixedIntervalUpdater, OuterLoop
 from emukit.core.loop.candidate_point_calculators import GreedyBatchPointCalculator
 from emukit.core.loop.loop_state import LoopState
-from emukit.core.optimization import AcquisitionOptimizer
+from emukit.core.optimization import GradientAcquisitionOptimizer
 from emukit.core.optimization.multi_source_acquisition_optimizer import MultiSourceAcquisitionOptimizer
 from emukit.experimental_design import RandomDesign
 from emukit.experimental_design.model_based.acquisitions import ModelVariance
@@ -22,7 +22,7 @@ def test_multi_source_batch_experimental_design():
     y_init = np.array([res.Y for res in intiial_results])
 
     # Create multi source acquisition optimizer
-    acquisition_optimizer = AcquisitionOptimizer(space)
+    acquisition_optimizer = GradientAcquisitionOptimizer(space)
     multi_source_acquisition_optimizer = MultiSourceAcquisitionOptimizer(acquisition_optimizer, space)
 
     # Create GP model

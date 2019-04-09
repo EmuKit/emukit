@@ -5,13 +5,13 @@ from emukit.core.loop.loop_state import create_loop_state
 from emukit.bayesian_optimization.acquisitions import ExpectedImprovement
 from emukit.bayesian_optimization.local_penalization_calculator import LocalPenalizationPointCalculator
 from emukit.core import ParameterSpace, ContinuousParameter
-from emukit.core.optimization import AcquisitionOptimizer
+from emukit.core.optimization import GradientAcquisitionOptimizer
 from emukit.model_wrappers import GPyModelWrapper
 
 
 def test_local_penalization():
     parameter_space = ParameterSpace([ContinuousParameter('x', 0, 1)])
-    acquisition_optimizer = AcquisitionOptimizer(parameter_space)
+    acquisition_optimizer = GradientAcquisitionOptimizer(parameter_space)
     x_init = np.random.rand(5, 1)
     y_init = np.random.rand(5, 1)
 

@@ -8,7 +8,7 @@ from emukit.core.interfaces import IModel
 from emukit.core.loop import (OuterLoop, ModelUpdater, StoppingCondition, CandidatePointCalculator, UserFunctionResult,
                               UserFunction, SequentialPointCalculator, FixedIntervalUpdater)
 from emukit.core.loop.loop_state import create_loop_state
-from emukit.core.optimization import AcquisitionOptimizer
+from emukit.core.optimization import GradientAcquisitionOptimizer
 from emukit.experimental_design.model_based.acquisitions import ModelVariance
 from emukit.model_wrappers import GPyModelWrapper
 
@@ -149,7 +149,7 @@ def test_iteration_end_event():
     loop_state = create_loop_state(x_init, y_init)
 
     acquisition = ModelVariance(model)
-    acquisition_optimizer = AcquisitionOptimizer(space)
+    acquisition_optimizer = GradientAcquisitionOptimizer(space)
     candidate_point_calculator = SequentialPointCalculator(acquisition, acquisition_optimizer)
     model_updater = FixedIntervalUpdater(model)
 
