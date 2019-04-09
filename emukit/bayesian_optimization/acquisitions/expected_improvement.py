@@ -110,9 +110,9 @@ class IntegratedExpectedImprovement(Acquisition):
         for sample in self.model.hyperparameters_samples:
             self.model.fix_model_hyperparameters(sample)
             acquisition = ExpectedImprovement(self.model, self.jitter)
-            improvement = acquisition.evaluate(x)
+            improvement += acquisition.evaluate(x)
 
-        return improvement / num_samples
+        return improvement/num_samples
 
     def evaluate_with_gradients(self, x: np.ndarray) -> Tuple:
         """
@@ -133,7 +133,7 @@ class IntegratedExpectedImprovement(Acquisition):
             improvement += improvement_sample
             dimprovement_dx += dimprovement_dx_sample
 
-        return improvement / num_samples, dimprovement_dx / num_samples
+        return improvement/num_samples, dimprovement_dx/num_samples
 
     @property
     def has_gradients(self) -> bool:
