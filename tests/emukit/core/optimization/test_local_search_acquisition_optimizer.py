@@ -57,8 +57,9 @@ def test_local_search_acquisition_optimizer_neighbours():
         DiscreteParameter('d', [0.1, 1.2, 2.3]),
         ContinuousParameter('e', 0, 100),
         DiscreteParameter('f', [0.1, 1.2, 2.3]),
+        DiscreteParameter('no_neighbours', [1]),
     ])
-    x = np.array([1, 0, 0, 1.6, 2.9, 0.1, 50, 1.2])
+    x = np.array([1, 0, 0, 1.6, 2.9, 0.1, 50, 1.2, 1.])
     optimizer = LocalSearchAcquisitionOptimizer(space, 1000, 3, num_continuous=1)
 
     neighbourhood = optimizer._neighbours_per_parameter(x, space.parameters)
@@ -68,16 +69,17 @@ def test_local_search_acquisition_optimizer_neighbours():
     assert_equal(np.array([[1.2]]), neighbourhood[3])
     assert_almost_equal(np.array([[53.5281047]]), neighbourhood[4])
     assert_equal(np.array([[0.1], [2.3]]), neighbourhood[5])
+    assert_equal(np.array([]), neighbourhood[6])
 
     neighbours = optimizer._neighbours(x, space.parameters)
     assert_almost_equal(np.array([
-        [0, 1, 0, 2., 3., 0.1, 50., 1.2],
-        [0, 0, 1, 2., 3., 0.1, 50., 1.2],
-        [1, 0, 0, 1., 3., 0.1, 50., 1.2],
-        [1, 0, 0, 3., 3., 0.1, 50., 1.2],
-        [1, 0, 0, 2., 2., 0.1, 50., 1.2],
-        [1, 0, 0, 2., 3., 1.2, 50., 1.2],
-        [1, 0, 0, 2., 3., 0.1, 50.80031442, 1.2],
-        [1, 0, 0, 2., 3., 0.1, 50., 0.1],
-        [1, 0, 0, 2., 3., 0.1, 50., 2.3],
+        [0, 1, 0, 2., 3., 0.1, 50., 1.2, 1.],
+        [0, 0, 1, 2., 3., 0.1, 50., 1.2, 1.],
+        [1, 0, 0, 1., 3., 0.1, 50., 1.2, 1.],
+        [1, 0, 0, 3., 3., 0.1, 50., 1.2, 1.],
+        [1, 0, 0, 2., 2., 0.1, 50., 1.2, 1.],
+        [1, 0, 0, 2., 3., 1.2, 50., 1.2, 1.],
+        [1, 0, 0, 2., 3., 0.1, 50.80031442, 1.2, 1.],
+        [1, 0, 0, 2., 3., 0.1, 50., 0.1, 1.],
+        [1, 0, 0, 2., 3., 0.1, 50., 2.3, 1.],
     ]), space.round(neighbours))

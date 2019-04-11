@@ -120,6 +120,8 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         neighbours = np.full((num_neighbours, all_features.shape[0]), all_features)
         current_neighbour, current_feature = 0, 0
         for this_neighbours in neighbours_per_param:
+            if this_neighbours.size == 0:  # parameter has no neighbours
+                continue
             next_neighbour = current_neighbour + this_neighbours.shape[0]
             next_feature = current_feature + this_neighbours.shape[1]
             neighbours[current_neighbour:next_neighbour,
