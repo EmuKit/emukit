@@ -93,7 +93,7 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
                     this_neighbours.append([parameter.domain[current_index - 1]])
                 if current_index < len(parameter.domain) - 1:
                     this_neighbours.append([parameter.domain[current_index + 1]])
-                neighbours.append(np.asarray(this_neighbours))
+                neighbours.append(np.asarray(this_neighbours).reshape(-1, 1))
             elif isinstance(parameter, ContinuousParameter):
                 samples, param_range = [], parameter.max - parameter.min
                 while len(samples) < self.num_continuous:
@@ -120,8 +120,6 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         neighbours = np.full((num_neighbours, all_features.shape[0]), all_features)
         current_neighbour, current_feature = 0, 0
         for this_neighbours in neighbours_per_param:
-            if this_neighbours.size == 0:  # parameter has no neighbours
-                continue
             next_neighbour = current_neighbour + this_neighbours.shape[0]
             next_feature = current_feature + this_neighbours.shape[1]
             neighbours[current_neighbour:next_neighbour,
