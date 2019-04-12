@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 
 from emukit.core import ContinuousParameter, ParameterSpace, OneHotEncoding
-from emukit.model_wrappers import GPyModelWrapper, GPyModelWrapperMCMC
+from emukit.model_wrappers import GPyModelWrapper
 
 
 @pytest.fixture
@@ -36,7 +36,7 @@ def gpy_model_mcmc(n_dims):
     gpy_model.kern.set_prior(GPy.priors.Uniform(0,5))
     np.random.seed(42)
     gpy_model.randomize()
-    return GPyModelWrapperMCMC(gpy_model)
+    return GPyModelWrapper(gpy_model)
 
 @pytest.fixture
 def continuous_space(n_dims):

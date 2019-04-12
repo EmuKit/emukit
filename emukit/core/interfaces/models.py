@@ -51,7 +51,7 @@ class IDifferentiable:
 
 
 class IPriorHyperparameters:
-    def generate_hyperparameters_samples(self) -> np.ndarray:
+    def generate_hyperparameters_samples(self, n_samples: np.int) -> np.ndarray:
         """
         Generates the samples from the hyper-parameters of the model.
 
