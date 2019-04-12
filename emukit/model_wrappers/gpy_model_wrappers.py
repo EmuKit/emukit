@@ -7,12 +7,12 @@ from typing import Tuple
 import numpy as np
 import GPy
 
-from ..core.interfaces import IModel, IDifferentiable
+from ..core.interfaces import IModel, IDifferentiable, IPriorHyperparameters
 from ..experimental_design.interfaces import ICalculateVarianceReduction
 from ..bayesian_optimization.interfaces import IEntropySearchModel
 
 
-class GPyModelWrapper(IModel, IDifferentiable, ICalculateVarianceReduction, IEntropySearchModel):
+class GPyModelWrapper(IModel, IDifferentiable, ICalculateVarianceReduction, IEntropySearchModel, IPriorHyperparameters):
     """
     This is a thin wrapper around GPy models to allow users to plug GPy models into Emukit
     """
@@ -99,6 +99,38 @@ class GPyModelWrapper(IModel, IDifferentiable, ICalculateVarianceReduction, IEnt
         :return: An array of shape n_points x 1 containing training outputs
         """
         return self.model.Y
+
+    def generate_hyperparameters_samples(self, n_samples = 20, n_burnin = 100, subsample_interval  = 10,
+                                         step_size = 1e-1, leapfrog_steps = 20) -> None:
+        """
+        Generates the samples from the hyper-parameters
+        :param n_samples: Number of generated samples.
+        :param n_burning: Number of initial samples not used.
+        :param subsample_interval: Interval of subsampling from HMC samples.
+        :param step_size: Size of the gradient steps in the HMC sampler.
+        :param leapfrog_steps: Number of gradient steps before each Metropolis Hasting step.
+        :return: A numpy array whose rows are samples of the hyper-parameters.
+
+        """
+        self.model.optimize(max_iters=self.n_restarts)
+        self.model.param_array[:] = self.model.param_array * (1.+np.random.randn(self.model.param_array.size)*0.01)
+        hmc = GPy.inference.mcmc.HMC(self.model, stepsize = step_size)
+        samples = hmc.sample(num_samples = n_burnin + n_samples * subsample_interval, hmc_iters = leapfrog_steps)
+        hmc_samples = samples[n_burnin::subsample_interval]
+
+        return hmc_samples
+
+    def fix_model_hyperparameters(self, sample_hyperparameters: np.ndarray) -> None:
+        """
+        Fix model hyperparameters
+
+        """
+        if self.model._fixes_ is None:
+            self.model[:] = sample_hyperparameters
+        else:
+            self.model[self.model._fixes_] = sample_hyperparameters
+        self.model._trigger_params_changed()
+
 
 
 class GPyMultiOutputWrapper(IModel, IDifferentiable, ICalculateVarianceReduction, IEntropySearchModel):
