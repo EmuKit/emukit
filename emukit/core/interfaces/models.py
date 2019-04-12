@@ -67,7 +67,4 @@ class IPriorHyperparameters:
         """
         raise NotImplementedError
 
-    @property
-    def hyperparameters_samples(self):
-        raise NotImplementedError
 

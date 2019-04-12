@@ -120,14 +120,7 @@ class GPyModelWrapper(IModel, IDifferentiable, ICalculateVarianceReduction, IEnt
 
         return hmc_samples
 
-    @property
-    def hyperparameters_samples(self) -> np.ndarray:
-        """
-        :return: An array of shape num_samples x num_hyperparameters
-        """
-        return self.samples
-
-    def fix_model_hyperparameters(self, sample_hyperparameters: np.array) -> None:
+    def fix_model_hyperparameters(self, sample_hyperparameters: np.ndarray) -> None:
         """
         Fix model hyperparameters
 

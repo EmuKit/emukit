@@ -13,7 +13,7 @@ from ...core.acquisition import Acquisition
 
 class ExpectedImprovement(Acquisition):
 
-    def __init__(self, model: Union[IModel, IDifferentiable], jitter: np.float = np.float(0))-> None:
+    def __init__(self, model: Union[IModel, IDifferentiable], jitter: float = float(0))-> None:
         """
         This acquisition computes for a given input the improvement over the current best observed value in
         expectation. For more information see:
@@ -78,7 +78,7 @@ class ExpectedImprovement(Acquisition):
 
 class IntegratedExpectedImprovement(Acquisition):
 
-    def __init__(self, model: Union[IModel, IDifferentiable, IPriorHyperparameters], jitter: np.float64 = np.float64(0),
+    def __init__(self, model: Union[IModel, IDifferentiable, IPriorHyperparameters], jitter: float = float(0),
                  n_samples = 10) -> None:
         """
         This acquisition computes for a given input the improvement over the current best observed value in
