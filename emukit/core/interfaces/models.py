@@ -48,3 +48,23 @@ class IDifferentiable:
         :param X: points to compute gradients at
         """
         raise NotImplementedError
+
+
+class IPriorHyperparameters:
+    def generate_hyperparameters_samples(self, n_samples: np.int) -> np.ndarray:
+        """
+        Generates the samples from the hyper-parameters of the model.
+
+        :return: numpy array whose rows are samples from the hyper-parameters of the model.
+        """
+        raise NotImplementedError
+
+    def fix_model_hyperparameters(self,sample_hyperparameters: np.ndarray) -> None:
+        """
+        Fixes the model hyper-parameters to certain values (which can be taken from samples).
+
+        :param sample_hyperparameters: np.ndarray whose rows contain each hyper-parameters set.
+        """
+        raise NotImplementedError
+
+
