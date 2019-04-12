@@ -93,7 +93,7 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
                     this_neighbours.append([parameter.domain[current_index - 1]])
                 if current_index < len(parameter.domain) - 1:
                     this_neighbours.append([parameter.domain[current_index + 1]])
-                neighbours.append(np.asarray(this_neighbours))
+                neighbours.append(np.asarray(this_neighbours).reshape(-1, 1))
             elif isinstance(parameter, ContinuousParameter):
                 samples, param_range = [], parameter.max - parameter.min
                 while len(samples) < self.num_continuous:
