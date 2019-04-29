@@ -2,7 +2,7 @@ import numpy as np
 from numpy.testing import assert_array_equal
 
 from emukit.core import CategoricalParameter
-from emukit.core import InformationSourceParameter
+from emukit.core import OrdinalInformationSourceParameter
 from emukit.core import OrdinalEncoding
 from emukit.core import ParameterSpace
 from emukit.core.optimization import RandomSearchAcquisitionOptimizer
@@ -20,7 +20,7 @@ def test_random_search_acquisition_optimizer(simple_square_acquisition):
 
 def test_random_search_acquisition_optimizer_with_context(simple_square_acquisition):
     space = ParameterSpace([CategoricalParameter('x', OrdinalEncoding(np.arange(0, 100))),
-                            InformationSourceParameter(10)])
+                            OrdinalInformationSourceParameter(10)])
     optimizer = RandomSearchAcquisitionOptimizer(space, 1000)
 
     source_encoding = 1

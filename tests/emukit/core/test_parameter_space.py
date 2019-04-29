@@ -1,7 +1,7 @@
 import pytest
 import numpy as np
 
-from emukit.core import ContinuousParameter, ParameterSpace, InformationSourceParameter, DiscreteParameter, \
+from emukit.core import ContinuousParameter, ParameterSpace, OrdinalInformationSourceParameter, DiscreteParameter, \
     CategoricalParameter, OneHotEncoding
 
 
@@ -43,7 +43,7 @@ def test_check_in_domain_fails(space_2d):
 
 def test_two_information_source_parameters_fail():
     with pytest.raises(ValueError):
-        ParameterSpace([InformationSourceParameter(2), InformationSourceParameter(2)])
+        ParameterSpace([OrdinalInformationSourceParameter(2), OrdinalInformationSourceParameter(2)])
 
 
 def test_get_parameter_by_name(space_2d):

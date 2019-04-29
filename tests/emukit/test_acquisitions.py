@@ -10,7 +10,7 @@ from emukit.bayesian_optimization.acquisitions import ExpectedImprovement, Negat
 from emukit.bayesian_optimization.acquisitions import IntegratedExpectedImprovement
 from emukit.bayesian_optimization.acquisitions.entropy_search import MultiInformationSourceEntropySearch
 from emukit.bayesian_optimization.acquisitions.log_acquisition import LogAcquisition
-from emukit.core import ParameterSpace, ContinuousParameter, InformationSourceParameter
+from emukit.core import ParameterSpace, ContinuousParameter, OrdinalInformationSourceParameter
 from emukit.core.acquisition.acquisition_per_cost import CostAcquisition
 
 from emukit.bayesian_optimization.acquisitions import ProbabilityOfImprovement
@@ -95,7 +95,7 @@ def squared_correlation_acquisition(vanilla_bq_model):
 @pytest.fixture
 @pytest.mark.parametrize('n_dims', [2])
 def multi_source_entropy_search_acquisition(gpy_model):
-    space = ParameterSpace([ContinuousParameter('x1', 0, 1), InformationSourceParameter(2)])
+    space = ParameterSpace([ContinuousParameter('x1', 0, 1), OrdinalInformationSourceParameter(2)])
     return MultiInformationSourceEntropySearch(gpy_model, space, num_representer_points=10)
 
 

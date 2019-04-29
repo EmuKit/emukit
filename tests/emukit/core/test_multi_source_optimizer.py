@@ -2,7 +2,7 @@ import mock
 import numpy as np
 import pytest
 
-from emukit.core import ContinuousParameter, InformationSourceParameter, ParameterSpace
+from emukit.core import ContinuousParameter, OrdinalInformationSourceParameter, ParameterSpace
 from emukit.core.acquisition import Acquisition
 from emukit.core.loop import LoopState, SequentialPointCalculator
 from emukit.core.optimization import GradientAcquisitionOptimizer
@@ -13,7 +13,7 @@ from emukit.core.optimization.multi_source_acquisition_optimizer import MultiSou
 def multi_source_optimizer():
     mock_acquisition_optimizer = mock.create_autospec(GradientAcquisitionOptimizer)
     mock_acquisition_optimizer.optimize.return_value = (np.array([[0.]]), None)
-    space = ParameterSpace([ContinuousParameter('x', 0, 1), InformationSourceParameter(2)])
+    space = ParameterSpace([ContinuousParameter('x', 0, 1), OrdinalInformationSourceParameter(2)])
     return MultiSourceAcquisitionOptimizer(mock_acquisition_optimizer, space)
 
 
@@ -47,7 +47,7 @@ def test_multi_source_sequential_with_context():
     mock_acquisition.evaluate = lambda x: np.sum(x**2, axis=1)[:, None]
     space = ParameterSpace([ContinuousParameter('x', 0, 1),
                             ContinuousParameter('y', 0, 1),
-                            InformationSourceParameter(2)])
+                            OrdinalInformationSourceParameter(2)])
     acquisition_optimizer = GradientAcquisitionOptimizer(space)
     multi_source_acquisition_optimizer = MultiSourceAcquisitionOptimizer(acquisition_optimizer, space)
 
@@ -68,7 +68,7 @@ def test_multi_source_sequential_with_source_context():
     mock_acquisition.evaluate = lambda x: np.sum(x**2, axis=1)[:, None]
     space = ParameterSpace([ContinuousParameter('x', 0, 1),
                             ContinuousParameter('y', 0, 1),
-                            InformationSourceParameter(2)])
+                            OrdinalInformationSourceParameter(2)])
     acquisition_optimizer = GradientAcquisitionOptimizer(space)
     multi_source_acquisition_optimizer = MultiSourceAcquisitionOptimizer(acquisition_optimizer, space)
 

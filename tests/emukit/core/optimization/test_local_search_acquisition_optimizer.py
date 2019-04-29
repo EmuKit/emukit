@@ -4,7 +4,7 @@ from numpy.testing import assert_equal
 from numpy.testing import assert_almost_equal
 
 from emukit.core import CategoricalParameter, ContinuousParameter
-from emukit.core import DiscreteParameter, InformationSourceParameter
+from emukit.core import DiscreteParameter, OrdinalInformationSourceParameter
 from emukit.core import OneHotEncoding, OrdinalEncoding
 from emukit.core import ParameterSpace, Parameter
 from emukit.core.encodings import Encoding
@@ -39,7 +39,7 @@ def test_local_search_acquisition_optimizer(simple_square_acquisition):
 
 def test_local_search_acquisition_optimizer_with_context(simple_square_acquisition):
     space = ParameterSpace([CategoricalParameter('x', OrdinalEncoding(np.arange(0, 100))),
-                            InformationSourceParameter(10)])
+                            OrdinalInformationSourceParameter(10)])
     optimizer = LocalSearchAcquisitionOptimizer(space, 1000, 3)
 
     source_encoding = 1

@@ -16,14 +16,15 @@ def test_multi_fidelity_function_shapes(fcn):
     samples = random.get_samples(n_points)
 
     # There are only 2 or 3 fidelity functions in set of functions we are testing
-    n_fidelities = len(space.parameters[-1].domain)
+    n_fidelities = space.parameters[-1].n_sources
+    source_encodings = space.parameters[-1].encodings
     if n_fidelities == 2:
-        samples[:5, -1] = 0
-        samples[5:, -1] = 1
+        samples[:5, -1] = source_encodings[0]
+        samples[5:, -1] = source_encodings[1]
     elif n_fidelities == 3:
-        samples[:5, -1] = 0
-        samples[5:8, -1] = 1
-        samples[8:, -1] = 2
+        samples[:5, -1] = source_encodings[0]
+        samples[5:8, -1] = source_encodings[1]
+        samples[8:, -1] = source_encodings[2]
     else:
         raise ValueError('Please add a case for functions with {:.0f} fidelity levels'.format(n_fidelities))
 

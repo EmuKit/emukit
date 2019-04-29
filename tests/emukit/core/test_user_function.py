@@ -60,8 +60,9 @@ def test_user_function_wrapper_invalid_input():
 def test_multi_source_function_wrapper_evaluation_no_cost():
     functions = [lambda x: 2 * x, lambda x: 4 * x]
     function_input = np.array([[1, 0], [2, 1], [3, 0], [4, 0], [5, 1]])
+    source_encodings = np.array([[0], [1]])
     source_index = -1
-    msfw = MultiSourceFunctionWrapper(functions, source_index)
+    msfw = MultiSourceFunctionWrapper(functions, source_encodings, source_index)
 
     output = msfw.evaluate(function_input)
 
@@ -78,8 +79,9 @@ def test_multi_source_function_wrapper_evaluation_with_cost():
     functions = [lambda x: (2 * x, np.array([[1]] * x.shape[0])),
                  lambda x: (4 * x, np.array([[2]] * x.shape[0]))]
     function_input = np.array([[1, 0], [2, 1], [3, 0], [4, 0], [5, 1]])
+    source_encodings = np.array([[0], [1]])
     source_index = -1
-    msfw = MultiSourceFunctionWrapper(functions, source_index)
+    msfw = MultiSourceFunctionWrapper(functions, source_encodings, source_index)
 
     output = msfw.evaluate(function_input)
 
@@ -93,25 +95,27 @@ def test_multi_source_function_wrapper_evaluation_with_cost():
 
 
 def test_multi_source_function_wrapper_invalid_input():
+    source_encodings = np.array([[0]])
+
     # invalid input
     with pytest.raises(ValueError):
         functions = [lambda x: 2 * x]
         function_input = np.array([1, 0])
-        msfw = MultiSourceFunctionWrapper(functions)
+        msfw = MultiSourceFunctionWrapper(functions, source_encodings)
         msfw.evaluate(function_input)
 
     # invalid function output
     with pytest.raises(ValueError):
         functions = [lambda x: np.array([2])]
         function_input = np.array([[1, 0]])
-        msfw = MultiSourceFunctionWrapper(functions)
+        msfw = MultiSourceFunctionWrapper(functions, source_encodings)
         msfw.evaluate(function_input)
 
     # invalid function output type
     with pytest.raises(ValueError):
         functions = [lambda x: [2]]
         function_input = np.array([[1, 0]])
-        msfw = MultiSourceFunctionWrapper(functions)
+        msfw = MultiSourceFunctionWrapper(functions, source_encodings)
         msfw.evaluate(function_input)
 
 

@@ -2,7 +2,8 @@ import numpy as np
 import pytest
 
 from emukit.core import ContinuousParameter
-from emukit.core import DiscreteParameter, InformationSourceParameter
+from emukit.core import DiscreteParameter, DiscreteInformationSourceParameter
+from emukit.core import NominalInformationSourceParameter, OrdinalInformationSourceParameter
 
 
 def test_continuous_parameter():
@@ -43,14 +44,26 @@ def test_single_value_in_domain_discrete_parameter():
 
 
 def test_information_source_parameter():
-    param = InformationSourceParameter(5)
+    param = NominalInformationSourceParameter(3)
     assert param.name == 'source'
-    assert param.check_in_domain(np.array([0, 1])) is True
-    assert param.check_in_domain(np.array([4])) is True
-    assert param.check_in_domain(np.array([5])) is False
+    assert param.check_in_domain(np.array([[0, 1, 0]])) is True
+    assert param.check_in_domain(np.array([[1, 0, 0]])) is True
+    assert param.check_in_domain(np.array([[5, 5, 5]])) is False
+
+    param = OrdinalInformationSourceParameter(5)
+    assert param.name == 'source'
+    assert param.check_in_domain(np.array([[1], [2]])) is True
+    assert param.check_in_domain(np.array([[3]])) is True
+    assert param.check_in_domain(np.array([[6]])) is False
+
+    param = DiscreteInformationSourceParameter([0.1, 0.3, 0.9])
+    assert param.name == 'source'
+    assert param.check_in_domain(np.array([[0.1], [0.9]])) is True
+    assert param.check_in_domain(np.array([0.3])) is True
+    assert param.check_in_domain(np.array([[5]])) is False
 
 
 def test_single_value_in_domain_information_source_parameter():
-    param = InformationSourceParameter(5)
+    param = DiscreteInformationSourceParameter(range(0, 5))
     assert param.check_in_domain(2) is True
     assert param.check_in_domain(7) is False
