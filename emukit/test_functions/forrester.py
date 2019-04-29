@@ -29,7 +29,7 @@ def multi_fidelity_forrester_function(high_fidelity_noise_std_deviation=0, low_f
     parameter_space = ParameterSpace([ContinuousParameter('x', 0, 1), OrdinalInformationSourceParameter(2)])
     user_function = MultiSourceFunctionWrapper([
         lambda x: forrester_low(x, low_fidelity_noise_std_deviation),
-        lambda x: forrester(x, high_fidelity_noise_std_deviation)])
+        lambda x: forrester(x, high_fidelity_noise_std_deviation)], parameter_space.parameters[-1].encodings)
     return user_function, parameter_space
 
 
