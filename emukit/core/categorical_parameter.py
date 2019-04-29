@@ -65,3 +65,13 @@ class CategoricalParameter(Parameter):
                 return False
 
         return True
+
+    def sample_uniform(self, point_count: int) -> np.ndarray:
+        """
+        Generates multiple uniformly distributed random parameter points.
+
+        :param point_count: number of data points to generate.
+        :returns: Generated points with shape (point_count, num_features)
+        """
+        indices = np.random.randint(0, self.encodings.shape[0], point_count)
+        return self.encodings[indices]

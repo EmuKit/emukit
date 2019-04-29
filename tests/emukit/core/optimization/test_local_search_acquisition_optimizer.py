@@ -23,6 +23,10 @@ def test_local_search_acquisition_optimizer(simple_square_acquisition):
     class UnknownParameter(Parameter):
         def __init__(self, name: str):
             self.name = name
+
+        def sample_uniform(num_points):
+            return np.random.randint(0, 1, (num_points, 1))
+
     space.parameters.append(UnknownParameter('y'))
     with pytest.raises(TypeError):
         optimizer.optimize(simple_square_acquisition)
