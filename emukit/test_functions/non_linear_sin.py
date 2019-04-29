@@ -1,6 +1,6 @@
 import numpy as np
 
-from emukit.core import ParameterSpace, ContinuousParameter, InformationSourceParameter
+from emukit.core import ParameterSpace, ContinuousParameter, OrdinalInformationSourceParameter
 from emukit.core.loop.user_function import MultiSourceFunctionWrapper
 
 
@@ -22,7 +22,7 @@ def multi_fidelity_non_linear_sin(high_fidelity_noise_std_deviation=0, low_fidel
     http://web.mit.edu/parisp/www/assets/20160751.full.pdf
     """
 
-    parameter_space = ParameterSpace([ContinuousParameter('x1', -5, 10), InformationSourceParameter(2)])
+    parameter_space = ParameterSpace([ContinuousParameter('x1', -5, 10), OrdinalInformationSourceParameter(2)])
     user_function = MultiSourceFunctionWrapper([
         lambda x: nonlinear_sin_low(x, low_fidelity_noise_std_deviation),
         lambda x: nonlinear_sin_high(x, high_fidelity_noise_std_deviation)])

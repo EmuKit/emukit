@@ -3,7 +3,7 @@ from typing import Tuple
 import numpy as np
 
 from ...core.loop.user_function import MultiSourceFunctionWrapper
-from ...core import ParameterSpace, ContinuousParameter, InformationSourceParameter
+from ...core import ParameterSpace, ContinuousParameter, OrdinalInformationSourceParameter
 
 
 def multi_fidelity_hartmann_3d() -> Tuple[MultiSourceFunctionWrapper, ParameterSpace]:
@@ -99,8 +99,8 @@ def multi_fidelity_hartmann_3d() -> Tuple[MultiSourceFunctionWrapper, ParameterS
         return res[:, None]
 
     space = ParameterSpace([ContinuousParameter('x1', 0., 1.), ContinuousParameter('x2', 0., 1.),
-                            ContinuousParameter('x3', 0., 1.), InformationSourceParameter(3)])
+                            ContinuousParameter('x3', 0., 1.), OrdinalInformationSourceParameter(3)])
 
-    fcn_wrapper = MultiSourceFunctionWrapper([low, medium, high])
+    fcn_wrapper = MultiSourceFunctionWrapper([low, medium, high], space.parameters[-1].encodings)
 
     return fcn_wrapper, space

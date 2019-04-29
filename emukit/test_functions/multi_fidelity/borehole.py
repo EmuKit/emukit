@@ -4,7 +4,7 @@ from typing import Tuple
 
 import numpy as np
 
-from ...core import ContinuousParameter, InformationSourceParameter, ParameterSpace
+from ...core import ContinuousParameter, OrdinalInformationSourceParameter, ParameterSpace
 from ...core.loop.user_function import MultiSourceFunctionWrapper
 
 
@@ -34,11 +34,11 @@ def multi_fidelity_borehole_function(high_noise_std_deviation: float = 0, low_no
         ContinuousParameter('lower_aquifer_head', 700, 820),
         ContinuousParameter('borehole_length', 1120, 1680),
         ContinuousParameter('hydraulic_conductivity', 9855, 12045),
-        InformationSourceParameter(2)])
+        OrdinalInformationSourceParameter(2)])
 
     user_function = MultiSourceFunctionWrapper([
         lambda x: _borehole_low(x, low_noise_std_deviation),
-        lambda x: _borehole_high(x, high_noise_std_deviation)])
+        lambda x: _borehole_high(x, high_noise_std_deviation)], parameter_space.parameters[-1].encodings)
 
     return user_function, parameter_space
 

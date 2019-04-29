@@ -3,7 +3,7 @@ from typing import Tuple
 import numpy as np
 
 from ..branin import _branin
-from ...core import ParameterSpace, ContinuousParameter, InformationSourceParameter
+from ...core import ParameterSpace, ContinuousParameter, OrdinalInformationSourceParameter
 from ...core.loop.user_function import MultiSourceFunctionWrapper
 
 
@@ -57,9 +57,7 @@ def multi_fidelity_branin_function() -> Tuple[MultiSourceFunctionWrapper, Parame
         return result[:, None]
 
     parameter_space = ParameterSpace([ContinuousParameter('x1', -5, 10), ContinuousParameter('x2', 0, 15),
-                                      InformationSourceParameter(3)])
+                                      OrdinalInformationSourceParameter(3)])
 
-    return MultiSourceFunctionWrapper([branin_low_fidelity, branin_medium_fidelity, _branin]), parameter_space
-
-
-
+    return (MultiSourceFunctionWrapper([branin_low_fidelity, branin_medium_fidelity, _branin],
+                                       parameter_space.parameters[-1].encodings), parameter_space)

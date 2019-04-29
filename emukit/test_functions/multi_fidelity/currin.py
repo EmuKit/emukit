@@ -3,7 +3,7 @@ from typing import Tuple
 import numpy as np
 
 from ...core.loop.user_function import MultiSourceFunctionWrapper
-from ...core import ContinuousParameter, InformationSourceParameter, ParameterSpace
+from ...core import ContinuousParameter, OrdinalInformationSourceParameter, ParameterSpace
 
 
 def multi_fidelity_currin_function() -> Tuple[MultiSourceFunctionWrapper, ParameterSpace]:
@@ -41,5 +41,5 @@ def multi_fidelity_currin_function() -> Tuple[MultiSourceFunctionWrapper, Parame
                 0.25 * high(np.stack([x[:, 0] - 0.05, np.maximum(0, x[:, 1] - 0.05)], axis=1)))
 
     space = ParameterSpace([ContinuousParameter('x1', 0, 1), ContinuousParameter('x2', 0, 1),
-                            InformationSourceParameter(2)])
-    return MultiSourceFunctionWrapper([low, high]), space
+                            OrdinalInformationSourceParameter(2)])
+    return MultiSourceFunctionWrapper([low, high], space.parameters[-1].encodings), space

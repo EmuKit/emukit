@@ -3,7 +3,7 @@ from typing import Tuple
 import numpy as np
 
 from ...core.loop.user_function import MultiSourceFunctionWrapper
-from ...core import ContinuousParameter, InformationSourceParameter, ParameterSpace
+from ...core import ContinuousParameter, OrdinalInformationSourceParameter, ParameterSpace
 
 
 def multi_fidelity_park_function() -> Tuple[MultiSourceFunctionWrapper, ParameterSpace]:
@@ -49,6 +49,6 @@ def multi_fidelity_park_function() -> Tuple[MultiSourceFunctionWrapper, Paramete
 
     space = ParameterSpace([ContinuousParameter('x1', 0., 1.), ContinuousParameter('x2', 0., 1.),
                             ContinuousParameter('x3', 0., 1.), ContinuousParameter('x4', 0., 1.),
-                            InformationSourceParameter(2)])
+                            OrdinalInformationSourceParameter(2)])
 
-    return MultiSourceFunctionWrapper([park_low, park_high]), space
+    return MultiSourceFunctionWrapper([park_low, park_high], space.parameters[-1].encodings), space

@@ -4,7 +4,7 @@
 
 import numpy as np
 
-from emukit.core import ParameterSpace, ContinuousParameter, InformationSourceParameter
+from emukit.core import ParameterSpace, ContinuousParameter, OrdinalInformationSourceParameter
 from emukit.core.loop.user_function import MultiSourceFunctionWrapper
 
 
@@ -26,7 +26,7 @@ def multi_fidelity_forrester_function(high_fidelity_noise_std_deviation=0, low_f
                                              Defaults to zero.
     :return: Tuple of user function object and parameter space object
     """
-    parameter_space = ParameterSpace([ContinuousParameter('x', 0, 1), InformationSourceParameter(2)])
+    parameter_space = ParameterSpace([ContinuousParameter('x', 0, 1), OrdinalInformationSourceParameter(2)])
     user_function = MultiSourceFunctionWrapper([
         lambda x: forrester_low(x, low_fidelity_noise_std_deviation),
         lambda x: forrester(x, high_fidelity_noise_std_deviation)])
