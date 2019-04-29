@@ -156,9 +156,5 @@ class ParameterSpace(object):
         :param point_count: number of data points to generate.
         :returns: Generated points with shape (point_count, num_features)
         """
-        bounds = self.get_bounds()
-        dim = len(bounds)
-        X_rand = np.zeros(shape=(point_count, dim))
-        for k in range(0, dim):
-            X_rand[:, k] = np.random.uniform(low=bounds[k][0], high=bounds[k][1], size=point_count)
-        return self.round(X_rand)
+        parameter_samples = [param.sample_uniform(point_count) for param in self.parameters]
+        return np.hstack(parameter_samples)

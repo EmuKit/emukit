@@ -70,6 +70,16 @@ class DiscreteParameter(Parameter):
 
         return np.row_stack(x_rounded)
 
+    def sample_uniform(self, point_count: int) -> np.ndarray:
+        """
+        Generates multiple uniformly distributed random parameter points.
+
+        :param point_count: number of data points to generate.
+        :returns: Generated points with shape (point_count, num_features)
+        """
+        indices = np.random.randint(0, len(self.domain), point_count)
+        return np.asarray(self.domain)[indices, None]
+
 
 class InformationSourceParameter(DiscreteParameter):
     def __init__(self, n_sources: int) -> None:
