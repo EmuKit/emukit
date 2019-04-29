@@ -10,7 +10,7 @@ in experimental design.
 """
 
 import abc
-from typing import Callable, List
+from typing import Callable, List, Union
 
 import numpy as np
 
@@ -78,15 +78,23 @@ class MultiSourceFunctionWrapper(UserFunction):
     Wraps a list of python functions that each correspond to different information source.
     """
 
-    def __init__(self, f: List, source_index: int=-1) -> None:
+    def __init__(self, f: List, source_encodings: np.ndarray, source_index: Union[int, List[int]] = -1) -> None:
         """
         :param f: A list of python function that take in a 2d numpy ndarrays of inputs and return 2d numpy ndarrays
                   of outputs.
+        :param source_encodings: Encodings of source indices as 2d-array (points, features)
         :param source_index: An integer indicating which column of X contains the index of the information source.
                              Default to the last dimension of the input.
         """
+        if len(f) != len(source_encodings):
+            raise ValueError("Expected same amount of source encodings and source functions, got {} != {}"
+                             .format(len(f), len(source_encodings)))
         self.f = f
-        self.source_index = source_index
+        self.source_encodings = source_encodings
+
+        if isinstance(source_index, int):
+            source_index = [source_index]
+        self.source_index = np.asarray(source_index)
 
     def evaluate(self, inputs: np.ndarray) -> List[UserFunctionResult]:
         """
@@ -101,20 +109,19 @@ class MultiSourceFunctionWrapper(UserFunction):
             raise ValueError("User function should receive 2d array as an input, "
                              "actual input dimensionality is {}".format(inputs.ndim))
 
-        n_sources = len(self.f)
-
         _log.info("Evaluating multi-source user function for {} point(s)".format(inputs.shape[0]))
         # Run each source function for all inputs at that source
         indices, outputs, costs = [], [], []
-        source_indices = inputs[:, self.source_index]
-        source_inputs = np.delete(inputs, self.source_index, axis=1)
-        for i_source in range(n_sources):
+        # negative indices in list are currently ignored by np.delete, will change in future
+        input_source_indices = self.source_index % inputs.shape[1]
+        input_source_encodings = inputs[:, input_source_indices]
+        source_inputs = np.delete(inputs, input_source_indices, axis=1)
+        for source_function, source_encoding in zip(self.f, self.source_encodings):
             # Find inputs at that source
-            this_source_input_indices = np.flatnonzero(source_indices == i_source)
+            this_source_input_indices = np.flatnonzero(np.all(input_source_encodings == source_encoding, axis=1))
             indices.append(this_source_input_indices)
             this_source_inputs = source_inputs[this_source_input_indices]
-            this_outputs = self.f[i_source](this_source_inputs)
-
+            this_outputs = source_function(this_source_inputs)
             if isinstance(this_outputs, tuple):
                 outputs.append(this_outputs[0])
                 costs.append(this_outputs[1])

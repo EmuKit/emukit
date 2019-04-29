@@ -26,7 +26,7 @@ class MultiSourceAcquisitionOptimizer(AcquisitionOptimizerBase):
         self.acquisition_optimizer = acquisition_optimizer
         self.space = space
         self.source_parameter = self._get_information_source_parameter()
-        self.n_sources = np.array(self.source_parameter.domain).size
+        self.n_sources = self.source_parameter.n_sources
 
     def _get_information_source_parameter(self) -> InformationSourceParameter:
         """
@@ -58,7 +58,7 @@ class MultiSourceAcquisitionOptimizer(AcquisitionOptimizerBase):
                         the parameter name and the value is the value to fix the parameter to.
         :return: A tuple of (location of maximum, acquisition value at maximum)
         """
-        f_maxs = np.zeros((len(self.source_parameter.domain)))
+        f_maxs = np.zeros((self.source_parameter.n_sources, self.source_parameter.dimension))
         x_opts = []
 
         if context is None:
@@ -68,11 +68,12 @@ class MultiSourceAcquisitionOptimizer(AcquisitionOptimizerBase):
             return self.acquisition_optimizer.optimize(acquisition, context)
 
         # Optimize acquisition for each information source
-        for i in range(len(self.source_parameter.domain)):
+        for i, source_encoding in enumerate(self.source_parameter.encodings):
             # Fix the source using a dictionary, the key is the name of the parameter to fix and the value is the
             # value to which the parameter is fixed
-            context[self.source_parameter.name] = self.source_parameter.domain[i]
+            context[self.source_parameter.name] = source_encoding
             x, f_maxs[i] = self.acquisition_optimizer.optimize(acquisition, context)
             x_opts.append(x)
         best_source = np.argmax(f_maxs)
+        print(f_maxs)
         return x_opts[best_source], np.max(f_maxs)

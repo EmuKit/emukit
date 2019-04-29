@@ -7,9 +7,7 @@ import numpy as np
 import GPyOpt
 
 from .parameter import Parameter
-from . import CategoricalParameter
-from . import ContinuousParameter
-from .discrete_parameter import DiscreteParameter, InformationSourceParameter
+from . import CategoricalParameter, ContinuousParameter, DiscreteParameter, InformationSourceParameter
 
 
 class ParameterSpace(object):
@@ -111,8 +109,11 @@ class ParameterSpace(object):
                                 'dimensionality': 1}
                 gpyopt_parameters.append(gpyopt_param)
             elif isinstance(parameter, CategoricalParameter):
+                name = parameter.name
                 for i, cat_sub_param in enumerate(parameter.model_parameters):
-                    gpyopt_param = {'name': parameter.name + '_' + str(i),
+                    if len(parameter.model_parameters) > 1:
+                        name = parameter.name + '_' + str(i)
+                    gpyopt_param = {'name': name,
                                     'type': 'continuous',
                                     'domain': (cat_sub_param.min, cat_sub_param.max),
                                     'dimensionality': 1}

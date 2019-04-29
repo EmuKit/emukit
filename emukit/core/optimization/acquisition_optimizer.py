@@ -27,7 +27,7 @@ class AcquisitionOptimizerBase(abc.ABC):
 
             # Log warning if context parameter is out of domain
             param = self.space.get_parameter_by_name(context_name)
-            if param.check_in_domain(context_value) is False:
+            if param.check_in_domain(np.asarray(context_value).reshape(1, -1)) is False:
                 _log.warning(context_name + ' with value ' + str(context_value), ' is out of the domain')
             else:
                 _log.info('Parameter ' + context_name + ' fixed to ' + str(context_value))

@@ -7,7 +7,7 @@ from typing import Union, Callable
 import scipy
 import numpy as np
 
-from ...core import InformationSourceParameter
+from ...core import InformationSourceParameter, DiscreteInformationSourceParameter, OrdinalInformationSourceParameter
 from ...core.acquisition import Acquisition
 from ...core.interfaces import IModel
 from ...core.parameter_space import ParameterSpace
@@ -240,8 +240,13 @@ class MultiInformationSourceEntropySearch(EntropySearch):
 
         # Assume we are in a multi-fidelity setting and the highest index is the highest fidelity
         if target_information_source_index is None:
-            target_information_source_index = max(info_source_parameter.domain)
-        self.target_information_source_index = target_information_source_index
+            if isinstance(info_source_parameter, (DiscreteInformationSourceParameter,
+                                                  OrdinalInformationSourceParameter)):
+                self.target_information_source_index = info_source_parameter.bounds[0][1]
+            else:
+                raise ValueError('target_information_index is None and cannot automatically determined.')
+        else:
+            self.target_information_source_index = target_information_source_index
 
         # Sampler of representer points should sample x location at the target information source only so make a
         # parameter space without the information source parameter
