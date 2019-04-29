@@ -69,11 +69,3 @@ class DiscreteParameter(Parameter):
             x_rounded.append([rounded_value])
 
         return np.row_stack(x_rounded)
-
-
-class InformationSourceParameter(DiscreteParameter):
-    def __init__(self, n_sources: int) -> None:
-        """
-        :param n_sources: Number of information sources in the problem
-        """
-        super().__init__('source', list(range(n_sources)))
