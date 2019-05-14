@@ -14,6 +14,7 @@ from .enums import AcquisitionType, ModelType
 
 def create_bayesian_optimization_loop(x_init: np.ndarray, y_init: np.ndarray, parameter_space: ParameterSpace,
                                       acquisition_type: AcquisitionType, model_type: ModelType,
+                                      c_init: np.ndarray = None,
                                       model_kwargs: dict=None,
                                       acquisition_optimizer: AcquisitionOptimizerBase = None) -> OuterLoop:
     """
@@ -21,6 +22,7 @@ def create_bayesian_optimization_loop(x_init: np.ndarray, y_init: np.ndarray, pa
 
     :param x_init: 2d numpy array of shape (no. points x no. input features) of initial X data
     :param y_init: 2d numpy array of shape (no. points x no. targets) of initial Y data
+    :param c_init: 2d numpy array of shape (no. points x no. targets) of initial cost of each function evaluation
     :param parameter_space: parameter space describing input domain
     :param acquisition_type: an AcquisitionType enumeration object describing which acquisition function to use
     :param model_type: A ModelType enumeration object describing which model to use.
@@ -54,6 +56,6 @@ def create_bayesian_optimization_loop(x_init: np.ndarray, y_init: np.ndarray, pa
     if acquisition_optimizer is None:
         acquisition_optimizer = GradientAcquisitionOptimizer(parameter_space)
     candidate_point_calculator = SequentialPointCalculator(acquisition, acquisition_optimizer)
-    loop_state = create_loop_state(x_init, y_init)
+    loop_state = create_loop_state(x_init, y_init, c_init)
     model_updater = FixedIntervalUpdater(model, 1)
     return OuterLoop(candidate_point_calculator, model_updater, loop_state)
