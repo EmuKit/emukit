@@ -3,7 +3,7 @@ from typing import Dict, Optional, Tuple
 from GPyOpt.optimization import AcquisitionOptimizer
 import numpy as np
 
-from .acquisition_optimizer import AcquisitionOptimizerBase
+from .acquisition_optimizer import IAcquisitionOptimizer
 from .context_manager import ContextManager
 from .. import ParameterSpace
 from ..acquisition import Acquisition
@@ -12,7 +12,7 @@ import logging
 _log = logging.getLogger(__name__)
 
 
-class GradientAcquisitionOptimizer(AcquisitionOptimizerBase):
+class GradientAcquisitionOptimizer(IAcquisitionOptimizer):
     """ Optimizes the acquisition function using a quasi-Newton method (L-BFGS).
     Can be used for continuous acquisition functions.
     """
@@ -36,7 +36,7 @@ class GradientAcquisitionOptimizer(AcquisitionOptimizerBase):
         Implementation of abstract method.
         Taking into account gradients if acquisition supports them.
 
-        See AcquisitionOptimizerBase._optimizer for parameter descriptions.
+        See IAcquisitionOptimizer._optimizer for parameter descriptions.
         See class docstring for implementation details.
         """
         self.gpyopt_acquisition_optimizer.context_manager = context_manager._gpyopt_context_manager

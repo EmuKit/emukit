@@ -3,7 +3,7 @@ from typing import Sequence, List, Tuple, Optional
 
 import numpy as np
 
-from .acquisition_optimizer import AcquisitionOptimizerBase
+from .acquisition_optimizer import IAcquisitionOptimizer
 from .context_manager import ContextManager
 from .. import CategoricalParameter, ContinuousParameter, DiscreteParameter
 from .. import OneHotEncoding, OrdinalEncoding
@@ -13,7 +13,7 @@ from ..acquisition import Acquisition
 _log = logging.getLogger(__name__)
 
 
-class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
+class LocalSearchAcquisitionOptimizer(IAcquisitionOptimizer):
     """ Optimizes the acquisition function by multiple local searches starting at random points.
     Each local optimization iteratively evaluates the one-exchange neighbourhoods.
     Can be used for discrete and continuous acquisition functions.
@@ -161,7 +161,7 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         """
         Implementation of abstract method.
 
-        See AcquisitionOptimizerBase._optimizer for parameter descriptions.
+        See IAcquisitionOptimizer._optimizer for parameter descriptions.
         See class docstring for implementation details.
         """
         X_init = context_manager.contextfree_space.sample_uniform(self.num_init_points)

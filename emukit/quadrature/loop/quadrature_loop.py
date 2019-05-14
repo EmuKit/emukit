@@ -5,7 +5,7 @@
 
 from ...core.loop.loop_state import create_loop_state
 from ...core.loop import OuterLoop, SequentialPointCalculator, FixedIntervalUpdater, ModelUpdater
-from ...core.optimization import AcquisitionOptimizerBase
+from ...core.optimization import IAcquisitionOptimizer
 from ...core.optimization import GradientAcquisitionOptimizer
 from ...core.parameter_space import ParameterSpace
 from ...core.acquisition import Acquisition
@@ -15,7 +15,7 @@ from ...quadrature.acquisitions import IntegralVarianceReduction
 
 class VanillaBayesianQuadratureLoop(OuterLoop):
     def __init__(self, model: VanillaBayesianQuadrature, acquisition: Acquisition = None,
-                 model_updater: ModelUpdater = None, acquisition_optimizer: AcquisitionOptimizerBase = None):
+                 model_updater: ModelUpdater = None, acquisition_optimizer: IAcquisitionOptimizer = None):
         """
         The loop for vanilla Bayesian Quadrature
 

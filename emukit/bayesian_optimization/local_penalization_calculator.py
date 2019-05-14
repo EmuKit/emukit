@@ -6,7 +6,7 @@ from ..core.acquisition import Acquisition
 from ..core.interfaces import IDifferentiable
 from ..core.loop import CandidatePointCalculator, LoopState
 from ..bayesian_optimization.acquisitions.local_penalization import LocalPenalization
-from ..core.optimization import AcquisitionOptimizerBase
+from ..core.optimization import IAcquisitionOptimizer
 
 N_SAMPLES = 500  # Number of samples to use when estimating Lipschitz constant
 MAX_ITER = 200  # Maximum number of iterations for optimizer when estimating Lipschitz constant
@@ -20,7 +20,7 @@ class LocalPenalizationPointCalculator(CandidatePointCalculator):
     <https://arxiv.org/abs/1505.08052>`_
     """
 
-    def __init__(self, acquisition: Acquisition, acquisition_optimizer: AcquisitionOptimizerBase,
+    def __init__(self, acquisition: Acquisition, acquisition_optimizer: IAcquisitionOptimizer,
                  model: IDifferentiable, parameter_space: ParameterSpace, batch_size: int):
         """
         :param acquisition: Base acquisition function to use without any penalization applied, this acquisition should

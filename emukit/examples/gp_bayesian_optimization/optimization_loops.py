@@ -5,7 +5,7 @@ from ...bayesian_optimization.acquisitions import ExpectedImprovement, Probabili
 from ...core import ParameterSpace
 from ...core.loop import OuterLoop, FixedIntervalUpdater, SequentialPointCalculator
 from ...core.loop.loop_state import create_loop_state
-from ...core.optimization import AcquisitionOptimizerBase
+from ...core.optimization import IAcquisitionOptimizer
 from ...core.optimization import GradientAcquisitionOptimizer
 from ..models.bohamiann import Bohamiann
 from ..models.random_forest import RandomForest
@@ -15,7 +15,7 @@ from .enums import AcquisitionType, ModelType
 def create_bayesian_optimization_loop(x_init: np.ndarray, y_init: np.ndarray, parameter_space: ParameterSpace,
                                       acquisition_type: AcquisitionType, model_type: ModelType,
                                       model_kwargs: dict=None,
-                                      acquisition_optimizer: AcquisitionOptimizerBase = None) -> OuterLoop:
+                                      acquisition_optimizer: IAcquisitionOptimizer = None) -> OuterLoop:
     """
     Creates Bayesian optimization loop for Bayesian neural network or random forest models.
 

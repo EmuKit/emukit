@@ -9,7 +9,7 @@ from ...core.acquisition import Acquisition, acquisition_per_expected_cost
 from ...core.interfaces import IModel
 from ...core.loop import FixedIntervalUpdater, OuterLoop, SequentialPointCalculator
 from ...core.loop.loop_state import create_loop_state
-from ...core.optimization import AcquisitionOptimizerBase
+from ...core.optimization import IAcquisitionOptimizer
 from ...core.optimization import GradientAcquisitionOptimizer
 from ...core.parameter_space import ParameterSpace
 
@@ -17,7 +17,7 @@ from ...core.parameter_space import ParameterSpace
 class CostSensitiveBayesianOptimizationLoop(OuterLoop):
     def __init__(self, space: ParameterSpace, model_objective: IModel, model_cost: IModel,
                  acquisition: Acquisition = None, update_interval: int = 1,
-                 acquisition_optimizer: AcquisitionOptimizerBase = None):
+                 acquisition_optimizer: IAcquisitionOptimizer = None):
 
         """
         Emukit class that implements a loop for building modular cost sensitive Bayesian optimization.

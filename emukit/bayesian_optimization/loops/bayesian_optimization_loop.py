@@ -8,7 +8,7 @@ from ...core.acquisition import Acquisition
 from ...core.interfaces import IDifferentiable, IModel
 from ...core.loop import FixedIntervalUpdater, OuterLoop, SequentialPointCalculator
 from ...core.loop.loop_state import create_loop_state, LoopState
-from ...core.optimization import AcquisitionOptimizerBase
+from ...core.optimization import IAcquisitionOptimizer
 from ...core.optimization import GradientAcquisitionOptimizer
 from ...core.parameter_space import ParameterSpace
 from ..acquisitions import ExpectedImprovement
@@ -18,7 +18,7 @@ from ..local_penalization_calculator import LocalPenalizationPointCalculator
 
 class BayesianOptimizationLoop(OuterLoop):
     def __init__(self, space: ParameterSpace, model: IModel, acquisition: Acquisition = None, update_interval: int = 1,
-                 batch_size: int = 1, acquisition_optimizer: AcquisitionOptimizerBase = None):
+                 batch_size: int = 1, acquisition_optimizer: IAcquisitionOptimizer = None):
 
         """
         Emukit class that implement a loop for building modular Bayesian optimization

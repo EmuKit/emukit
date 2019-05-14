@@ -8,16 +8,16 @@ import numpy as np
 
 from .. import InformationSourceParameter, ParameterSpace
 from ..acquisition import Acquisition
-from .acquisition_optimizer import AcquisitionOptimizerBase
+from .acquisition_optimizer import IAcquisitionOptimizer
 from .context_manager import ContextManager, Context
 
 
-class MultiSourceAcquisitionOptimizer(AcquisitionOptimizerBase):
+class MultiSourceAcquisitionOptimizer(IAcquisitionOptimizer):
     """
     Optimizes the acquisition function by finding the optimum input location at each information source, then picking
     the information source where the value of the acquisition at the optimum input location is highest.
     """
-    def __init__(self, acquisition_optimizer: AcquisitionOptimizerBase, space: ParameterSpace) -> None:
+    def __init__(self, acquisition_optimizer: IAcquisitionOptimizer, space: ParameterSpace) -> None:
         """
         :param acquisition_optimizer: Optimizer to use for optimizing the acquisition once the information source
                                       has been fixed
@@ -42,7 +42,7 @@ class MultiSourceAcquisitionOptimizer(AcquisitionOptimizerBase):
         """
         Implementation of abstract method. Does nothing, optimize overwritten instead.
 
-        See AcquisitionOptimizerBase._optimizer for parameter descriptions.
+        See IAcquisitionOptimizer._optimizer for parameter descriptions.
         See class docstring for implementation details.
         """
         pass

@@ -3,7 +3,7 @@ from typing import Tuple
 
 import numpy as np
 
-from .acquisition_optimizer import AcquisitionOptimizerBase
+from .acquisition_optimizer import IAcquisitionOptimizer
 from .context_manager import ContextManager
 from .. import ParameterSpace
 from ..acquisition import Acquisition
@@ -11,7 +11,7 @@ from ..acquisition import Acquisition
 _log = logging.getLogger(__name__)
 
 
-class RandomSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
+class RandomSearchAcquisitionOptimizer(IAcquisitionOptimizer):
     """ Optimizes the acquisition function by evaluating at random points.
     Can be used for discrete and continuous acquisition functions.
     """
@@ -29,7 +29,7 @@ class RandomSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         """
         Implementation of abstract method.
 
-        See AcquisitionOptimizerBase._optimizer for parameter descriptions.
+        See IAcquisitionOptimizer._optimizer for parameter descriptions.
         See class docstring for implementation details.
         """
         _log.info("Starting random search optimization of acquisition function {}"

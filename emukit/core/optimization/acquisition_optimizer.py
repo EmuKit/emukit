@@ -14,7 +14,7 @@ import logging
 _log = logging.getLogger(__name__)
 
 
-class AcquisitionOptimizerBase(abc.ABC):
+class IAcquisitionOptimizer(abc.ABC):
     def __init__(self, space: ParameterSpace):
         self.space = space
         self.gpyopt_space = space.convert_to_gpyopt_design_space()

@@ -9,7 +9,7 @@ import numpy as np
 from .loop_state import LoopState
 from ..acquisition import Acquisition
 from ..interfaces import IModel
-from ..optimization.acquisition_optimizer import AcquisitionOptimizerBase
+from ..optimization.acquisition_optimizer import IAcquisitionOptimizer
 
 
 class CandidatePointCalculator(abc.ABC):
@@ -27,7 +27,7 @@ class CandidatePointCalculator(abc.ABC):
 
 class SequentialPointCalculator(CandidatePointCalculator):
     """ This candidate point calculator chooses one candidate point at a time """
-    def __init__(self, acquisition: Acquisition, acquisition_optimizer: AcquisitionOptimizerBase) -> None:
+    def __init__(self, acquisition: Acquisition, acquisition_optimizer: IAcquisitionOptimizer) -> None:
         """
         :param acquisition: Acquisition function to maximise
         :param acquisition_optimizer: Optimizer of acquisition function
@@ -56,7 +56,7 @@ class GreedyBatchPointCalculator(CandidatePointCalculator):
     the end of collecting a batch but if you use a model where training the model with the same data leads to different
     predictions, the model behaviour will be modified.
     """
-    def __init__(self, model: IModel, acquisition: Acquisition, acquisition_optimizer: AcquisitionOptimizerBase,
+    def __init__(self, model: IModel, acquisition: Acquisition, acquisition_optimizer: IAcquisitionOptimizer,
                  batch_size: int=1):
         """
         :param model: Model that is used by the acquisition function
