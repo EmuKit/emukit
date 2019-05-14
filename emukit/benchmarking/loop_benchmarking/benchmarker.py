@@ -1,5 +1,6 @@
 import logging
 import numpy as np
+from functools import partial
 from typing import Callable, List, Tuple, Union
 
 from ...core import ParameterSpace
@@ -78,13 +79,14 @@ class Benchmarker:
             for metric in self.metrics:
                 metric.reset()
 
-                def update_metric(loop, loop_state):
+                def update_metric(loop, loop_state, metric):
                     value = metric.evaluate(loop, loop_state)
                     _add_value_to_metrics_dict(loop_state, value, metric.name)
 
                 # Subscribe to events
-                outer_loop.loop_start_event.append(update_metric)
-                outer_loop.iteration_end_event.append(update_metric)
+                func = partial(update_metric, metric=metric)
+                outer_loop.loop_start_event.append(func)
+                outer_loop.iteration_end_event.append(func)
 
     def _create_initial_loop_state(self, n_initial_data):
         x_init = self.initial_design.get_samples(n_initial_data)
