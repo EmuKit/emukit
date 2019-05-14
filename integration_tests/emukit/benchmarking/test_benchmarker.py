@@ -14,8 +14,8 @@ from emukit.model_wrappers import GPyModelWrapper
 def loops():
     space = ParameterSpace([ContinuousParameter('x', 0, 1)])
 
-    def make_loop(x_init, y_init):
-        gpy_model = GPy.models.GPRegression(x_init, y_init)
+    def make_loop(loop_state):
+        gpy_model = GPy.models.GPRegression(loop_state.X, loop_state.Y)
         model = GPyModelWrapper(gpy_model)
         return BayesianOptimizationLoop(space, model)
 

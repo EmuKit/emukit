@@ -60,7 +60,7 @@ class Benchmarker:
             for i, (loop, loop_name) in enumerate(zip(self.loops, self.loop_names)):
                 _log.info('Benchmarking loop ' + str(i) + ' for repeat ' + str(j))
 
-                this_loop = loop(initial_loop_state.X, initial_loop_state.Y)
+                this_loop = loop(initial_loop_state)
                 this_loop.loop_state.metrics = dict()
                 self._subscribe_metrics_to_loop_events(this_loop)
 
