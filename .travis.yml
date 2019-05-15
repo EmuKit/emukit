@@ -18,6 +18,8 @@ before_install: |
    # Set environment variables
    export PYENV_VERSION=$PYTHON
    export PATH="/Users/travis/.pyenv/shims:${PATH}"
+   # install libomp see #197
+   brew install libomp
    # Confirm versions
    python --version
    pip -V
