@@ -13,7 +13,7 @@ def model():
     rng = np.random.RandomState(42)
     x_init = rng.rand(5, 2)
     y_init = rng.rand(5, 1)
-    model = Bohamiann(x_init, y_init)
+    model = Bohamiann(x_init, y_init, num_burnin=100, num_steps=200)
     return model
 
 
