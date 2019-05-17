@@ -4,10 +4,10 @@
 
 from typing import Tuple, Union
 
-from GPyOpt.util.general import get_quantiles
+import scipy.stats
 import numpy as np
 
-from ...core.interfaces import IModel, IDifferentiable, IPriorHyperparameters
+from ...core.interfaces import IModel, IDifferentiable
 from ...core.acquisition import Acquisition
 
 
@@ -38,11 +38,12 @@ class ExpectedImprovement(Acquisition):
 
         mean, variance = self.model.predict(x)
         standard_deviation = np.sqrt(variance)
+        mean += self.jitter
 
         y_minimum = np.min(self.model.Y, axis=0)
-
-        pdf, cdf, u = get_quantiles(self.jitter, y_minimum, mean, standard_deviation)
-
+        u = (y_minimum - mean) / standard_deviation
+        pdf = scipy.stats.norm.pdf(u)
+        cdf = scipy.stats.norm.cdf(u)
         improvement = standard_deviation * (u * cdf + pdf)
 
         return improvement
@@ -62,7 +63,10 @@ class ExpectedImprovement(Acquisition):
         dmean_dx, dvariance_dx = self.model.get_prediction_gradients(x)
         dstandard_deviation_dx = dvariance_dx / (2 * standard_deviation)
 
-        pdf, cdf, u = get_quantiles(self.jitter, y_minimum, mean, standard_deviation)
+        mean += self.jitter
+        u = (y_minimum - mean) / standard_deviation
+        pdf = scipy.stats.norm.pdf(u)
+        cdf = scipy.stats.norm.cdf(u)
 
         improvement = standard_deviation * (u * cdf + pdf)
         dimprovement_dx = dstandard_deviation_dx * pdf - cdf * dmean_dx
