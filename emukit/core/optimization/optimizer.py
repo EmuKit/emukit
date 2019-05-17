@@ -1,7 +1,7 @@
 # Copyright (c) 2016, the GPyOpt Authors
 # Licensed under the BSD 3-clause license (see LICENSE.txt)
 
-from enum import Enum, auto
+from typing import List, Tuple, Callable
 
 import numpy as np
 import scipy.optimize
@@ -13,20 +13,21 @@ from .context_manager import ContextManager
 class Optimizer(object):
     """
     Class for a general acquisition optimizer.
-
-    :param bounds: list of tuple with bounds of the optimizer
     """
 
-    def __init__(self, bounds):
+    def __init__(self, bounds: List[Tuple]):
+        """
+        :param bounds: List of min/max values for each dimension of x
+        """
         self.bounds = bounds
 
-    def optimize(self, x0, f=None, df=None, f_df=None, constraints=None):
+    def optimize(self, x0: np.array, f: Callable=None, df: Callable=None, f_df: Callable=None) -> Tuple[np.array, np.array]:
         """
         :param x0: initial point for a local optimizer.
         :param f: function to optimize.
         :param df: gradient of the function to optimize.
         :param f_df: returns both the function to optimize and its gradient.
-        :param constraints:
+        :return: Location of optimum and value at optimum
         """
         raise NotImplementedError("The optimize method is not implemented in the parent class.")
 
@@ -40,19 +41,15 @@ class OptLbfgs(Optimizer):
         super(OptLbfgs, self).__init__(bounds)
         self.max_iterations = max_iterations
 
-    def optimize(self, x0, f=None, df=None, f_df=None, constraints=None):
+    def optimize(self, x0: np.array, f: Callable=None, df: Callable=None, f_df: Callable=None) \
+            -> Tuple[np.array, np.array]:
         """
         :param x0: initial point for a local optimizer.
         :param f: function to optimize.
         :param df: gradient of the function to optimize.
         :param f_df: returns both the function to optimize and its gradient.
-        :param constraints: Constraints
+        :return: Location of optimum and value at optimum
         """
-
-        print(self.bounds)
-        print(x0)
-        if constraints is not None:
-            raise ValueError('LBFGS optimizer cannot handle constraints')
 
         if f_df is None and df is not None: f_df = lambda x: float(f(x)), df(x)
         if f_df is not None:
@@ -75,19 +72,19 @@ class OptLbfgs(Optimizer):
         return result_x, result_fx
 
 
-def apply_optimizer(optimizer, x0, f=None, df=None, f_df=None, duplicate_manager=None, context_manager=None,
-                    space: ParameterSpace=None, constraints=None):
+def apply_optimizer(optimizer: Optimizer, x0: np.array, f: Callable=None, df: Callable=None, f_df: Callable=None,
+                    context_manager: ContextManager=None, space: ParameterSpace=None) -> Tuple[np.array, np.array]:
     """
+    Optimizes f using the optimizer supplied, deals with potential context variables.
+
     :param optimizer: The optimizer object that will perform the optimization
     :param x0: initial point for a local optimizer (x0 can be defined with or without the context included).
     :param f: function to optimize.
     :param df: gradient of the function to optimize.
     :param f_df: returns both the function to optimize and its gradient.
-    :param duplicate_manager: logic to check for duplicate (always operates in the full space, context included)
     :param context_manager: If provided, x0 (and the optimizer) operates in the space without the context
     :param space: GPyOpt class design space.
-    :param constraints: Any constraints that the optimizer should satisfy. Should be a scipy constraint or list of
-                        multiple constraints
+    :return: Location of optimum and value at optimum
     """
     x0 = np.atleast_2d(x0)
 
@@ -100,33 +97,24 @@ def apply_optimizer(optimizer, x0, f=None, df=None, f_df=None, duplicate_manager
     else:
         add_context = lambda x: x
 
-    if duplicate_manager and duplicate_manager.is_unzipped_x_duplicate(x0):
-        raise ValueError("The starting point of the optimizer cannot be a duplicate.")
-
     # Optimize point
     optimized_x, _ = optimizer.optimize(problem.x0_no_context, problem.f_no_context, problem.df_no_context,
-                                        problem.f_df_no_context, constraints=constraints)
+                                        problem.f_df_no_context)
 
     # Add context and round according to the type of variables of the design space
     suggested_x_with_context = add_context(optimized_x)
     suggested_x_with_context_rounded = space.round(suggested_x_with_context)
-
-    # Run duplicate_manager
-    if duplicate_manager and duplicate_manager.is_unzipped_x_duplicate(suggested_x_with_context_rounded):
-        suggested_x, suggested_fx = x0, np.atleast_2d(f(x0))
-    else:
-        suggested_x, suggested_fx = suggested_x_with_context_rounded, f(suggested_x_with_context_rounded)
-
-    return suggested_x, suggested_fx
+    return suggested_x_with_context_rounded, f(suggested_x_with_context_rounded)
 
 
 class OptimizationWithContext(object):
 
-    def __init__(self, x0, f, df=None, f_df=None, context_manager: ContextManager = None):
-        '''
+    def __init__(self, x0: np.array, f: Callable, df: Callable=None, f_df: Callable=None,
+                 context_manager: ContextManager = None):
+        """
         Constructor of an objective function that takes as input a vector x of the non context variables
-        and retunrs a value in which the context variables have been fixed.
-        '''
+        and returns a value in which the context variables have been fixed.
+        """
         self.x0 = np.atleast_2d(x0)
         self.f = f
         self.df = df
@@ -140,18 +128,19 @@ class OptimizationWithContext(object):
             self.f_df_no_context = self.f_df
         else:
             self.x0_no_context = self.x0[:, self.context_manager.non_context_idxs]
-            self.f_no_context = self.f_nc
+            self.f_no_context = self.f_no_context
             if self.f_df is None:
                 self.df_no_context = None
                 self.f_df_no_context = None
             else:
-                self.df_no_context = self.df_nc
-                self.f_df_no_context = self.f_df_nc
+                self.df_no_context = self.df_no_context
+                self.f_df_no_context = self.f_df_no_context
 
-    def f_nc(self, x):
+    def f_no_context(self, x: np.array) -> np.array:
         """
-        Wrapper of *f*: takes an input x with size of the noncontext dimensions
-        expands it and evaluates the entire function.
+        Wrapper of optimization objective function which deals with adding context variables to x
+
+        :param x: Input without context variables
         """
         x = np.atleast_2d(x)
         xx = self.context_manager.expand_vector(x)
@@ -160,10 +149,11 @@ class OptimizationWithContext(object):
         else:
             return self.f(xx)
 
-    def df_nc(self, x):
+    def df_no_context(self, x: np.array) -> np.array:
         """
-        Wrapper of the derivative of *f*: takes an input x with size of the not
-        fixed dimensions expands it and evaluates the gradient of the entire function.
+        Wrapper of the derivative of optimization objective function which deals with adding context variables to x
+
+        :param x: Input without context variables
         """
         x = np.atleast_2d(x)
         xx = self.context_manager.expand_vector(x)
@@ -171,10 +161,11 @@ class OptimizationWithContext(object):
         df_no_context_xx = df_no_context_xx[:, np.array(self.context_manager.non_context_idxs)]
         return df_no_context_xx
 
-    def f_df_nc(self, x):
+    def f_df_no_context(self, x: np.array) -> Tuple[np.array, np.array]:
         """
-        Wrapper of the derivative of *f*: takes an input x with size of the not
-        fixed dimensions expands it and evaluates the gradient of the entire function.
+        Wrapper of optimization objective function and its derivative which deals with adding context variables to x
+
+        :param x: Input without context variables
         """
         x = np.atleast_2d(x)
         xx = self.context_manager.expand_vector(x)
