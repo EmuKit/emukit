@@ -4,9 +4,8 @@
 
 from typing import Tuple, Union
 
+import scipy.stats
 import numpy as np
-
-from GPyOpt.util.general import get_quantiles
 
 from ...core.interfaces import IModel, IDifferentiable
 from ...core.acquisition import Acquisition
@@ -36,10 +35,11 @@ class ProbabilityOfImprovement(Acquisition):
         :param x: points where the acquisition is evaluated.
         """
         mean, variance = self.model.predict(x)
+        mean += self.jitter
+
         standard_deviation = np.sqrt(variance)
         y_minimum = np.min(self.model.Y, axis=0)
-        _, cdf, _ = get_quantiles(self.jitter, y_minimum, mean, standard_deviation)
-
+        cdf = scipy.stats.norm.cdf(y_minimum, mean, standard_deviation)
         return cdf
 
     def evaluate_with_gradients(self, x: np.ndarray) -> Tuple:
@@ -55,9 +55,12 @@ class ProbabilityOfImprovement(Acquisition):
         dstandard_devidation_dx = dvariance_dx / (2 * standard_deviation)
 
         y_minimum = np.min(self.model.Y, axis=0)
-        pdf, cdf, u = get_quantiles(self.jitter, y_minimum, mean, standard_deviation)
 
-        dcdf_dx = - (pdf / standard_deviation) * (dmean_dx + dstandard_devidation_dx * u)
+        mean += self.jitter
+        u = (y_minimum - mean) / standard_deviation
+        pdf = scipy.stats.norm.pdf(y_minimum, mean, standard_deviation)
+        cdf = scipy.stats.norm.cdf(y_minimum, mean, standard_deviation)
+        dcdf_dx = - pdf * (dmean_dx + dstandard_devidation_dx * u)
 
         return cdf, dcdf_dx
 
