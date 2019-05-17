@@ -50,7 +50,7 @@ def get_default_network(input_dimensionality: int) -> torch.nn.Module:
 class Bohamiann(IModel, IDifferentiable):
 
     def __init__(self, X_init: np.ndarray, Y_init: np.ndarray, num_steps: int = 5000, num_burnin: int = 5000,
-                 lr: float = 1e-2, get_architecture: function = get_default_network,
+                 lr: float = 1e-2, get_architecture=get_default_network,
                  **kwargs) -> None:
         """
         Implements Bayesian neural networks as described by Springenberg et. al[1] based on
