@@ -23,7 +23,7 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
     Neighbourhood definitions and default parameters are based on the search used
     in SMAC [1].
 
-    .. warning:: The local search heuristic here currently differes to SMAC [1].
+    .. warning:: The local search heuristic here currently differs to SMAC [1].
                  The neighbourhood of a point is evaluated completely,
                  the search continues at the best neighbour (best improvement heuristic).
                  SMAC iteratively samples neighbours and continues at the first which
@@ -51,15 +51,13 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         :param std_dev: Neighbourhood sampling standard deviation of continuous parameters.
         :param num_continuous: Number of sampled neighbourhoods per continuous parameter.
         """
-        self.space = space
-        self.gpyopt_space = space.convert_to_gpyopt_design_space()
+        super().__init__(space)
         self.num_steps = num_steps
         self.num_init_points = num_init_points
         self.std_dev = std_dev
         self.num_continuous = num_continuous
 
-    def _neighbours_per_parameter(self, all_features: np.ndarray, parameters: Sequence[Parameter])\
-        -> List[np.ndarray]:
+    def _neighbours_per_parameter(self, all_features: np.ndarray, parameters: Sequence[Parameter]) -> List[np.ndarray]:
         """ Generates parameter encodings for one-exchange neighbours of
             parameters encoded in parameter feature vector
 
@@ -114,16 +112,14 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         :param all_features: The encoded parameter point (1d-array)
         :return: All one-exchange neighbours as 2d-array (neighbours, features)
         """
-        neighbours_per_param = self._neighbours_per_parameter(
-            all_features, parameters)
+        neighbours_per_param = self._neighbours_per_parameter(all_features, parameters)
         num_neighbours = sum(param.shape[0] for param in neighbours_per_param)
         neighbours = np.full((num_neighbours, all_features.shape[0]), all_features)
         current_neighbour, current_feature = 0, 0
         for this_neighbours in neighbours_per_param:
             next_neighbour = current_neighbour + this_neighbours.shape[0]
             next_feature = current_feature + this_neighbours.shape[1]
-            neighbours[current_neighbour:next_neighbour,
-                       current_feature:next_feature] = this_neighbours
+            neighbours[current_neighbour:next_neighbour, current_feature:next_feature] = this_neighbours
             current_neighbour, current_feature = next_neighbour, next_feature
         return neighbours
 
@@ -144,7 +140,7 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
             acquisition_values = acquisition.evaluate(neighbours_with_context)
             max_index = np.argmax(acquisition_values)
             max_neighbour = neighbours[max_index]
-            max_value = np.asscalar(acquisition_values[max_index])
+            max_value = np.item(acquisition_values[max_index])
             if max_value < incumbent_value:
                 _log.debug("End after {} steps at maximum of acquisition={:.4f} at {}"
                            .format(step, incumbent_value, str(x)))
@@ -152,12 +148,10 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
             else:
                 incumbent_value = max_value
                 x = max_neighbour
-        _log.debug("End at step limit with acquisition={:.4f} at {}"
-                   .format(incumbent_value, str(x)))
+        _log.debug("End at step limit with acquisition={:.4f} at {}".format(incumbent_value, str(x)))
         return x, incumbent_value
 
-    def _optimize(self, acquisition: Acquisition, context_manager: ContextManager)\
-        -> Tuple[np.ndarray, np.ndarray]:
+    def _optimize(self, acquisition: Acquisition, context_manager: ContextManager) -> Tuple[np.ndarray, np.ndarray]:
         """
         Implementation of abstract method.
 
@@ -167,11 +161,9 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         X_init = context_manager.contextfree_space.sample_uniform(self.num_init_points)
         X_max = np.empty_like(X_init)
         acq_max = np.empty((self.num_init_points, 1))
-        _log.info("Starting local optimization of acquisition function {}"
-                  .format(type(acquisition)))
+        _log.info("Starting local optimization of acquisition function {}".format(type(acquisition)))
         for sample in range(self.num_init_points):  # this loop could be parallelized
-            X_max[sample], acq_max[sample] = self._one_local_search(
-                acquisition, X_init[sample], context_manager)
+            X_max[sample], acq_max[sample] = self._one_local_search(acquisition, X_init[sample], context_manager)
         max_index = np.argmax(acq_max)
         X_max_with_context = context_manager.expand_vector(X_max)
         return X_max_with_context[[max_index]], acq_max[[max_index]]

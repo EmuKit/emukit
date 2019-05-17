@@ -20,8 +20,7 @@ class RandomSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         :param space: The parameter space spanning the search problem.
         :param num_eval_points: Number of random sampled points which are evaluated per optimization.
         """
-        self.space = space
-        self.gpyopt_space = space.convert_to_gpyopt_design_space()
+        super().__init__(space)
         self.num_eval_points = num_eval_points
 
     def _optimize(self, acquisition: Acquisition, context_manager: ContextManager)\

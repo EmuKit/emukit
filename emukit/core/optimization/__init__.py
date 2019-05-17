@@ -3,7 +3,8 @@
 
 
 from .acquisition_optimizer import AcquisitionOptimizerBase  # noqa: F401
+from .context_manager import ContextManager
 from .gradient_acquisition_optimizer import GradientAcquisitionOptimizer  # noqa: F401
 from .local_search_acquisition_optimizer import LocalSearchAcquisitionOptimizer  # noqa: F401
-from .random_search_acquisition_optimizer import RandomSearchAcquisitionOptimizer  # noqa: F401
 from .multi_source_acquisition_optimizer import MultiSourceAcquisitionOptimizer  # noqa: F401
+from .random_search_acquisition_optimizer import RandomSearchAcquisitionOptimizer  # noqa: F401
