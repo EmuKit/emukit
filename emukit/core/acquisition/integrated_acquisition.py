@@ -8,7 +8,7 @@ from emukit.core.interfaces import IModel, IPriorHyperparameters, IDifferentiabl
 
 class IntegratedAcquisition(Acquisition):
     """
-    This acquisition class provides functionality for integrating any other functionality over model hyper-parameters
+    This acquisition class provides functionality for integrating any acquisition function over model hyper-parameters
     """
     def __init__(self, model: Union[IModel, IPriorHyperparameters], acquisition_generator: Callable, n_samples: int=10):
         """
