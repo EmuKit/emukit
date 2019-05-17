@@ -24,7 +24,6 @@ class GradientAcquisitionOptimizer(AcquisitionOptimizerBase):
                        Note: only the 'lbfgs' optimizer is allowed.
         """
         super().__init__(space)
-        self.anchor_points_generator = ObjectiveAnchorPointsGenerator(space, '')
 
     def _optimize(self, acquisition: Acquisition, context_manager: ContextManager) -> Tuple[np.ndarray, np.ndarray]:
         """
@@ -51,13 +50,12 @@ class GradientAcquisitionOptimizer(AcquisitionOptimizerBase):
         else:
             f_df = None
 
-        optimizer = OptLbfgs(self.space.get_bounds())
+        optimizer = OptLbfgs(context_manager.contextfree_space.get_bounds())
 
-        anchor_points_generator = ObjectiveAnchorPointsGenerator(self.space, '')
+        anchor_points_generator = ObjectiveAnchorPointsGenerator(self.space, acquisition)
 
         # Select the anchor points (with context)
-        anchor_points = self.anchor_points_generator.get(acquisition, num_anchor=1, duplicate_manager=None,
-                                                         context_manager=context_manager)
+        anchor_points = anchor_points_generator.get(num_anchor=1, context_manager=context_manager)
 
         _log.info("Starting gradient-based optimization of acquisition function {}".format(type(acquisition)))
         optimized_points = []

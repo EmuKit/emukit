@@ -48,6 +48,9 @@ class OptLbfgs(Optimizer):
         :param f_df: returns both the function to optimize and its gradient.
         :param constraints: Constraints
         """
+
+        print(self.bounds)
+        print(x0)
         if constraints is not None:
             raise ValueError('LBFGS optimizer cannot handle constraints')
 
@@ -178,15 +181,3 @@ class OptimizationWithContext(object):
         f_no_context_xx, df_no_context_xx = self.f_df(xx)
         df_no_context_xx = df_no_context_xx[:, np.array(self.context_manager.non_context_idxs)]
         return f_no_context_xx, df_no_context_xx
-
-
-def choose_optimizer(optimizer_name, bounds):
-    """
-    Selects the type of local optimizer
-    """
-
-
-    return OptLbfgs(bounds)
-
-
-

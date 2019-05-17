@@ -34,7 +34,8 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
     One-exchange neighbourhood is defined for the following parameter types:
       :Categorical parameter with one-hot encoding: All other categories
       :Categorical parameter with ordinal encoding: Only preceeding and following categories
-      :Continuous parameter: Gaussian samples (default: 4) around current value. Standard deviation (default: 0.2) is scaled by parameter value range.
+      :Continuous parameter: Gaussian samples (default: 4) around current value. Standard deviation (default: 0.2) is
+                             scaled by parameter value range.
       :Discrete parameter: Preceeding and following discrete values.
 
     .. [1] Hutter, Frank, Holger H. Hoos, and Kevin Leyton-Brown.
@@ -105,8 +106,7 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
             current_feature += parameter.dimension
         return neighbours
 
-    def _neighbours(self, all_features: np.ndarray, parameters: Sequence[Parameter])\
-        -> np.ndarray:
+    def _neighbours(self, all_features: np.ndarray, parameters: Sequence[Parameter]) -> np.ndarray:
         """ Generates one-exchange neighbours of encoded parameter point.
 
         :param all_features: The encoded parameter point (1d-array)
@@ -140,7 +140,7 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
             acquisition_values = acquisition.evaluate(neighbours_with_context)
             max_index = np.argmax(acquisition_values)
             max_neighbour = neighbours[max_index]
-            max_value = np.item(acquisition_values[max_index])
+            max_value = np.asscalar(acquisition_values[max_index])
             if max_value < incumbent_value:
                 _log.debug("End after {} steps at maximum of acquisition={:.4f} at {}"
                            .format(step, incumbent_value, str(x)))
