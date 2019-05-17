@@ -34,7 +34,7 @@ class AnchorPointsGenerator(object):
         Points with higher scores will be chosen over points with lower scores.
 
         :param X: (n_samples x n_inputs_dims) arrays containing the points at which to evaluate the anchor point scores
-        :return:
+        :return: Array containing score for each input point
         """
         raise NotImplementedError('get_anchor_point_scores is not implemented in the parent class.')
 

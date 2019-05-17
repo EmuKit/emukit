@@ -60,8 +60,8 @@ class GradientAcquisitionOptimizer(AcquisitionOptimizerBase):
         _log.info("Starting gradient-based optimization of acquisition function {}".format(type(acquisition)))
         optimized_points = []
         for a in anchor_points:
-            optimized_point = apply_optimizer(optimizer, a, f=f, df=None, f_df=f_df, duplicate_manager=None,
-                                              context_manager=context_manager, space=self.space)
+            optimized_point = apply_optimizer(optimizer, a, f=f, df=None, f_df=f_df, context_manager=context_manager,
+                                              space=self.space)
             optimized_points.append(optimized_point)
 
         x_min, fx_min = min(optimized_points, key=lambda t: t[1])
