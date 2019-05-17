@@ -16,7 +16,6 @@ except ImportError:
         Refer to https://github.com/automl/pybnn for further information.
     """)
 
-
 import torch
 import torch.nn as nn
 
@@ -41,17 +40,18 @@ def get_default_network(input_dimensionality: int) -> torch.nn.Module:
             nn.init.constant_(module.bias, val=0.0)
 
     return nn.Sequential(
-        nn.Linear(input_dimensionality, 10), nn.Tanh(),
-        nn.Linear(10, 10), nn.Tanh(),
-        nn.Linear(10, 10), nn.Tanh(),
-        nn.Linear(10, 1),
+        nn.Linear(input_dimensionality, 50), nn.Tanh(),
+        nn.Linear(50, 50), nn.Tanh(),
+        nn.Linear(50, 1),
         AppendLayer()
     ).apply(init_weights)
 
 
 class Bohamiann(IModel, IDifferentiable):
 
-    def __init__(self, X_init, Y_init, **kwargs):
+    def __init__(self, X_init: np.ndarray, Y_init: np.ndarray, num_steps: int = 5000, num_burnin: int = 5000,
+                 lr: float = 1e-2, get_architecture: function = get_default_network,
+                 **kwargs) -> None:
         """
         Implements Bayesian neural networks as described by Springenberg et. al[1] based on
         stochastic gradient Hamiltonian monte carlo sampling[2].
@@ -65,16 +65,23 @@ class Bohamiann(IModel, IDifferentiable):
         [2] T. Chen, E. B. Fox, C. Guestrin
             Stochastic Gradient Hamiltonian Monte Carlo
             Proceedings of the 31st International Conference on Machine Learning
+
+        :param X_init: training data points
+        :param Y_init: training function values
+        :param num_steps: number of MCMC steps (after the burnin)
+        :param num_burnin: number of burnin steps
+        :param lr: learning rate or step length of the MCMC sampler
+        :param get_architecture: function handle that returns an architecture for the Bayesian neural network
         """
         super().__init__()
 
-        self.model = bohamiann.Bohamiann(get_network=get_default_network)
-        self.num_steps = 10000
-        self.num_burnin = 5000
+        self.model = bohamiann.Bohamiann(get_network=get_architecture)
+        self.num_steps = num_steps
+        self.num_burnin = num_burnin
         self._X = X_init
         self._Y = Y_init
 
-        self.model.train(X_init, Y_init, num_steps=self.num_steps, lr=1e-3,
+        self.model.train(X_init, Y_init, num_steps=self.num_steps + self.num_burnin, lr=lr,
                          num_burn_in_steps=self.num_burnin, keep_every=100, **kwargs)
 
     @property
