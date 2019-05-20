@@ -1,16 +1,13 @@
 # turn off notifications until build is stable
 notifications:
   email: false
+dist: xenial   # required for Python >= 3.7
 language: python
 os: linux
 python:
   - '3.5'
   - '3.6'
-matrix:
-  include:
-    - python: 3.7
-      dist: xenial
-      sudo: true
+  - '3.7'
 before_install: |
  if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
    # Recommended for pyenv
