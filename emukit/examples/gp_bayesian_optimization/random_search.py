@@ -11,6 +11,7 @@ from emukit.experimental_design.model_free.random_design import RandomDesign
 from emukit.core.loop.loop_state import LoopState
 from emukit.core.parameter_space import ParameterSpace
 from emukit.core.loop.model_updaters import ModelUpdater
+from emukit.core.loop.loop_state import create_loop_state
 
 
 class RandomSampling(CandidatePointCalculator):
@@ -34,7 +35,8 @@ class DummyModelUpdate(ModelUpdater):
 
 
 class RandomSearch(OuterLoop):
-    def __init__(self, space: ParameterSpace):
+    def __init__(self, space: ParameterSpace, x_init: np.ndarray = None, y_init: np.ndarray = None,
+                 cost_init: np.ndarray = None):
 
         """
         Emukit class that implement a loop for random search
@@ -46,7 +48,12 @@ class RandomSearch(OuterLoop):
 
         candidate_point_calculator = RandomSampling(parameter_space=space)
 
-        super().__init__(candidate_point_calculator, model_updaters, loop_state=None)
+        if x_init is not None and y_init is not None:
+            loop_state = create_loop_state(x_init, y_init, cost_init)
+        else:
+            loop_state = None
+
+        super().__init__(candidate_point_calculator, model_updaters, loop_state=loop_state)
 
     def get_results(self):
         return BayesianOptimizationResults(self.loop_state)
