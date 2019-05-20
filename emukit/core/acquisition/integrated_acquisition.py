@@ -55,7 +55,7 @@ class IntegratedAcquisition(Acquisition):
             acquisition_value += improvement_sample
             dacquisition_dx += dimprovement_dx_sample
 
-        return acquisition_value/self.n_samples, dacquisition_dx/self.n_samples
+        return acquisition_value / self.n_samples, dacquisition_dx / self.n_samples
 
     @property
     def has_gradients(self) -> bool:
