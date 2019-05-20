@@ -1,5 +1,6 @@
 # These are notebooks that take too long to run so are not tested here
-excluded_notebooks = ['Emukit-tutorial-multi-fidelity-bayesian-optimization.ipynb']
+excluded_notebooks = ['Emukit-tutorial-multi-fidelity-bayesian-optimization.ipynb',
+                      'Emukit-Categorical-with-Tensorflow.ipynb']
 
 import pytest
 import os
