@@ -6,5 +6,5 @@ pybnn==0.0.5
 PyDOE>=0.3.0
 # For notebook tests
 jupyter==1.0.0
-tensorflow==1.10.0
+tensorflow>=1.10.0
 pandas==0.24.2
