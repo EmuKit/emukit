@@ -51,8 +51,8 @@ class OuterLoop(object):
         if self.loop_state is None:
             self.loop_state = LoopState([])
 
-        self.loop_start_event = []
-        self.iteration_end_event = []
+        self.loop_start_event = EventHandler()
+        self.iteration_end_event = EventHandler()
 
     def run_loop(self, user_function: Union[UserFunction, Callable], stopping_condition: Union[StoppingCondition, int],
                  context: dict=None) -> None:
@@ -76,7 +76,7 @@ class OuterLoop(object):
 
         _log.info("Starting outer loop")
 
-        [e(self, self.loop_state) for e in self.loop_start_event]
+        self.loop_start_event(self, self.loop_state)
 
         while not stopping_condition.should_stop(self.loop_state):
             _log.info("Iteration {}".format(self.loop_state.iteration))
@@ -85,7 +85,7 @@ class OuterLoop(object):
             new_x = self.candidate_point_calculator.compute_next_points(self.loop_state, context)
             results = user_function.evaluate(new_x)
             self.loop_state.update(results)
-            [e(self, self.loop_state) for e in self.iteration_end_event]
+            self.iteration_end_event(self, self.loop_state)
 
         self._update_models()
         _log.info("Finished outer loop")
