@@ -33,7 +33,7 @@ class IntegratedAcquisition(Acquisition):
             acquisition = self.acquisition_generator(self.model)
             acquisition_value += acquisition.evaluate(x)
 
-        return acquisition_value/self.n_samples
+        return acquisition_value / self.n_samples
 
     def evaluate_with_gradients(self, x: np.ndarray) -> Tuple:
         """
