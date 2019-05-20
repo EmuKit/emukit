@@ -6,7 +6,7 @@ from emukit.core.acquisition import Acquisition
 from emukit.core.interfaces import IModel, IPriorHyperparameters, IDifferentiable
 
 
-class IntegratedAcquisition(Acquisition):
+class IntegratedHyperParameterAcquisition(Acquisition):
     """
     This acquisition class provides functionality for integrating any acquisition function over model hyper-parameters
     """
@@ -14,7 +14,7 @@ class IntegratedAcquisition(Acquisition):
         """
         :param model: An emukit model that implements IPriorHyperparameters
         :param acquisition_generator: Function that returns acquisition object when given the model as the only argument
-        :param n_samples: Number of hyper-parameter samples to integrate over
+        :param n_samples: Number of hyper-parameter samples
         """
         self.model = model
         self.acquisition_generator = acquisition_generator
@@ -40,11 +40,12 @@ class IntegratedAcquisition(Acquisition):
         Computes the acquisition value and its derivative integrating over the hyper-parameters of the model
 
         :param x: locations where the evaluation with gradients is done.
-        :return: tuple containing numpy arrays with the integrated expected improvement at the points x
-        and its gradient.
+        :return: tuple containing the integrated expected improvement at the points x and its gradient.
         """
 
-        if x.ndim == 1: x = x[None, :]
+        if x.ndim == 1:
+            x = x[None, :]
+
         acquisition_value = 0
         dacquisition_dx = 0
 
