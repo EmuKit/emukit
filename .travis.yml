@@ -35,6 +35,7 @@ install:
   - "echo 'backend: Agg' > matplotlibrc"
   - pip install .
   - pip freeze
+  - jupyter kernelspec list
 script:
   # - flake8
   - python -m pytest
