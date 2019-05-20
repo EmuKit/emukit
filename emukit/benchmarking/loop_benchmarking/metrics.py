@@ -94,6 +94,7 @@ class CumulativeCostMetric(Metric):
     def __init__(self, name: str = 'cumulative_costs'):
         self.name = name
         self.cumulative_costs = np.array([0.0])
+        self.last_observed_iter = 0
 
     def evaluate(self, loop: OuterLoop, loop_state: LoopState) -> np.ndarray:
         """
@@ -102,5 +103,14 @@ class CumulativeCostMetric(Metric):
         :param loop_state: Object containing history of the loop that we add results to
         """
         if loop_state.cost[-1] is not None:
-            self.cumulative_costs += loop_state.cost[-1]
+            self.cumulative_costs += np.cumsum(loop_state.cost[self.last_observed_iter:])[-1]
+            self.last_observed_iter = loop_state.cost.shape[0]
+
         return self.cumulative_costs
+
+    def reset(self) -> None:
+        """
+        Resets the cumulative costs back to 0
+        """
+        self.last_observed_iter = 0
+        self.cumulative_costs = np.array([0.0])
