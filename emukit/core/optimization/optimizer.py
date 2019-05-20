@@ -83,7 +83,7 @@ def apply_optimizer(optimizer: Optimizer, x0: np.array, f: Callable=None, df: Ca
     :param df: gradient of the function to optimize.
     :param f_df: returns both the function to optimize and its gradient.
     :param context_manager: If provided, x0 (and the optimizer) operates in the space without the context
-    :param space: GPyOpt class design space.
+    :param space: Parameter space describing input domain, including any context variables
     :return: Location of optimum and value at optimum
     """
     x0 = np.atleast_2d(x0)

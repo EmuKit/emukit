@@ -20,8 +20,6 @@ class GradientAcquisitionOptimizer(AcquisitionOptimizerBase):
     def __init__(self, space: ParameterSpace) -> None:
         """
         :param space: The parameter space spanning the search problem.
-        :param kwargs: Additional keyword arguments supported by GPyOpt.optimization.AcquisitionOptimizer.
-                       Note: only the 'lbfgs' optimizer is allowed.
         """
         super().__init__(space)
 
