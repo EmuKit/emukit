@@ -1,7 +1,7 @@
 Installation
 ============
 
-Emukit requires Python 3.5 or above and NumPy for basic functionality. Some core features also need GPy and GPyOpt. Some advanced elements may have their own dependencies, but their installation is optional.
+Emukit requires Python 3.5 or above and NumPy for basic functionality. Some core features also need GPy. Some advanced elements may have their own dependencies, but their installation is optional.
 
 To install emukit, just run
 
