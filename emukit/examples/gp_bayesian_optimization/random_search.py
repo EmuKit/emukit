@@ -16,7 +16,12 @@ from emukit.core.loop.loop_state import create_loop_state
 
 class RandomSampling(CandidatePointCalculator):
 
-    def __init__(self, parameter_space):
+    def __init__(self, parameter_space: ParameterSpace):
+        """
+        Samples a new candidate point uniformly at random
+
+        :param parameter_space: Input space
+        """
         self.rd = RandomDesign(parameter_space=parameter_space)
 
     def compute_next_points(self, loop_state: LoopState, context: dict=None) -> np.ndarray:
@@ -31,17 +36,26 @@ class RandomSampling(CandidatePointCalculator):
 
 class DummyModelUpdate(ModelUpdater):
     def update(self, loop_state: LoopState) -> None:
+        """
+        Dummy model for random search
+
+        :param loop_state: Object that contains current state of the loop
+        """
         pass
 
 
 class RandomSearch(OuterLoop):
-    def __init__(self, space: ParameterSpace, x_init: np.ndarray = None, y_init: np.ndarray = None,
-                 cost_init: np.ndarray = None):
+    def __init__(self, space: ParameterSpace, x_init: np.ndarray=None,
+                 y_init: np.ndarray=None, cost_init: np.ndarray=None):
 
         """
-        Emukit class that implement a loop for random search
+        Simple loop to perform random search where in each iteration points are sampled uniformly at random
+        over the input space.
 
         :param space: Input space where the optimization is carried out.
+        :param x_init: 2d numpy array of shape (no. points x no. input features) of initial X data
+        :param y_init: 2d numpy array of shape (no. points x no. targets) of initial Y data
+        :param cost_init: 2d numpy array of shape (no. points x no. targets) of initial cost of each function evaluation
         """
 
         model_updaters = DummyModelUpdate()
