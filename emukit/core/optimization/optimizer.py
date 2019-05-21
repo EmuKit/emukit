@@ -1,5 +1,5 @@
-# Copyright (c) 2016, the GPyOpt Authors
-# Licensed under the BSD 3-clause license (see LICENSE.txt)
+# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
 
 from typing import List, Tuple, Callable
 
