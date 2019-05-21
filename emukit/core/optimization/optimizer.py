@@ -51,7 +51,7 @@ class OptLbfgs(Optimizer):
         :return: Location of optimum and value at optimum
         """
 
-        if f_df is None and df is not None: f_df = lambda x: float(f(x)), df(x)
+        if f_df is None and df is not None: f_df = lambda x: (float(f(x)), df(x))
         if f_df is not None:
             def _f_df(x):
                 return f(x), f_df(x)[1][0]
@@ -72,8 +72,8 @@ class OptLbfgs(Optimizer):
         return result_x, result_fx
 
 
-def apply_optimizer(optimizer: Optimizer, x0: np.array, f: Callable=None, df: Callable=None, f_df: Callable=None,
-                    context_manager: ContextManager=None, space: ParameterSpace=None) -> Tuple[np.array, np.array]:
+def apply_optimizer(optimizer: Optimizer, x0: np.array, space: ParameterSpace, f: Callable=None, df: Callable=None,
+                    f_df: Callable=None, context_manager: ContextManager=None) -> Tuple[np.array, np.array]:
     """
     Optimizes f using the optimizer supplied, deals with potential context variables.
 
@@ -86,16 +86,15 @@ def apply_optimizer(optimizer: Optimizer, x0: np.array, f: Callable=None, df: Ca
     :param space: Parameter space describing input domain, including any context variables
     :return: Location of optimum and value at optimum
     """
-    x0 = np.atleast_2d(x0)
+
+    if context_manager is None:
+        context_manager = ContextManager(space, {})
 
     # Compute new objective that inputs non context variables but takes into account the values of the context ones.
     # It does nothing if no context is passed
     problem = OptimizationWithContext(x0=x0, f=f, df=df, f_df=f_df, context_manager=context_manager)
 
-    if context_manager:
-        add_context = lambda x: context_manager.expand_vector(x)
-    else:
-        add_context = lambda x: x
+    add_context = lambda x: context_manager.expand_vector(x)
 
     # Optimize point
     optimized_x, _ = optimizer.optimize(problem.x0_no_context, problem.f_no_context, problem.df_no_context,
