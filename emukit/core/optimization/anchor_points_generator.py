@@ -54,10 +54,11 @@ class AnchorPointsGenerator(object):
         X = space.sample_uniform(self.num_samples)
 
         # Add context variables
-        X = context_manager.expand_vector(X)
+        if context_manager:
+            X = context_manager.expand_vector(X)
         scores = self.get_anchor_point_scores(X)
-
-        anchor_points = X[np.argsort(scores)[:min(len(scores), num_anchor)], :]
+        sorted_idxs = np.argsort(scores)[::-1]
+        anchor_points = X[sorted_idxs[:min(len(scores), num_anchor)], :]
 
         return anchor_points
 
