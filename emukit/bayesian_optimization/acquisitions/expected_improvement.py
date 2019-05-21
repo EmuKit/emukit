@@ -12,7 +12,6 @@ from ...core.acquisition import Acquisition
 
 
 class ExpectedImprovement(Acquisition):
-
     def __init__(self, model: Union[IModel, IDifferentiable], jitter: float = float(0))-> None:
         """
         This acquisition computes for a given input the improvement over the current best observed value in
@@ -41,9 +40,7 @@ class ExpectedImprovement(Acquisition):
         mean += self.jitter
 
         y_minimum = np.min(self.model.Y, axis=0)
-        u = (y_minimum - mean) / standard_deviation
-        pdf = scipy.stats.norm.pdf(u)
-        cdf = scipy.stats.norm.cdf(u)
+        u, pdf, cdf = get_standard_normal_pdf_cdf(y_minimum, mean, standard_deviation)
         improvement = standard_deviation * (u * cdf + pdf)
 
         return improvement
@@ -64,9 +61,7 @@ class ExpectedImprovement(Acquisition):
         dstandard_deviation_dx = dvariance_dx / (2 * standard_deviation)
 
         mean += self.jitter
-        u = (y_minimum - mean) / standard_deviation
-        pdf = scipy.stats.norm.pdf(u)
-        cdf = scipy.stats.norm.cdf(u)
+        u, pdf, cdf = get_standard_normal_pdf_cdf(y_minimum, mean, standard_deviation)
 
         improvement = standard_deviation * (u * cdf + pdf)
         dimprovement_dx = dstandard_deviation_dx * pdf - cdf * dmean_dx
@@ -77,3 +72,19 @@ class ExpectedImprovement(Acquisition):
     def has_gradients(self) -> bool:
         """Returns that this acquisition has gradients"""
         return isinstance(self.model, IDifferentiable)
+
+
+def get_standard_normal_pdf_cdf(x: np.array, mean: np.array, standard_deviation: np.array) \
+        -> Tuple[np.array, np.array, np.array]:
+    """
+    Returns pdf and cdf of standard normal evaluated at (x - mean)/sigma
+
+    :param x: Non-standardized input
+    :param mean: Mean to normalize x with
+    :param standard_deviation: Standard deviation to normalize x with
+    :return: (normalized version of x, pdf of standard normal, cdf of standard normal)
+    """
+    u = (x - mean) / standard_deviation
+    pdf = scipy.stats.norm.pdf(u)
+    cdf = scipy.stats.norm.cdf(u)
+    return u, pdf, cdf
