@@ -21,7 +21,6 @@ def test_random_search_with_init_data():
     x_init = parameter_space.sample_uniform(5)
     y_init = branin_fcn(x_init)
     cost_init = np.ones([5, 1])
-    print(cost_init.ndim)
 
     rs = RandomSearch(parameter_space, x_init=x_init, y_init=y_init, cost_init=cost_init)
     rs.run_loop(branin_fcn, 5)

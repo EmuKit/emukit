@@ -24,10 +24,10 @@ class ModelUpdater(abc.ABC):
         pass
 
 
-class NoopModelUpdate(ModelUpdater):
+class NoopModelUpdater(ModelUpdater):
     def update(self, loop_state: LoopState) -> None:
         """
-        Dummy model update, can be used for example for random search
+        Dummy model updater that does nothing. It can be used for example for random search
 
         :param loop_state: Object that contains current state of the loop
         """

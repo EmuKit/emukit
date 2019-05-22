@@ -3,11 +3,11 @@
 
 import numpy as np
 
-from emukit.core.loop.outer_loop import OuterLoop
-from emukit.core.loop.candidate_point_calculators import RandomSampling
-from emukit.core.loop.loop_state import create_loop_state
-from emukit.core.parameter_space import ParameterSpace
-from emukit.core.loop.model_updaters import NoopModelUpdate
+from ...core.loop.outer_loop import OuterLoop
+from ...core.loop.candidate_point_calculators import RandomSampling
+from ...core.loop.loop_state import create_loop_state
+from ...core.parameter_space import ParameterSpace
+from ...core.loop.model_updaters import NoopModelUpdater
 
 
 class RandomSearch(OuterLoop):
@@ -24,7 +24,7 @@ class RandomSearch(OuterLoop):
         :param cost_init: 2d numpy array of shape (no. points x no. targets) of initial cost of each function evaluation
         """
 
-        model_updaters = NoopModelUpdate()
+        model_updaters = NoopModelUpdater()
 
         candidate_point_calculator = RandomSampling(parameter_space=space)
 
