@@ -1,8 +1,13 @@
 # Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 import logging
+from typing import List
 
 import numpy as np
+
+from emukit.core import ParameterSpace
+from emukit.core.acquisition import Acquisition
+from emukit.core.optimization.constraints import IConstraint
 
 from .. import ParameterSpace
 from .context_manager import ContextManager
@@ -82,3 +87,32 @@ class ObjectiveAnchorPointsGenerator(AnchorPointsGenerator):
         :return:
         """
         return self.acquisition.evaluate(X).flatten()
+
+
+class ConstrainedObjectiveAnchorPointsGenerator(AnchorPointsGenerator):
+    """
+    This anchor points generator chooses points where the acquisition function is highest and the constraints are
+    satisfied
+    """
+
+    def __init__(self, space: ParameterSpace, acquisition: Acquisition, constraints: List[IConstraint],
+                 num_samples=1000):
+        """
+        :param space: The parameter space describing the input domain of the non-context variables
+        :param acquisition: The acquisition function
+        :param num_samples: The number of points at which the anchor point scores are calculated
+        """
+        super().__init__(space, num_samples)
+        self.acquisition = acquisition
+        self.constraints = constraints
+
+    def get_anchor_point_scores(self, X) -> np.array:
+        """
+        :param X: The samples at which to evaluate the criterion
+        :return: Array with score for each input point. Score is -infinity if the constraints are violated at that point
+        """
+        are_constraints_satisfied = np.all([c.evaluate(X) for c in self.constraints], axis=0)
+        scores = np.zeros((X.shape[0],1))
+        scores[~are_constraints_satisfied, 0] = -np.inf
+        scores[are_constraints_satisfied, :] = self.acquisition.evaluate(X[are_constraints_satisfied, :])
+        return scores

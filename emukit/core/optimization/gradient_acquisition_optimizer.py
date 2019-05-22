@@ -2,16 +2,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from typing import Tuple
+from typing import List, Optional, Tuple
 
 import numpy as np
 
 from .. import ParameterSpace
 from ..acquisition import Acquisition
 from .acquisition_optimizer import AcquisitionOptimizerBase
-from .anchor_points_generator import ObjectiveAnchorPointsGenerator
+from .anchor_points_generator import ConstrainedObjectiveAnchorPointsGenerator, ObjectiveAnchorPointsGenerator
+from .constraints import IConstraint
 from .context_manager import ContextManager
-from .optimizer import apply_optimizer, OptLbfgs
+from .optimizer import OptLbfgs, OptTrustRegionConstrained, apply_optimizer
 
 _log = logging.getLogger(__name__)
 
@@ -20,11 +21,12 @@ class GradientAcquisitionOptimizer(AcquisitionOptimizerBase):
     """ Optimizes the acquisition function using a quasi-Newton method (L-BFGS).
     Can be used for continuous acquisition functions.
     """
-    def __init__(self, space: ParameterSpace) -> None:
+    def __init__(self, space: ParameterSpace, constraints: Optional[List[IConstraint]]=None) -> None:
         """
         :param space: The parameter space spanning the search problem.
         """
         super().__init__(space)
+        self.constraints = constraints
 
     def _optimize(self, acquisition: Acquisition, context_manager: ContextManager) -> Tuple[np.ndarray, np.ndarray]:
         """
@@ -51,9 +53,8 @@ class GradientAcquisitionOptimizer(AcquisitionOptimizerBase):
         else:
             f_df = None
 
-        optimizer = OptLbfgs(context_manager.contextfree_space.get_bounds())
-
-        anchor_points_generator = ObjectiveAnchorPointsGenerator(self.space, acquisition)
+        optimizer = self._get_optimizer(context_manager)
+        anchor_points_generator = self._get_anchor_points_generator(acquisition)
 
         # Select the anchor points (with context)
         anchor_points = anchor_points_generator.get(num_anchor=1, context_manager=context_manager)
@@ -67,3 +68,15 @@ class GradientAcquisitionOptimizer(AcquisitionOptimizerBase):
 
         x_min, fx_min = min(optimized_points, key=lambda t: t[1])
         return x_min, -fx_min
+
+    def _get_anchor_points_generator(self, acquisition):
+        if self.constraints is None:
+            return ObjectiveAnchorPointsGenerator(self.space, acquisition)
+        else:
+            return ConstrainedObjectiveAnchorPointsGenerator(self.space, acquisition, self.constraints)
+
+    def _get_optimizer(self, context_manager):
+        if self.constraints is None:
+            return OptLbfgs(context_manager.contextfree_space.get_bounds())
+        else:
+            return OptTrustRegionConstrained(context_manager.contextfree_space.get_bounds(), self.constraints)

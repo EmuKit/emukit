@@ -6,6 +6,7 @@ from typing import List, Tuple, Callable
 import numpy as np
 import scipy.optimize
 
+from emukit.core.optimization.constraints import IConstraint
 from .. import ParameterSpace
 from .context_manager import ContextManager
 
@@ -171,3 +172,42 @@ class OptimizationWithContext(object):
         f_no_context_xx, df_no_context_xx = self.f_df(xx)
         df_no_context_xx = df_no_context_xx[:, np.array(self.context_manager.non_context_idxs)]
         return f_no_context_xx, df_no_context_xx
+
+
+class OptTrustRegionConstrained(Optimizer):
+    """
+    Wrapper for Trust-Region Constrained algorithm that can deal with non-linear constraints
+    """
+
+    def __init__(self, bounds, constraints: List[IConstraint], max_iterations: int=1000):
+        super().__init__(bounds)
+        self.max_iterations = max_iterations
+        self.constraints = [c.get_scipy_constraint() for c in constraints]
+
+    def optimize(self, x0, f=None, df=None, f_df=None):
+        """
+        Run Trust region constrained optimization algorithm
+
+        :param x0: Initial start point
+        :param f: Function to optimize
+        :param df: Derivative of function to optimize
+        :param f_df: Function returning both value of objective and its gradient
+        :return:
+        """
+        if df is None and f_df is not None:
+            df_1d = lambda x: f_df(x)[1]
+        elif df is not None:
+            df_1d = lambda x: df(x)[0, :]
+
+        options = {'maxiter': self.max_iterations}
+
+        if df is None:
+            res = scipy.optimize.minimize(f, x0=x0[0, :], method='trust-constr', bounds=self.bounds, jac='2-point',
+                                          options=options, constraints=self.constraints, hess=scipy.optimize.BFGS())
+        else:
+            res = scipy.optimize.minimize(f, x0=x0[0, :], method='trust-constr', bounds=self.bounds, jac=df_1d,
+                                          options=options, constraints=self.constraints, hess=scipy.optimize.BFGS())
+
+        result_x = np.atleast_2d(res.x)
+        result_fx = np.atleast_2d(res.fun)
+        return result_x, result_fx

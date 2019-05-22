@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
 
-from emukit.core.optimization.constrained_gradient_acquisition_optimizer import (LinearInequalityConstraint,
-                                                                                 NonlinearInequalityConstraint)
+from emukit.core.optimization.constraints import (LinearInequalityConstraint,
+                                                  NonlinearInequalityConstraint)
 
 
 @pytest.fixture
@@ -27,7 +27,7 @@ def test_linear_inequality_constraint_satisfied(linear_constraint):
 
 
 def test_linear_inequality_constraint_violated(linear_constraint):
-    x_test = np.array([[1], [2]])
+    x_test = np.array([[50], [20]])
     assert linear_constraint.evaluate(x_test)[0] == 0
 
 
