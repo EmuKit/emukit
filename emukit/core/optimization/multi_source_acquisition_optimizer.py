@@ -23,8 +23,8 @@ class MultiSourceAcquisitionOptimizer(AcquisitionOptimizerBase):
                                       has been fixed
         :param space: Domain to search for maximum over
         """
+        super().__init__(space)
         self.acquisition_optimizer = acquisition_optimizer
-        self.space = space
         self.source_parameter = self._get_information_source_parameter()
         self.n_sources = np.array(self.source_parameter.domain).size
 
@@ -37,8 +37,7 @@ class MultiSourceAcquisitionOptimizer(AcquisitionOptimizerBase):
             raise ValueError('No source parameter found')
         return source_parameter[0]
 
-    def _optimize(self, acquisition: Acquisition, context_manager: ContextManager)\
-        -> Tuple[np.ndarray, np.ndarray]:
+    def _optimize(self, acquisition: Acquisition, context_manager: ContextManager) -> Tuple[np.ndarray, np.ndarray]:
         """
         Implementation of abstract method. Does nothing, optimize overwritten instead.
 
