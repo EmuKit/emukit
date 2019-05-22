@@ -24,6 +24,16 @@ class ModelUpdater(abc.ABC):
         pass
 
 
+class NoopModelUpdate(ModelUpdater):
+    def update(self, loop_state: LoopState) -> None:
+        """
+        Dummy model update, can be used for example for random search
+
+        :param loop_state: Object that contains current state of the loop
+        """
+        pass
+
+
 class FixedIntervalUpdater(ModelUpdater):
     """ Updates hyper-parameters every nth iteration, where n is defined by the user """
     def __init__(self, model: IModel, interval: int=1, targets_extractor_fcn: Callable=None) -> None:
