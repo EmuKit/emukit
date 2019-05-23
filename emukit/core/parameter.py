@@ -44,4 +44,13 @@ class Parameter(object):
         :param x: Value to be checked
         :return: A boolean value which indicates whether all points lie in the domain
         """
-        raise NotImplemented
+        raise NotImplementedError
+
+    def sample_uniform(self, point_count: int) -> np.ndarray:
+        """
+        Generates multiple uniformly distributed random parameter points.
+
+        :param point_count: number of data points to generate.
+        :returns: Generated points with shape (point_count, num_features)
+        """
+        raise NotImplementedError

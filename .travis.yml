@@ -1,18 +1,22 @@
 # turn off notifications until build is stable
 notifications:
   email: false
+dist: xenial   # required for Python >= 3.7
 language: python
 os: linux
 python:
-  - '3.5'
   - '3.6'
+  - '3.7'
+addons:
+  homebrew:
+    packages:
+    - pyenv
+    - openssl
+    - readline
+    - libomp
+    update: true
 before_install: |
  if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
-   # Recommended for pyenv
-   brew outdated openssl || brew upgrade openssl
-   brew outdated readline || brew upgrade readline
-   # Update pyenv
-   brew outdated pyenv || brew upgrade pyenv
    # Install specified Python version
    pyenv install $PYTHON
    # Set environment variables
@@ -41,7 +45,7 @@ jobs:
   include:
     - os: osx
       language: generic
-      env: PYTHON=3.5.2
+      env: PYTHON=3.6.5
     - os: osx
       language: generic
-      env: PYTHON=3.6.5
+      env: PYTHON=3.7.2

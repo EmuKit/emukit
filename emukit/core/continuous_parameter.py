@@ -45,3 +45,12 @@ class ContinuousParameter(Parameter):
         Returns a list containing one tuple of minimum and maximum values parameter can take
         """
         return [(self.min, self.max)]
+
+    def sample_uniform(self, point_count: int) -> np.ndarray:
+        """
+        Generates multiple uniformly distributed random parameter points.
+
+        :param point_count: number of data points to generate.
+        :returns: Generated points with shape (point_count, num_features)
+        """
+        return np.random.uniform(low=self.min, high=self.max, size=(point_count, 1))

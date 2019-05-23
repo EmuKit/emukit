@@ -1,5 +1,8 @@
+from unittest import mock
+
 import pytest
 import numpy as np
+from numpy.testing import assert_array_equal
 
 from emukit.core import ContinuousParameter, ParameterSpace, InformationSourceParameter, DiscreteParameter, \
     CategoricalParameter, OneHotEncoding
@@ -66,3 +69,31 @@ def test_duplicate_parameter_names_fail():
 
 def test_get_bounds(space_3d_mixed):
     assert space_3d_mixed.get_bounds() == [(1., 5.), (1., 3.), (0, 1), (0, 1)]
+
+
+class MockRandom:
+    """ Mock the numpy random class to deterministic test stochastic functions.
+
+    Use like:
+
+    >>> @mock.patch('numpy.random', MockRandom())
+    >>> def test_something():
+    >>>     np.random.uniform(0, 1, 10)  # call on mock object
+    >>>     ...
+    """
+    @classmethod
+    def uniform(cls, low, high, size):
+        return np.linspace(low, high - 10e-8, np.product(size)).reshape(size)
+
+    @classmethod
+    def randint(cls, low, high, size):
+        return cls.uniform(low, high, size).astype(int)
+
+
+@mock.patch('numpy.random', MockRandom())
+def test_sample_uniform(space_3d_mixed):
+    X = space_3d_mixed.sample_uniform(90)
+    assert_array_equal(np.histogram(X[:, 0], 9)[0], np.repeat(10, 9))
+    assert_array_equal(np.bincount(X[:, 1].astype(int)), [0, 30, 30, 30])
+    assert_array_equal(np.bincount(X[:, 2].astype(int)), [45, 45])
+    assert_array_equal(np.bincount(X[:, 3].astype(int)), [45, 45])
