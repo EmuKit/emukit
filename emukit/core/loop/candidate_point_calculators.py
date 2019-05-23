@@ -10,6 +10,8 @@ from .loop_state import LoopState
 from ..acquisition import Acquisition
 from ..interfaces import IModel
 from ..optimization.acquisition_optimizer import AcquisitionOptimizerBase
+from ..optimization.context_manager import ContextManager
+from ..parameter_space import ParameterSpace
 
 
 class CandidatePointCalculator(abc.ABC):
@@ -95,3 +97,31 @@ class GreedyBatchPointCalculator(CandidatePointCalculator):
         # Reset data
         self.model.set_data(*original_data)
         return np.concatenate(new_xs, axis=0)
+
+
+class RandomSampling(CandidatePointCalculator):
+    """
+    Samples a new candidate point uniformly at random
+
+    """
+    def __init__(self, parameter_space: ParameterSpace):
+        """
+        :param parameter_space: Input space
+        """
+        self.parameter_space = parameter_space
+
+    def compute_next_points(self, loop_state: LoopState, context: dict=None) -> np.ndarray:
+        """
+        :param loop_state: Object that contains current state of the loop
+        :param context: Contains variables to fix through optimization of acquisition function. The dictionary key is
+                        the parameter name and the value is the value to fix the parameter to.
+        :return: (1 x n_dims) array of next inputs to evaluate the function at
+        """
+
+        if context is not None:
+            context_manager = ContextManager(self.parameter_space, context)
+            sample = context_manager.contextfree_space.sample_uniform(1)
+            sample = context_manager.expand_vector(sample)
+        else:
+            sample = self.parameter_space.sample_uniform(1)
+        return sample
