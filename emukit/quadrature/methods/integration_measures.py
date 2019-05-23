@@ -3,7 +3,7 @@
 
 
 import numpy as np
-from typing import Tuple, List, Union
+from typing import Tuple, List
 
 
 class IntegrationMeasure:
@@ -48,110 +48,69 @@ class UniformMeasure(IntegrationMeasure):
         self.density = 1./volume
 
 
-class GaussianMeasure(IntegrationMeasure):
-    """The Gaussian measure"""
+class IsotropicGaussianMeasure(IntegrationMeasure):
+    """The isotropic Gaussian measure"""
 
-    def __init__(self, mean: np.ndarray, covariance: Union[float, np.ndarray]):
+    def __init__(self, mean: np.ndarray, variance: float):
         """
         :param mean: the mean of the Gaussian
-        :param covariance: the covariance matrix of the Gaussian.
+        :param variance: the variance of the isotropic covariance matrix of the Gaussian.
         """
         super().__init__('GaussianMeasure')
-        self._cov_encoding = self._check_input(mean, covariance)
+        self._check_input(mean, variance)
         self.mean = mean
         self.dim = mean.shape[0]
-        self._covariance = covariance
-        self._full_covariance = self._compute_full_covariance()
+        self.variance = variance
 
     @property
     def covariance(self):
-        return self._full_covariance
+        return self._compute_full_covariance()
 
-    def set_new_parameters(self, mean: np.ndarray = None, covariance: Union[float, np.ndarray] = None) -> None:
-        new_mean = mean
-        new_covariance = covariance
+    def set_new_parameters(self, new_mean: np.ndarray = None, new_variance: float = None) -> None:
+        """
+        Set new mean and/or covariance. This also checks the input.
+        :param new_mean: new mean of Gaussian
+        :param new_variance: new variance of the isotropic covariance matrix of the Gaussian.
+        """
         if new_mean is not None:
             # new mean, new cov
-            if new_covariance is not None:
-                new_cov_encoding = self._check_input(new_mean, new_covariance)
-
+            if new_variance is not None:
+                self._check_input(new_mean, new_variance)
                 self.mean = new_mean
                 self.dim = new_mean.shape[0]
-                self._cov_encoding = new_cov_encoding
-                self._covariance = new_covariance
-                self._full_covariance = self._compute_full_covariance()
+                self.variance = new_variance
             # new mean only
             else:
-                self._check_input_mean(new_mean)
-                self._check_match_mean_and_covariance(new_mean, self._full_covariance, 'full')
+                self._check_input(new_mean, self.variance)
                 self.mean = new_mean
+                self.dim = new_mean.shape[0]
         else:
             # new cov only
-            if new_covariance is not None:
-                new_cov_encoding = self._check_input_covariance(new_covariance)
-                self._check_match_mean_and_covariance(self.mean, new_covariance, new_cov_encoding)
+            if new_variance is not None:
+                self._check_input(self.mean, new_variance)
+                self.variance = new_variance
 
-                self._cov_encoding = new_cov_encoding
-                self._covariance = new_covariance
-                self._full_covariance = self._compute_full_covariance()
-            # no input given
-            else:
-                pass
-
-    def _check_input(self, mean: np.ndarray, covariance: Union[float, np.ndarray]) -> str:
-        self._check_input_mean(mean)
-        cov_encoding = self._check_input_covariance(covariance)
-        self._check_match_mean_and_covariance(mean, covariance, cov_encoding)
-        return cov_encoding
-
-    @staticmethod
-    def _check_match_mean_and_covariance(mean: np.ndarray, covariance: Union[float, np.ndarray],
-                                         cov_encoding: str):
-        if (cov_encoding == 'full') or (cov_encoding == 'diag'):
-            N1, N2 = covariance.shape
-            if not mean.shape[0] == N1:
-                raise ValueError('Dimensionality of mean and covariance must be equal. Given dimensions are '
-                                 + str(mean.shape[0]) + ' and ' + str(N1) + '.')
-
-    @staticmethod
-    def _check_input_mean(mean: np.ndarray) -> None:
-        """checks type and dimension of mean"""
+    def _check_input(self, mean: np.ndarray, covariance: float) -> None:
+        """
+        checks type validity of mean and covariance inputs
+        """
+        # check mean
         if not isinstance(mean, np.ndarray):
             raise TypeError('Mean must be of type numpy.ndarray, ' + str(type(mean)) + ' given.')
+
         if not mean.ndim == 1:
             raise ValueError('Dimension of mean must be 1, dimension ' + str(mean.ndim) + ' given.')
 
-    @staticmethod
-    def _check_input_covariance(covariance: Union[float, np.ndarray]) -> str:
-        """checks type, dimension, and shape of covariance. Does not check sensible values."""
-        # isotropic
-        if isinstance(covariance, float):
-            cov_encoding = 'iso'
+        # check covariance
+        if not isinstance(covariance, float):
+            raise TypeError('Variance must be of type float, ' + str(type(covariance)) + ' given.')
 
-        # diagonal or full
-        elif isinstance(covariance, np.ndarray):
-            if not covariance.ndim == 2:
-                raise ValueError('Dimension of covariance must be 2. Dimension given is ' + str(covariance.ndim) + '.')
-
-            N1, N2 = covariance.shape
-            if N1 == N2:
-                cov_encoding = 'full'
-            elif N2 == 1:
-                cov_encoding = 'diag'
-            else:
-                raise ValueError('Shape of covariance is (' + str(N1) + ',' + str(N2) + '). Expected is 2d array of '
-                                 'shape (N, N) (full), or (N, 1) (diagonal), or a float (isotropic).')
-        else:
-            raise TypeError('Covariance must be of type float or numpy.ndarray, ' + str(type(covariance)) + ' given.')
-        return cov_encoding
+        if not covariance > 0:
+            raise ValueError('Variance must be positive, current value is ', covariance, '.')
 
     def _compute_full_covariance(self):
-        if self._cov_encoding == 'iso':
-            full_cov = self._covariance * np.eye(self.dim)
-        elif self._cov_encoding == 'diag':
-            full_cov = np.diag(self._covariance[:, 0])
-        elif self._cov_encoding == 'full':
-            full_cov = self._covariance
+        """Constructs full covariance matrix"""
+        full_cov = self.variance * np.eye(self.dim)
         return full_cov
 
 
