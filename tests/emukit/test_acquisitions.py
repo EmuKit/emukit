@@ -6,8 +6,8 @@ import pytest_lazyfixture
 from scipy.optimize import check_grad
 
 from bayesian_optimization.test_entropy_search import entropy_search_acquisition
-from emukit.bayesian_optimization.acquisitions import ExpectedImprovement, NegativeLowerConfidenceBound
-from emukit.bayesian_optimization.acquisitions import IntegratedExpectedImprovement
+from emukit.bayesian_optimization.acquisitions import ExpectedImprovement, NegativeLowerConfidenceBound, EntropySearch
+from emukit.core.acquisition import IntegratedHyperParameterAcquisition
 from emukit.bayesian_optimization.acquisitions.entropy_search import MultiInformationSourceEntropySearch
 from emukit.bayesian_optimization.acquisitions.log_acquisition import LogAcquisition
 from emukit.core import ParameterSpace, ContinuousParameter, InformationSourceParameter
@@ -36,7 +36,8 @@ acquisition_tests = [acquisition_test_tuple('negative_lower_confidence_bound_acq
                      acquisition_test_tuple('entropy_search_acquisition', False, np.nan),
                      acquisition_test_tuple('multi_source_entropy_search_acquisition', False, np.nan),
                      acquisition_test_tuple('integrated_variance_acquisition', False, np.nan),
-                     acquisition_test_tuple('integrated_expected_improvement_acquisition', True, default_grad_tol)]
+                     acquisition_test_tuple('integrated_expected_improvement_acquisition', True, default_grad_tol),
+                     acquisition_test_tuple('integrated_probability_of_improvement_acquisition', False, np.nan)]
 
 
 # Vanilla bq model for squared correlation test
@@ -57,9 +58,15 @@ def negative_lower_confidence_bound_acquisition(gpy_model):
 def expected_improvement_acquisition(gpy_model):
     return ExpectedImprovement(gpy_model)
 
+
 @pytest.fixture
 def integrated_expected_improvement_acquisition(gpy_model_mcmc):
-    return IntegratedExpectedImprovement(gpy_model_mcmc)
+    return IntegratedHyperParameterAcquisition(gpy_model_mcmc, ExpectedImprovement, 10)
+
+
+@pytest.fixture
+def integrated_probability_of_improvement_acquisition(gpy_model_mcmc):
+    return IntegratedHyperParameterAcquisition(gpy_model_mcmc, ProbabilityOfImprovement, 10)
 
 
 @pytest.fixture
