@@ -123,6 +123,9 @@ if __name__ == "__main__":
         # Y_train = np.log(np.array(Y_train))
         C_train = np.log(C_train)
 
+    if args.benchmark == "xgboost":
+        Y_train = np.log(Y_train)
+
     model_objective = Bohamiann(get_network=get_architecture, print_every_n_steps=1000)
     model_objective.train(X_train, Y_train, num_steps=num_steps + num_burnin_steps,
                           num_burn_in_steps=num_burnin_steps, keep_every=mcmc_thining,
