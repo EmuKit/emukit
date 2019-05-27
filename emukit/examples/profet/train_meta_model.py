@@ -11,13 +11,13 @@ import torch
 from GPy.models import BayesianGPLVM
 from pybnn.bohamiann import Bohamiann
 
-from emukit.examples.profet.meta_benchmarks.architecture import get_default_architecture_classification, get_default_architecture_cost
+from emukit.examples.profet.meta_benchmarks.architecture import get_default_architecture_classification, get_default_architecture_regression, get_default_architecture_cost
 from emukit.examples.profet.meta_benchmarks.meta_forrester import get_architecture_forrester
 
 
 def download_data(path, source='http://www.ml4aad.org/wp-content/uploads/2019/05/profet_data.tar.gz'):
 
-    l = urlretrieve(source,  os.join.path(path, "profet_data.tar.gz"))[0]
+    l = urlretrieve(source)[0]
 
     tar = tarfile.open(l)
     tar.extractall(path=path)
@@ -77,6 +77,7 @@ if __name__ == "__main__":
         fname = "data_sobol_fcnet.json"
     elif args.benchmark == "xgboost":
         fname = "data_sobol_xgboost.json"
+        get_architecture = get_default_architecture_regression
 
     if args.download:
         download_data(args.input_path)
