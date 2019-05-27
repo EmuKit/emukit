@@ -80,7 +80,11 @@ class OuterLoop(object):
 
         while not stopping_condition.should_stop(self.loop_state):
             _log.info("Iteration {}".format(self.loop_state.iteration))
-
+            # Entropy search acquisition requires resampling at each step
+            try:
+                self.candidate_point_calculator.acquisition.update_parameters()
+            except:
+                pass
             self._update_models()
             new_x = self.candidate_point_calculator.compute_next_points(self.loop_state, context)
             results = user_function.evaluate(new_x)
