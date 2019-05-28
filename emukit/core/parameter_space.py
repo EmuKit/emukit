@@ -1,12 +1,12 @@
 # Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 import itertools
-from typing import List, Tuple, Optional
+from typing import List, Optional, Tuple
 
 import numpy as np
 
+from .constraints import IConstraint
 from .discrete_parameter import InformationSourceParameter
-from emukit.core.constraints import IConstraint
 from .parameter import Parameter
 
 

@@ -5,11 +5,10 @@ from typing import List
 
 import numpy as np
 
-from emukit.core.constraints import IConstraint
-
 from .. import ParameterSpace
-from .context_manager import ContextManager
 from ..acquisition import Acquisition
+from ..constraints import IConstraint
+from .context_manager import ContextManager
 
 _log = logging.getLogger(__name__)
 

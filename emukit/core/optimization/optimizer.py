@@ -1,13 +1,13 @@
 # Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import List, Tuple, Callable
+from typing import Callable, List, Tuple
 
 import numpy as np
 import scipy.optimize
 
-from emukit.core.constraints import IConstraint
 from .. import ParameterSpace
+from ..constraints import IConstraint
 from .context_manager import ContextManager
 
 
