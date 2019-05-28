@@ -5,9 +5,7 @@ from typing import List
 
 import numpy as np
 
-from emukit.core import ParameterSpace
-from emukit.core.acquisition import Acquisition
-from emukit.core.optimization.constraints import IConstraint
+from emukit.core.constraints import IConstraint
 
 from .. import ParameterSpace
 from .context_manager import ContextManager

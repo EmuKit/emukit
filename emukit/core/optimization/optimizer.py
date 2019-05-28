@@ -6,7 +6,7 @@ from typing import List, Tuple, Callable
 import numpy as np
 import scipy.optimize
 
-from emukit.core.optimization.constraints import IConstraint
+from emukit.core.constraints import IConstraint
 from .. import ParameterSpace
 from .context_manager import ContextManager
 

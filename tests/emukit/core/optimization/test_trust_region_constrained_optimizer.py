@@ -3,9 +3,8 @@ import pytest
 import numpy as np
 
 from emukit.core import ParameterSpace, ContinuousParameter
-from emukit.core.optimization import ContextManager
-from emukit.core.optimization.optimizer import OptLbfgs, OptTrustRegionConstrained, apply_optimizer
-from emukit.core.optimization.constraints import LinearInequalityConstraint
+from emukit.core.optimization.optimizer import OptTrustRegionConstrained, apply_optimizer
+from emukit.core.constraints import LinearInequalityConstraint
 
 
 @pytest.fixture

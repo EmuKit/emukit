@@ -1,8 +1,8 @@
 import numpy as np
 import pytest
 
-from emukit.core.optimization.constraints import (LinearInequalityConstraint,
-                                                  NonlinearInequalityConstraint)
+from emukit.core.constraints import (LinearInequalityConstraint,
+                                     NonlinearInequalityConstraint)
 
 
 @pytest.fixture
