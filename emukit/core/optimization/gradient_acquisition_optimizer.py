@@ -71,7 +71,7 @@ class GradientAcquisitionOptimizer(AcquisitionOptimizerBase):
         if self.space.constraints is None:
             return ObjectiveAnchorPointsGenerator(self.space, acquisition)
         else:
-            return ConstrainedObjectiveAnchorPointsGenerator(self.space, acquisition, self.space.constraints)
+            return ConstrainedObjectiveAnchorPointsGenerator(self.space, acquisition)
 
     def _get_optimizer(self, context_manager):
         if self.space.constraints is None:
