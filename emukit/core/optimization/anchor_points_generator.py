@@ -1,13 +1,11 @@
 # Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 import logging
-from typing import List
 
 import numpy as np
 
 from .. import ParameterSpace
 from ..acquisition import Acquisition
-from ..constraints import IConstraint
 from .context_manager import ContextManager
 
 _log = logging.getLogger(__name__)
@@ -92,8 +90,7 @@ class ConstrainedObjectiveAnchorPointsGenerator(AnchorPointsGenerator):
     satisfied
     """
 
-    def __init__(self, space: ParameterSpace, acquisition: Acquisition, constraints: List[IConstraint],
-                 num_samples=1000):
+    def __init__(self, space: ParameterSpace, acquisition: Acquisition, num_samples=1000):
         """
         :param space: The parameter space describing the input domain of the non-context variables
         :param acquisition: The acquisition function
@@ -101,15 +98,14 @@ class ConstrainedObjectiveAnchorPointsGenerator(AnchorPointsGenerator):
         """
         super().__init__(space, num_samples)
         self.acquisition = acquisition
-        self.constraints = constraints
 
     def get_anchor_point_scores(self, X) -> np.array:
         """
         :param X: The samples at which to evaluate the criterion
         :return: Array with score for each input point. Score is -infinity if the constraints are violated at that point
         """
-        are_constraints_satisfied = np.all([c.evaluate(X) for c in self.constraints], axis=0)
-        scores = np.zeros((X.shape[0],1))
-        scores[~are_constraints_satisfied, 0] = -np.inf
-        scores[are_constraints_satisfied, :] = self.acquisition.evaluate(X[are_constraints_satisfied, :])
+        are_constraints_satisfied = np.all([c.evaluate(X) for c in self.space.constraints], axis=0)
+        scores = np.zeros((X.shape[0],))
+        scores[~are_constraints_satisfied] = -np.inf
+        scores[are_constraints_satisfied] = self.acquisition.evaluate(X[are_constraints_satisfied, :])[:, 0]
         return scores
