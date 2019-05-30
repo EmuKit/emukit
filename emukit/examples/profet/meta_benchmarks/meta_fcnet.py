@@ -25,9 +25,9 @@ def meta_fcnet(fname_objective: str, fname_cost: str, noise: bool=True) -> Tuple
     """
     parameter_space = ParameterSpace([
         ContinuousParameter('lr', 1e-6, 1e-1),
-        DiscreteParameter('batch_size', 8, 128),
-        DiscreteParameter('n_units_1', 16, 512),
-        DiscreteParameter('n_units_2', 16, 512),
+        ContinuousParameter('batch_size', 8, 128),
+        ContinuousParameter('n_units_1', 16, 512),
+        ContinuousParameter('n_units_2', 16, 512),
         ContinuousParameter('dropout_1', 0, 0.99),
         ContinuousParameter('dropout_2', 0, 0.99),
     ])
