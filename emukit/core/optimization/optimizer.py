@@ -230,7 +230,7 @@ def _get_scipy_constraints(constraint_list: List[IConstraint]) -> List:
                 scipy.optimize.NonlinearConstraint(constraint.fun, constraint.lower_bound, constraint.upper_bound,
                                                    constraint.jacobian_fun))
         elif isinstance(constraint, LinearInequalityConstraint):
-            scipy_constraints.append(scipy.optimize.LinearConstraint(constraint.A, constraint.lower_bound,
+            scipy_constraints.append(scipy.optimize.LinearConstraint(constraint.constraint_matrix, constraint.lower_bound,
                                                                      constraint.upper_bound))
         else:
             raise ValueError('Constraint type {} not recognised'.format(type(constraint)))

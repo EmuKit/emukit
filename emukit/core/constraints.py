@@ -18,16 +18,16 @@ class IConstraint:
 
 class LinearInequalityConstraint(IConstraint):
     """
-    Constraint of the form b_lower < Ax < b_upper
+    Constraint of the form lower_bound < Ax < upper_bound where the matrix A is called "constraint_matrix"
     """
-    def __init__(self, A: np.ndarray, lower_bound: np.ndarray, upper_bound: np.ndarray):
+    def __init__(self, constraint_matrix: np.ndarray, lower_bound: np.ndarray, upper_bound: np.ndarray):
         """
 
-        :param A: (n_constraint, n_x_dims) matrix in b_lower < Ax < b_upper
+        :param constraint_matrix: (n_constraint, n_x_dims) matrix in b_lower < Ax < b_upper
         :param lower_bound: Lower bound vector of size (n_constraint,). Can be -np.inf for one sided constraint
         :param upper_bound: Upper bound vector of size (n_constraint,). Can be np.inf for one sided constraint
         """
-        self.A = A
+        self.constraint_matrix = constraint_matrix
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
 
@@ -39,13 +39,13 @@ class LinearInequalityConstraint(IConstraint):
         :return: Numpy array of shape (n_input,) where an element will be 1 if the corresponding input satisfies the
                  constraint and zero if the constraint is violated
         """
-        ax = self.A.dot(x)
+        ax = self.constraint_matrix.dot(x)
         return np.all([ax >= self.lower_bound, ax <= self.upper_bound], axis=0)
 
 
 class NonlinearInequalityConstraint:
     """
-    Constraint of the form b_lower < g(x) < b_upper
+    Constraint of the form lower_bound < g(x) < upper_bound
     """
     def __init__(self, fun: Callable, lower_bound: np.ndarray, upper_bound: np.ndarray,
                  jacobian_fun: Optional[Callable]=None):

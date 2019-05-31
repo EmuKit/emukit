@@ -28,7 +28,7 @@ class AnchorPointsGenerator(object):
         self.space = space
         self.num_samples = num_samples
 
-    def get_anchor_point_scores(self, X: np.array) -> np.array:
+    def get_anchor_point_scores(self, X: np.ndarray) -> np.ndarray:
         """
         This abstract method should contain the logic to ascribe scores to different points in the input domain.
         Points with higher scores will be chosen over points with lower scores.
@@ -38,7 +38,7 @@ class AnchorPointsGenerator(object):
         """
         raise NotImplementedError('get_anchor_point_scores is not implemented in the parent class.')
 
-    def get(self, num_anchor: int = 5, context_manager: ContextManager = None) -> np.array:
+    def get(self, num_anchor: int = 5, context_manager: ContextManager = None) -> np.ndarray:
         """
         :param num_anchor: Number of points to return
         :param context_manager: Describes any fixed parameters in the optimization
@@ -67,7 +67,7 @@ class ObjectiveAnchorPointsGenerator(AnchorPointsGenerator):
     """
     This anchor points generator chooses points where the acquisition function is highest
     """
-    def __init__(self, space: ParameterSpace, acquisition: Acquisition, num_samples=1000):
+    def __init__(self, space: ParameterSpace, acquisition: Acquisition, num_samples: int=1000):
         """
         :param space: The parameter space describing the input domain of the non-context variables
         :param acquisition: The acquisition function
@@ -76,7 +76,7 @@ class ObjectiveAnchorPointsGenerator(AnchorPointsGenerator):
         self.acquisition = acquisition
         super(ObjectiveAnchorPointsGenerator, self).__init__(space, num_samples)
 
-    def get_anchor_point_scores(self, X) -> np.array:
+    def get_anchor_point_scores(self, X: np.ndarray) -> np.ndarray:
         """
         :param X: The samples at which to evaluate the criterion
         :return:
@@ -90,7 +90,7 @@ class ConstrainedObjectiveAnchorPointsGenerator(AnchorPointsGenerator):
     satisfied
     """
 
-    def __init__(self, space: ParameterSpace, acquisition: Acquisition, num_samples=1000):
+    def __init__(self, space: ParameterSpace, acquisition: Acquisition, num_samples: int=1000):
         """
         :param space: The parameter space describing the input domain of the non-context variables
         :param acquisition: The acquisition function
@@ -99,7 +99,7 @@ class ConstrainedObjectiveAnchorPointsGenerator(AnchorPointsGenerator):
         super().__init__(space, num_samples)
         self.acquisition = acquisition
 
-    def get_anchor_point_scores(self, X) -> np.array:
+    def get_anchor_point_scores(self, X: np.ndarray) -> np.ndarray:
         """
         :param X: The samples at which to evaluate the criterion
         :return: Array with score for each input point. Score is -infinity if the constraints are violated at that point
