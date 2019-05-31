@@ -31,20 +31,9 @@ def test_linear_inequality_constraint_violated(linear_constraint):
     assert linear_constraint.evaluate(x_test)[0] == 0
 
 
-def test_get_scipy_linear_constraint(linear_constraint):
-    scipy_constraint = linear_constraint.get_scipy_constraint()
-    assert np.array_equal(scipy_constraint.A, np.array([[1., 0.5]]))
-    assert np.array_equal(scipy_constraint.lb, np.array([-2]))
-    assert np.array_equal(scipy_constraint.ub, np.array([3]))
-
-
 def test_nonlinear_inequality_constraint_satisfied(nonlinear_constraint_no_jac):
     assert nonlinear_constraint_no_jac.evaluate(np.array([[0, 0]])) == 1
 
 
 def test_nonlinear_inequality_constraint_violated(nonlinear_constraint_no_jac):
     assert nonlinear_constraint_no_jac.evaluate(np.array([[1, 1]])) == 0
-
-
-def test_get_scipy_nonlinear_constraint(nonlinear_constraint_no_jac):
-    nonlinear_constraint_no_jac.get_scipy_constraint()

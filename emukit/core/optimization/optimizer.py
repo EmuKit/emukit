@@ -7,7 +7,7 @@ import numpy as np
 import scipy.optimize
 
 from .. import ParameterSpace
-from ..constraints import IConstraint
+from ..constraints import IConstraint, LinearInequalityConstraint, NonlinearInequalityConstraint
 from .context_manager import ContextManager
 
 
@@ -22,7 +22,8 @@ class Optimizer(object):
         """
         self.bounds = bounds
 
-    def optimize(self, x0: np.array, f: Callable=None, df: Callable=None, f_df: Callable=None) -> Tuple[np.array, np.array]:
+    def optimize(self, x0: np.ndarray, f: Callable=None, df: Callable=None, f_df: Callable=None) \
+            -> Tuple[np.ndarray, np.ndarray]:
         """
         :param x0: initial point for a local optimizer.
         :param f: function to optimize.
@@ -42,8 +43,8 @@ class OptLbfgs(Optimizer):
         super(OptLbfgs, self).__init__(bounds)
         self.max_iterations = max_iterations
 
-    def optimize(self, x0: np.array, f: Callable=None, df: Callable=None, f_df: Callable=None) \
-            -> Tuple[np.array, np.array]:
+    def optimize(self, x0: np.ndarray, f: Callable=None, df: Callable=None, f_df: Callable=None) \
+            -> Tuple[np.ndarray, np.ndarray]:
         """
         :param x0: initial point for a local optimizer.
         :param f: function to optimize.
@@ -73,8 +74,8 @@ class OptLbfgs(Optimizer):
         return result_x, result_fx
 
 
-def apply_optimizer(optimizer: Optimizer, x0: np.array, space: ParameterSpace, f: Callable=None, df: Callable=None,
-                    f_df: Callable=None, context_manager: ContextManager=None) -> Tuple[np.array, np.array]:
+def apply_optimizer(optimizer: Optimizer, x0: np.ndarray, space: ParameterSpace, f: Callable=None, df: Callable=None,
+                    f_df: Callable=None, context_manager: ContextManager=None) -> Tuple[np.ndarray, np.ndarray]:
     """
     Optimizes f using the optimizer supplied, deals with potential context variables.
 
@@ -109,7 +110,7 @@ def apply_optimizer(optimizer: Optimizer, x0: np.array, space: ParameterSpace, f
 
 class OptimizationWithContext(object):
 
-    def __init__(self, x0: np.array, f: Callable, df: Callable=None, f_df: Callable=None,
+    def __init__(self, x0: np.ndarray, f: Callable, df: Callable=None, f_df: Callable=None,
                  context_manager: ContextManager = None):
         """
         Constructor of an objective function that takes as input a vector x of the non context variables
@@ -136,7 +137,7 @@ class OptimizationWithContext(object):
                 self.df_no_context = self.df_no_context
                 self.f_df_no_context = self.f_df_no_context
 
-    def f_no_context(self, x: np.array) -> np.array:
+    def f_no_context(self, x: np.ndarray) -> np.ndarray:
         """
         Wrapper of optimization objective function which deals with adding context variables to x
 
@@ -149,7 +150,7 @@ class OptimizationWithContext(object):
         else:
             return self.f(xx)
 
-    def df_no_context(self, x: np.array) -> np.array:
+    def df_no_context(self, x: np.ndarray) -> np.ndarray:
         """
         Wrapper of the derivative of optimization objective function which deals with adding context variables to x
 
@@ -161,7 +162,7 @@ class OptimizationWithContext(object):
         df_no_context_xx = df_no_context_xx[:, np.array(self.context_manager.non_context_idxs)]
         return df_no_context_xx
 
-    def f_df_no_context(self, x: np.array) -> Tuple[np.array, np.array]:
+    def f_df_no_context(self, x: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
         Wrapper of optimization objective function and its derivative which deals with adding context variables to x
 
@@ -179,12 +180,13 @@ class OptTrustRegionConstrained(Optimizer):
     Wrapper for Trust-Region Constrained algorithm that can deal with non-linear constraints
     """
 
-    def __init__(self, bounds, constraints: List[IConstraint], max_iterations: int=1000):
+    def __init__(self, bounds: List[Tuple], constraints: List[IConstraint], max_iterations: int=1000):
         super().__init__(bounds)
         self.max_iterations = max_iterations
-        self.constraints = [c.get_scipy_constraint() for c in constraints]
+        self.constraints = _get_scipy_constraints(constraints)
 
-    def optimize(self, x0, f=None, df=None, f_df=None):
+    def optimize(self, x0: np.ndarray, f: Callable=None, df: Callable=None, f_df: Callable=None) \
+            -> Tuple[np.ndarray, np.ndarray]:
         """
         Run Trust region constrained optimization algorithm
 
@@ -211,3 +213,25 @@ class OptTrustRegionConstrained(Optimizer):
         result_x = np.atleast_2d(res.x)
         result_fx = np.atleast_2d(res.fun)
         return result_x, result_fx
+
+
+def _get_scipy_constraints(constraint_list: List[IConstraint]) -> List:
+    """
+    Converts list of emukit constraint objects to list of scipy constraint objects
+
+    :param constraint_list: List of Emukit constraint objects
+    :return: List of scipy constraint objects
+    """
+
+    scipy_constraints = []
+    for constraint in constraint_list:
+        if isinstance(constraint, NonlinearInequalityConstraint):
+            scipy_constraints.append(
+                scipy.optimize.NonlinearConstraint(constraint.fun, constraint.lower_bound, constraint.upper_bound,
+                                                   constraint.jacobian_fun))
+        elif isinstance(constraint, LinearInequalityConstraint):
+            scipy_constraints.append(scipy.optimize.LinearConstraint(constraint.A, constraint.lower_bound,
+                                                                     constraint.upper_bound))
+        else:
+            raise ValueError('Constraint type {} not recognised'.format(type(constraint)))
+    return scipy_constraints

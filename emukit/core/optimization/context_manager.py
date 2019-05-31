@@ -36,7 +36,7 @@ class ContextManager:
             # Find encoded values of context variable
             param = self.space.get_parameter_by_name(name)
             if hasattr(param, 'encoding'):
-                self.context_values.append(param.encoding.get_encoding(context[name]))
+                self.context_values.append(int(param.encoding.get_encoding(context[name])))
             else:
                 self.context_values.append(context[name])
 
