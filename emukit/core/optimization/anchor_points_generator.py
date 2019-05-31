@@ -101,7 +101,7 @@ class ConstrainedObjectiveAnchorPointsGenerator(AnchorPointsGenerator):
 
     def get_anchor_point_scores(self, X: np.ndarray) -> np.ndarray:
         """
-        :param X: The samples at which to evaluate the criterion
+        :param X: Array of shape (n_points, n_dimensions) containing samples at which to evaluate the criterion
         :return: Array with score for each input point. Score is -infinity if the constraints are violated at that point
         """
         are_constraints_satisfied = np.all([c.evaluate(X) for c in self.space.constraints], axis=0)
