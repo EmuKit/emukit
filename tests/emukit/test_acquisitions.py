@@ -98,6 +98,10 @@ def integrated_variance_acquisition(gpy_model, continuous_space):
 def squared_correlation_acquisition(vanilla_bq_model):
     return SquaredCorrelation(vanilla_bq_model)
 
+@pytest.fixture
+def probability_of_feasibility(gpy_model):
+    return ProbabilityOfFeasibility(gpy_model)
+
 
 @pytest.fixture
 @pytest.mark.parametrize('n_dims', [2])

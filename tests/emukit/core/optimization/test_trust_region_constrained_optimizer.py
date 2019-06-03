@@ -66,7 +66,7 @@ def test_trust_region_constrained_no_context_with_f_df(trust_region_constr_linea
     f_df = lambda x: (objective(x), gradient(x))
     x0 = np.array([1, 1])
     x, f = apply_optimizer(trust_region_constr_linear_constraint, x0, space, None, None, f_df, None)
-    assert np.all(np.isclose(x, np.array([0, 0.5])))
+    assert np.all(np.isclose(x, np.array([0, 0.5]), atol=1e-3))
 
 
 def test_invalid_constraint_object():

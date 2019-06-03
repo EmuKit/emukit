@@ -230,7 +230,7 @@ class OptTrustRegionConstrained(Optimizer):
 
         if df is None and f_df is not None:
             # If df not supplied and f_df is, make lambda that returns gradient only from f_df
-            df_1d = lambda x: f_df(x)[1]
+            df_1d = lambda x: f_df(x)[1][0, :]
         elif df is not None:
             # If df is supplied, convert the 2d output to 1d
             df_1d = lambda x: df(x)[0, :]
