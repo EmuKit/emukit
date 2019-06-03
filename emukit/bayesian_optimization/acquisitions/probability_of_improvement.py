@@ -84,7 +84,8 @@ class ProbabilityOfImprovement(Acquisition):
 
     def evaluate(self, x: np.ndarray) -> np.ndarray:
         """
-        Computes the probability of improving over the current best
+        Computes the probability of of satisfying the constraint
+        C<0.
         :param x: points where the acquisition is evaluated.
         """
         mean, variance = self.model.predict(x)
@@ -96,7 +97,8 @@ class ProbabilityOfImprovement(Acquisition):
 
     def evaluate_with_gradients(self, x: np.ndarray) -> Tuple:
         """
-        Computes the  probability of improving over the current best and its derivative
+        Computes the  probability of of satisfying the constraint
+        C<0.
         :param x: points where the acquisition is evaluated.
         """
         mean, variance = self.model.predict(x)
