@@ -1,19 +1,42 @@
 import numpy as np
+import pytest
 
 from emukit.examples.simple_gp_model.simple_gp_model import SimpleGaussianProcessModel
 
 
-def test_simple_gp_model_optimize():
-    x = np.linspace(-1, 1, 3)[:, None]
-    y = x **2
-    gp = SimpleGaussianProcessModel(x, y)
-    gp.optimize()
+@pytest.fixture
+def x():
+    return np.linspace(-3, 3, 20)[:, None]
 
 
-def test_simple_gp_model_predict():
-    x = np.linspace(-1, 1, 3)[:, None]
-    y = x**2
+@pytest.fixture
+def simple_gp(x, y):
     gp = SimpleGaussianProcessModel(x, y)
-    mean, var = gp.predict(np.array(5, 1))
-    assert mean.shape == (5, 1)
-    assert var.shape == (5, 1)
+    return gp
+
+
+@pytest.fixture
+def y(x):
+    return x**2
+
+
+def test_simple_gp_model_predict(simple_gp, x, y):
+    simple_gp.optimize()
+    mean, var = simple_gp.predict(x)
+
+    assert mean.shape == x.shape
+    assert var.shape == x.shape
+    # predicting at training locations should give mean results close to training targets
+    assert np.allclose(mean, y, atol=1e-4, rtol=1e-4)
+
+
+def test_set_new_data(simple_gp, x, y):
+    simple_gp.optimize()
+    mean, var = simple_gp.predict(x)
+
+    simple_gp.set_data(simple_gp.X, 2 * simple_gp.Y)
+
+    mean_2, var_2 = simple_gp.predict(x)
+
+    assert np.allclose(2 * mean, mean_2)
+    assert np.allclose(var, var_2)

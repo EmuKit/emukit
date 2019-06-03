@@ -24,22 +24,35 @@ class SimpleGaussianProcessModel(IModel):
         self.likelihood_variance = 1
         self.jitter = 1e-6
 
+    def __repr__(self):
+        """
+        Prints the hyper-parameters
+        """
+        return 'Lengthscale: {:.4f} \n Kernel variance: {:.4f} \n Likelihood variance: {:.4f}'.format(
+            self.lengthscale,
+            self.kernel_variance,
+            self.likelihood_variance)
+
     def optimize(self) -> None:
         """
         Optimize the three hyperparameters of the model, namely the kernel variance, kernel lengthscale and likelihood
         variance
         """
-        def optimize_fcn(x):
+        def optimize_fcn(log_hyper_parameters):
             # take exponential to ensure positive values
-            x = np.exp(x)
-            self.lengthscale = x[0]
-            self.kernel_variance = x[1]
-            self.likelihood_variance = x[2]
+            hyper_parameters = np.exp(log_hyper_parameters)
+            self.lengthscale = hyper_parameters[0]
+            self.kernel_variance = hyper_parameters[1]
+            self.likelihood_variance = hyper_parameters[2]
             return self._negative_marginal_log_likelihood()
 
+        lower_bound = np.log(1e-6)
+        upper_bound = np.log(1e8)
+
+        bounds = [(lower_bound, upper_bound) for _ in range(3)]
         scipy.optimize.minimize(optimize_fcn, np.log(np.array([self.lengthscale,
                                                                self.kernel_variance,
-                                                               self.likelihood_variance])))
+                                                               self.likelihood_variance])), bounds=bounds)
 
     def predict(self, x_new: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
@@ -50,8 +63,8 @@ class SimpleGaussianProcessModel(IModel):
                  distribution at the specified input locations
         """
         K = self._calc_kernel(self.x)
-        idxs = list(range(self.x.shape[0]))
-        K[idxs, idxs] += self.jitter + self.likelihood_variance
+        K += np.identity(self.x.shape[0]) * (self.jitter + self.likelihood_variance)
+
         L = np.linalg.cholesky(K)
 
         K_xs = self._calc_kernel(self.x, x_new)
@@ -59,37 +72,36 @@ class SimpleGaussianProcessModel(IModel):
         tmp = scipy.linalg.solve_triangular(L, K_xs, lower=True)
         tmp2 = scipy.linalg.solve_triangular(L, self.y, lower=True)
 
-        mu = np.dot(tmp.T, tmp2)
-        var = (self.kernel_variance - np.sum(np.square(tmp), axis=0))[:, None]
-        return mu, var
+        mean = np.dot(tmp.T, tmp2)
+        variance = (self.kernel_variance - np.sum(np.square(tmp), axis=0))[:, None]
+        return mean, variance
 
-    def _calc_kernel(self, X, X2=None):
+    def _calc_kernel(self, X: np.ndarray, X2: np.ndarray=None) -> np.ndarray:
         """
         Implements an RBF kernel with no ARD
+
+        :param X: array of shape (n_points_1, n_dims) containing input points of first argument to kernel function
+        :param X2: array of shape (n_points_2, n_dims) containing input points of second argument to kernel function.
+                   If not supplied K(X, X) is computed.
+        :return: Kernel matrix K(X, X2) or K(X, X) if X2 not supplied.
         """
         if X2 is None:
-            Xsq = np.sum(np.square(X), 1)
+            X2 = X
 
-            XXt = np.dot(X, X.T)
-            r2 = -2. * XXt + (Xsq[:, None] + Xsq[None, :])
-            r2 = np.clip(r2, 0, np.inf)
-        else:
-            X1sq = np.sum(np.square(X), 1)
-            X2sq = np.sum(np.square(X2), 1)
-            r2 = -2. * np.dot(X, X2.T) + (X1sq[:, None] + X2sq[None, :])
-            r2 = np.clip(r2, 0, np.inf)
-
-        return self.kernel_variance * np.exp(-r2 / self.lengthscale ** 2)
+        X1sq = np.sum(np.square(X), 1)
+        X2sq = np.sum(np.square(X2), 1)
+        r2 = -2. * np.dot(X, X2.T) + (X1sq[:, None] + X2sq[None, :])
+        r2 = np.clip(r2, 0, np.inf)
+        return self.kernel_variance * np.exp(-0.5 * r2 / self.lengthscale ** 2)
 
     def _negative_marginal_log_likelihood(self) -> float:
         """
-        Negative marginal log likelihood
+        :return: Negative marginal log likelihood of model with current hyper-parameters
         """
         K = self._calc_kernel(self.x)
 
         # Add some jitter to the diagonal
-        idxs = list(range(self.x.shape[0]))
-        K[idxs, idxs] += self.jitter + self.likelihood_variance
+        K += np.identity(self.x.shape[0]) * (self.jitter + self.likelihood_variance)
 
         # cholesky decomposition of covariance matrix
         L = np.linalg.cholesky(K)
@@ -106,6 +118,7 @@ class SimpleGaussianProcessModel(IModel):
     def set_data(self, X: np.ndarray, Y: np.ndarray) -> None:
         """
         Set training data to new values
+        
         :param X: (n_points, n_dims) array containing training features
         :param Y: (n_points, 1) array containing training targets
         """
