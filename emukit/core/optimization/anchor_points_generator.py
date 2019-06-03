@@ -82,10 +82,7 @@ class ObjectiveAnchorPointsGenerator(AnchorPointsGenerator):
         :return:
         """
         are_constraints_satisfied = np.all([np.ones(X.shape[0])] + [c.evaluate(X) for c in self.space.constraints], axis=0)
-        print(np.all(are_constraints_satisfied))
-        print('are_constraints_satisfied', are_constraints_satisfied.shape)
         scores = np.zeros((X.shape[0],))
         scores[~are_constraints_satisfied] = -np.inf
-        print(X[are_constraints_satisfied, :].shape)
         scores[are_constraints_satisfied] = self.acquisition.evaluate(X[are_constraints_satisfied, :])[:, 0]
         return scores
