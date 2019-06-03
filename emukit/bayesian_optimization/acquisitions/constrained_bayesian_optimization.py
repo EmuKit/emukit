@@ -16,7 +16,7 @@ from ...core.parameter_space import ParameterSpace
 class ConstrainedBayesianOptimizationLoop(OuterLoop):
 
     def __init__(self, space: ParameterSpace, 
-                 model_objective: IModel, 
+                 model_objective: Union[IModel, IDifferentiable], 
                  model_constraint: IModel,
                  acquisition: Acquisition = None,
                  update_interval: int = 1, 
@@ -35,6 +35,7 @@ class ConstrainedBayesianOptimizationLoop(OuterLoop):
         :param model_constraint: The model that approximates the unknown constraints
         :param acquisition: The acquisition function that will be used to collect new points (default, CEI).
         :param update_interval:  Number of iterations between optimization of model hyper-parameters. Defaults to 1.
+        :param batch_size: How many points to evaluate in one iteration of the optimization loop. Defaults to 1.
         """
 
         if not np.all(np.isclose(model_objective.X, model_constraint.X)):
@@ -45,7 +46,6 @@ class ConstrainedBayesianOptimizationLoop(OuterLoop):
             acquisition_objective = ExpectedImprovement(model_objective)
             acquisition_constraint = ProbabilityOfFeasibility(model_constraint)
             acquisition_constrained = acquisition_objective * acquisition_constraint
-
 
         model_updater_objective = FixedIntervalUpdater(model_objective, update_interval)
         model_updater_constraint = FixedIntervalUpdater(model_constraint, update_interval, lambda state: state.cost)
