@@ -99,13 +99,32 @@ def apply_optimizer(optimizer: Optimizer, x0: np.ndarray, space: ParameterSpace,
     add_context = lambda x: context_manager.expand_vector(x)
 
     # Optimize point
-    optimized_x, _ = optimizer.optimize(problem.x0_no_context, problem.f_no_context, problem.df_no_context,
-                                        problem.f_df_no_context)
+    if f is None:
+        f_no_context = None
+    else:
+        f_no_context = problem.f_no_context
+
+    if df is None:
+        df_no_context = None
+    else:
+        df_no_context = problem.df_no_context
+
+    if f_df is None:
+        f_df_no_context = None
+    else:
+        f_df_no_context = problem.f_df_no_context
+
+    optimized_x, _ = optimizer.optimize(problem.x0_no_context, f_no_context, df_no_context, f_df_no_context)
 
     # Add context and round according to the type of variables of the design space
     suggested_x_with_context = add_context(optimized_x)
     suggested_x_with_context_rounded = space.round(suggested_x_with_context)
-    return suggested_x_with_context_rounded, f(suggested_x_with_context_rounded)
+
+    if f is None:
+        f_opt, _ = f_df(suggested_x_with_context_rounded)
+    else:
+        f_opt = f(suggested_x_with_context_rounded)
+    return suggested_x_with_context_rounded, f_opt
 
 
 class OptimizationWithContext(object):
@@ -199,16 +218,29 @@ class OptTrustRegionConstrained(Optimizer):
         :param f: Function to optimize
         :param df: Derivative of function to optimize
         :param f_df: Function returning both value of objective and its gradient
-        :return:
+        :return: Location of optimum and function value at optimum
         """
+
+        if (f is None) and (f_df is None):
+            raise ValueError('Neither f nor f_df are supplied - you must supply an objective function')
+
+        # If f not supplied, make lambda that returns objective only from f_df
+        if f is None:
+            f = lambda x: f_df(x)[0]
+
         if df is None and f_df is not None:
+            # If df not supplied and f_df is, make lambda that returns gradient only from f_df
             df_1d = lambda x: f_df(x)[1]
         elif df is not None:
+            # If df is supplied, convert the 2d output to 1d
             df_1d = lambda x: df(x)[0, :]
+        else:
+            # Gradient not supplied
+            df_1d = None
 
         options = {'maxiter': self.max_iterations}
 
-        if df is None:
+        if df_1d is None:
             res = scipy.optimize.minimize(f, x0=x0[0, :], method='trust-constr', bounds=self.bounds, jac='2-point',
                                           options=options, constraints=self.constraints, hess=scipy.optimize.BFGS())
         else:
@@ -231,11 +263,19 @@ def _get_scipy_constraints(constraint_list: List[IConstraint]) -> List:
     scipy_constraints = []
     for constraint in constraint_list:
         if isinstance(constraint, NonlinearInequalityConstraint):
+            if constraint.jacobian_fun is None:
+                # No jacobian supplied -> tell scipy to use finite difference method
+                jacobian = '2-point'
+            else:
+                # Jacobian is supplied -> tell scipy to use it
+                jacobian = constraint.jacobian_fun
+
             scipy_constraints.append(
                 scipy.optimize.NonlinearConstraint(constraint.fun, constraint.lower_bound, constraint.upper_bound,
-                                                   constraint.jacobian_fun))
+                                                   jacobian))
         elif isinstance(constraint, LinearInequalityConstraint):
-            scipy_constraints.append(scipy.optimize.LinearConstraint(constraint.constraint_matrix, constraint.lower_bound,
+            scipy_constraints.append(scipy.optimize.LinearConstraint(constraint.constraint_matrix,
+                                                                     constraint.lower_bound,
                                                                      constraint.upper_bound))
         else:
             raise ValueError('Constraint type {} not recognised'.format(type(constraint)))

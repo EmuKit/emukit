@@ -16,7 +16,34 @@ class IConstraint:
         raise NotImplementedError
 
 
-class LinearInequalityConstraint(IConstraint):
+class InequalityConstraint(IConstraint):
+    def __init__(self, lower_bound: np.ndarray, upper_bound: np.ndarray):
+        """
+        :param lower_bound: Lower bound vector of size (n_constraint,). Can be -np.inf for one sided constraint
+        :param upper_bound: Upper bound vector of size (n_constraint,). Can be np.inf for one sided constraint
+        """
+        if (lower_bound is None) and (upper_bound is None):
+            raise ValueError('Neither lower nor upper bounds is set, at least one must be specified')
+
+        # Default lower bound to -infinity
+        if lower_bound is None:
+            lower_bound = np.full([upper_bound.shape[0]], -np.inf)
+
+        # Default upper bound to +infinity
+        if upper_bound is None:
+            upper_bound = np.full([lower_bound.shape[0]], np.inf)
+
+        if np.any((lower_bound == -np.inf) & (upper_bound == np.inf)):
+            raise ValueError('One or more inequality constraints are unbounded')
+
+        if np.any(lower_bound >= upper_bound):
+            raise ValueError('Lower bound is greater than or equal to upper bound for one or more constraints')
+
+        self.lower_bound = lower_bound
+        self.upper_bound = upper_bound
+
+
+class LinearInequalityConstraint(InequalityConstraint):
     """
     Constraint of the form lower_bound < Ax < upper_bound where the matrix A is called "constraint_matrix"
     """
@@ -27,21 +54,8 @@ class LinearInequalityConstraint(IConstraint):
         :param lower_bound: Lower bound vector of size (n_constraint,). Can be -np.inf for one sided constraint
         :param upper_bound: Upper bound vector of size (n_constraint,). Can be np.inf for one sided constraint
         """
-        if (lower_bound is None) and (upper_bound is None):
-            raise ValueError('Neither lower nor upper bounds is set, at least one must be specified')
-
-        # Default lower bound to -infinity
-        n_constraints = constraint_matrix.shape[0]
-        if lower_bound is None:
-            lower_bound = np.full([n_constraints], -np.nan)
-
-        # Default upper bound to +infinity
-        if upper_bound is None:
-            upper_bound = np.full([n_constraints], np.nan)
-
+        super().__init__(lower_bound, upper_bound)
         self.constraint_matrix = constraint_matrix
-        self.lower_bound = lower_bound
-        self.upper_bound = upper_bound
 
     def evaluate(self, x: np.ndarray) -> np.ndarray:
         """
@@ -55,35 +69,25 @@ class LinearInequalityConstraint(IConstraint):
         return np.all([ax >= self.lower_bound, ax <= self.upper_bound], axis=0)
 
 
-class NonlinearInequalityConstraint:
+class NonlinearInequalityConstraint(InequalityConstraint):
     """
     Constraint of the form lower_bound < g(x) < upper_bound
     """
-    def __init__(self, fun: Callable, lower_bound: np.ndarray, upper_bound: np.ndarray,
+    def __init__(self, constraint_function: Callable, lower_bound: np.ndarray, upper_bound: np.ndarray,
                  jacobian_fun: Optional[Callable]=None):
         """
-        :param fun: function defining constraint in b_lower < fun(x) < b_upper. Has signature f(x) -> array, shape(m,)
-                    where x is 1d and m is the number of constraints
+        :param constraint_function: function defining constraint in b_lower < fun(x) < b_upper.
+                                    Has signature f(x) -> array, shape(m,) where x is 1d and m is the number of constraints
         :param lower_bound: Lower bound vector of size (n_constraint,). Can be -np.inf for one sided constraint
         :param upper_bound: Upper bound vector of size (n_constraint,). Can be np.inf for one sided constraint
-        :param jacobian_fun: Function describing
+        :param jacobian_fun: Function returning the jacobian of the constraint function. Optional, if not supplied
+                             the optimizer will use finite differences to calculate the gradients of the constraint
         """
 
-        if (lower_bound is None) and (upper_bound is None):
-            raise ValueError('Neither lower nor upper bounds is set, at least one must be specified')
+        super().__init__(lower_bound, upper_bound)
 
-        # Default lower bound to -infinity
-        if lower_bound is None:
-            lower_bound = np.full([upper_bound.shape[0]], -np.nan)
-
-        # Default upper bound to +infinity
-        if upper_bound is None:
-            upper_bound = np.full([lower_bound.shape[0]], np.nan)
-
-        self.fun = fun
-        self.lower_bound = lower_bound
-        self.upper_bound = upper_bound
-        self.jacobian_fun = jacobian_fun if jacobian_fun else '2-point'
+        self.fun = constraint_function
+        self.jacobian_fun = jacobian_fun
 
     def evaluate(self, x: np.ndarray) -> np.ndarray:
         """
