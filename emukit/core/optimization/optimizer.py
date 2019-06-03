@@ -181,6 +181,11 @@ class OptTrustRegionConstrained(Optimizer):
     """
 
     def __init__(self, bounds: List[Tuple], constraints: List[IConstraint], max_iterations: int=1000):
+        """
+        :param bounds: List of tuples containing (lower_bound, upper_bound) for each parameter
+        :param constraints: List of constraints, can contain a mix of linear and non-linear constraints
+        :param max_iterations: Maximum number of iterations before the optimizer is stopped
+        """
         super().__init__(bounds)
         self.max_iterations = max_iterations
         self.constraints = _get_scipy_constraints(constraints)
