@@ -23,7 +23,11 @@ class ParameterSpace(object):
         :param constraints: A list of constraints on the input domain
         """
         self._parameters = parameters
-        self.constraints = constraints
+
+        if constraints:
+            self.constraints = constraints
+        else:
+            self.constraints = []
 
         # Check no more than one InformationSource parameter
         source_parameter = [param for param in self.parameters if isinstance(param, InformationSourceParameter)]

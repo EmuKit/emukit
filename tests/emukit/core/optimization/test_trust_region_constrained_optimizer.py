@@ -33,12 +33,10 @@ def trust_region_constr_linear_constraint():
 def test_trust_region_constrained_no_context(trust_region_constr_linear_constraint, objective, space):
     x0 = np.array([1, 1])
     x, f = apply_optimizer(trust_region_constr_linear_constraint, x0, space, objective, None, None, None)
-    print(x)
     assert np.all(np.isclose(x, np.array([0, 0.5])))
 
 
 def test_trust_region_constrained_no_context(trust_region_constr_linear_constraint, objective, space):
     x0 = np.array([1, 1])
     x, f = apply_optimizer(trust_region_constr_linear_constraint, x0, space, objective, None, None, None)
-    print(x)
     assert np.all(np.isclose(x, np.array([0, 0.5])))

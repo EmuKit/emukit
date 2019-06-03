@@ -4,8 +4,7 @@ import numpy as np
 from emukit.core import ParameterSpace
 from emukit.core.acquisition import Acquisition
 from emukit.core.constraints import IConstraint
-from emukit.core.optimization.anchor_points_generator import ObjectiveAnchorPointsGenerator, \
-    ConstrainedObjectiveAnchorPointsGenerator
+from emukit.core.optimization.anchor_points_generator import ObjectiveAnchorPointsGenerator
 
 
 def test_objective_anchor_point_generator():
@@ -15,6 +14,7 @@ def test_objective_anchor_point_generator():
 
     space = mock.create_autospec(ParameterSpace)
     space.sample_uniform.return_value = np.arange(num_samples)[:, None]
+    space.constraints = []
 
     generator = ObjectiveAnchorPointsGenerator(space, mock_acquisition, num_samples=num_samples)
     anchor_points = generator.get(1)
@@ -36,7 +36,7 @@ def test_constrained_objective_anchor_point_generator():
 
     space.constraints = [constraint]
 
-    generator = ConstrainedObjectiveAnchorPointsGenerator(space, mock_acquisition, num_samples=num_samples)
+    generator = ObjectiveAnchorPointsGenerator(space, mock_acquisition, num_samples=num_samples)
     anchor_points = generator.get(1)
 
     # Check that the X that is picked corresponds to the highest acquisition value

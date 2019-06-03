@@ -9,7 +9,7 @@ import numpy as np
 from .. import ParameterSpace
 from ..acquisition import Acquisition
 from .acquisition_optimizer import AcquisitionOptimizerBase
-from .anchor_points_generator import ConstrainedObjectiveAnchorPointsGenerator, ObjectiveAnchorPointsGenerator
+from .anchor_points_generator import ObjectiveAnchorPointsGenerator
 from .context_manager import ContextManager
 from .optimizer import OptLbfgs, OptTrustRegionConstrained, apply_optimizer
 
@@ -52,7 +52,7 @@ class GradientAcquisitionOptimizer(AcquisitionOptimizerBase):
             f_df = None
 
         optimizer = self._get_optimizer(context_manager)
-        anchor_points_generator = self._get_anchor_points_generator(acquisition)
+        anchor_points_generator = ObjectiveAnchorPointsGenerator(self.space, acquisition)
 
         # Select the anchor points (with context)
         anchor_points = anchor_points_generator.get(num_anchor=1, context_manager=context_manager)
@@ -67,14 +67,8 @@ class GradientAcquisitionOptimizer(AcquisitionOptimizerBase):
         x_min, fx_min = min(optimized_points, key=lambda t: t[1])
         return x_min, -fx_min
 
-    def _get_anchor_points_generator(self, acquisition):
-        if self.space.constraints is None:
-            return ObjectiveAnchorPointsGenerator(self.space, acquisition)
-        else:
-            return ConstrainedObjectiveAnchorPointsGenerator(self.space, acquisition)
-
     def _get_optimizer(self, context_manager):
-        if self.space.constraints is None:
+        if len(self.space.constraints) == 0:
             return OptLbfgs(context_manager.contextfree_space.get_bounds())
         else:
             return OptTrustRegionConstrained(context_manager.contextfree_space.get_bounds(), self.space.constraints)

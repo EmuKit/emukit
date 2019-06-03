@@ -81,31 +81,11 @@ class ObjectiveAnchorPointsGenerator(AnchorPointsGenerator):
         :param X: The samples at which to evaluate the criterion
         :return:
         """
-        return self.acquisition.evaluate(X).flatten()
-
-
-class ConstrainedObjectiveAnchorPointsGenerator(AnchorPointsGenerator):
-    """
-    This anchor points generator chooses points where the acquisition function is highest and the constraints are
-    satisfied
-    """
-
-    def __init__(self, space: ParameterSpace, acquisition: Acquisition, num_samples: int=1000):
-        """
-        :param space: The parameter space describing the input domain of the non-context variables
-        :param acquisition: The acquisition function
-        :param num_samples: The number of points at which the anchor point scores are calculated
-        """
-        super().__init__(space, num_samples)
-        self.acquisition = acquisition
-
-    def get_anchor_point_scores(self, X: np.ndarray) -> np.ndarray:
-        """
-        :param X: Array of shape (n_points, n_dimensions) containing samples at which to evaluate the criterion
-        :return: Array with score for each input point. Score is -infinity if the constraints are violated at that point
-        """
-        are_constraints_satisfied = np.all([c.evaluate(X) for c in self.space.constraints], axis=0)
+        are_constraints_satisfied = np.all([np.ones(X.shape[0])] + [c.evaluate(X) for c in self.space.constraints], axis=0)
+        print(np.all(are_constraints_satisfied))
+        print('are_constraints_satisfied', are_constraints_satisfied.shape)
         scores = np.zeros((X.shape[0],))
         scores[~are_constraints_satisfied] = -np.inf
+        print(X[are_constraints_satisfied, :].shape)
         scores[are_constraints_satisfied] = self.acquisition.evaluate(X[are_constraints_satisfied, :])[:, 0]
         return scores
