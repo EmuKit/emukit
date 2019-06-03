@@ -14,6 +14,7 @@ from emukit.core import ParameterSpace, ContinuousParameter, InformationSourcePa
 from emukit.core.acquisition.acquisition_per_cost import CostAcquisition
 
 from emukit.bayesian_optimization.acquisitions import ProbabilityOfImprovement
+from emukit.bayesian_optimization.acquisitions import ProbabilityOfFeasibility
 from emukit.experimental_design.model_based.acquisitions import ModelVariance, IntegratedVarianceReduction
 from emukit.model_wrappers.gpy_quadrature_wrappers import convert_gpy_model_to_emukit_model
 from emukit.quadrature.acquisitions import SquaredCorrelation
@@ -37,7 +38,8 @@ acquisition_tests = [acquisition_test_tuple('negative_lower_confidence_bound_acq
                      acquisition_test_tuple('multi_source_entropy_search_acquisition', False, np.nan),
                      acquisition_test_tuple('integrated_variance_acquisition', False, np.nan),
                      acquisition_test_tuple('integrated_expected_improvement_acquisition', True, default_grad_tol),
-                     acquisition_test_tuple('integrated_probability_of_improvement_acquisition', False, np.nan)]
+                     acquisition_test_tuple('integrated_probability_of_improvement_acquisition', False, np.nan)
+                     acquisition_test_tuple('probability_of_feasibility_acquisition', True, default_grad_tol)]
 
 
 # Vanilla bq model for squared correlation test
@@ -68,7 +70,12 @@ def integrated_expected_improvement_acquisition(gpy_model_mcmc):
 def integrated_probability_of_improvement_acquisition(gpy_model_mcmc):
     return IntegratedHyperParameterAcquisition(gpy_model_mcmc, ProbabilityOfImprovement, 10)
 
+  
+@pytest.fixture
+def probability_of_feasibility_acquisition(gpy_model):
+    return ProbabilityOfFeasibility(gpy_model)
 
+  
 @pytest.fixture
 def cost_acquisition(gpy_model):
     return CostAcquisition(gpy_model, 1e-6)
