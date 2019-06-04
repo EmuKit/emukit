@@ -13,7 +13,7 @@ from ...core.acquisition import Acquisition
 
 class ProbabilityOfImprovement(Acquisition):
 
-    def __init__(self, model: Union[IModel, IDifferentiable], jitter: np.float64 = np.float64(0)) -> None:
+    def __init__(self, model: Union[IModel, IDifferentiable], jitter: float = float(0)) -> None:
         """
         This acquisition computes for a given input point the probability of improving over the
         currently best observed function value. For more information see:
@@ -29,7 +29,7 @@ class ProbabilityOfImprovement(Acquisition):
     def evaluate(self, x: np.ndarray) -> np.ndarray:
         """
         Computes the probability of improving over the current best
-        :param x: points where the acquisition is evaluated.
+        :param x: points where the acquisition is evaluated, shape (num_points, num_dims).
         """
         mean, variance = self.model.predict(x)
         mean += self.jitter
@@ -42,7 +42,7 @@ class ProbabilityOfImprovement(Acquisition):
     def evaluate_with_gradients(self, x: np.ndarray) -> Tuple:
         """
         Computes the  probability of improving over the current best and its derivative
-        :param x: points where the acquisition is evaluated.
+        :param x: points where the acquisition is evaluated, shape (num_points, num_dims).
         """
         mean, variance = self.model.predict(x)
         standard_deviation = np.sqrt(variance)
@@ -67,7 +67,7 @@ class ProbabilityOfImprovement(Acquisition):
     
  class ProbabilityOfFeasibility(Acquisition):
 
-    def __init__(self, model: Union[IModel, IDifferentiable], jitter: np.float64 = np.float64(0)) -> None:
+    def __init__(self, model: Union[IModel, IDifferentiable], jitter: float = float(0)) -> None:
         """
         This acquisition computes for a given input point the probability of satisfying the constraint
         C<0. For more information see:
@@ -84,9 +84,9 @@ class ProbabilityOfImprovement(Acquisition):
 
     def evaluate(self, x: np.ndarray) -> np.ndarray:
         """
-        Computes the probability of of satisfying the constraint
-        C<0.
-        :param x: points where the acquisition is evaluated.
+        Computes the probability of of satisfying the constraint C<0.
+        :param x: points where the acquisition is evaluated, shape (num_points, num_dims).
+        :return: numpy array with the probability of satisfying the constraint at the points x.
         """
         mean, variance = self.model.predict(x)
         mean += self.jitter
@@ -97,9 +97,10 @@ class ProbabilityOfImprovement(Acquisition):
 
     def evaluate_with_gradients(self, x: np.ndarray) -> Tuple:
         """
-        Computes the  probability of of satisfying the constraint
-        C<0.
-        :param x: points where the acquisition is evaluated.
+        Computes the  probability of of satisfying the constraint C<0.
+        :param x: points where the acquisition is evaluated, shape (num_points, num_dims).
+        :return: tuple of numpy arrays with the probability of satisfying the constraint at the points x 
+        and its gradient.
         """
         mean, variance = self.model.predict(x)
         standard_deviation = np.sqrt(variance)
