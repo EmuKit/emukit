@@ -40,7 +40,7 @@ class FabolasLoop(CostSensitiveBayesianOptimizationLoop):
         """
 
         l = space.parameters
-        l.extend([InformationSourceParameter(50000)])
+        l.extend([InformationSourceParameter(s_max + 1)])
         extended_space = ParameterSpace(l)
 
         model_objective = FabolasModel(X_init=X_init, Y_init=Y_init, s_min=s_min, s_max=s_max)

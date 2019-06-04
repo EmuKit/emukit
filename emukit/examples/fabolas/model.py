@@ -83,10 +83,10 @@ class FabolasModel(IModel, IDifferentiable, IEntropySearchModel):
         self._X[:, -1] = transform(self._X[:, -1], self.s_min, self.s_max)
         self._Y = Y_init
         self.basis_func = basis_func
-        kernel = GPy.kern.Matern52(input_dim=self.X.shape[1] - 1, active_dims=[i for i in range(self._X.shape[1] - 1)],
+        kernel = GPy.kern.Matern52(input_dim=self._X.shape[1] - 1, active_dims=[i for i in range(self._X.shape[1] - 1)],
                                    variance=np.var(self._Y), ARD=True)
         kernel *= FabolasKernel(input_dim=1, active_dims=[self._X.shape[1] - 1], basis_func=basis_func)
-        # kernel *= GPy.kern.OU(input_dim=1, active_dims=[self.X.shape[1] - 1])
+        # kernel *= GPy.kern.OU(input_dim=1, active_dims=[self._X.shape[1] - 1])
         kernel += GPy.kern.White(input_dim=1, active_dims=[self._X.shape[1] - 1], variance=1e-6)
 
         self.gp = GPy.models.GPRegression(self._X, self._Y, kernel=kernel, noise_var=noise)
@@ -102,6 +102,7 @@ class FabolasModel(IModel, IDifferentiable, IEntropySearchModel):
         X_ = deepcopy(X)
         X_[:, -1] = transform(X_[:, -1], self.s_min, self.s_max)
         m, v = self.gp.predict(X_)
+        v = np.clip(v, 1e-10, np.inf)
         return m, v
 
     def set_data(self, X, Y):
@@ -109,18 +110,18 @@ class FabolasModel(IModel, IDifferentiable, IEntropySearchModel):
         self._X[:, -1] = transform(self._X[:, -1], self.s_min, self.s_max)
         self._Y = Y
         try:
-            self.gp.set_XY(self.X, self.Y)
+            self.gp.set_XY(self._X, self.Y)
         except:
-            kernel = GPy.kern.Matern52(input_dim=self.X.shape[1] - 1, active_dims=[i for i in range(self.X.shape[1] - 1)],
+            kernel = GPy.kern.Matern52(input_dim=self._X.shape[1] - 1, active_dims=[i for i in range(self._X.shape[1] - 1)],
                                    variance=np.var(self.Y), ARD=True)
-            kernel *= FabolasKernel(input_dim=1, active_dims=[self.X.shape[1] - 1], basis_func=self.basis_func)
-            kernel *= GPy.kern.OU(input_dim=1, active_dims=[self.X.shape[1] - 1])
+            kernel *= FabolasKernel(input_dim=1, active_dims=[self._X.shape[1] - 1], basis_func=self.basis_func)
+            kernel *= GPy.kern.OU(input_dim=1, active_dims=[self._X.shape[1] - 1])
 
-            self.gp = GPy.models.GPRegression(self.X, self.Y, kernel=kernel, noise_var=self.noise)
+            self.gp = GPy.models.GPRegression(self._X, self.Y, kernel=kernel, noise_var=self.noise)
             self.gp.likelihood.constrain_positive()
 
     def get_f_minimum(self):
-        proj_X = deepcopy(self.X)
+        proj_X = deepcopy(self._X)
         proj_X[:, -1] = np.ones(proj_X.shape[0])
         mean_highest_dataset = self.gp.predict(proj_X)
 
@@ -128,7 +129,9 @@ class FabolasModel(IModel, IDifferentiable, IEntropySearchModel):
 
     @property
     def X(self):
-        return self._X
+        X = deepcopy(self._X)
+        X[:, -1] = retransform(X[:, -1], self.s_min, self.s_max)
+        return X
 
     @property
     def Y(self):
@@ -140,7 +143,7 @@ class FabolasModel(IModel, IDifferentiable, IEntropySearchModel):
         :return: (mean gradient, variance gradient) n_points x n_dimensions arrays of the gradients of the predictive
                  distribution at each input location
         """
-        # X_ = (X - self.X_mean) / self.X_std
+        # X_ = (X - self._X_mean) / self._X_std
         # X_ = X
         X_ = deepcopy(X)
         X_[:, -1] = transform(X_[:, -1], self.s_min, self.s_max)
