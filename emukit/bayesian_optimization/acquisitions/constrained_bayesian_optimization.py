@@ -11,6 +11,8 @@ from ...core.loop import FixedIntervalUpdater, OuterLoop, SequentialPointCalcula
 from ...core.loop.loop_state import create_loop_state
 from ...core.optimization import AcquisitionOptimizer
 from ...core.parameter_space import ParameterSpace
+from ..acquisitions.log_acquisition import LogAcquisition
+from ..local_penalization_calculator import LocalPenalizationPointCalculator
 
 
 class ConstrainedBayesianOptimizationLoop(OuterLoop):
@@ -54,11 +56,8 @@ class ConstrainedBayesianOptimizationLoop(OuterLoop):
         if batch_size == 1:
             candidate_point_calculator = SequentialPointCalculator(acquisition, acquisition_optimizer)
         else:
-            if not isinstance(model, IDifferentiable):
-                raise ValueError('Model must implement ' + str(IDifferentiable) +
-                                 ' for use with Local Penalization batch method.')
             log_acquisition = LogAcquisition(acquisition)
-            candidate_point_calculator = LocalPenalizationPointCalculator(log_acquisition, acquisition_optimizer, model,
+            candidate_point_calculator = LocalPenalizationPointCalculator(log_acquisition, acquisition_optimizer, model_objective,
                                                                           space, batch_size)
 
         loop_state = create_loop_state(model_objective.X, model_objective.Y, model_constraint.Y)
