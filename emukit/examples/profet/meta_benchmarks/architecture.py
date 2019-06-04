@@ -16,7 +16,7 @@ def get_default_architecture_classification(input_dimensionality: int) -> torch.
             x = torch.tanh(self.fc1(x))
             x = torch.tanh(self.fc2(x))
             x = self.fc3(x)
-            mean = torch.sigmoid(x[:, None, 0])
+            mean = (torch.tanh(x[:, None, 0]) + 1) / 2
             return self.sigma_layer(mean)
 
     return Architecture(n_inputs=input_dimensionality)
