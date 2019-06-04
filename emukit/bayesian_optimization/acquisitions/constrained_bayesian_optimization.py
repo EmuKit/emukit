@@ -19,7 +19,7 @@ class ConstrainedBayesianOptimizationLoop(OuterLoop):
 
     def __init__(self, space: ParameterSpace, 
                  model_objective: Union[IModel, IDifferentiable], 
-                 model_constraint: IModel,
+                 model_constraint: Union[IModel, IDifferentiable],
                  acquisition: Acquisition = None,
                  update_interval: int = 1, 
                  batch_size: int = 1):
