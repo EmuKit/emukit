@@ -38,7 +38,7 @@ acquisition_tests = [acquisition_test_tuple('negative_lower_confidence_bound_acq
                      acquisition_test_tuple('multi_source_entropy_search_acquisition', False, np.nan),
                      acquisition_test_tuple('integrated_variance_acquisition', False, np.nan),
                      acquisition_test_tuple('integrated_expected_improvement_acquisition', True, default_grad_tol),
-                     acquisition_test_tuple('integrated_probability_of_improvement_acquisition', False, np.nan)
+                     acquisition_test_tuple('integrated_probability_of_improvement_acquisition', False, np.nan),
                      acquisition_test_tuple('probability_of_feasibility_acquisition', True, default_grad_tol)]
 
 
