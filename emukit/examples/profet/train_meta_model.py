@@ -95,7 +95,7 @@ if __name__ == "__main__":
 
     m_lvm = BayesianGPLVM(Y_norm.reshape(n_tasks, n_configs), Q_h, kernel=kern,
                           num_inducing=n_inducing_lvm)
-    m_lvm.optimize(max_iters=100, messages=1)
+    m_lvm.optimize(max_iters=10000, messages=1)
 
     ls = np.array([m_lvm.kern.lengthscale[i] for i in range(m_lvm.kern.lengthscale.shape[0])])
 
