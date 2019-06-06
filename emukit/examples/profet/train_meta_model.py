@@ -126,13 +126,18 @@ if __name__ == "__main__":
     if args.benchmark == "xgboost":
         Y_train = np.log(Y_train)
 
-    model_objective = Bohamiann(get_network=get_architecture, print_every_n_steps=1000)
+    normalize_targets = True
+    if args.benchmark == "fcnet" or args.benchmark == "svm":
+        normalize_targets = False
+
+    model_objective = Bohamiann(get_network=get_architecture, print_every_n_steps=10000,
+                                normalize_output=normalize_targets)
     model_objective.train(X_train, Y_train, num_steps=num_steps + num_burnin_steps,
                           num_burn_in_steps=num_burnin_steps, keep_every=mcmc_thining,
                           lr=1e-2, verbose=True, batch_size=5)
 
     if args.benchmark != "forrester":
-        model_cost = Bohamiann(get_network=get_default_architecture_cost, print_every_n_steps=1000)
+        model_cost = Bohamiann(get_network=get_default_architecture_cost, print_every_n_steps=10000)
         model_cost.train(X_train, C_train, num_steps=num_steps + num_burnin_steps,
                          num_burn_in_steps=num_burnin_steps, keep_every=mcmc_thining,
                          lr=1e-2, verbose=True, batch_size=5)
@@ -160,8 +165,9 @@ if __name__ == "__main__":
         data["state_dict"] = net.state_dict()
         data["x_mean"] = model_objective.x_mean
         data["x_std"] = model_objective.x_std
-        data["y_mean"] = model_objective.y_mean
-        data["y_std"] = model_objective.y_std
+        if args.benchmark == "forrester" or args.benchmark == "xgboost":
+            data["y_mean"] = model_objective.y_mean
+            data["y_std"] = model_objective.y_std
 
         data["task_feature"] = ht
         pickle.dump(data, open(os.path.join(args.output_path, "sample_objective_%d.pkl" % i), "wb"))
