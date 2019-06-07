@@ -25,13 +25,12 @@ def fmin_fabolas(func, space, s_min, s_max, num_iters, n_init: int = 20):
         cost_init[it] = cost
 
     def wrapper(x):
-        print(x)
         y, c = func(x[0, :-1], x[0, -1])
 
         return np.array([[y]]), np.array([[c]])
 
     loop = FabolasLoop(X_init=X_init, Y_init=Y_init, cost_init=cost_init, space=space, s_min=s_min, s_max=s_max)
     loop.run_loop(user_function=UserFunctionWrapper(wrapper),
-                  stopping_condition=FixedIterationsStoppingCondition(num_iters))
+                  stopping_condition=FixedIterationsStoppingCondition(num_iters - n_init))
 
     return loop.loop_state
