@@ -277,7 +277,11 @@ class MultiInformationSourceEntropySearch(EntropySearch):
             x_ = np.insert(x_, self.source_idx, idx, axis=1)
 
             if space.check_points_in_domain(x_):
-                return np.log(np.clip(ei.evaluate(x_)[0], 0., np.PINF))
+                val = np.log(np.clip(ei.evaluate(x_)[0], 0., np.PINF))
+                if np.any(np.isnan(val)):
+                    return np.array([np.NINF])
+                else:
+                    return val
             else:
                 return np.array([np.NINF])
 
