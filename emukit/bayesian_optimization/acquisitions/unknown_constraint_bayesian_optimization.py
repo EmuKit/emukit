@@ -8,7 +8,7 @@ from ...bayesian_optimization.acquisitions import ExpectedImprovement, Probabili
 from ...core.acquisition import Acquisition
 from ...core.interfaces import IModel, IDifferentiable
 from ...core.loop import FixedIntervalUpdater, OuterLoop, SequentialPointCalculator
-from ...core.loop.constrained_loop_state import create_constrained_loop_state
+from ...core.loop.loop_state import create_loop_state
 from ...core.optimization import AcquisitionOptimizer
 from ...core.parameter_space import ParameterSpace
 from ..acquisitions.log_acquisition import LogAcquisition
@@ -50,7 +50,7 @@ class UnknownConstraintBayesianOptimizationLoop(OuterLoop):
             acquisition_constrained = acquisition_objective * acquisition_constraint
 
         model_updater_objective = FixedIntervalUpdater(model_objective, update_interval)
-        model_updater_constraint = FixedIntervalUpdater(model_constraint, update_interval, lambda state: state.Y_constraint)
+        model_updater_constraint = FixedIntervalUpdater(model_constraint, update_interval, lambda state: state.cost)
 
         acquisition_optimizer = AcquisitionOptimizer(space)
         if batch_size == 1:
@@ -60,7 +60,7 @@ class UnknownConstraintBayesianOptimizationLoop(OuterLoop):
             candidate_point_calculator = LocalPenalizationPointCalculator(log_acquisition, acquisition_optimizer, model_objective,
                                                                           space, batch_size)
 
-        loop_state = create_constrained_loop_state(model_objective.X, model_objective.Y, model_constraint.Y)
+        loop_state = create_loop_state(model_objective.X, model_objective.Y, model_constraint.Y)
 
         super(ConstrainedBayesianOptimizationLoop, self).__init__(candidate_point_calculator,
                                                                     [model_updater_objective, model_updater_constraint],
