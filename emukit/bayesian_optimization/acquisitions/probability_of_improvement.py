@@ -29,7 +29,7 @@ class ProbabilityOfImprovement(Acquisition):
     def evaluate(self, x: np.ndarray) -> np.ndarray:
         """
         Computes the probability of improving over the current best
-        :param x: points where the acquisition is evaluated, shape (num_points, num_dims).
+        :param x: points where the acquisition is evaluated, shape (number of points, number of dimensions).
         """
         mean, variance = self.model.predict(x)
         mean += self.jitter
@@ -42,7 +42,7 @@ class ProbabilityOfImprovement(Acquisition):
     def evaluate_with_gradients(self, x: np.ndarray) -> Tuple:
         """
         Computes the  probability of improving over the current best and its derivative
-        :param x: points where the acquisition is evaluated, shape (num_points, num_dims).
+        :param x: points where the acquisition is evaluated, shape (number of points, number of dimensions).
         """
         mean, variance = self.model.predict(x)
         standard_deviation = np.sqrt(variance)
