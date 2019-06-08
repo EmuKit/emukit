@@ -6,7 +6,7 @@ import numpy as np
 
 from ...bayesian_optimization.acquisitions import ExpectedImprovement, ProbabilityOfFeasibility
 from ...core.acquisition import Acquisition
-from ...core.interfaces import IModel
+from ...core.interfaces import IModel, IDifferentiable
 from ...core.loop import FixedIntervalUpdater, OuterLoop, SequentialPointCalculator
 from ...core.loop.constrained_loop_state import create_constrained_loop_state
 from ...core.optimization import AcquisitionOptimizer
