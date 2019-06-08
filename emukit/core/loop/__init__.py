@@ -3,6 +3,7 @@
 
 
 from .loop_state import LoopState  # noqa: F401
+from .constrained_loop_state import UnknownConstraintLoopState  # noqa: F401
 from .user_function import UserFunction, UserFunctionWrapper  # noqa: F401
 from .outer_loop import OuterLoop  # noqa: F401
 from .user_function_result import UserFunctionResult  # noqa: F401
