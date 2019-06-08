@@ -11,7 +11,7 @@ from .user_function_result import UserFunctionResult
 
 class UnknownConstraintLoopState(object):
     """
-    Contains the state of the loop, which includes a history of all function evaluations
+    Contains the state of the loop, which includes a history of all function and constraint evaluations
     """
 
     def __init__(self, initial_results: List[UserFunctionResult]) -> None:
