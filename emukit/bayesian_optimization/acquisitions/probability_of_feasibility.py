@@ -31,7 +31,7 @@ class ProbabilityOfFeasibility(Acquisition):
     def evaluate(self, x: np.ndarray) -> np.ndarray:
         """
         Computes the probability of of satisfying the constraint C<0.
-        :param x: points where the acquisition is evaluated, shape (num_points, num_dims).
+        :param x: points where the acquisition is evaluated, shape (number of points, number of dimensions).
         :return: numpy array with the probability of satisfying the constraint at the points x.
         """
         mean, variance = self.model.predict(x)
@@ -44,7 +44,7 @@ class ProbabilityOfFeasibility(Acquisition):
     def evaluate_with_gradients(self, x: np.ndarray) -> Tuple:
         """
         Computes the  probability of of satisfying the constraint C<0.
-        :param x: points where the acquisition is evaluated, shape (num_points, num_dims).
+        :param x: points where the acquisition is evaluated, shape (number of points, number of dimensions).
         :return: tuple of numpy arrays with the probability of satisfying the constraint at the points x 
         and its gradient.
         """
