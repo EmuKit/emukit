@@ -15,7 +15,7 @@ from ..acquisitions.log_acquisition import LogAcquisition
 from ..local_penalization_calculator import LocalPenalizationPointCalculator
 
 
-class UnknownConstraintsBayesianOptimizationLoop(OuterLoop):
+class UnknownConstraintBayesianOptimizationLoop(OuterLoop):
 
     def __init__(self, space: ParameterSpace, 
                  model_objective: Union[IModel, IDifferentiable], 
