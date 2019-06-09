@@ -3,7 +3,7 @@
 
 
 import numpy as np
-
+from typing import Union
 from ...bayesian_optimization.acquisitions import ExpectedImprovement, ProbabilityOfFeasibility
 from ...core.acquisition import Acquisition
 from ...core.interfaces import IModel, IDifferentiable
@@ -62,6 +62,6 @@ class UnknownConstraintBayesianOptimizationLoop(OuterLoop):
 
         loop_state = create_loop_state(model_objective.X, model_objective.Y, model_constraint.Y)
 
-        super(ConstrainedBayesianOptimizationLoop, self).__init__(candidate_point_calculator,
+        super(UnknownConstraintBayesianOptimizationLoop, self).__init__(candidate_point_calculator,
                                                                     [model_updater_objective, model_updater_constraint],
                                                                     loop_state)
