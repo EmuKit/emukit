@@ -9,7 +9,7 @@ from ...core.acquisition import Acquisition
 from ...core.interfaces import IModel, IDifferentiable
 from ...core.loop import FixedIntervalUpdater, OuterLoop, SequentialPointCalculator
 from ...core.loop.loop_state import create_loop_state
-from ...core.optimization import AcquisitionOptimizer
+from ...core.optimization import AcquisitionOptimizerBase
 from ...core.parameter_space import ParameterSpace
 from ..acquisitions.log_acquisition import LogAcquisition
 from ..local_penalization_calculator import LocalPenalizationPointCalculator
