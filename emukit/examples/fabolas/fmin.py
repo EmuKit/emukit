@@ -13,8 +13,9 @@ def fmin_fabolas(func, space, s_min, s_max, num_iters, n_init: int = 20):
     Y_init = np.zeros([n_init, 1])
     cost_init = np.zeros([n_init])
 
-    subsets = np.array([s_max // 2 ** i for i in range(2, 10)])
+    subsets = np.array([s_max // 2 ** i for i in range(2, 10)])[::-1]
     idx = np.where(subsets < s_min)[0]
+    print(subsets)
     subsets[idx] = s_min
 
     for it in range(n_init):
@@ -25,11 +26,11 @@ def fmin_fabolas(func, space, s_min, s_max, num_iters, n_init: int = 20):
         cost_init[it] = cost
 
     def wrapper(x):
-        y, c = func(x[0, :-1], x[0, -1])
+        y, c = func(x[0, :-1], np.exp(x[0, -1]))
 
         return np.array([[y]]), np.array([[c]])
 
-    loop = FabolasLoop(X_init=X_init, Y_init=Y_init, cost_init=cost_init, space=space, s_min=s_min, s_max=s_max)
+    loop = FabolasLoop(X_init=X_init, Y_init=Y_init, cost_init=cost_init, space=space, s_min=np.log(s_min), s_max=np.log(s_max))
     loop.run_loop(user_function=UserFunctionWrapper(wrapper),
                   stopping_condition=FixedIterationsStoppingCondition(num_iters - n_init))
 

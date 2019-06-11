@@ -20,7 +20,7 @@ class FabolasLoop(CostSensitiveBayesianOptimizationLoop):
 
     def __init__(self, space: ParameterSpace,
                  X_init: np.ndarray, Y_init: np.ndarray, cost_init: np.ndarray,
-                 s_min: int, s_max: int,
+                 s_min: float, s_max: float,
                  update_interval: int = 1,
                  num_eval_points: int = 500,
                  acquisition_optimizer: AcquisitionOptimizerBase = None):
