@@ -93,9 +93,11 @@ class FabolasModel(IModel, IDifferentiable, IEntropySearchModel):
         self.gp.likelihood.constrain_positive()
 
     def optimize(self, num_restarts=3, verbose=False):
-        self.gp.likelihood.constrain_fixed(self.noise)
-        self.gp.optimize_restarts(messages=verbose, num_restarts=num_restarts, robust=True)
-        self.gp.likelihood.constrain_positive()
+        # print(self.gp.param_array)
+        # self.gp.likelihood.constrain_fixed(self.noise)
+        # self.gp.optimize_restarts(messages=verbose, num_restarts=num_restarts, robust=True)
+        # print(self.gp.param_array)
+        # self.gp.likelihood.constrain_positive()
         self.gp.optimize_restarts(messages=verbose, num_restarts=num_restarts, robust=True)
 
     def predict(self, X):
@@ -109,6 +111,7 @@ class FabolasModel(IModel, IDifferentiable, IEntropySearchModel):
         self._X = deepcopy(X)
         self._X[:, -1] = transform(self._X[:, -1], self.s_min, self.s_max)
         self._Y = Y
+        print(self._X, self._Y)
         try:
             self.gp.set_XY(self._X, self.Y)
         except:
