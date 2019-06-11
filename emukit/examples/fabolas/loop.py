@@ -9,13 +9,12 @@ from emukit.core import ParameterSpace, ContinuousParameter
 from emukit.core import InformationSourceParameter
 from emukit.examples.fabolas.model import FabolasModel
 
-from emukit.bayesian_optimization.acquisitions.entropy_search import MultiInformationSourceEntropySearch
 from ...core.acquisition import acquisition_per_expected_cost
 from ...core.loop import FixedIntervalUpdater, SequentialPointCalculator
 from ...core.loop.loop_state import create_loop_state
 from ...core.optimization import AcquisitionOptimizerBase
 from ...core.optimization import RandomSearchAcquisitionOptimizer
-
+from .continuous_fidelity_entropy_search import ContinuousFidelityEntropySearch
 
 class FabolasLoop(CostSensitiveBayesianOptimizationLoop):
 
@@ -40,19 +39,18 @@ class FabolasLoop(CostSensitiveBayesianOptimizationLoop):
         """
 
         l = space.parameters
-        l.extend([InformationSourceParameter(s_max + 1)])
+        l.extend([ContinuousParameter("dataset_size",s_min, s_max)])
         extended_space = ParameterSpace(l)
 
         model_objective = FabolasModel(X_init=X_init, Y_init=Y_init, s_min=s_min, s_max=s_max)
         model_cost = FabolasModel(X_init=X_init, Y_init=cost_init[:, None], s_min=s_min, s_max=s_max)
 
-        entropy_search = MultiInformationSourceEntropySearch(model_objective, space=extended_space,
-                                                             target_information_source_index=s_max)
+        entropy_search = ContinuousFidelityEntropySearch(model_objective, space=extended_space,
+                                                             target_fidelity_index=len(extended_space.parameters) - 1)
         acquisition = acquisition_per_expected_cost(entropy_search, model_cost)
 
         model_updater_objective = FixedIntervalUpdater(model_objective, update_interval)
         model_updater_cost = FixedIntervalUpdater(model_cost, update_interval, lambda state: state.cost)
-
 
         acquisition_optimizer = RandomSearchAcquisitionOptimizer(extended_space, num_eval_points=num_eval_points)
         candidate_point_calculator = SequentialPointCalculator(acquisition, acquisition_optimizer)
