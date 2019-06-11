@@ -6,7 +6,7 @@ from copy import deepcopy
 
 from emukit.core.interfaces.models import IModel, IDifferentiable
 from emukit.bayesian_optimization.interfaces import IEntropySearchModel
-
+from emukit.model_wrappers.gpy_model_wrappers import GPyModelWrapper
 
 class FabolasKernel(GPy.kern.Kern):
 
@@ -61,7 +61,7 @@ def retransform(s_transform, s_min, s_max):
     return s
 
 
-class FabolasModel(IModel, IDifferentiable, IEntropySearchModel):
+class FabolasModel(GPyModelWrapper):
 
     def __init__(self, X_init, Y_init, s_min, s_max, basis_func=linear, noise=1e-6):
         """
@@ -73,8 +73,6 @@ class FabolasModel(IModel, IDifferentiable, IEntropySearchModel):
         :param basis_func:
         :param noise:
         """
-
-        super(FabolasModel, self).__init__()
 
         self.noise = noise
         self.s_min = s_min
@@ -89,44 +87,35 @@ class FabolasModel(IModel, IDifferentiable, IEntropySearchModel):
         # kernel *= GPy.kern.OU(input_dim=1, active_dims=[self._X.shape[1] - 1])
         kernel += GPy.kern.White(input_dim=1, active_dims=[self._X.shape[1] - 1], variance=1e-6)
 
-        self.gp = GPy.models.GPRegression(self._X, self._Y, kernel=kernel, noise_var=noise)
-        self.gp.likelihood.constrain_positive()
-
-    def optimize(self, num_restarts=3, verbose=False):
-        # print(self.gp.param_array)
-        # self.gp.likelihood.constrain_fixed(self.noise)
-        # self.gp.optimize_restarts(messages=verbose, num_restarts=num_restarts, robust=True)
-        # print(self.gp.param_array)
-        # self.gp.likelihood.constrain_positive()
-        self.gp.optimize_restarts(messages=verbose, num_restarts=num_restarts, robust=True)
+        gp = GPy.models.GPRegression(self._X, self._Y, kernel=kernel, noise_var=noise)
+        gp.kern.set_prior(GPy.priors.Uniform(0, 5))
+        gp.likelihood.constrain_positive()
+        super(FabolasModel, self).__init__(gpy_model=gp, n_restarts=3)
 
     def predict(self, X):
         X_ = deepcopy(X)
         X_[:, -1] = transform(X_[:, -1], self.s_min, self.s_max)
-        m, v = self.gp.predict(X_)
-        v = np.clip(v, 1e-10, np.inf)
-        return m, v
+        return super(FabolasModel, self).predict(X_)
 
     def set_data(self, X, Y):
         self._X = deepcopy(X)
         self._X[:, -1] = transform(self._X[:, -1], self.s_min, self.s_max)
         self._Y = Y
-        print(self._X, self._Y)
         try:
-            self.gp.set_XY(self._X, self.Y)
+            self.model.set_XY(self._X, self.Y)
         except:
             kernel = GPy.kern.Matern52(input_dim=self._X.shape[1] - 1, active_dims=[i for i in range(self._X.shape[1] - 1)],
                                    variance=np.var(self.Y), ARD=True)
             kernel *= FabolasKernel(input_dim=1, active_dims=[self._X.shape[1] - 1], basis_func=self.basis_func)
             kernel *= GPy.kern.OU(input_dim=1, active_dims=[self._X.shape[1] - 1])
 
-            self.gp = GPy.models.GPRegression(self._X, self.Y, kernel=kernel, noise_var=self.noise)
-            self.gp.likelihood.constrain_positive()
+            self.model = GPy.models.GPRegression(self._X, self.Y, kernel=kernel, noise_var=self.noise)
+            self.model.likelihood.constrain_positive()
 
     def get_f_minimum(self):
         proj_X = deepcopy(self._X)
         proj_X[:, -1] = np.ones(proj_X.shape[0])
-        mean_highest_dataset = self.gp.predict(proj_X)
+        mean_highest_dataset = self.model.predict(proj_X)
 
         return np.min(mean_highest_dataset, axis=0)
 
@@ -151,8 +140,7 @@ class FabolasModel(IModel, IDifferentiable, IEntropySearchModel):
         X_ = deepcopy(X)
         X_[:, -1] = transform(X_[:, -1], self.s_min, self.s_max)
 
-        d_mean_dx, d_variance_dx = self.gp.predictive_gradients(X_)
-        return d_mean_dx[:, :, 0], d_variance_dx
+        return super(FabolasModel, self).get_prediction_gradients(X_)
 
     def predict_covariance(self, X: np.ndarray, with_noise: bool=True) -> np.ndarray:
         """
@@ -163,10 +151,8 @@ class FabolasModel(IModel, IDifferentiable, IEntropySearchModel):
         """
         X_ = deepcopy(X)
         X_[:, -1] = transform(X_[:, -1], self.s_min, self.s_max)
-        _, v = self.gp.predict(X_, full_cov=True, include_likelihood=with_noise)
-        v = np.clip(v, 1e-10, np.inf)
 
-        return v
+        return super(FabolasModel, self).predict_covariance(X_, with_noise)
 
     def get_covariance_between_points(self, X1: np.ndarray, X2: np.ndarray) -> np.ndarray:
         """
@@ -181,4 +167,5 @@ class FabolasModel(IModel, IDifferentiable, IEntropySearchModel):
         X_1[:, -1] = transform(X_1[:, -1], self.s_min, self.s_max)
         X_2 = deepcopy(X2)
         X_2[:, -1] = transform(X_2[:, -1], self.s_min, self.s_max)
-        return self.gp.posterior_covariance_between_points(X_1, X_2)
+
+        return super(FabolasModel, self).get_covariance_between_points(X1, X2)

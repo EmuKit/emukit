@@ -15,6 +15,8 @@ from ...core.loop.loop_state import create_loop_state
 from ...core.optimization import AcquisitionOptimizerBase
 from ...core.optimization import RandomSearchAcquisitionOptimizer
 from .continuous_fidelity_entropy_search import ContinuousFidelityEntropySearch
+from emukit.core.acquisition import IntegratedHyperParameterAcquisition
+
 
 class FabolasLoop(CostSensitiveBayesianOptimizationLoop):
 
@@ -45,8 +47,13 @@ class FabolasLoop(CostSensitiveBayesianOptimizationLoop):
         model_objective = FabolasModel(X_init=X_init, Y_init=Y_init, s_min=s_min, s_max=s_max)
         model_cost = FabolasModel(X_init=X_init, Y_init=cost_init[:, None], s_min=s_min, s_max=s_max)
 
-        entropy_search = ContinuousFidelityEntropySearch(model_objective, space=extended_space,
-                                                             target_fidelity_index=len(extended_space.parameters) - 1)
+        # entropy_search = ContinuousFidelityEntropySearch(model_objective, space=extended_space,
+        #                                                      target_fidelity_index=len(extended_space.parameters) - 1)
+
+        acquisition_generator = lambda model: ContinuousFidelityEntropySearch(model_objective, space=extended_space,
+                                                                              target_fidelity_index=len(extended_space.parameters) - 1)
+        entropy_search = IntegratedHyperParameterAcquisition(model_objective, acquisition_generator)
+
         acquisition = acquisition_per_expected_cost(entropy_search, model_cost)
 
         model_updater_objective = FixedIntervalUpdater(model_objective, update_interval)
