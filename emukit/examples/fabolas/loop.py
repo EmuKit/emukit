@@ -3,19 +3,18 @@
 
 
 import numpy as np
+
 from emukit.bayesian_optimization.loops.cost_sensitive_bayesian_optimization_loop import \
     CostSensitiveBayesianOptimizationLoop
 from emukit.core import ParameterSpace, ContinuousParameter
-from emukit.core import InformationSourceParameter
+from emukit.core.acquisition import IntegratedHyperParameterAcquisition
 from emukit.examples.fabolas.model import FabolasModel
-
+from .continuous_fidelity_entropy_search import ContinuousFidelityEntropySearch
 from ...core.acquisition import acquisition_per_expected_cost
 from ...core.loop import FixedIntervalUpdater, SequentialPointCalculator
 from ...core.loop.loop_state import create_loop_state
 from ...core.optimization import AcquisitionOptimizerBase
 from ...core.optimization import RandomSearchAcquisitionOptimizer
-from .continuous_fidelity_entropy_search import ContinuousFidelityEntropySearch
-from emukit.core.acquisition import IntegratedHyperParameterAcquisition
 
 
 class FabolasLoop(CostSensitiveBayesianOptimizationLoop):
@@ -24,7 +23,8 @@ class FabolasLoop(CostSensitiveBayesianOptimizationLoop):
                  X_init: np.ndarray, Y_init: np.ndarray, cost_init: np.ndarray,
                  s_min: float, s_max: float,
                  update_interval: int = 1,
-                 num_eval_points: int = 500,
+                 num_eval_points: int = 2000,
+                 marginalize_hypers: bool = True,
                  acquisition_optimizer: AcquisitionOptimizerBase = None):
         """
         Emukit class that implements a loop for building modular cost sensitive Bayesian optimization.
@@ -41,18 +41,20 @@ class FabolasLoop(CostSensitiveBayesianOptimizationLoop):
         """
 
         l = space.parameters
-        l.extend([ContinuousParameter("dataset_size",s_min, s_max)])
+        l.extend([ContinuousParameter("dataset_size", s_min, s_max)])
         extended_space = ParameterSpace(l)
 
         model_objective = FabolasModel(X_init=X_init, Y_init=Y_init, s_min=s_min, s_max=s_max)
         model_cost = FabolasModel(X_init=X_init, Y_init=cost_init[:, None], s_min=s_min, s_max=s_max)
 
-        # entropy_search = ContinuousFidelityEntropySearch(model_objective, space=extended_space,
-        #                                                      target_fidelity_index=len(extended_space.parameters) - 1)
-
-        acquisition_generator = lambda model: ContinuousFidelityEntropySearch(model_objective, space=extended_space,
-                                                                              target_fidelity_index=len(extended_space.parameters) - 1)
-        entropy_search = IntegratedHyperParameterAcquisition(model_objective, acquisition_generator)
+        if marginalize_hypers:
+            acquisition_generator = lambda model: ContinuousFidelityEntropySearch(model_objective, space=extended_space,
+                                                                                  target_fidelity_index=len(
+                                                                                      extended_space.parameters) - 1)
+            entropy_search = IntegratedHyperParameterAcquisition(model_objective, acquisition_generator)
+        else:
+            entropy_search = ContinuousFidelityEntropySearch(model_objective, space=extended_space,
+                                                             target_fidelity_index=len(extended_space.parameters) - 1)
 
         acquisition = acquisition_per_expected_cost(entropy_search, model_cost)
 

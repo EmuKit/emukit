@@ -5,7 +5,7 @@ from emukit.examples.fabolas import FabolasLoop
 from emukit.experimental_design.model_free.latin_design import LatinDesign
 
 
-def fmin_fabolas(func, space, s_min, s_max, num_iters, n_init: int = 20):
+def fmin_fabolas(func, space, s_min, s_max, num_iters, n_init: int = 20, marginalize_hypers: bool = True):
     initial_design = LatinDesign(space)
 
     grid = initial_design.get_samples(n_init)
@@ -30,7 +30,7 @@ def fmin_fabolas(func, space, s_min, s_max, num_iters, n_init: int = 20):
 
         return np.array([[y]]), np.array([[c]])
 
-    loop = FabolasLoop(X_init=X_init, Y_init=Y_init, cost_init=cost_init, space=space, s_min=np.log(s_min), s_max=np.log(s_max))
+    loop = FabolasLoop(X_init=X_init, Y_init=Y_init, cost_init=cost_init, space=space, s_min=np.log(s_min), s_max=np.log(s_max), marginalize_hypers=marginalize_hypers)
     loop.run_loop(user_function=UserFunctionWrapper(wrapper),
                   stopping_condition=FixedIterationsStoppingCondition(num_iters - n_init))
 
