@@ -30,10 +30,10 @@ class ContinuousFidelityEntropySearch(EntropySearch):
 
         # Find fidelity parameter in parameter space
         if target_fidelity_index is None:
-            self.target_fidelity_index == len(space.parameters) - 1
+            self.target_fidelity_index = len(space.parameters) - 1
         else:
             self.target_fidelity_index = target_fidelity_index
-        self.fidelity_parameter = space.parameters[target_fidelity_index]
+        self.fidelity_parameter = space.parameters[self.target_fidelity_index]
         self.high_fidelity = self.fidelity_parameter.max
 
         # Sampler of representer points should sample x location at the highest fidelity
