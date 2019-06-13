@@ -1,20 +1,15 @@
-# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-# SPDX-License-Identifier: Apache-2.0
-
-
 import numpy as np
 
 from emukit.bayesian_optimization.loops.cost_sensitive_bayesian_optimization_loop import \
     CostSensitiveBayesianOptimizationLoop
 from emukit.core import ParameterSpace, ContinuousParameter
 from emukit.core.acquisition import IntegratedHyperParameterAcquisition
-from emukit.examples.fabolas.model import FabolasModel
-from .continuous_fidelity_entropy_search import ContinuousFidelityEntropySearch
-from ...core.acquisition import acquisition_per_expected_cost
-from ...core.loop import FixedIntervalUpdater, SequentialPointCalculator
-from ...core.loop.loop_state import create_loop_state
-from ...core.optimization import AcquisitionOptimizerBase
-from ...core.optimization import RandomSearchAcquisitionOptimizer
+from emukit.core.acquisition import acquisition_per_expected_cost
+from emukit.core.loop import FixedIntervalUpdater, SequentialPointCalculator
+from emukit.core.loop.loop_state import create_loop_state
+from emukit.core.optimization import RandomSearchAcquisitionOptimizer
+from emukit.examples.fabolas.continuous_fidelity_entropy_search import ContinuousFidelityEntropySearch
+from emukit.examples.fabolas.fabolas_model import FabolasModel
 
 
 class FabolasLoop(CostSensitiveBayesianOptimizationLoop):
@@ -24,24 +19,27 @@ class FabolasLoop(CostSensitiveBayesianOptimizationLoop):
                  s_min: float, s_max: float,
                  update_interval: int = 1,
                  num_eval_points: int = 2000,
-                 marginalize_hypers: bool = True,
-                 acquisition_optimizer: AcquisitionOptimizerBase = None):
+                 marginalize_hypers: bool = True):
         """
-        Emukit class that implements a loop for building modular cost sensitive Bayesian optimization.
+        Implements FAst Bayesian Optimization for LArge DataSets as described in:
 
-        :param space: Input space where the optimization is carried out.
-        :param model_objective: The model that approximates the underlying objective function
-        :param model_cost: The model that approximates the cost of evaluating the objective function
-        :param acquisition: The acquisition function that will be used to collect new points (default, EI).
-        :param update_interval:  Number of iterations between optimization of model hyper-parameters. Defaults to 1.
-        :param acquisition_optimizer: Optimizer selecting next evaluation points
-                                      by maximizing acquisition.
-                                      Gradient based optimizer is used if None.
-                                      Defaults to None.
+        Fast Bayesian hyperparameter optimization on large datasets
+        A. Klein and S. Falkner and S. Bartels and P. Hennig and F. Hutter
+        Electronic Journal of Statistics (2017)
+
+        :param space: input space where the optimization is carried out.
+        :param X_init: initial data points
+        :param Y_init: initial function values
+        :param cost_init: initial costs
+        :param s_min: smallest possible dataset size
+        :param s_max: highest possible dataset size
+        :param update_interval:  number of iterations between optimization of model hyper-parameters. Defaults to 1.
+        :param num_eval_points: number of points to evaluate the acquisition function
+        :param marginalize_hypers: if true, marginalize over the GP hyperparameters
         """
 
         l = space.parameters
-        l.extend([ContinuousParameter("dataset_size", s_min, s_max)])
+        l.extend([ContinuousParameter("dataset_size", np.log(s_min), np.log(s_max))])  # optimize s on a log scale
         extended_space = ParameterSpace(l)
 
         model_objective = FabolasModel(X_init=X_init, Y_init=Y_init, s_min=s_min, s_max=s_max)

@@ -1,12 +1,11 @@
+from copy import deepcopy
 from typing import Tuple
 
 import GPy
 import numpy as np
-from copy import deepcopy
 
-from emukit.core.interfaces.models import IModel, IDifferentiable
-from emukit.bayesian_optimization.interfaces import IEntropySearchModel
 from emukit.model_wrappers.gpy_model_wrappers import GPyModelWrapper
+
 
 class FabolasKernel(GPy.kern.Kern):
 
@@ -57,21 +56,22 @@ def transform(s, s_min, s_max):
 
 
 def retransform(s_transform, s_min, s_max):
-    s = np.rint(2**(s_transform * (np.log2(s_max) - np.log2(s_min)) + np.log2(s_min)))
+    s = np.rint(2 ** (s_transform * (np.log2(s_max) - np.log2(s_min)) + np.log2(s_min)))
     return s
 
 
 class FabolasModel(GPyModelWrapper):
 
-    def __init__(self, X_init, Y_init, s_min, s_max, basis_func=linear, noise=1e-6):
+    def __init__(self, X_init: np.ndarray, Y_init: np.ndarray,
+                 s_min: float, s_max: float, basis_func=linear, noise: float = 1e-6):
         """
-        Fabolas Gaussian processes model. Note: we assume s \in [0, 1] to be the dataset fraction on a log scale.
-        Also it should be the last dimension (along axis=1) of X_init.
+        Fabolas Gaussian processes model which models the validation error / cost of
+        hyperparameter configurations across training dataset subsets.
 
-        :param X_init:
-        :param Y_init:
-        :param basis_func:
-        :param noise:
+        :param X_init: training data points
+        :param Y_init: training targets
+        :param basis_func: basis function which describes the change in performance across dataset subsets
+        :param noise: observation noise added to the diagonal of the kernel matrix
         """
 
         self.noise = noise
@@ -84,7 +84,6 @@ class FabolasModel(GPyModelWrapper):
         kernel = GPy.kern.Matern52(input_dim=self._X.shape[1] - 1, active_dims=[i for i in range(self._X.shape[1] - 1)],
                                    variance=np.var(self._Y), ARD=True)
         kernel *= FabolasKernel(input_dim=1, active_dims=[self._X.shape[1] - 1], basis_func=basis_func)
-        # kernel *= GPy.kern.OU(input_dim=1, active_dims=[self._X.shape[1] - 1])
         kernel += GPy.kern.White(input_dim=1, active_dims=[self._X.shape[1] - 1], variance=1e-6)
 
         gp = GPy.models.GPRegression(self._X, self._Y, kernel=kernel, noise_var=noise)
@@ -93,19 +92,30 @@ class FabolasModel(GPyModelWrapper):
         super(FabolasModel, self).__init__(gpy_model=gp, n_restarts=3)
 
     def predict(self, X):
+        """
+        :param X: (n_points x n_dimensions) array containing locations at which to get predictions
+        :return: (mean, variance) Arrays of size n_points x 1 of the predictive distribution at each input location
+        """
         X_ = deepcopy(X)
         X_[:, -1] = transform(X_[:, -1], self.s_min, self.s_max)
         return super(FabolasModel, self).predict(X_)
 
     def set_data(self, X, Y):
+        """
+        Sets training data in model
+
+        :param X: New training features
+        :param Y: New training outputs
+        """
         self._X = deepcopy(X)
         self._X[:, -1] = transform(self._X[:, -1], self.s_min, self.s_max)
         self._Y = Y
         try:
             self.model.set_XY(self._X, self.Y)
         except:
-            kernel = GPy.kern.Matern52(input_dim=self._X.shape[1] - 1, active_dims=[i for i in range(self._X.shape[1] - 1)],
-                                   variance=np.var(self.Y), ARD=True)
+            kernel = GPy.kern.Matern52(input_dim=self._X.shape[1] - 1,
+                                       active_dims=[i for i in range(self._X.shape[1] - 1)],
+                                       variance=np.var(self.Y), ARD=True)
             kernel *= FabolasKernel(input_dim=1, active_dims=[self._X.shape[1] - 1], basis_func=self.basis_func)
             kernel *= GPy.kern.OU(input_dim=1, active_dims=[self._X.shape[1] - 1])
 
@@ -113,8 +123,14 @@ class FabolasModel(GPyModelWrapper):
             self.model.likelihood.constrain_positive()
 
     def get_f_minimum(self):
+        """
+        Predicts for all observed data points the validation error on the full dataset and returns
+        the smallest mean prediciton
+
+        :return: Array of size 1 x 1
+        """
         proj_X = deepcopy(self._X)
-        proj_X[:, -1] = np.ones(proj_X.shape[0])
+        proj_X[:, -1] = np.ones(proj_X.shape[0]) * self.s_max
         mean_highest_dataset = self.model.predict(proj_X)
 
         return np.min(mean_highest_dataset, axis=0)
@@ -135,14 +151,12 @@ class FabolasModel(GPyModelWrapper):
         :return: (mean gradient, variance gradient) n_points x n_dimensions arrays of the gradients of the predictive
                  distribution at each input location
         """
-        # X_ = (X - self._X_mean) / self._X_std
-        # X_ = X
         X_ = deepcopy(X)
         X_[:, -1] = transform(X_[:, -1], self.s_min, self.s_max)
 
         return super(FabolasModel, self).get_prediction_gradients(X_)
 
-    def predict_covariance(self, X: np.ndarray, with_noise: bool=True) -> np.ndarray:
+    def predict_covariance(self, X: np.ndarray, with_noise: bool = True) -> np.ndarray:
         """
         Calculates posterior covariance between points in X
         :param X: Array of size n_points x n_dimensions containing input locations to compute posterior covariance at

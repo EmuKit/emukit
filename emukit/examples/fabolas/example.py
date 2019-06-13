@@ -19,4 +19,4 @@ def wrapper(x, s):
     return res["function_value"], res["cost"]
 
 
-res = fmin_fabolas(wrapper, space=space, s_min=s_min, s_max=s_max, num_iters=50, marginalize_hypers=False)
+res = fmin_fabolas(wrapper, space=space, s_min=s_min, s_max=s_max, num_iters=100, marginalize_hypers=False)
