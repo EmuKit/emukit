@@ -24,8 +24,8 @@ def meta_svm(fname_objective: str, fname_cost: str, noise: bool = True) -> Tuple
     :return: Tuple of user function object and parameter space
     """
     parameter_space = ParameterSpace([
-        ContinuousParameter('log_C', -10, 10),
-        ContinuousParameter('log_gamma', -10, 10)])
+        ContinuousParameter('log_C', 0, 1),  # scaled to [0, 1], original space was in [-10, 10]
+        ContinuousParameter('log_gamma', 0, 1)])  # scaled to [0, 1] original space was in [-10, 10]
     data = pickle.load(open(fname_objective, "rb"))
 
     x_mean_objective = data["x_mean"]
