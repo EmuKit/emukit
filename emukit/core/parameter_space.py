@@ -4,12 +4,9 @@ import itertools
 from typing import List, Tuple
 
 import numpy as np
-import GPyOpt
 
+from .discrete_parameter import InformationSourceParameter
 from .parameter import Parameter
-from . import CategoricalParameter
-from . import ContinuousParameter
-from .discrete_parameter import DiscreteParameter, InformationSourceParameter
 
 
 class ParameterSpace(object):
@@ -34,6 +31,25 @@ class ParameterSpace(object):
         names = self.parameter_names
         if not len(names) == len(set(names)):
             raise ValueError('Parameter names are not unique')
+
+    def find_parameter_index_in_model(self, parameter_name: str) -> List[int]:
+        """
+        Find the indices of the encoding of the specified parameter in the input vector
+
+        :param parameter_name: Parameter name to find indices for
+        :return: List of indices
+        """
+        i_start = 0
+        for param in self._parameters:
+            if param.name == parameter_name:
+                return list(range(i_start, i_start + param.dimension))
+            else:
+                i_start += param.dimension
+        raise ValueError('Parameter {} not found'.format(parameter_name))
+
+    @property
+    def dimensionality(self):
+        return sum([p.dimension for p in self._parameters])
 
     @property
     def parameters(self) -> List:
@@ -93,36 +109,6 @@ class ParameterSpace(object):
             current_idx += param.dimension
 
         return np.column_stack(x_rounded)
-
-    def convert_to_gpyopt_design_space(self):
-        """
-        Converts this ParameterSpace to a GPyOpt DesignSpace object
-        """
-
-        gpyopt_parameters = []
-
-        for parameter in self.parameters:
-            if isinstance(parameter, ContinuousParameter):
-                gpyopt_param = {'name': parameter.name, 'type': 'continuous', 'domain': (parameter.min, parameter.max),
-                                'dimensionality': 1}
-                gpyopt_parameters.append(gpyopt_param)
-            elif isinstance(parameter, DiscreteParameter):
-                gpyopt_param = {'name': parameter.name, 'type': 'discrete', 'domain': parameter.domain,
-                                'dimensionality': 1}
-                gpyopt_parameters.append(gpyopt_param)
-            elif isinstance(parameter, CategoricalParameter):
-                for i, cat_sub_param in enumerate(parameter.model_parameters):
-                    gpyopt_param = {'name': parameter.name + '_' + str(i),
-                                    'type': 'continuous',
-                                    'domain': (cat_sub_param.min, cat_sub_param.max),
-                                    'dimensionality': 1}
-                    gpyopt_parameters.append(gpyopt_param)
-            else:
-                raise NotImplementedError(
-                    "Only continuous, discrete and categorical parameters are supported"
-                    ", received {}".format(type(parameter)))
-
-        return GPyOpt.core.task.space.Design_space(gpyopt_parameters)
 
     def check_points_in_domain(self, x: np.ndarray) -> np.ndarray:
         """
