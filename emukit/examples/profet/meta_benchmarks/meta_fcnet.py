@@ -59,7 +59,7 @@ def meta_fcnet(fname_objective: str, fname_cost: str, noise: bool=True) -> Tuple
         o = objective.forward(x_norm).data.numpy()
         # m = o[:, 0] * y_std_objective + y_mean_objective
         # log_v = o[:, 1] * y_std_objective ** 2
-        m = o[:, 1]
+        m = o[:, 0]
         log_v = o[:, 1]
         if with_noise:
             feval = np.random.randn() * np.sqrt(np.exp(log_v)) + m
