@@ -39,7 +39,7 @@ class FabolasLoop(CostSensitiveBayesianOptimizationLoop):
         """
 
         l = space.parameters
-        l.extend([ContinuousParameter("dataset_size", np.log(s_min), np.log(s_max))])  # optimize s on a log scale
+        l.extend([ContinuousParameter("s", np.log(s_min), np.log(s_max))])  # optimize s on a log scale
         extended_space = ParameterSpace(l)
 
         model_objective = FabolasModel(X_init=X_init, Y_init=Y_init, s_min=s_min, s_max=s_max)
