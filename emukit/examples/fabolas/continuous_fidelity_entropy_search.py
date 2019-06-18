@@ -5,9 +5,9 @@ import numpy as np
 from emukit.bayesian_optimization.acquisitions import ExpectedImprovement
 from emukit.bayesian_optimization.acquisitions.entropy_search import EntropySearch
 from emukit.bayesian_optimization.interfaces import IEntropySearchModel
-from ...core.interfaces import IModel
-from ...core.parameter_space import ParameterSpace
-from ...samplers import AffineInvariantEnsembleSampler
+from emukit.core.interfaces import IModel
+from emukit.core.parameter_space import ParameterSpace
+from emukit.samplers import AffineInvariantEnsembleSampler
 
 
 class ContinuousFidelityEntropySearch(EntropySearch):
