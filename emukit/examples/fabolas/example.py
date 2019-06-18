@@ -1,6 +1,21 @@
-from hpolib.benchmarks.surrogates.svm import SurrogateSVM
+"""
+This file implements an example of how to use Fabolas via the provided fmin interface to optimize the
+hyperparameters of a SVM.
+Instead of optimizing the real benchmark, we optimize a so-called surrogate benchmark instead which is much faster.
+For more details look see th original Fabolas paper.
+
+To run this example you need to install the new_benchmarks branch of HPOlib2:
+    https://github.com/automl/HPOlib2/tree/new_benchmarks
+"""
 from emukit.core import ParameterSpace, ContinuousParameter
 from emukit.examples.fabolas import fmin_fabolas
+
+
+try:
+    from hpolib.benchmarks.surrogates.svm import SurrogateSVM
+except ImportError:
+    raise ImportError(
+        'HPOLib is not installed. Please install it from: https://github.com/automl/HPOlib2/tree/master')
 
 svm = SurrogateSVM()
 
