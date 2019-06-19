@@ -89,7 +89,7 @@ class GPBayesianOptimization(BayesianOptimizationLoop):
 
     def suggest_new_locations(self):
         """ Returns one or a batch of locations without evaluating the objective """
-        return self.candidate_point_calculator.compute_next_points(self.loop_state)[0].X
+        return self.candidate_point_calculator.compute_next_points(self.loop_state)[0]
 
     def run_optimization(self, user_function: UserFunction, num_iterations: int) -> None:
         """
