@@ -5,8 +5,8 @@ import logging
 import numpy as np
 
 from .. import ParameterSpace
-from .context_manager import ContextManager
 from ..acquisition import Acquisition
+from .context_manager import ContextManager
 
 _log = logging.getLogger(__name__)
 
@@ -28,7 +28,7 @@ class AnchorPointsGenerator(object):
         self.space = space
         self.num_samples = num_samples
 
-    def get_anchor_point_scores(self, X: np.array) -> np.array:
+    def get_anchor_point_scores(self, X: np.ndarray) -> np.ndarray:
         """
         This abstract method should contain the logic to ascribe scores to different points in the input domain.
         Points with higher scores will be chosen over points with lower scores.
@@ -38,7 +38,7 @@ class AnchorPointsGenerator(object):
         """
         raise NotImplementedError('get_anchor_point_scores is not implemented in the parent class.')
 
-    def get(self, num_anchor: int = 5, context_manager: ContextManager = None) -> np.array:
+    def get(self, num_anchor: int = 5, context_manager: ContextManager = None) -> np.ndarray:
         """
         :param num_anchor: Number of points to return
         :param context_manager: Describes any fixed parameters in the optimization
@@ -67,7 +67,7 @@ class ObjectiveAnchorPointsGenerator(AnchorPointsGenerator):
     """
     This anchor points generator chooses points where the acquisition function is highest
     """
-    def __init__(self, space: ParameterSpace, acquisition: Acquisition, num_samples=1000):
+    def __init__(self, space: ParameterSpace, acquisition: Acquisition, num_samples: int=1000):
         """
         :param space: The parameter space describing the input domain of the non-context variables
         :param acquisition: The acquisition function
@@ -76,9 +76,13 @@ class ObjectiveAnchorPointsGenerator(AnchorPointsGenerator):
         self.acquisition = acquisition
         super(ObjectiveAnchorPointsGenerator, self).__init__(space, num_samples)
 
-    def get_anchor_point_scores(self, X) -> np.array:
+    def get_anchor_point_scores(self, X: np.ndarray) -> np.ndarray:
         """
         :param X: The samples at which to evaluate the criterion
         :return:
         """
-        return self.acquisition.evaluate(X).flatten()
+        are_constraints_satisfied = np.all([np.ones(X.shape[0])] + [c.evaluate(X) for c in self.space.constraints], axis=0)
+        scores = np.zeros((X.shape[0],))
+        scores[~are_constraints_satisfied] = -np.inf
+        scores[are_constraints_satisfied] = self.acquisition.evaluate(X[are_constraints_satisfied, :])[:, 0]
+        return scores

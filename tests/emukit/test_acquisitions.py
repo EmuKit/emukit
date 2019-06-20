@@ -98,7 +98,6 @@ def integrated_variance_acquisition(gpy_model, continuous_space):
 def squared_correlation_acquisition(vanilla_bq_model):
     return SquaredCorrelation(vanilla_bq_model)
 
-
 @pytest.fixture
 @pytest.mark.parametrize('n_dims', [2])
 def multi_source_entropy_search_acquisition(gpy_model):
