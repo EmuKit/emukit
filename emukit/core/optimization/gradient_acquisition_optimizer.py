@@ -11,7 +11,7 @@ from ..acquisition import Acquisition
 from .acquisition_optimizer import AcquisitionOptimizerBase
 from .anchor_points_generator import ObjectiveAnchorPointsGenerator
 from .context_manager import ContextManager
-from .optimizer import apply_optimizer, OptLbfgs
+from .optimizer import OptLbfgs, OptTrustRegionConstrained, apply_optimizer
 
 _log = logging.getLogger(__name__)
 
@@ -51,8 +51,7 @@ class GradientAcquisitionOptimizer(AcquisitionOptimizerBase):
         else:
             f_df = None
 
-        optimizer = OptLbfgs(context_manager.contextfree_space.get_bounds())
-
+        optimizer = self._get_optimizer(context_manager)
         anchor_points_generator = ObjectiveAnchorPointsGenerator(self.space, acquisition)
 
         # Select the anchor points (with context)
@@ -67,3 +66,9 @@ class GradientAcquisitionOptimizer(AcquisitionOptimizerBase):
 
         x_min, fx_min = min(optimized_points, key=lambda t: t[1])
         return x_min, -fx_min
+
+    def _get_optimizer(self, context_manager):
+        if len(self.space.constraints) == 0:
+            return OptLbfgs(context_manager.contextfree_space.get_bounds())
+        else:
+            return OptTrustRegionConstrained(context_manager.contextfree_space.get_bounds(), self.space.constraints)
