@@ -19,3 +19,4 @@ def test_loop():
 
     # Check we got the correct number of points
     assert bo.loop_state.X.shape[0] == n_iterations + 5
+    assert bo.suggest_new_locations().shape == (1,)
