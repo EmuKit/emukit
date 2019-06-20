@@ -260,7 +260,7 @@ class MultiInformationSourceEntropySearch(EntropySearch):
         repr_points, repr_points_log = super()._sample_representer_points()
 
         # Add fidelity index to representer points
-        idx = np.ones((repr_points.shape[0], 1)) * self.target_information_source_index
+        idx = np.ones((repr_points.shape[0])) * self.target_information_source_index
         repr_points = np.insert(repr_points, self.source_idx, idx, axis=1)
         return repr_points, repr_points_log
 
@@ -277,7 +277,11 @@ class MultiInformationSourceEntropySearch(EntropySearch):
             x_ = np.insert(x_, self.source_idx, idx, axis=1)
 
             if space.check_points_in_domain(x_):
-                return np.log(np.clip(ei.evaluate(x_)[0], 0., np.PINF))
+                val = np.log(np.clip(ei.evaluate(x_)[0], 0., np.PINF))
+                if np.any(np.isnan(val)):
+                    return np.array([np.NINF])
+                else:
+                    return val
             else:
                 return np.array([np.NINF])
 
