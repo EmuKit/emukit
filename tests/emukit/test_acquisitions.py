@@ -99,11 +99,6 @@ def squared_correlation_acquisition(vanilla_bq_model):
     return SquaredCorrelation(vanilla_bq_model)
 
 @pytest.fixture
-def probability_of_feasibility(gpy_model):
-    return ProbabilityOfFeasibility(gpy_model)
-
-
-@pytest.fixture
 @pytest.mark.parametrize('n_dims', [2])
 def multi_source_entropy_search_acquisition(gpy_model):
     space = ParameterSpace([ContinuousParameter('x1', 0, 1), InformationSourceParameter(2)])
