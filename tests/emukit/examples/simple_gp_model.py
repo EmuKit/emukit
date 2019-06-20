@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from emukit.examples.simple_gp_model.simple_gp_model import SimpleGaussianProcessModel
+from emukit.model_wrappers.simple_gp_model import SimpleGaussianProcessModel
 
 
 @pytest.fixture
