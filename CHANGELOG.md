@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to Emukit will be documented in this file.
 
+## [0.4.6]
+- Added support for inequality constraints
+- Fabolas as an example
+- Bugfixes
+
 ## [0.4.5]
 - Confirmed support for Python 3.7
 - Removed dependency on GPyOpt
