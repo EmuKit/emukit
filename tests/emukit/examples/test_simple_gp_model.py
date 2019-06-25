@@ -27,7 +27,7 @@ def test_simple_gp_model_predict(simple_gp, x, y):
     assert mean.shape == x.shape
     assert var.shape == x.shape
     # predicting at training locations should give mean results close to training targets
-    assert np.allclose(mean, y, atol=1e-4, rtol=1e-4)
+    assert np.allclose(mean, y, atol=1e-3, rtol=1e-3)
 
 
 def test_set_new_data(simple_gp, x, y):
