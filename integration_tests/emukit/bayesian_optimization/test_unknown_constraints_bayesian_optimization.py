@@ -20,7 +20,7 @@ def test_loop():
     results = None
     l=0
     for _ in range(n_iterations):
-    	X_new = bo.get_next_points(())
+    	X_new = bo.get_next_points(results)
     	Y_new = f(X_new)
     	Yc_new = fc(X_new)
     	results = [UserFunctionResult(X_new[0], Y_new[0], Yc_new[0])]
