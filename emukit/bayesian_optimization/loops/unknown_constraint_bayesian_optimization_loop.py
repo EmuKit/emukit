@@ -46,7 +46,7 @@ class UnknownConstraintBayesianOptimizationLoop(OuterLoop):
                              'training inputs for the constrained and objective model')
 
         if acquisition is None:
-            acquisition_objective = ExpectedImprovement(model_objective)
+            acquisition = ExpectedImprovement(model_objective)
  
         acquisition_constraint = ProbabilityOfFeasibility(model_constraint)
 
