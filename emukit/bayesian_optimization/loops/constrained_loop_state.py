@@ -6,7 +6,7 @@ from typing import List
 
 import numpy as np
 
-from emukit.core.loop import UserFunctionResult
+from ...core.loop import UserFunctionResult
 
 class UnknownConstraintLoopState(object):
     """
