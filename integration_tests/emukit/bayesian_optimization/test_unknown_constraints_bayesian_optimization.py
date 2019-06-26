@@ -25,4 +25,4 @@ def test_loop():
     	Yc_new = fc(X_new)
     	results = [UserFunctionResult(X_new[0], Y_new[0], Yc_new[0])]
     # Check we got the correct number of points
-    assert bo.loop_state.X.shape[0] == n_iterations
+    assert bo.loop_state.X.shape[0] == n_iterations + 5
