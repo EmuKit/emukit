@@ -19,7 +19,7 @@ def test_loop():
     bo = GPBayesianOptimization(variables_list=[x], X=x_init, Y=y_init, Yc=yc_init, batch_size=1)
     results = None
     l=0
-    for _ in range(n_iterations):
+    for _ in range(n_iterations+1):
     	X_new = bo.get_next_points(results)
     	Y_new = f(X_new)
     	Yc_new = fc(X_new)
