@@ -36,7 +36,7 @@ class UnknownConstraintBayesianOptimizationLoop(OuterLoop):
         :param space: Input space where the optimization is carried out.
         :param model_objective: The model that approximates the underlying objective function
         :param model_constraint: The model that approximates the unknown constraints
-        :param acquisition: The acquisition function that will be used to collect new points (default, CEI).
+        :param acquisition: The acquisition function for the objective function (default, EI).
         :param update_interval:  Number of iterations between optimization of model hyper-parameters. Defaults to 1.
         :param batch_size: How many points to evaluate in one iteration of the optimization loop. Defaults to 1.
         """
@@ -47,8 +47,10 @@ class UnknownConstraintBayesianOptimizationLoop(OuterLoop):
 
         if acquisition is None:
             acquisition_objective = ExpectedImprovement(model_objective)
-            acquisition_constraint = ProbabilityOfFeasibility(model_constraint)
-            acquisition_constrained = acquisition_objective * acquisition_constraint
+ 
+        acquisition_constraint = ProbabilityOfFeasibility(model_constraint)
+
+        acquisition_constrained = acquisition * acquisition_constraint
 
         model_updater_objective = FixedIntervalUpdater(model_objective, update_interval)
         model_updater_constraint = FixedIntervalUpdater(model_constraint, update_interval, lambda state: state.cost)
