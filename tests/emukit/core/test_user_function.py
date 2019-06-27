@@ -22,7 +22,7 @@ def test_user_function_wrapper_evaluation_no_cost():
 def test_user_function_wrapper_evaluation_with_cost():
     function = lambda x: (2 * x, np.array([[1]] * x.shape[0]))
     function_input = np.array([[1], [2], [3]])
-    ufw = UserFunctionWrapper(function, output_names=['cost'])
+    ufw = UserFunctionWrapper(function, extra_output_names=['cost'])
 
     output = ufw.evaluate(function_input)
 
@@ -77,7 +77,7 @@ def test_multi_source_function_wrapper_evaluation_with_cost():
                  lambda x: (4 * x, np.array([[2]] * x.shape[0]))]
     function_input = np.array([[1, 0], [2, 1], [3, 0], [4, 0], [5, 1]])
     source_index = -1
-    msfw = MultiSourceFunctionWrapper(functions, source_index, output_names=['cost'])
+    msfw = MultiSourceFunctionWrapper(functions, source_index, extra_output_names=['cost'])
 
     output = msfw.evaluate(function_input)
 
@@ -95,7 +95,7 @@ def test_multi_source_function_wrapper_evaluation_with_multiple_extra_arguments(
                  lambda x: (4 * x, np.array([[2]] * x.shape[0]), np.array([[1]] * x.shape[0]))]
     function_input = np.array([[1, 0], [2, 1], [3, 0], [4, 0], [5, 1]])
     source_index = -1
-    msfw = MultiSourceFunctionWrapper(functions, source_index, output_names=['cost', 'constraint'])
+    msfw = MultiSourceFunctionWrapper(functions, source_index, extra_output_names=['cost', 'constraint'])
 
     output = msfw.evaluate(function_input)
 

@@ -30,16 +30,16 @@ class UserFunction(abc.ABC):
 
 class UserFunctionWrapper(UserFunction):
     """ Wraps a user-provided python function. """
-    def __init__(self, f: Callable, output_names: List[str] = None):
+    def __init__(self, f: Callable, extra_output_names: List[str] = None):
         """
         :param f: A python function that takes in a 2d numpy ndarray of inputs and returns a either a 2d numpy array
                   of function outputs or a tuple of (outputs, auxillary_output_1, auxilary_output_2, ...)
                   where all outputs are 2d
-        :param output_names: If the function f returns a tuple, the first output should be the value of the objective,
+        :param extra_output_names: If the function f returns a tuple, the first output should be the value of the objective,
                              which will be named "Y", names for subsequent outputs should be included in this list.
         """
         self.f = f
-        self.output_names = [] if output_names is None else output_names
+        self.extra_output_names = [] if extra_output_names is None else extra_output_names
 
     def evaluate(self, inputs: np.ndarray) -> List[UserFunctionResult]:
         """
@@ -69,7 +69,7 @@ class UserFunctionWrapper(UserFunction):
         # Validate number of outputs returned by the user function
         if len(extra_outputs) != len(extra_outputs):
             raise ValueError('User function provided {} outputs but UserFunctionWrapper expected {}'.format(
-                len(extra_outputs) + 1, len(self.output_names) + 1))
+                len(extra_outputs) + 1, len(self.extra_output_names) + 1))
 
         if user_fcn_outputs.ndim != 2:
             raise ValueError("User function should return 2d array or a tuple of 2d arrays as an output, "
@@ -77,7 +77,7 @@ class UserFunctionWrapper(UserFunction):
 
         results = []
         for i in range(user_fcn_outputs.shape[0]):
-            kwargs = dict([(name, val[i]) for name, val in zip(self.output_names, extra_outputs)])
+            kwargs = dict([(name, val[i]) for name, val in zip(self.extra_output_names, extra_outputs)])
             results.append(UserFunctionResult(inputs[i], user_fcn_outputs[i], **kwargs))
 
         return results
@@ -88,7 +88,7 @@ class MultiSourceFunctionWrapper(UserFunction):
     Wraps a list of python functions that each correspond to different information source.
     """
 
-    def __init__(self, f: List, source_index: int=-1, output_names: List[str] = None) -> None:
+    def __init__(self, f: List, source_index: int=-1, extra_output_names: List[str] = None) -> None:
         """
         :param f: A list of python function that take in a 2d numpy ndarrays of inputs and return 2d numpy ndarrays
                   of outputs.
@@ -97,7 +97,7 @@ class MultiSourceFunctionWrapper(UserFunction):
         """
         self.f = f
         self.source_index = source_index
-        self.output_names = [] if output_names is None else output_names
+        self.extra_output_names = [] if extra_output_names is None else extra_output_names
 
     def evaluate(self, inputs: np.ndarray) -> List[UserFunctionResult]:
         """
@@ -131,16 +131,16 @@ class MultiSourceFunctionWrapper(UserFunction):
                 extra_outputs.append(this_outputs[1:])
 
                 # Check correct number of outputs from user function
-                if len(extra_outputs[-1]) != len(self.output_names):
+                if len(extra_outputs[-1]) != len(self.extra_output_names):
                     raise ValueError('Expected {} outputs from user function but got {}'.format(
-                        len(self.output_names) + 1, len(extra_outputs[-1]) + 1))
+                        len(self.extra_output_names) + 1, len(extra_outputs[-1]) + 1))
             elif isinstance(this_outputs, np.ndarray):
                 outputs.append(this_outputs)
 
                 # Check correct number of outputs from user function
-                if len(self.output_names) != 0:
+                if len(self.extra_output_names) != 0:
                     raise ValueError('Expected {} output from user function but got 1'.format(
-                        len(self.output_names) + 1))
+                        len(self.extra_output_names) + 1))
 
                 # Dummy extra outputs - won't be used below
                 extra_outputs.append(tuple())
@@ -152,7 +152,7 @@ class MultiSourceFunctionWrapper(UserFunction):
         outputs = np.concatenate(outputs, axis=0)
 
         # Concatenate list of lists to single list
-        n_extra_outputs = len(self.output_names)
+        n_extra_outputs = len(self.extra_output_names)
         extra_output_lists = [[] for _ in range(n_extra_outputs)]
         for i_source in range(n_sources):
             for i_output in range(n_extra_outputs):
@@ -161,6 +161,6 @@ class MultiSourceFunctionWrapper(UserFunction):
         results = []
         for i, idx_sorted in enumerate(sort_indices):
             # Put extra outputs into a dictionary so we can pass them as key word arguments
-            kwargs = dict([(name, val[idx_sorted]) for name, val in zip(self.output_names, extra_output_lists)])
+            kwargs = dict([(name, val[idx_sorted]) for name, val in zip(self.extra_output_names, extra_output_lists)])
             results.append(UserFunctionResult(inputs[i], outputs[idx_sorted], **kwargs))
         return results

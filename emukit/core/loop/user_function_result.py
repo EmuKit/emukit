@@ -31,4 +31,10 @@ class UserFunctionResult(object):
         self.Y = Y
 
     def __getattr__(self, item):
+        """
+        Allow extra output values to be accessed as an attribute
+
+        :param item: The name of the extra output to be accessed
+        :return: The value of the extra output
+        """
         return self.extra_outputs[item]

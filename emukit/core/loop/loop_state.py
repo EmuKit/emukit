@@ -45,7 +45,16 @@ class LoopState(object):
         """
         return np.array([result.Y for result in self.results])
 
-    def __getattr__(self, item):
+    def __getattr__(self, item) -> np.array:
+        """
+        Overriding this method allows us to customise behaviour for accessing attributes. We use this to allow arbitrary
+        fields in the loop state. These are usually extra outputs from the user function such as cost, constraint values
+        etc. These fields are stored in each individual "UserFunctionResult" object in the "extra_outputs" dictionary
+
+        :param item: The name of the item to acquire. Must match the key value in the "extra_outputs" dictionary in the
+                     stored "UserFunctionResults" objects
+        :return: The specified output for all function evaluations in a 2d array of size (n_points x n_dimensions)
+        """
         # check key appears in all results objects
         is_valid = all([item in res.extra_outputs for res in self.results])
         if not is_valid:
