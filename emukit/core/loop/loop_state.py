@@ -45,13 +45,6 @@ class LoopState(object):
         """
         return np.array([result.Y for result in self.results])
 
-    @property
-    def cost(self) -> np.ndarray:
-        """
-        :return: Cost for evaluating the function in a 2d array: number of points by cost dimensions.
-        """
-        return np.array([result.cost for result in self.results])
-
     def __getattr__(self, item):
         # check key appears in all results objects
         is_valid = all([item in res.extra_outputs for res in self.results])
@@ -60,7 +53,7 @@ class LoopState(object):
         return np.array([result.extra_outputs[item] for result in self.results])
 
 
-def create_loop_state(x_init: np.ndarray, y_init: np.ndarray, cost: np.ndarray = None) -> LoopState:
+def create_loop_state(x_init: np.ndarray, y_init: np.ndarray, **kwargs) -> LoopState:
     """
     Creates a loop state object using the provided data
 
@@ -73,12 +66,14 @@ def create_loop_state(x_init: np.ndarray, y_init: np.ndarray, cost: np.ndarray =
             x_init.shape[0], y_init.shape[0])
         raise ValueError(error_message)
 
+    for key, value in kwargs.items():
+        if value.shape[0] != x_init.shape[0]:
+            raise ValueError('Expected keyword argument {} to have length {} but actual length is {}'.format(
+                key, x_init.shape[0], value.shape[0]))
+
     initial_results = []
-    if cost is not None:
-        for x, y, c in zip(x_init, y_init, cost):
-            initial_results.append(UserFunctionResult(x, y, c))
-    else:
-        for x, y in zip(x_init, y_init):
-            initial_results.append(UserFunctionResult(x, y))
+    for i in range(x_init.shape[0]):
+        kwargs_dict = dict([(key, vals[i]) for key, vals in kwargs.items()])
+        initial_results.append(UserFunctionResult(x_init[i], y_init[i], **kwargs_dict))
 
     return LoopState(initial_results)

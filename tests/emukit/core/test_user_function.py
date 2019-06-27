@@ -17,13 +17,12 @@ def test_user_function_wrapper_evaluation_no_cost():
     for i, record in enumerate(output):
         assert_array_equal(output[i].X, function_input[i])
         assert_array_equal(output[i].Y, function(function_input[i]))
-        assert output[i].cost is None
 
 
 def test_user_function_wrapper_evaluation_with_cost():
     function = lambda x: (2 * x, np.array([[1]] * x.shape[0]))
     function_input = np.array([[1], [2], [3]])
-    ufw = UserFunctionWrapper(function)
+    ufw = UserFunctionWrapper(function, output_names=['cost'])
 
     output = ufw.evaluate(function_input)
 
@@ -71,7 +70,6 @@ def test_multi_source_function_wrapper_evaluation_no_cost():
         this_function = functions[function_input[i, source_index]]
         this_function_input = np.delete(function_input[i], source_index)
         assert_array_equal(output[i].Y, this_function(this_function_input))
-        assert output[i].cost is None
 
 
 def test_multi_source_function_wrapper_evaluation_with_cost():
@@ -79,7 +77,7 @@ def test_multi_source_function_wrapper_evaluation_with_cost():
                  lambda x: (4 * x, np.array([[2]] * x.shape[0]))]
     function_input = np.array([[1, 0], [2, 1], [3, 0], [4, 0], [5, 1]])
     source_index = -1
-    msfw = MultiSourceFunctionWrapper(functions, source_index)
+    msfw = MultiSourceFunctionWrapper(functions, source_index, output_names=['cost'])
 
     output = msfw.evaluate(function_input)
 
@@ -90,6 +88,25 @@ def test_multi_source_function_wrapper_evaluation_with_cost():
         this_function_input = np.delete(function_input[i], source_index)
         assert_array_equal(output[i].Y, this_function(this_function_input)[0])
         assert_array_equal(output[i].cost, this_function(this_function_input)[1][0])
+
+
+def test_multi_source_function_wrapper_evaluation_with_multiple_extra_arguments():
+    functions = [lambda x: (2 * x, np.array([[1]] * x.shape[0]), np.array([[1]] * x.shape[0])),
+                 lambda x: (4 * x, np.array([[2]] * x.shape[0]), np.array([[1]] * x.shape[0]))]
+    function_input = np.array([[1, 0], [2, 1], [3, 0], [4, 0], [5, 1]])
+    source_index = -1
+    msfw = MultiSourceFunctionWrapper(functions, source_index, output_names=['cost', 'constraint'])
+
+    output = msfw.evaluate(function_input)
+
+    assert len(output) == function_input.shape[0]
+    for i, record in enumerate(output):
+        assert_array_equal(output[i].X, function_input[i])
+        this_function = functions[function_input[i, source_index]]
+        this_function_input = np.delete(function_input[i], source_index)
+        assert_array_equal(output[i].Y, this_function(this_function_input)[0])
+        assert_array_equal(output[i].cost, this_function(this_function_input)[1][0])
+        assert_array_equal(output[i].constraint, this_function(this_function_input)[2][0])
 
 
 def test_multi_source_function_wrapper_invalid_input():
@@ -126,4 +143,4 @@ def test_user_function_result_validation():
 
     # 2d cost
     with pytest.raises(ValueError):
-        UserFunctionResult(np.array([1]), np.array([1]), np.array([[1]]))
+        UserFunctionResult(np.array([1]), np.array([1]), cost=np.array([[1]]))

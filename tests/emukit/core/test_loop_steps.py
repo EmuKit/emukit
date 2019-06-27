@@ -62,10 +62,11 @@ def test_every_iteration_model_updater_with_cost():
     loop_state_mock = mock.create_autospec(LoopState)
     loop_state_mock.iteration = 1
     loop_state_mock.X.return_value(np.random.rand(5, 1))
-    loop_state_mock.cost.return_value(np.random.rand(5, 1))
+
+    loop_state_mock.cost = np.random.rand(5, 1)
 
     cost = np.random.rand(5, 1)
-    loop_state_mock.cost.return_value(cost)
+    loop_state_mock.cost = cost
     updater.update(loop_state_mock)
     assert np.array_equiv(mock_model.X, cost)
 

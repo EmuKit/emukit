@@ -67,9 +67,7 @@ class UserFunctionWrapper(UserFunction):
                              "{} received".format(type(outputs)))
 
         # Validate number of outputs returned by the user function
-        if (len(extra_outputs) == 1) and (len(self.output_names) == 0):
-            self.output_names = ['cost']
-        elif len(extra_outputs) != len(extra_outputs):
+        if len(extra_outputs) != len(extra_outputs):
             raise ValueError('User function provided {} outputs but UserFunctionWrapper expected {}'.format(
                 len(extra_outputs) + 1, len(self.output_names) + 1))
 
@@ -90,7 +88,7 @@ class MultiSourceFunctionWrapper(UserFunction):
     Wraps a list of python functions that each correspond to different information source.
     """
 
-    def __init__(self, f: List, source_index: int=-1) -> None:
+    def __init__(self, f: List, source_index: int=-1, output_names: List[str] = None) -> None:
         """
         :param f: A list of python function that take in a 2d numpy ndarrays of inputs and return 2d numpy ndarrays
                   of outputs.
@@ -99,6 +97,7 @@ class MultiSourceFunctionWrapper(UserFunction):
         """
         self.f = f
         self.source_index = source_index
+        self.output_names = [] if output_names is None else output_names
 
     def evaluate(self, inputs: np.ndarray) -> List[UserFunctionResult]:
         """
@@ -117,7 +116,7 @@ class MultiSourceFunctionWrapper(UserFunction):
 
         _log.info("Evaluating multi-source user function for {} point(s)".format(inputs.shape[0]))
         # Run each source function for all inputs at that source
-        indices, outputs, costs = [], [], []
+        indices, outputs, extra_outputs = [], [], []
         source_indices = inputs[:, self.source_index]
         source_inputs = np.delete(inputs, self.source_index, axis=1)
         for i_source in range(n_sources):
@@ -129,18 +128,39 @@ class MultiSourceFunctionWrapper(UserFunction):
 
             if isinstance(this_outputs, tuple):
                 outputs.append(this_outputs[0])
-                costs.append(this_outputs[1])
+                extra_outputs.append(this_outputs[1:])
+
+                # Check correct number of outputs from user function
+                if len(extra_outputs[-1]) != len(self.output_names):
+                    raise ValueError('Expected {} outputs from user function but got {}'.format(
+                        len(self.output_names) + 1, len(extra_outputs[-1]) + 1))
             elif isinstance(this_outputs, np.ndarray):
                 outputs.append(this_outputs)
-                costs.append(np.full(this_outputs.shape[0], None))
+
+                # Check correct number of outputs from user function
+                if len(self.output_names) != 0:
+                    raise ValueError('Expected {} output from user function but got 1'.format(
+                        len(self.output_names) + 1))
+
+                # Dummy extra outputs - won't be used below
+                extra_outputs.append(tuple())
             else:
                 raise ValueError("User provided function should return a tuple or an ndarray, "
-                                 "{} received".format(type(outputs)))
+                                 "{} received".format(type(this_outputs)))
 
         sort_indices = np.argsort(np.concatenate(indices, axis=0))
-        outputs_array = np.concatenate(outputs, axis=0)
-        costs_array = np.concatenate(costs, axis=0)
+        outputs = np.concatenate(outputs, axis=0)
+
+        # Concatenate list of lists to single list
+        n_extra_outputs = len(self.output_names)
+        extra_output_lists = [[] for _ in range(n_extra_outputs)]
+        for i_source in range(n_sources):
+            for i_output in range(n_extra_outputs):
+                extra_output_lists[i_output].extend(extra_outputs[i_source][i_output])
+
         results = []
-        for x, y, c in zip(inputs, outputs_array[sort_indices], costs_array[sort_indices]):
-            results.append(UserFunctionResult(x, y, c))
+        for i, idx_sorted in enumerate(sort_indices):
+            # Put extra outputs into a dictionary so we can pass them as key word arguments
+            kwargs = dict([(name, val[idx_sorted]) for name, val in zip(self.output_names, extra_output_lists)])
+            results.append(UserFunctionResult(inputs[i], outputs[idx_sorted], **kwargs))
         return results
