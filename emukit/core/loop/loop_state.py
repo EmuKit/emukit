@@ -52,6 +52,13 @@ class LoopState(object):
         """
         return np.array([result.cost for result in self.results])
 
+    def __getattr__(self, item):
+        # check key appears in all results objects
+        is_valid = all([item in res.extra_outputs for res in self.results])
+        if not is_valid:
+            raise ValueError('{} not found in results object'.format(item))
+        return np.array([result.extra_outputs[item] for result in self.results])
+
 
 def create_loop_state(x_init: np.ndarray, y_init: np.ndarray, cost: np.ndarray = None) -> LoopState:
     """

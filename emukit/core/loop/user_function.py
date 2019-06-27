@@ -30,13 +30,16 @@ class UserFunction(abc.ABC):
 
 class UserFunctionWrapper(UserFunction):
     """ Wraps a user-provided python function. """
-    def __init__(self, f: Callable):
+    def __init__(self, f: Callable, output_names: List[str] = None):
         """
         :param f: A python function that takes in a 2d numpy ndarray of inputs and returns a either a 2d numpy array
-                  of function outputs or a tuple of (outputs, evaluation_costs) where both the outputs and the
-                  cost are 2d
+                  of function outputs or a tuple of (outputs, auxillary_output_1, auxilary_output_2, ...)
+                  where all outputs are 2d
+        :param output_names: If the function f returns a tuple, the first output should be the value of the objective,
+                             which will be named "Y", names for subsequent outputs should be included in this list.
         """
         self.f = f
+        self.output_names = [] if output_names is None else output_names
 
     def evaluate(self, inputs: np.ndarray) -> List[UserFunctionResult]:
         """
@@ -55,21 +58,30 @@ class UserFunctionWrapper(UserFunction):
 
         if isinstance(outputs, tuple):
             user_fcn_outputs = outputs[0]
-            cost = outputs[1]
+            extra_outputs = outputs[1:]
         elif isinstance(outputs, np.ndarray):
             user_fcn_outputs = outputs
-            cost = [None] * user_fcn_outputs.shape[0]
+            extra_outputs = tuple()
         else:
             raise ValueError("User provided function should return a tuple or an ndarray, "
                              "{} received".format(type(outputs)))
+
+        # Validate number of outputs returned by the user function
+        if (len(extra_outputs) == 1) and (len(self.output_names) == 0):
+            self.output_names = ['cost']
+        elif len(extra_outputs) != len(extra_outputs):
+            raise ValueError('User function provided {} outputs but UserFunctionWrapper expected {}'.format(
+                len(extra_outputs) + 1, len(self.output_names) + 1))
 
         if user_fcn_outputs.ndim != 2:
             raise ValueError("User function should return 2d array or a tuple of 2d arrays as an output, "
                              "actual output dimensionality is {}".format(outputs.ndim))
 
         results = []
-        for x, y, c in zip(inputs, user_fcn_outputs, cost):
-            results.append(UserFunctionResult(x, y.flatten(), c))
+        for i in range(user_fcn_outputs.shape[0]):
+            kwargs = dict([(name, val[i]) for name, val in zip(self.output_names, extra_outputs)])
+            results.append(UserFunctionResult(inputs[i], user_fcn_outputs[i], **kwargs))
+
         return results
 
 

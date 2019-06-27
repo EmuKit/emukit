@@ -9,7 +9,7 @@ class UserFunctionResult(object):
     """
     A class that records the inputs, outputs and meta-data of an evaluation of the user function.
     """
-    def __init__(self, X: np.ndarray, Y: np.ndarray, cost: np.ndarray=None) -> None:
+    def __init__(self, X: np.ndarray, Y: np.ndarray, cost: np.ndarray=None, **kwargs) -> None:
         """
         :param X: Function input, 1 by function input dimension
         :param Y: Function output(s), 1 by function output dimension
@@ -23,6 +23,11 @@ class UserFunctionResult(object):
 
         if cost is not None and cost.ndim != 1:
             raise ValueError("cost is expected to be 1-dimensional, actual dimensionality is {}".format(cost.ndim))
+
+        self.extra_outputs = dict()
+        for (key, val) in kwargs.items():
+            assert val.ndim == 1
+            self.extra_outputs[key] = val
 
         self.X = X
         self.Y = Y
