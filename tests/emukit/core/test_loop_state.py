@@ -61,3 +61,12 @@ def test_loop_state_update_error():
 
     with pytest.raises(ValueError):
         loop_state.update([])
+
+
+def test_create_loop_state_wrong_size_input_fails():
+    x = np.array([[1], [2], [3], [4]])
+    y = np.array([[4], [5], [6], [7]])
+    c = np.array([[4], [5], [6], [7], [8]])
+
+    with pytest.raises(ValueError):
+        create_loop_state(x, y, cost=c)
