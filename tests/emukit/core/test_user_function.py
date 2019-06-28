@@ -171,3 +171,14 @@ def test_multi_source_function_wrapper_too_many_outputs_outputs_fails():
 
     with pytest.raises(ValueError):
         msfw.evaluate(function_input)
+
+
+def test_multi_source_function_wrapper_too_few_outputs_outputs_fails():
+    functions = [lambda x: 2 * x,
+                 lambda x: 4 * x]
+    function_input = np.array([[1, 0], [2, 1], [3, 0], [4, 0], [5, 1]])
+    source_index = -1
+    msfw = MultiSourceFunctionWrapper(functions, source_index, extra_output_names=['cost'])
+
+    with pytest.raises(ValueError):
+        msfw.evaluate(function_input)
