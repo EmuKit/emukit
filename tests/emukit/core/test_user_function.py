@@ -144,3 +144,30 @@ def test_user_function_result_validation():
     # 2d cost
     with pytest.raises(ValueError):
         UserFunctionResult(np.array([1]), np.array([1]), cost=np.array([[1]]))
+
+
+def test_user_function_too_many_outputs_outputs_fails():
+    function = lambda x: (2 * x, np.array([1]))
+    function_input = np.array([[1], [2], [3]])
+    ufw = UserFunctionWrapper(function)
+    with pytest.raises(ValueError):
+        ufw.evaluate(function_input)
+
+
+def test_user_function_too_few_outputs_outputs_fails():
+    function = lambda x: 2 * x
+    function_input = np.array([[1], [2], [3]])
+    ufw = UserFunctionWrapper(function, extra_output_names=['cost'])
+    with pytest.raises(ValueError):
+        ufw.evaluate(function_input)
+
+
+def test_multi_source_function_wrapper_too_many_outputs_outputs_fails():
+    functions = [lambda x: (2 * x, np.array([[1]] * x.shape[0]), np.array([[1]] * x.shape[0])),
+                 lambda x: (4 * x, np.array([[2]] * x.shape[0]), np.array([[1]] * x.shape[0]))]
+    function_input = np.array([[1, 0], [2, 1], [3, 0], [4, 0], [5, 1]])
+    source_index = -1
+    msfw = MultiSourceFunctionWrapper(functions, source_index)
+
+    with pytest.raises(ValueError):
+        msfw.evaluate(function_input)

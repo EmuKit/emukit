@@ -67,7 +67,7 @@ class UserFunctionWrapper(UserFunction):
                              "{} received".format(type(outputs)))
 
         # Validate number of outputs returned by the user function
-        if len(extra_outputs) != len(extra_outputs):
+        if len(extra_outputs) != len(self.extra_output_names):
             raise ValueError('User function provided {} outputs but UserFunctionWrapper expected {}'.format(
                 len(extra_outputs) + 1, len(self.extra_output_names) + 1))
 
