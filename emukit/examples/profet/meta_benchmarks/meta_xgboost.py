@@ -86,7 +86,7 @@ def meta_xgboost(fname_objective: str, fname_cost: str, noise: bool=True) -> Tup
         else:
             log_c = log_m
 
-        return feval[:, None], np.exp(log_c)[:, None]
+        return np.exp(feval[:, None]), np.exp(log_c)[:, None]
 
     f = partial(objective_function, with_noise=noise)
 
