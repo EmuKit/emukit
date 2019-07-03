@@ -35,6 +35,8 @@ def meta_forrester(fname_objective: str) -> Tuple[UserFunctionWrapper, Parameter
     Interface to the MetaForrester benchmark described in:
 
     Meta-Surrogate Benchmarking for Hyperparameter Optimization
+    A. Klein and Z. Dai and F. Hutter and N. Lawrence and J. Gonzalez
+    arXiv:1905.12982 [cs.LG] (2019)
 
     :param fname_objective: filename for the objective function
     :return: Tuple of user function object and parameter space
@@ -64,4 +66,5 @@ def meta_forrester(fname_objective: str) -> Tuple[UserFunctionWrapper, Parameter
         return feval[:, None]
 
     f = partial(objective_function)
+
     return f, parameter_space

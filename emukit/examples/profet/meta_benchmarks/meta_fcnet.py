@@ -17,6 +17,8 @@ def meta_fcnet(fname_objective: str, fname_cost: str, noise: bool=True) -> Tuple
     Interface to the MetaFCNet benchmark described in:
 
     Meta-Surrogate Benchmarking for Hyperparameter Optimization
+    A. Klein and Z. Dai and F. Hutter and N. Lawrence and J. Gonzalez
+    arXiv:1905.12982 [cs.LG] (2019)
 
     :param fname_objective: filename for the objective function
     :param fname_cost: filename for the cost function
@@ -35,8 +37,6 @@ def meta_fcnet(fname_objective: str, fname_cost: str, noise: bool=True) -> Tuple
 
     x_mean_objective = data["x_mean"]
     x_std_objective = data["x_std"]
-    # y_mean_objective = data["y_mean"]
-    # y_std_objective = data["y_std"]
     task_feature_objective = data["task_feature"]
     objective = get_default_architecture_classification(x_mean_objective.shape[0]).float()
     objective.load_state_dict(data["state_dict"])
@@ -57,8 +57,6 @@ def meta_fcnet(fname_objective: str, fname_cost: str, noise: bool=True) -> Tuple
         x = np.concatenate((config, Ht), axis=1)
         x_norm = torch.from_numpy((x - x_mean_objective) / x_std_objective).float()
         o = objective.forward(x_norm).data.numpy()
-        # m = o[:, 0] * y_std_objective + y_mean_objective
-        # log_v = o[:, 1] * y_std_objective ** 2
         m = o[:, 0]
         log_v = o[:, 1]
         if with_noise:
@@ -80,5 +78,5 @@ def meta_fcnet(fname_objective: str, fname_cost: str, noise: bool=True) -> Tuple
         return feval[:, None], np.exp(log_c)[:, None]
 
     f = partial(objective_function, with_noise=noise)
-    # user_function = UserFunctionWrapper(f)
+
     return f, parameter_space

@@ -16,6 +16,8 @@ def meta_xgboost(fname_objective: str, fname_cost: str, noise: bool=True) -> Tup
     Interface to the MetaXGBoost benchmark described in:
 
     Meta-Surrogate Benchmarking for Hyperparameter Optimization
+    A. Klein and Z. Dai and F. Hutter and N. Lawrence and J. Gonzalez
+    arXiv:1905.12982 [cs.LG] (2019)
 
     :param fname_objective: filename for the objective function
     :param fname_cost: filename for the cost function
@@ -79,5 +81,5 @@ def meta_xgboost(fname_objective: str, fname_cost: str, noise: bool=True) -> Tup
         return feval[:, None], np.exp(log_c)[:, None]
 
     f = partial(objective_function, with_noise=noise)
-    # user_function = UserFunctionWrapper(f)
+
     return f, parameter_space
