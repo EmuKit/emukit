@@ -66,9 +66,9 @@ def create_loop_state(x_init: np.ndarray, y_init: np.ndarray, **kwargs) -> LoopS
     """
     Creates a loop state object using the provided data
 
-    :param x_init: x values for initial function evaluations.
-    :param y_init: y values for initial function evaluations
-    :param cost: observed costs for initial function evaluations
+    :param x_init: x values for initial function evaluations. Shape: (n_initial_points x n_input_dims)
+    :param y_init: y values for initial function evaluations. Shape: (n_initial_points x n_output_dims)
+    :param kwargs: extra outputs observed from a function evaluation. Shape: (n_initial_points x n_dims)
     """
     if x_init.shape[0] != y_init.shape[0]:
         error_message = "X and Y should have the same length. Actual length x_init {}, y_init {}".format(

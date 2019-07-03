@@ -11,9 +11,9 @@ class UserFunctionResult(object):
     """
     def __init__(self, X: np.ndarray, Y: np.ndarray, **kwargs) -> None:
         """
-        :param X: Function input, 1 by function input dimension
-        :param Y: Function output(s), 1 by function output dimension
-        :param cost: Cost of evaluating the function, 1 by function cost dimension
+        :param X: Function input. Shape: (function input dimension,)
+        :param Y: Function output(s). Shape: (function output dimension,)
+        :param kwargs: Extra outputs of the UserFunction to store. Shape: (extra output dimension,)
         """
         if X.ndim != 1:
             raise ValueError("x is expected to be 1-dimensional, actual dimensionality is {}".format(X.ndim))

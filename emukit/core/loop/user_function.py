@@ -35,8 +35,9 @@ class UserFunctionWrapper(UserFunction):
         :param f: A python function that takes in a 2d numpy ndarray of inputs and returns a either a 2d numpy array
                   of function outputs or a tuple of (outputs, auxillary_output_1, auxilary_output_2, ...)
                   where all outputs are 2d
-        :param extra_output_names: If the function f returns a tuple, the first output should be the value of the objective,
-                             which will be named "Y", names for subsequent outputs should be included in this list.
+        :param extra_output_names: If the function f returns a tuple, the first output should be the value of the
+                                   objective, which will be named "Y", names for subsequent outputs should be included
+                                   in this list.
         """
         self.f = f
         self.extra_output_names = [] if extra_output_names is None else extra_output_names
@@ -94,6 +95,9 @@ class MultiSourceFunctionWrapper(UserFunction):
                   of outputs.
         :param source_index: An integer indicating which column of X contains the index of the information source.
                              Default to the last dimension of the input.
+        :param extra_output_names: If the function f returns a tuple, the first output should be the value of the
+                                   objective, which will be named "Y", names for subsequent outputs should be included
+                                   in this list.
         """
         self.f = f
         self.source_index = source_index
