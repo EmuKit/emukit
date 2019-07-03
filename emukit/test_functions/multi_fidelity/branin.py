@@ -47,7 +47,7 @@ def multi_fidelity_branin_function() -> Tuple[MultiSourceFunctionWrapper, Parame
     def branin_medium_fidelity(x):
         x1 = x[:, 0]
         x2 = x[:, 1]
-        result = (10.0 * np.sqrt(_branin(x - 2.0)[:, 0] * 100.) + 2.0 * (x1 - 0.5) - 3.0 * (
+        result = (10.0 * np.sqrt(_branin(x - 2.0)[:, 0]) + 2.0 * (x1 - 0.5) - 3.0 * (
                     3.0 * x2 - 1.0) - 1.0) / 100.
         return result[:, None]
 
@@ -59,7 +59,5 @@ def multi_fidelity_branin_function() -> Tuple[MultiSourceFunctionWrapper, Parame
     parameter_space = ParameterSpace([ContinuousParameter('x1', -5, 10), ContinuousParameter('x2', 0, 15),
                                       InformationSourceParameter(3)])
 
-    return MultiSourceFunctionWrapper([branin_low_fidelity, branin_medium_fidelity, _branin]), parameter_space
-
-
-
+    branin_high = lambda x: _branin(x)/100
+    return MultiSourceFunctionWrapper([branin_low_fidelity, branin_medium_fidelity, branin_high]), parameter_space

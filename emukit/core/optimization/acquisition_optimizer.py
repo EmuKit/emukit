@@ -2,22 +2,27 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import abc
+import logging
 from typing import Dict, Optional, Tuple
 
 import numpy as np
 
-from .context_manager import ContextManager, Context
 from .. import ParameterSpace
 from ..acquisition import Acquisition
+from .context_manager import Context, ContextManager
 
-import logging
 _log = logging.getLogger(__name__)
 
 
 class AcquisitionOptimizerBase(abc.ABC):
+    """
+    Base class for acquisition optimizers
+    """
     def __init__(self, space: ParameterSpace):
+        """
+        :param space: Parameter space containing entire input domain including any context variables
+        """
         self.space = space
-        self.gpyopt_space = space.convert_to_gpyopt_design_space()
 
     def _validate_context_parameters(self, context: Dict[str, any]):
         for context_name, context_value in context.items():
@@ -33,8 +38,7 @@ class AcquisitionOptimizerBase(abc.ABC):
                 _log.info('Parameter ' + context_name + ' fixed to ' + str(context_value))
 
     @abc.abstractmethod
-    def _optimize(self, acquisition: Acquisition, context_manager: ContextManager)\
-        -> Tuple[np.ndarray, np.ndarray]:
+    def _optimize(self, acquisition: Acquisition, context_manager: ContextManager) -> Tuple[np.ndarray, np.ndarray]:
         """
         Implementation of optimization. See class docstring for details.
 
@@ -44,8 +48,7 @@ class AcquisitionOptimizerBase(abc.ABC):
         """
         pass
 
-    def optimize(self, acquisition: Acquisition, context: Optional[Context] = None)\
-        -> Tuple[np.ndarray, np.ndarray]:
+    def optimize(self, acquisition: Acquisition, context: Optional[Context] = None) -> Tuple[np.ndarray, np.ndarray]:
         """
         Optimizes the acquisition function.
 
@@ -58,7 +61,7 @@ class AcquisitionOptimizerBase(abc.ABC):
             context = dict()
         else:
             self._validate_context_parameters(context)
-        context_manager = ContextManager(self.space, context, self.gpyopt_space)
+        context_manager = ContextManager(self.space, context)
         max_x, max_value = self._optimize(acquisition, context_manager)
 
         # Optimization might not match any encoding exactly

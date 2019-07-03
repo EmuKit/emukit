@@ -31,7 +31,7 @@ pip install emukit
 For other install options, see our [documentation](https://emukit.readthedocs.io/en/latest/installation.html).
 
 ### Dependencies / Prerequisites
-Emukit's primary dependencies are Numpy, GPy and GPyOpt.
+Emukit's primary dependencies are Numpy and GPy.
 See [requirements](requirements/requirements.txt).
 
 ## Getting started
