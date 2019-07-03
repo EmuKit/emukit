@@ -27,10 +27,6 @@ def meta_xgboost(fname_objective: str, fname_cost: str, noise: bool=True) -> Tup
     A. Klein and Z. Dai and F. Hutter and N. Lawrence and J. Gonzalez
     arXiv:1905.12982 [cs.LG] (2019)
 
-    Meta-Surrogate Benchmarking for Hyperparameter Optimization
-    A. Klein and Z. Dai and F. Hutter and N. Lawrence and J. Gonzalez
-    arXiv:1905.12982 [cs.LG] (2019)
-
     :param fname_objective: filename for the objective function
     :param fname_cost: filename for the cost function
     :param noise: determines whether to add noise on the function value or not
