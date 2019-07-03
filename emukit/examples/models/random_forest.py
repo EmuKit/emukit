@@ -39,7 +39,7 @@ class RandomForest(IModel):
         self._Y = Y_init
 
         self.rf = RandomForestRegressor(n_estimators=num_trees, bootstrap=do_bootstrapping, random_state=seed)
-        self.rf.fit(X_init, Y_init.ravel())
+        self.rf.fit(X_init, Y_init[:, 0])
 
     def predict(self, X: np.ndarray) -> np.ndarray:
         """
@@ -67,7 +67,7 @@ class RandomForest(IModel):
         self._X = X
         self._Y = Y
 
-        self.rf.fit(X, Y.ravel())
+        self.rf.fit(X, Y[:, 0])
 
     def optimize(self) -> None:
         pass

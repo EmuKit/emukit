@@ -6,7 +6,7 @@ from emukit.core.loop import UserFunctionWrapper, UserFunctionResult
 from emukit.core.loop.user_function import MultiSourceFunctionWrapper
 
 
-def test_user_function_wrapper_evaluation_no_cost():
+def test_user_function_wrapper_evaluation_single_output():
     function = lambda x: 2 * x
     function_input = np.array([[1], [2], [3]])
     ufw = UserFunctionWrapper(function)
@@ -56,7 +56,7 @@ def test_user_function_wrapper_invalid_input():
         ufw.evaluate(function_input)
 
 
-def test_multi_source_function_wrapper_evaluation_no_cost():
+def test_multi_source_function_wrapper_evaluation_single_output():
     functions = [lambda x: 2 * x, lambda x: 4 * x]
     function_input = np.array([[1, 0], [2, 1], [3, 0], [4, 0], [5, 1]])
     source_index = -1
