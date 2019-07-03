@@ -13,8 +13,16 @@ from emukit.examples.profet.meta_benchmarks.architecture import get_default_arch
 
 def meta_svm(fname_objective: str, fname_cost: str, noise: bool = True) -> Tuple[UserFunctionWrapper, ParameterSpace]:
     """
+    Interface to the Meta-SVM benchmark which imitates the hyperparameter optimization of a
+    support vector machine on OpenML like classification datasets.
+    Offline generated function samples can be download here:
 
-    Interface to the MetaSVM benchmark described in:
+    http://www.ml4aad.org/wp-content/uploads/2019/05/profet_data.tar.gz
+
+    NOTE: make sure that the index for the objective function and the cost function match,
+    e.g for sample_objective_i.pkl  and sample_cost.pkl the index i should be the same.
+
+    For further information about Profet and the generated meta-surrogate benchmarks see:
 
     Meta-Surrogate Benchmarking for Hyperparameter Optimization
     A. Klein and Z. Dai and F. Hutter and N. Lawrence and J. Gonzalez
@@ -32,8 +40,6 @@ def meta_svm(fname_objective: str, fname_cost: str, noise: bool = True) -> Tuple
 
     x_mean_objective = data["x_mean"]
     x_std_objective = data["x_std"]
-    # y_mean_objective = data["y_mean"]
-    # y_std_objective = data["y_std"]
     task_feature_objective = data["task_feature"]
     objective = get_default_architecture_classification(x_mean_objective.shape[0]).float()
     objective.load_state_dict(data["state_dict"])
@@ -54,8 +60,6 @@ def meta_svm(fname_objective: str, fname_cost: str, noise: bool = True) -> Tuple
         x = np.concatenate((config, Ht), axis=1)
         x_norm = torch.from_numpy((x - x_mean_objective) / x_std_objective).float()
         o = objective.forward(x_norm).data.numpy()
-        # m = o[:, 0] * y_std_objective + y_mean_objective
-        # log_v = o[:, 1] * y_std_objective ** 2
         m = o[:, 0]
         log_v = o[:, 1]
         if with_noise:

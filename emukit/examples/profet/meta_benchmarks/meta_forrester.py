@@ -31,8 +31,13 @@ def get_architecture_forrester(input_dimensionality: int) -> torch.nn.Module:
 
 def meta_forrester(fname_objective: str) -> Tuple[UserFunctionWrapper, ParameterSpace]:
     """
+    Interface to the Meta-Forrester benchmark.
 
-    Interface to the MetaForrester benchmark described in:
+    Offline generated function samples can be download here:
+
+    http://www.ml4aad.org/wp-content/uploads/2019/05/profet_data.tar.gz
+
+    For further information about Profet and the generated meta-surrogate benchmarks see:
 
     Meta-Surrogate Benchmarking for Hyperparameter Optimization
     A. Klein and Z. Dai and F. Hutter and N. Lawrence and J. Gonzalez
