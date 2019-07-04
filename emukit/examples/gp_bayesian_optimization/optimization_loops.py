@@ -56,6 +56,11 @@ def create_bayesian_optimization_loop(x_init: np.ndarray, y_init: np.ndarray, pa
     if acquisition_optimizer is None:
         acquisition_optimizer = GradientAcquisitionOptimizer(parameter_space)
     candidate_point_calculator = SequentialPointCalculator(acquisition, acquisition_optimizer)
-    loop_state = create_loop_state(x_init, y_init, cost_init)
+
+    if cost_init is None:
+        loop_state = create_loop_state(x_init, y_init)
+    else:
+        loop_state = create_loop_state(x_init, y_init, cost=cost_init)
+
     model_updater = FixedIntervalUpdater(model, 1)
     return OuterLoop(candidate_point_calculator, model_updater, loop_state)
