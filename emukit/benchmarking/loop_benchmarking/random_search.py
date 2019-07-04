@@ -29,7 +29,7 @@ class RandomSearch(OuterLoop):
         candidate_point_calculator = RandomSampling(parameter_space=space)
 
         if x_init is not None and y_init is not None:
-            loop_state = create_loop_state(x_init, y_init, cost_init)
+            loop_state = create_loop_state(x_init, y_init, cost=cost_init)
         else:
             loop_state = None
 

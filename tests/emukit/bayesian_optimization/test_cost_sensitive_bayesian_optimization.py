@@ -16,7 +16,7 @@ def test_cost_sensitive_bayesian_optimization_loop():
     def function_with_cost(x):
         return np.sin(x), x
 
-    user_fcn = UserFunctionWrapper(function_with_cost)
+    user_fcn = UserFunctionWrapper(function_with_cost, extra_output_names=['cost'])
 
     y_init, cost_init = function_with_cost(x_init)
 
