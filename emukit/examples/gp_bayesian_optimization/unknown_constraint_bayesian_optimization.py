@@ -3,24 +3,24 @@
 
 
 from enum import Enum
+
 import numpy as np
-
-from GPy.models import GPRegression
 from GPy.kern import Matern52
+from GPy.models import GPRegression
 
-from ...core.parameter_space import ParameterSpace
-from ...core.loop import FixedIterationsStoppingCondition, UserFunction
-from ...bayesian_optimization.acquisitions import ExpectedImprovement, NegativeLowerConfidenceBound, ProbabilityOfImprovement, ProbabilityOfFeasibility
-from ...bayesian_optimization.loops import UnknownConstraintBayesianOptimizationLoop
-from ...model_wrappers.gpy_model_wrappers import GPyModelWrapper
 from .enums import AcquisitionType
+from ...bayesian_optimization.acquisitions import ExpectedImprovement, NegativeLowerConfidenceBound, \
+    ProbabilityOfImprovement
+from ...bayesian_optimization.loops import UnknownConstraintBayesianOptimizationLoop
+from ...core.parameter_space import ParameterSpace
+from ...model_wrappers.gpy_model_wrappers import GPyModelWrapper
 
 
 class OptimizerType(Enum):
     LBFGS = 1
 
 
-class GPBayesianOptimization(UnknownConstraintBayesianOptimizationLoop):
+class UnknownConstraintGPBayesianOptimization(UnknownConstraintBayesianOptimizationLoop):
     def __init__(self, variables_list: list, X: np.array, Y: np.array, Yc: np.array, noiseless: bool = False,
                  acquisition_type: AcquisitionType = AcquisitionType.EI, normalize_Y: bool = True,
                  acquisition_optimizer_type: OptimizerType = OptimizerType.LBFGS,
@@ -58,7 +58,7 @@ class GPBayesianOptimization(UnknownConstraintBayesianOptimizationLoop):
         self.normalize_Y = normalize_Y
         self.acquisition_optimizer_type = acquisition_optimizer_type
         self.model_update_interval = model_update_interval
-        self.batch_size=batch_size
+        self.batch_size = batch_size
 
         # 1. Crete the internal object to handle the input space
         self.space = ParameterSpace(variables_list)
@@ -70,11 +70,8 @@ class GPBayesianOptimization(UnknownConstraintBayesianOptimizationLoop):
         # 3. Select the acquisition function
         self._acquisition_chooser()
 
-        super(GPBayesianOptimization, self).__init__(model_objective=self.model_objective,
-                                                     model_constraint=self.model_constraint,
-                                                     space=self.space,
-                                                     acquisition=self.acquisition,
-                                                     batch_size= self.batch_size)
+        super().__init__(model_objective=self.model_objective, model_constraint=self.model_constraint, space=self.space,
+                         acquisition=self.acquisition, batch_size=self.batch_size)
 
     def _model_chooser(self):
         """ Initialize the model used for the objective function """

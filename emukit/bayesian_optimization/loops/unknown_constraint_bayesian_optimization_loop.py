@@ -17,13 +17,9 @@ from ..local_penalization_calculator import LocalPenalizationPointCalculator
 
 
 class UnknownConstraintBayesianOptimizationLoop(OuterLoop):
-
-    def __init__(self, space: ParameterSpace, 
-                 model_objective: Union[IModel, IDifferentiable], 
-                 model_constraint: Union[IModel, IDifferentiable],
-                 acquisition: Acquisition = None,
-                 update_interval: int = 1, 
-                 batch_size: int = 1):
+    def __init__(self, space: ParameterSpace, model_objective: Union[IModel, IDifferentiable],
+                 model_constraint: Union[IModel, IDifferentiable], acquisition: Acquisition = None,
+                 update_interval: int = 1, batch_size: int = 1):
 
         """
         Emukit class that implements a loop for building Bayesian optimization with an unknown constraint.
@@ -53,17 +49,18 @@ class UnknownConstraintBayesianOptimizationLoop(OuterLoop):
         acquisition_constrained = acquisition * acquisition_constraint
 
         model_updater_objective = FixedIntervalUpdater(model_objective, update_interval)
-        model_updater_constraint = FixedIntervalUpdater(model_constraint, update_interval, lambda state: state.cost)
+        model_updater_constraint = FixedIntervalUpdater(model_constraint, update_interval,
+                                                        lambda state: state.Y_constraint)
 
         acquisition_optimizer = GradientAcquisitionOptimizer(space)
         if batch_size == 1:
-            candidate_point_calculator = SequentialPointCalculator(acquisition, acquisition_optimizer)
+            candidate_point_calculator = SequentialPointCalculator(acquisition_constrained, acquisition_optimizer)
         else:
-            log_acquisition = LogAcquisition(acquisition)
-            candidate_point_calculator = LocalPenalizationPointCalculator(log_acquisition, acquisition_optimizer, model_objective,
-                                                                          space, batch_size)
+            log_acquisition = LogAcquisition(acquisition_constrained)
+            candidate_point_calculator = LocalPenalizationPointCalculator(log_acquisition, acquisition_optimizer,
+                                                                          model_objective, space, batch_size)
 
-        loop_state = create_loop_state(model_objective.X, model_objective.Y, model_constraint.Y)
+        loop_state = create_loop_state(model_objective.X, model_objective.Y, Y_constraint=model_constraint.Y)
 
         super(UnknownConstraintBayesianOptimizationLoop, self).__init__(candidate_point_calculator,
                                                                     [model_updater_objective, model_updater_constraint],
