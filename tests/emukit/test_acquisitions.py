@@ -17,7 +17,7 @@ from emukit.bayesian_optimization.acquisitions import ProbabilityOfImprovement
 from emukit.bayesian_optimization.acquisitions import ProbabilityOfFeasibility
 from emukit.experimental_design.model_based.acquisitions import ModelVariance, IntegratedVarianceReduction
 from emukit.model_wrappers.gpy_quadrature_wrappers import convert_gpy_model_to_emukit_model
-from emukit.quadrature.acquisitions import SquaredCorrelation
+from emukit.quadrature.acquisitions import SquaredCorrelation, MutualInformation
 from emukit.quadrature.methods import VanillaBayesianQuadrature
 
 
@@ -34,6 +34,7 @@ acquisition_tests = [acquisition_test_tuple('negative_lower_confidence_bound_acq
                      acquisition_test_tuple('probability_of_improvement_acquisition', True, default_grad_tol),
                      acquisition_test_tuple('model_variance_acquisition', True, 1e-5),
                      acquisition_test_tuple('squared_correlation_acquisition', True, 1e-3),
+                     acquisition_test_tuple('mutual_information_acquisition', True, 1e-3),
                      acquisition_test_tuple('entropy_search_acquisition', False, np.nan),
                      acquisition_test_tuple('multi_source_entropy_search_acquisition', False, np.nan),
                      acquisition_test_tuple('integrated_variance_acquisition', False, np.nan),
@@ -42,7 +43,7 @@ acquisition_tests = [acquisition_test_tuple('negative_lower_confidence_bound_acq
                      acquisition_test_tuple('probability_of_feasibility_acquisition', True, default_grad_tol)]
 
 
-# Vanilla bq model for squared correlation test
+# Vanilla bq model used to test bq acquisition functions
 @pytest.fixture
 def vanilla_bq_model(gpy_model, continuous_space, n_dims):
     integral_bounds = continuous_space.get_bounds()
@@ -104,6 +105,12 @@ def integrated_variance_acquisition(gpy_model, continuous_space):
 @pytest.fixture
 def squared_correlation_acquisition(vanilla_bq_model):
     return SquaredCorrelation(vanilla_bq_model)
+
+
+@pytest.fixture
+def mutual_information_acquisition(vanilla_bq_model):
+    return MutualInformation(vanilla_bq_model)
+
 
 @pytest.fixture
 @pytest.mark.parametrize('n_dims', [2])
