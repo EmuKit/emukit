@@ -12,7 +12,7 @@ from typing import Tuple
 
 from emukit.core import ContinuousParameter, ParameterSpace
 from emukit.core.loop.user_function import UserFunctionWrapper
-from emukit.examples.profet.meta_benchmarks.architecture import get_default_architecture_regression, get_default_architecture_cost
+from emukit.examples.profet.meta_benchmarks.architecture import get_default_architecture
 
 
 def meta_xgboost(fname_objective: str, fname_cost: str, noise: bool=True) -> Tuple[UserFunctionWrapper, ParameterSpace]:
@@ -56,7 +56,7 @@ def meta_xgboost(fname_objective: str, fname_cost: str, noise: bool=True) -> Tup
     y_mean_objective = data["y_mean"]
     y_std_objective = data["y_std"]
     task_feature_objective = data["task_feature"]
-    objective = get_default_architecture_regression(x_mean_objective.shape[0]).float()
+    objective = get_default_architecture(x_mean_objective.shape[0]).float()
     objective.load_state_dict(data["state_dict"])
 
     data = pickle.load(open(fname_cost, "rb"))
@@ -66,7 +66,7 @@ def meta_xgboost(fname_objective: str, fname_cost: str, noise: bool=True) -> Tup
     y_mean_cost = data["y_mean"]
     y_std_cost = data["y_std"]
     task_feature_cost = data["task_feature"]
-    cost = get_default_architecture_cost(x_mean_cost.shape[0]).float()
+    cost = get_default_architecture(x_mean_cost.shape[0]).float()
     cost.load_state_dict(data["state_dict"])
 
     def objective_function(config, with_noise=True):
