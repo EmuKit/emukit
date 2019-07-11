@@ -9,7 +9,7 @@ except ImportError:
 from functools import partial
 from typing import Tuple
 
-from emukit.core import ContinuousParameter, ParameterSpace, DiscreteParameter
+from emukit.core import ContinuousParameter, ParameterSpace
 from emukit.core.loop.user_function import UserFunctionWrapper
 from emukit.examples.profet.meta_benchmarks.architecture import get_default_architecture_classification, \
     get_default_architecture_cost
