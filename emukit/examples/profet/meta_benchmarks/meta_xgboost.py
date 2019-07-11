@@ -10,7 +10,7 @@ except ImportError:
 from functools import partial
 from typing import Tuple
 
-from emukit.core import ContinuousParameter, ParameterSpace, DiscreteParameter
+from emukit.core import ContinuousParameter, ParameterSpace
 from emukit.core.loop.user_function import UserFunctionWrapper
 from emukit.examples.profet.meta_benchmarks.architecture import get_default_architecture_regression, get_default_architecture_cost
 
@@ -25,6 +25,8 @@ def meta_xgboost(fname_objective: str, fname_cost: str, noise: bool=True) -> Tup
 
     NOTE: make sure that the index for the objective function and the cost function match,
     e.g for sample_objective_i.pkl and sample_cost_i.pkl the index i should be the same.
+    Each of those files contain the parameters of a neural network which represents a single function sample and
+    some additional information, such as the mean and variance of the input normalization.
 
     For further information about Profet and the generated meta-surrogate benchmarks see:
 

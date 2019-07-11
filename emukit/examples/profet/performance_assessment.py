@@ -54,10 +54,11 @@ def compute_ranks(errors, n_bootstrap=1000) -> np.ndarray:
     Computes the averaged ranking score in every iteration and for every task..
 
     :param errors: matrix with M x I x R x N entries, where M are the number of optimizers,
-    I are the number of instances or tasks,     R is the number of runs per task and
+    I are the number of instances or tasks, R is the number of runs per task and
     N are the number of function evaluations per task and run
     :param n_bootstrap: number bootstrap samples to compute the ranks
-    :return: the ranks after each iteration
+    :return: the ranks after each iteration as a MxN ndarray, where, as for errors, M are the number of optimizers
+    and N are the number of function evaluations
     """
     n_methods = errors.shape[0]
     n_instances = errors.shape[1]
