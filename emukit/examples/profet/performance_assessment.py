@@ -28,7 +28,7 @@ def compute_ecdf(error: np.ndarray, targets: np.ndarray) -> dict:
     R is the number of runs per task and N are the number of function evaluations per task and run
     :param targets: matrix with I x T entries, where I are the number of instances or tasks and T are the number
     of targets values
-    :return: ECDF
+    :return: ECDF as dict, where 'x' defines the runtime and 'y' the CDF
     """
     n_instances = error.shape[0]
     n_runs = error.shape[1]
