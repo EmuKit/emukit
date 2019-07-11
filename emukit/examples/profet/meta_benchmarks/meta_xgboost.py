@@ -72,26 +72,26 @@ def meta_xgboost(fname_objective: str, fname_cost: str, noise: bool=True) -> Tup
         Ht = np.repeat(task_feature_objective[None, :], config.shape[0], axis=0)
         x = np.concatenate((config, Ht), axis=1)
         x_norm = torch.from_numpy((x - x_mean_objective) / x_std_objective).float()
-        o = objective.forward(x_norm).data.numpy()
-        m = o[:, 0] * y_std_objective + y_mean_objective
-        log_v = o[:, 1] * y_std_objective ** 2
+        output = objective.forward(x_norm).data.numpy()
+        mean = output[:, 0] * y_std_objective + y_mean_objective
+        log_variance = output[:, 1] * y_std_objective ** 2
         if with_noise:
-            feval = np.random.randn() * np.sqrt(np.exp(log_v)) + m
+            feval = np.random.randn() * np.sqrt(np.exp(log_variance)) + mean
         else:
-            feval = m
+            feval = mean
 
         Ht = np.repeat(task_feature_cost[None, :], config.shape[0], axis=0)
         x = np.concatenate((config, Ht), axis=1)
         x_norm = torch.from_numpy((x - x_mean_cost) / x_std_cost).float()
-        o = cost.forward(x_norm).data.numpy()
-        log_m = o[:, 0] * y_std_cost + y_mean_cost
-        log_log_v = o[:, 1] * y_std_cost ** 2
+        output = cost.forward(x_norm).data.numpy()
+        log_mean = output[:, 0] * y_std_cost + y_mean_cost
+        log_log_variance = output[:, 1] * y_std_cost ** 2
         if with_noise:
-            log_c = np.random.randn() * np.sqrt(np.exp(log_log_v)) + log_m
+            log_cost = np.random.randn() * np.sqrt(np.exp(log_log_variance)) + log_mean
         else:
-            log_c = log_m
+            log_cost = log_mean
 
-        return np.exp(feval[:, None]), np.exp(log_c)[:, None]
+        return np.exp(feval[:, None]), np.exp(log_cost)[:, None]
 
     f = partial(objective_function, with_noise=noise)
 

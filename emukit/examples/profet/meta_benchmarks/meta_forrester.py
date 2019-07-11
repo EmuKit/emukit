@@ -70,10 +70,10 @@ def meta_forrester(fname_objective: str) -> Tuple[UserFunctionWrapper, Parameter
         Ht = np.repeat(task_feature_objective[None, :], config.shape[0], axis=0)
         x = np.concatenate((config, Ht), axis=1)
         x_norm = torch.from_numpy((x - x_mean_objective) / x_std_objective).float()
-        o = objective.forward(x_norm).data.numpy()
-        m = o[:, 0]
+        output = objective.forward(x_norm).data.numpy()
+        mean = output[:, 0]
 
-        feval = m * y_std_objective + y_mean_objective
+        feval = mean * y_std_objective + y_mean_objective
 
         return feval[:, None]
 
