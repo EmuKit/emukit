@@ -24,7 +24,7 @@ def meta_fcnet(fname_objective: str, fname_cost: str, noise: bool=True) -> Tuple
     http://www.ml4aad.org/wp-content/uploads/2019/05/profet_data.tar.gz
 
     NOTE: make sure that the index for the objective function and the cost function match,
-    e.g for sample_objective_i.pkl  and sample_cost.pkl the index i should be the same.
+    e.g for sample_objective_i.pkl and sample_cost_i.pkl the index i should be the same.
 
     For further information about Profet and the generated meta-surrogate benchmarks see:
 
