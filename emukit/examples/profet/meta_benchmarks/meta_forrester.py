@@ -1,12 +1,19 @@
 import pickle
-import torch
-import torch.nn as nn
 import numpy as np
 
 from functools import partial
 from typing import Tuple
 
-from pybnn.util.layers import AppendLayer
+try:
+    import torch
+    import torch.nn as nn
+except ImportError:
+    raise ImportError('pytorch is not installed. Please installed version it by running pip install torch torchvision')
+
+try:
+    from pybnn.util.layers import AppendLayer
+except ImportError:
+    raise ImportError('pybnn is not installed. Please installed version it by running pip install pybnn')
 
 from emukit.core import ContinuousParameter, ParameterSpace
 from emukit.core.loop.user_function import UserFunctionWrapper

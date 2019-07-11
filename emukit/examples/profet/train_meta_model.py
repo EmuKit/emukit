@@ -3,13 +3,28 @@ import json
 import os
 import pickle
 from copy import deepcopy
-import tarfile
-from urllib.request import urlretrieve
-import GPy
 import numpy as np
-import torch
-from GPy.models import BayesianGPLVM
-from pybnn.bohamiann import Bohamiann
+import tarfile
+
+from urllib.request import urlretrieve
+
+try:
+    import torch
+    import torch.nn as nn
+except ImportError:
+    raise ImportError('pytorch is not installed. Please installed version it by running pip install torch torchvision')
+
+try:
+    from pybnn.util.layers import AppendLayer
+except ImportError:
+    raise ImportError('pybnn is not installed. Please installed version it by running pip install pybnn')
+
+try:
+    import GPy
+    from GPy.models import BayesianGPLVM
+except ImportError:
+    raise ImportError('GPy is not installed. Please installed version it by running pip install GPy')
+
 
 from emukit.examples.profet.meta_benchmarks.architecture import get_default_architecture_classification, get_default_architecture_regression, get_default_architecture_cost
 from emukit.examples.profet.meta_benchmarks.meta_forrester import get_architecture_forrester

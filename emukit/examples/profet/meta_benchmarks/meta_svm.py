@@ -1,10 +1,14 @@
-
 import pickle
+import numpy as np
+
+try:
+    import torch
+except ImportError:
+    raise ImportError('pytorch is not installed. Please installed version it by running pip install torch torchvision')
+
 from functools import partial
 from typing import Tuple
 
-import numpy as np
-import torch
 from emukit.core import ContinuousParameter, ParameterSpace
 from emukit.core.loop.user_function import UserFunctionWrapper
 from emukit.examples.profet.meta_benchmarks.architecture import get_default_architecture_classification, \

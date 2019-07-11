@@ -1,9 +1,23 @@
-import torch
-import torch.nn as nn
-from pybnn.util.layers import AppendLayer
+try:
+    import torch
+    import torch.nn as nn
+except ImportError:
+    raise ImportError('pytorch is not installed. Please installed version it by running pip install torch torchvision')
+
+try:
+    from pybnn.util.layers import AppendLayer
+except ImportError:
+    raise ImportError('pybnn is not installed. Please installed version it by running pip install pybnn')
 
 
 def get_default_architecture_classification(input_dimensionality: int) -> torch.nn.Module:
+    """
+    Defined the architecture that is uses for meta-classification benchmarks (i.e meta-svm and meta-fcnet),
+    compared to regression it only outputs mean prediction values in [0, 1].
+
+    :param input_dimensionality: dimensionality of the benchmark
+    :return: nn.Module
+    """
     class Architecture(nn.Module):
         def __init__(self, n_inputs, n_hidden=500):
             super(Architecture, self).__init__()
@@ -23,6 +37,12 @@ def get_default_architecture_classification(input_dimensionality: int) -> torch.
 
 
 def get_default_architecture_regression(input_dimensionality: int) -> torch.nn.Module:
+    """
+    Defined the architecture that is uses for meta-regression benchmarks (i.e meta-xgboost)
+
+    :param input_dimensionality: dimensionality of the benchmark
+    :return: nn.Module
+    """
     class Architecture(nn.Module):
         def __init__(self, n_inputs, n_hidden=500):
             super(Architecture, self).__init__()
@@ -42,6 +62,12 @@ def get_default_architecture_regression(input_dimensionality: int) -> torch.nn.M
 
 
 def get_default_architecture_cost(input_dimensionality: int) -> torch.nn.Module:
+    """
+    Defined the architecture that is uses to model the costs.
+
+    :param input_dimensionality: dimensionality of the benchmark
+    :return: nn.Module
+    """
     class Architecture(nn.Module):
         def __init__(self, n_inputs, n_hidden=500):
             super(Architecture, self).__init__()
