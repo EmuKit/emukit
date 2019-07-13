@@ -19,7 +19,7 @@ def compute_runtime_feval(trajectory: np.ndarray, target: float) -> int:
         return rt[0] + 1
 
 
-def compute_ecdf(error: np.ndarray, targets: np.ndarray) -> dict:
+def compute_ecdf(error: np.ndarray, targets: np.ndarray) -> tuple:
     """
     Computes the empirical cumulative distribution (ECDF) of the runtime of an optimizer
     across different targets and tasks.
@@ -28,7 +28,7 @@ def compute_ecdf(error: np.ndarray, targets: np.ndarray) -> dict:
     R is the number of runs per task and N are the number of function evaluations per task and run
     :param targets: matrix with I x T entries, where I are the number of instances or tasks and T are the number
     of targets values
-    :return: ECDF as dict, where 'x' defines the runtime and 'y' the CDF
+    :return: ECDF as tuple, where the first entries defines the runtime and the second the CDF
     """
     n_instances = error.shape[0]
     n_runs = error.shape[1]
@@ -43,10 +43,7 @@ def compute_ecdf(error: np.ndarray, targets: np.ndarray) -> dict:
     sorted_error = np.sort(runtime)
     yvals = np.arange(len(sorted_error)) / float(len(sorted_error))
 
-    d = dict()
-    d["x"] = sorted_error.tolist()
-    d["y"] = yvals.tolist()
-    return d
+    return sorted_error.tolist(), yvals.tolist()
 
 
 def compute_ranks(errors, n_bootstrap=1000) -> np.ndarray:
