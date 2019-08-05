@@ -132,7 +132,6 @@ class GPyModelWrapper(IModel, IDifferentiable, ICalculateVarianceReduction, IEnt
         self.model._trigger_params_changed()
 
 
-
 class GPyMultiOutputWrapper(IModel, IDifferentiable, ICalculateVarianceReduction, IEntropySearchModel):
     """
     A wrapper around GPy multi-output models.
@@ -241,3 +240,33 @@ class GPyMultiOutputWrapper(IModel, IDifferentiable, ICalculateVarianceReduction
         :return: An array of shape n_points x 1 of posterior covariances between X1 and X2
         """
         return self.gpy_model.posterior_covariance_between_points(X1, X2)
+
+    def generate_hyperparameters_samples(self, n_samples = 10, n_burnin = 5, subsample_interval  = 1,
+                                         step_size = 1e-1, leapfrog_steps = 1) -> None:
+        """
+        Generates the samples from the hyper-parameters
+        :param n_samples: Number of generated samples.
+        :param n_burning: Number of initial samples not used.
+        :param subsample_interval: Interval of subsampling from HMC samples.
+        :param step_size: Size of the gradient steps in the HMC sampler.
+        :param leapfrog_steps: Number of gradient steps before each Metropolis Hasting step.
+        :return: A numpy array whose rows are samples of the hyper-parameters.
+
+        """
+        self.gpy_model.optimize(max_iters=self.n_optimization_restarts)
+        self.gpy_model.param_array[:] = self.gpy_model.param_array * (1.+np.random.randn(self.gpy_model.param_array.size)*0.01)
+        hmc = GPy.inference.mcmc.HMC(self.gpy_model, stepsize = step_size)
+        samples = hmc.sample(num_samples = n_burnin + n_samples * subsample_interval, hmc_iters = leapfrog_steps)
+        hmc_samples = samples[n_burnin::subsample_interval]
+        return hmc_samples
+
+    def fix_model_hyperparameters(self, sample_hyperparameters: np.ndarray) -> None:
+        """
+        Fix model hyperparameters
+
+        """
+        if self.gpy_model._fixes_ is None:
+            self.gpy_model[:] = sample_hyperparameters
+        else:
+            self.gpy_model[self.gpy_model._fixes_] = sample_hyperparameters
+        self.gpy_model._trigger_params_changed()
