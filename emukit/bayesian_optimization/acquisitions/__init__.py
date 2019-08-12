@@ -7,3 +7,4 @@ from .negative_lower_confidence_bound import NegativeLowerConfidenceBound  # noq
 from .probability_of_improvement import ProbabilityOfImprovement  # noqa: F401
 from .probability_of_feasibility import ProbabilityOfFeasibility  # noqa: F401
 from .entropy_search import EntropySearch  # noqa: F401
+from .max_value_entropy_search import MaxValueEntropySearch
