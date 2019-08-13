@@ -48,9 +48,6 @@ class MaxValueEntropySearch(Acquisition):
         self.mins = None
 
     def update_parameters(self):
-        self._prepare_sample()
-
-    def _prepare_sample(self):
         # apply gumbel sampling to obtain samples from y*
         # we approximate Pr(y*^hat<y) by Gumbel(alpha,beta)
         # generate grid
@@ -100,7 +97,7 @@ class MaxValueEntropySearch(Acquisition):
         :param x: points where the acquisition is evaluated.
         """
         if not self._required_parameters_initialized():
-            self._prepare_sample()
+            self.update_parameters()
         fmean, fvar = self.model.predict(x)
         fsd = np.sqrt(fvar)
         gamma = (self.mins - fmean) / fsd
