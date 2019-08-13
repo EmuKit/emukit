@@ -7,7 +7,7 @@ from scipy.optimize import check_grad
 
 from bayesian_optimization.test_entropy_search import entropy_search_acquisition
 from emukit.bayesian_optimization.acquisitions import ExpectedImprovement, NegativeLowerConfidenceBound, EntropySearch
-from emukit.bayesian_optimization.acquisition import MaxValueEntropySearch
+from emukit.bayesian_optimization.acquisitions import MaxValueEntropySearch
 from emukit.core.acquisition import IntegratedHyperParameterAcquisition
 from emukit.bayesian_optimization.acquisitions.entropy_search import MultiInformationSourceEntropySearch
 from emukit.bayesian_optimization.acquisitions.log_acquisition import LogAcquisition
