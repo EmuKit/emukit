@@ -7,6 +7,7 @@ from scipy.optimize import check_grad
 
 from bayesian_optimization.test_entropy_search import entropy_search_acquisition
 from emukit.bayesian_optimization.acquisitions import ExpectedImprovement, NegativeLowerConfidenceBound, EntropySearch
+from emukit.bayesian_optimization.acquisitions import MaxValueEntropySearch
 from emukit.core.acquisition import IntegratedHyperParameterAcquisition
 from emukit.bayesian_optimization.acquisitions.entropy_search import MultiInformationSourceEntropySearch
 from emukit.bayesian_optimization.acquisitions.log_acquisition import LogAcquisition
@@ -36,6 +37,7 @@ acquisition_tests = [acquisition_test_tuple('negative_lower_confidence_bound_acq
                      acquisition_test_tuple('squared_correlation_acquisition', True, 1e-3),
                      acquisition_test_tuple('mutual_information_acquisition', True, 1e-3),
                      acquisition_test_tuple('entropy_search_acquisition', False, np.nan),
+                     acquisition_test_tuple('max_value_entropy_search_acquisition', False, np.nan),
                      acquisition_test_tuple('multi_source_entropy_search_acquisition', False, np.nan),
                      acquisition_test_tuple('integrated_variance_acquisition', False, np.nan),
                      acquisition_test_tuple('integrated_expected_improvement_acquisition', True, default_grad_tol),
@@ -71,12 +73,12 @@ def integrated_expected_improvement_acquisition(gpy_model_mcmc):
 def integrated_probability_of_improvement_acquisition(gpy_model_mcmc):
     return IntegratedHyperParameterAcquisition(gpy_model_mcmc, ProbabilityOfImprovement, 10)
 
-  
+
 @pytest.fixture
 def probability_of_feasibility_acquisition(gpy_model):
     return ProbabilityOfFeasibility(gpy_model)
 
-  
+
 @pytest.fixture
 def cost_acquisition(gpy_model):
     return CostAcquisition(gpy_model, 1e-6)
@@ -90,6 +92,11 @@ def log_acquisition(expected_improvement_acquisition):
 @pytest.fixture
 def probability_of_improvement_acquisition(gpy_model):
     return ProbabilityOfImprovement(gpy_model)
+
+
+@pytest.fixture
+def max_value_entropy_search_acquisition(gpy_model, continuous_space):
+    return MaxValueEntropySearch(gpy_model, continuous_space, num_samples=2, grid_size=100)
 
 
 @pytest.fixture
