@@ -13,7 +13,6 @@ addons:
     - pyenv
     - openssl
     - readline
-    - libomp
     update: true
 before_install: |
  if [[ $TRAVIS_OS_NAME == 'osx' ]]; then

@@ -13,15 +13,13 @@ from ...core.acquisition import Acquisition
 
 class ProbabilityOfImprovement(Acquisition):
 
-    def __init__(self, model: Union[IModel, IDifferentiable], jitter: np.float64 = np.float64(0)) -> None:
+    def __init__(self, model: Union[IModel, IDifferentiable], jitter: float = float(0)) -> None:
         """
         This acquisition computes for a given input point the probability of improving over the
         currently best observed function value. For more information see:
-
         Efficient Global Optimization of Expensive Black-Box Functions
         Jones, Donald R. and Schonlau, Matthias and Welch, William J.
         Journal of Global Optimization
-
         :param model: The underlying model that provides the predictive mean and variance for the given test points
         :param jitter: Jitter to balance exploration / exploitation
         """
@@ -31,8 +29,7 @@ class ProbabilityOfImprovement(Acquisition):
     def evaluate(self, x: np.ndarray) -> np.ndarray:
         """
         Computes the probability of improving over the current best
-
-        :param x: points where the acquisition is evaluated.
+        :param x: points where the acquisition is evaluated, shape (number of points, number of dimensions).
         """
         mean, variance = self.model.predict(x)
         mean += self.jitter
@@ -45,8 +42,7 @@ class ProbabilityOfImprovement(Acquisition):
     def evaluate_with_gradients(self, x: np.ndarray) -> Tuple:
         """
         Computes the  probability of improving over the current best and its derivative
-
-        :param x: points where the acquisition is evaluated.
+        :param x: points where the acquisition is evaluated, shape (number of points, number of dimensions).
         """
         mean, variance = self.model.predict(x)
         standard_deviation = np.sqrt(variance)
@@ -67,3 +63,4 @@ class ProbabilityOfImprovement(Acquisition):
     @property
     def has_gradients(self):
         return isinstance(self.model, IDifferentiable)
+

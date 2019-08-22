@@ -1,10 +1,11 @@
 # Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 import itertools
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import numpy as np
 
+from .constraints import IConstraint
 from .discrete_parameter import InformationSourceParameter
 from .parameter import Parameter
 
@@ -14,13 +15,19 @@ class ParameterSpace(object):
     Represents parameter space for a given problem.
     """
 
-    def __init__(self, parameters: List):
+    def __init__(self, parameters: List, constraints: Optional[List[IConstraint]]=None):
         """
         Creates a new instance of a parameter space.
 
         :param parameters: A list of parameters in the space.
+        :param constraints: A list of constraints on the input domain
         """
         self._parameters = parameters
+
+        if constraints:
+            self.constraints = constraints
+        else:
+            self.constraints = []
 
         # Check no more than one InformationSource parameter
         source_parameter = [param for param in self.parameters if isinstance(param, InformationSourceParameter)]
