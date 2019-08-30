@@ -140,6 +140,7 @@ class QuadratureRBFIsoGaussMeasure(QuadratureKernel):
         """
         super().__init__(kern=rbf_kernel, integral_bounds=integral_bounds, integral_name=integral_name)
         self.measure = measure
+        self._lengthscale_for_qK = self._compute_lengthscale_for_qK()
 
     @property
     def lengthscale(self):
@@ -149,13 +150,14 @@ class QuadratureRBFIsoGaussMeasure(QuadratureKernel):
     def variance(self):
         return self.kern.variance
 
-    def _lengthscale_for_qK(self):
+    def _compute_lengthscale_for_qK(self):
         """
         :return: the lengthscale needed for integrating against the Gaussian measure
         """
+        # Todo: not sure if this is correct
         prec_gauss = 1. / self.measure.variance
-        pred_kernel = 1. / self.lengthscale
-        squared_lengthscale = 1. / (prec_gauss + pred_kernel)
+        prec_kernel = 1. / self.lengthscale
+        squared_lengthscale = 1. / (prec_gauss + prec_kernel)
         return np.sqrt(squared_lengthscale)
 
     # the following methods are integrals of a quadrature kernel

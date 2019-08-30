@@ -73,7 +73,7 @@ class IsotropicGaussianMeasure(IntegrationMeasure):
         :param new_variance: new variance of the isotropic covariance matrix of the Gaussian.
         """
         if new_mean is not None:
-            # new mean, new cov
+            # new mean, new var
             if new_variance is not None:
                 self._check_input(new_mean, new_variance)
                 self.mean = new_mean
@@ -85,12 +85,12 @@ class IsotropicGaussianMeasure(IntegrationMeasure):
                 self.mean = new_mean
                 self.dim = new_mean.shape[0]
         else:
-            # new cov only
+            # new var only
             if new_variance is not None:
                 self._check_input(self.mean, new_variance)
                 self.variance = new_variance
 
-    def _check_input(self, mean: np.ndarray, covariance: float) -> None:
+    def _check_input(self, mean: np.ndarray, variance: float) -> None:
         """
         checks type validity of mean and covariance inputs
         """
@@ -98,20 +98,19 @@ class IsotropicGaussianMeasure(IntegrationMeasure):
         if not isinstance(mean, np.ndarray):
             raise TypeError('Mean must be of type numpy.ndarray, ' + str(type(mean)) + ' given.')
 
-        if not mean.ndim == 1:
+        if mean.ndim != 1:
             raise ValueError('Dimension of mean must be 1, dimension ' + str(mean.ndim) + ' given.')
 
         # check covariance
-        if not isinstance(covariance, float):
-            raise TypeError('Variance must be of type float, ' + str(type(covariance)) + ' given.')
+        if not isinstance(variance, float):
+            raise TypeError('Variance must be of type float, ' + str(type(variance)) + ' given.')
 
-        if not covariance > 0:
-            raise ValueError('Variance must be positive, current value is ', covariance, '.')
+        if not variance > 0:
+            raise ValueError('Variance must be positive, current value is ', variance, '.')
 
     def _compute_full_covariance(self):
         """Constructs full covariance matrix"""
-        full_cov = self.variance * np.eye(self.dim)
-        return full_cov
+        return self.variance * np.eye(self.dim)
 
 
 class NumericalPrecisionError(Exception):
