@@ -73,5 +73,3 @@ class IPriorHyperparameters:
         :param sample_hyperparameters: np.ndarray whose rows contain each hyper-parameters set.
         """
         raise NotImplementedError
-
-

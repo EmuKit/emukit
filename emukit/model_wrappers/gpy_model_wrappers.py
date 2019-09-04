@@ -100,8 +100,8 @@ class GPyModelWrapper(IModel, IDifferentiable, ICalculateVarianceReduction, IEnt
         """
         return self.model.Y
 
-    def generate_hyperparameters_samples(self, n_samples = 20, n_burnin = 100, subsample_interval  = 10,
-                                         step_size = 1e-1, leapfrog_steps = 20) -> None:
+    def generate_hyperparameters_samples(self, n_samples=20, n_burnin=100, subsample_interval=10,
+                                         step_size=1e-1, leapfrog_steps=20) -> None:
         """
         Generates the samples from the hyper-parameters
         :param n_samples: Number of generated samples.
@@ -113,9 +113,9 @@ class GPyModelWrapper(IModel, IDifferentiable, ICalculateVarianceReduction, IEnt
 
         """
         self.model.optimize(max_iters=self.n_restarts)
-        self.model.param_array[:] = self.model.param_array * (1.+np.random.randn(self.model.param_array.size)*0.01)
-        hmc = GPy.inference.mcmc.HMC(self.model, stepsize = step_size)
-        samples = hmc.sample(num_samples = n_burnin + n_samples * subsample_interval, hmc_iters = leapfrog_steps)
+        self.model.param_array[:] = self.model.param_array * (1. + np.random.randn(self.model.param_array.size) * 0.01)
+        hmc = GPy.inference.mcmc.HMC(self.model, stepsize=step_size)
+        samples = hmc.sample(num_samples=n_burnin + n_samples * subsample_interval, hmc_iters=leapfrog_steps)
         hmc_samples = samples[n_burnin::subsample_interval]
 
         return hmc_samples
@@ -130,7 +130,6 @@ class GPyModelWrapper(IModel, IDifferentiable, ICalculateVarianceReduction, IEnt
         else:
             self.model[self.model._fixes_] = sample_hyperparameters
         self.model._trigger_params_changed()
-
 
 
 class GPyMultiOutputWrapper(IModel, IDifferentiable, ICalculateVarianceReduction, IEntropySearchModel):
