@@ -10,7 +10,8 @@ class IntegratedHyperParameterAcquisition(Acquisition):
     """
     This acquisition class provides functionality for integrating any acquisition function over model hyper-parameters
     """
-    def __init__(self, model: Union[IModel, IPriorHyperparameters], acquisition_generator: Callable, n_samples: int=10, n_burnin: int=100, subsample_interval: int=10, step_size: float=1e-1, leapfrog_steps: int=20):
+    def __init__(self, model: Union[IModel, IPriorHyperparameters], acquisition_generator: Callable, n_samples: int=10,
+                 n_burnin: int=100, subsample_interval: int=10, step_size: float=1e-1, leapfrog_steps: int=20):
         """
         :param model: An emukit model that implements IPriorHyperparameters
         :param acquisition_generator: Function that returns acquisition object when given the model as the only argument
@@ -23,7 +24,8 @@ class IntegratedHyperParameterAcquisition(Acquisition):
         self.model = model
         self.acquisition_generator = acquisition_generator
         self.n_samples = n_samples
-        self.samples = self.model.generate_hyperparameters_samples(n_samples, n_burnin, subsample_interval, step_size, leapfrog_steps)
+        self.samples = self.model.generate_hyperparameters_samples(n_samples, n_burnin,
+                                                                   subsample_interval, step_size, leapfrog_steps)
 
     def evaluate(self, x: np.ndarray) -> np.ndarray:
         """
