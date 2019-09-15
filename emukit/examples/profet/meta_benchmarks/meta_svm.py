@@ -1,5 +1,4 @@
 import pickle
-import numpy as np
 
 try:
     import torch
@@ -12,6 +11,7 @@ from typing import Tuple
 from emukit.core import ContinuousParameter, ParameterSpace
 from emukit.core.loop.user_function import UserFunctionWrapper
 from emukit.examples.profet.meta_benchmarks.architecture import get_default_architecture
+from emukit.examples.profet.meta_benchmarks.meta_surrogates import objective_function
 
 
 def meta_svm(fname_objective: str, fname_cost: str, noise: bool = True) -> Tuple[UserFunctionWrapper, ParameterSpace]:
@@ -59,32 +59,12 @@ def meta_svm(fname_objective: str, fname_cost: str, noise: bool = True) -> Tuple
     cost = get_default_architecture(x_mean_cost.shape[0]).float()
     cost.load_state_dict(data["state_dict"])
 
-    def objective_function(config, with_noise=True):
-
-        Ht = np.repeat(task_feature_objective[None, :], config.shape[0], axis=0)
-        x = np.concatenate((config, Ht), axis=1)
-        x_norm = torch.from_numpy((x - x_mean_objective) / x_std_objective).float()
-        output = objective.forward(x_norm).data.numpy()
-        mean = output[:, 0]
-        log_variance = output[:, 1]
-        if with_noise:
-            feval = np.random.randn() * np.sqrt(np.exp(log_variance)) + mean
-        else:
-            feval = mean
-
-        Ht = np.repeat(task_feature_cost[None, :], config.shape[0], axis=0)
-        x = np.concatenate((config, Ht), axis=1)
-        x_norm = torch.from_numpy((x - x_mean_cost) / x_std_cost).float()
-        output = cost.forward(x_norm).data.numpy()
-        log_mean = output[:, 0] * y_std_cost + y_mean_cost
-        log_log_variance = output[:, 1] * y_std_cost ** 2
-        if with_noise:
-            log_cost = np.random.randn() * np.sqrt(np.exp(log_log_variance)) + log_mean
-        else:
-            log_cost = log_mean
-
-        return feval[:, None], np.exp(log_cost)[:, None]
-
-    f = partial(objective_function, with_noise=noise)
+    f = partial(objective_function, model_objective=objective, model_cost=cost,
+                task_feature_objective=task_feature_objective, task_feature_cost=task_feature_cost,
+                x_mean_objective=x_mean_objective, x_std_objective=x_std_objective,
+                x_mean_cost=x_mean_cost, x_std_cost=x_std_cost,
+                y_mean_objective=None, y_std_objective=None,
+                y_mean_cost=y_mean_cost, y_std_cost=y_std_cost,
+                log_objective=False, with_noise=noise)
 
     return f, parameter_space
