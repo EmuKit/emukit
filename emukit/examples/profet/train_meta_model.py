@@ -57,6 +57,13 @@ def normalize_Y(Y, indexD):
     return Y, Y_mean[:, None], Y_std[:, None]
 
 
+hidden_space = {
+    'forrester': 2,
+    'fcnet': 5,
+    'svm': 5,
+    'xgboost': 5,
+    }
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--n_samples', default=1000, type=int, nargs='?',
@@ -77,10 +84,12 @@ if __name__ == "__main__":
     n_samples = args.n_samples
     n_samples_task = args.n_hidden
     n_inducing_lvm = 50
-    Q_h = 2  # the dimensionality of the latent space
+    Q_h = hidden_space[args.benchmark]  # the dimensionality of the latent space
     mcmc_thining = 100
     num_burnin_steps = args.burnin
     num_steps = 100 * n_samples + 1
+    lr = 1e-2
+    batch_size = 5
 
     # load and normalize data
     if args.benchmark == "forrester":
@@ -100,7 +109,8 @@ if __name__ == "__main__":
         download_data(args.input_path)
 
     X, Y, C = load_data(args.input_path, fname)
-    if len(X.shape) == 1: X = X[:, None]
+    if len(X.shape) == 1:
+        X = X[:, None]
 
     n_tasks = Y.shape[0]
     n_configs = X.shape[0]
@@ -137,7 +147,6 @@ if __name__ == "__main__":
     Y_train = np.array(Y_train)
     C_train = np.array(C_train)
     if args.benchmark != "forrester":
-        # Y_train = np.log(np.array(Y_train))
         C_train = np.log(C_train)
 
     if args.benchmark == "xgboost":
@@ -151,13 +160,13 @@ if __name__ == "__main__":
                                 normalize_output=normalize_targets)
     model_objective.train(X_train, Y_train, num_steps=num_steps + num_burnin_steps,
                           num_burn_in_steps=num_burnin_steps, keep_every=mcmc_thining,
-                          lr=1e-2, verbose=True, batch_size=5)
+                          lr=lr, verbose=True, batch_size=batch_size)
 
     if args.benchmark != "forrester":
         model_cost = Bohamiann(get_network=get_default_architecture, print_every_n_steps=10000)
         model_cost.train(X_train, C_train, num_steps=num_steps + num_burnin_steps,
                          num_burn_in_steps=num_burnin_steps, keep_every=mcmc_thining,
-                         lr=1e-2, verbose=True, batch_size=5)
+                         lr=lr, verbose=True, batch_size=batch_size)
 
     # generate samples
     sampled_h = np.zeros([n_samples, ls.shape[0]])
