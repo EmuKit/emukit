@@ -10,7 +10,9 @@ except ImportError:
     raise ImportError('pybnn is not installed. Please install it by running pip install pybnn')
 
 
-def get_default_architecture(input_dimensionality: int, classification: bool = False) -> torch.nn.Module:
+def get_default_architecture(input_dimensionality: int,
+                             classification: bool = False,
+                             n_hidden: int = 500) -> torch.nn.Module:
     """
     Defines the architecture that is used for Meta-Surrogate benchmarks.
     In the case of emulating a classification benchmark, we pass the mean prediction through a sigmoid
@@ -18,6 +20,7 @@ def get_default_architecture(input_dimensionality: int, classification: bool = F
 
     :param input_dimensionality: dimensionality of the benchmark
     :param classification: defined whether we emulate a classification benchmark
+    :param n_hidden: number of units in the hidden layer
     :return: nn.Module
     """
     class Architecture(nn.Module):
@@ -39,4 +42,6 @@ def get_default_architecture(input_dimensionality: int, classification: bool = F
                 mean = x
             return self.sigma_layer(mean)
 
-    return Architecture(n_inputs=input_dimensionality, classification=classification)
+    return Architecture(n_inputs=input_dimensionality,
+                        n_hidden=n_hidden,
+                        classification=classification)
