@@ -5,6 +5,7 @@ import pickle
 from copy import deepcopy
 import numpy as np
 import tarfile
+import functools
 
 from urllib.request import urlretrieve
 
@@ -27,7 +28,7 @@ except ImportError:
     raise ImportError('GPy is not installed. Please install it by running pip install GPy')
 
 
-from emukit.examples.profet.meta_benchmarks.architecture import get_default_architecture_classification, get_default_architecture_regression, get_default_architecture_cost
+from emukit.examples.profet.meta_benchmarks.architecture import get_default_architecture
 from emukit.examples.profet.meta_benchmarks.meta_forrester import get_architecture_forrester
 
 
@@ -86,14 +87,14 @@ if __name__ == "__main__":
         fname = "data_sobol_forrester.json"
         get_architecture = get_architecture_forrester
     elif args.benchmark == "svm":
-        get_architecture = get_default_architecture_classification
+        get_architecture = functools.partial(get_default_architecture, classifcation=True)
         fname = "data_sobol_svm.json"
     elif args.benchmark == "fcnet":
-        get_architecture = get_default_architecture_classification
+        get_architecture = functools.partial(get_default_architecture, classifcation=True)
         fname = "data_sobol_fcnet.json"
     elif args.benchmark == "xgboost":
         fname = "data_sobol_xgboost.json"
-        get_architecture = get_default_architecture_regression
+        get_architecture = get_default_architecture
 
     if args.download:
         download_data(args.input_path)
@@ -153,7 +154,7 @@ if __name__ == "__main__":
                           lr=1e-2, verbose=True, batch_size=5)
 
     if args.benchmark != "forrester":
-        model_cost = Bohamiann(get_network=get_default_architecture_cost, print_every_n_steps=10000)
+        model_cost = Bohamiann(get_network=get_default_architecture, print_every_n_steps=10000)
         model_cost.train(X_train, C_train, num_steps=num_steps + num_burnin_steps,
                          num_burn_in_steps=num_burnin_steps, keep_every=mcmc_thining,
                          lr=1e-2, verbose=True, batch_size=5)
