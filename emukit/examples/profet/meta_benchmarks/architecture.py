@@ -2,17 +2,17 @@ try:
     import torch
     import torch.nn as nn
 except ImportError:
-    raise ImportError('pytorch is not installed. Please installed version it by running pip install torch torchvision')
+    raise ImportError('pytorch is not installed. Please install it by running pip install torch torchvision')
 
 try:
     from pybnn.util.layers import AppendLayer
 except ImportError:
-    raise ImportError('pybnn is not installed. Please installed version it by running pip install pybnn')
+    raise ImportError('pybnn is not installed. Please install it by running pip install pybnn')
 
 
 def get_default_architecture(input_dimensionality: int, classification: bool = False) -> torch.nn.Module:
     """
-    Defined the architecture that is uses for Meta-Surrogate benchmarks.
+    Defines the architecture that is used for Meta-Surrogate benchmarks.
     In the case of emulating a classification benchmark, we pass the mean prediction through a sigmoid
     to make sure that the mean prediction values are in [0, 1].
 

@@ -4,7 +4,7 @@ import numpy as np
 try:
     import torch
 except ImportError:
-    raise ImportError('pytorch is not installed. Please installed version it by running pip install torch torchvision')
+    raise ImportError('pytorch is not installed. Please install it by running pip install torch torchvision')
 
 
 from functools import partial

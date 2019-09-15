@@ -12,19 +12,19 @@ try:
     import torch
     import torch.nn as nn
 except ImportError:
-    raise ImportError('pytorch is not installed. Please installed version it by running pip install torch torchvision')
+    raise ImportError('pytorch is not installed. Please install it by running pip install torch torchvision')
 
 try:
     from pybnn.bohamiann import Bohamiann
     from pybnn.util.layers import AppendLayer
 except ImportError:
-    raise ImportError('pybnn is not installed. Please installed version it by running pip install pybnn')
+    raise ImportError('pybnn is not installed. Please install it by running pip install pybnn')
 
 try:
     import GPy
     from GPy.models import BayesianGPLVM
 except ImportError:
-    raise ImportError('GPy is not installed. Please installed version it by running pip install GPy')
+    raise ImportError('GPy is not installed. Please install it by running pip install GPy')
 
 
 from emukit.examples.profet.meta_benchmarks.architecture import get_default_architecture_classification, get_default_architecture_regression, get_default_architecture_cost

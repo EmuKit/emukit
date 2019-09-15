@@ -13,7 +13,7 @@ except ImportError:
 try:
     from pybnn.util.layers import AppendLayer
 except ImportError:
-    raise ImportError('pybnn is not installed. Please installed version it by running pip install pybnn')
+    raise ImportError('pybnn is not installed. Please install it by running pip install pybnn')
 
 from emukit.core import ContinuousParameter, ParameterSpace
 from emukit.core.loop.user_function import UserFunctionWrapper
