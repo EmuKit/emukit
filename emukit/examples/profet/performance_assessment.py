@@ -32,8 +32,8 @@ def compute_ecdf(error: np.ndarray, targets: np.ndarray) -> tuple:
     """
     n_instances = error.shape[0]
     n_runs = error.shape[1]
-    assert targets.shape[0] == n_instances
     n_targets = targets.shape[1]
+
     runtime = []
     for i in range(n_instances):
         for t in range(n_targets):
