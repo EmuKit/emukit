@@ -46,25 +46,30 @@ class IDifferentiable:
         Computes and returns model gradients of mean and variance at given points
 
         :param X: points to compute gradients at
+        :returns: Tuple of gradients of mean and variance.
         """
         raise NotImplementedError
 
 
 class IPriorHyperparameters:
-    def generate_hyperparameters_samples(self, n_samples: np.int) -> np.ndarray:
+    def generate_hyperparameters_samples(self, n_samples: int, n_burnin: int,
+                                         subsample_interval: int, step_size: float, leapfrog_steps: int) -> np.ndarray:
         """
         Generates the samples from the hyper-parameters of the model.
 
+        :param n_samples: Number of hyper-parameter samples
+        :param n_burnin: Number of initial samples not used.
+        :param subsample_interval: Interval of subsampling from HMC samples.
+        :param step_size: Size of the gradient steps in the HMC sampler.
+        :param leapfrog_steps: Number of gradient steps before each Metropolis Hasting step.
         :return: numpy array whose rows are samples from the hyper-parameters of the model.
         """
         raise NotImplementedError
 
-    def fix_model_hyperparameters(self,sample_hyperparameters: np.ndarray) -> None:
+    def fix_model_hyperparameters(self, sample_hyperparameters: np.ndarray) -> None:
         """
         Fixes the model hyper-parameters to certain values (which can be taken from samples).
 
         :param sample_hyperparameters: np.ndarray whose rows contain each hyper-parameters set.
         """
         raise NotImplementedError
-
-

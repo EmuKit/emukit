@@ -1,7 +1,9 @@
+import mock
 import numpy as np
 import pytest
 
-from emukit.core.acquisition import Acquisition
+from emukit.core.acquisition import Acquisition, IntegratedHyperParameterAcquisition
+from emukit.core.interfaces import IPriorHyperparameters
 
 
 class DummyAcquisition(Acquisition):
@@ -75,3 +77,23 @@ def test_acquisition_division_with_gradients():
     acquisition_sum = DummyAcquisitionWithGradients() / DummyAcquisitionWithGradients()
     acquisition_value, acquisition_grads = acquisition_sum.evaluate_with_gradients(np.array([[0]]))
     assert np.array_equal(acquisition_grads, np.array([0.]))
+
+
+def test_integrated_acquisition_gradients():
+    """
+    Check that the integrated hyper parameter acquisition "has_gradients" flag reflects the base acquisition function
+    :return:
+    """
+    mock_model = mock.create_autospec(IPriorHyperparameters)
+    mock_acquisition = mock.create_autospec(Acquisition)
+
+    # Check if false
+    mock_acquisition.has_gradients = False
+    mock_acquisition_generator = lambda x: mock_acquisition
+    acq = IntegratedHyperParameterAcquisition(mock_model, mock_acquisition_generator)
+    assert acq.has_gradients == False
+
+    # Check if true
+    mock_acquisition.has_gradients = True
+    acq = IntegratedHyperParameterAcquisition(mock_model, mock_acquisition_generator)
+    assert acq.has_gradients == True
