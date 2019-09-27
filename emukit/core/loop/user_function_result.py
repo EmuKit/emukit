@@ -38,3 +38,6 @@ class UserFunctionResult(object):
         :return: The value of the extra output
         """
         return self.extra_outputs[item]
+
+    def __repr__(self):
+        return "UserFunctionResult(X: {}, Y: {}, extra_outputs: {})".format(self.X, self.Y, self.extra_outputs)
