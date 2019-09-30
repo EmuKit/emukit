@@ -8,7 +8,7 @@ from typing import List, Tuple
 
 from .quadrature_kernels import QuadratureKernel
 from ...quadrature.interfaces.standard_kernels import IRBF
-from ...quadrature.methods.integration_measures import IsotropicGaussianMeasure
+from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure
 
 
 class QuadratureRBF(QuadratureKernel):
@@ -129,15 +129,14 @@ class QuadratureRBFIsoGaussMeasure(QuadratureKernel):
     Note that each standard kernel goes with a corresponding quadrature kernel, in this case QuadratureRBF
     """
 
-    def __init__(self, rbf_kernel: IRBF, integral_bounds: List[Tuple[float, float]], measure: IsotropicGaussianMeasure,
-                 integral_name: str='') -> None:
+    def __init__(self, rbf_kernel: IRBF, measure: IsotropicGaussianMeasure, integral_name: str='') -> None:
         """
         :param rbf_kernel: standard emukit rbf-kernel
-        :param integral_bounds: defines the domain of the integral. List of D tuples, where D is the dimensionality
-        of the integral and the tuples contain the lower and upper bounds of the integral
-        i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)]
+        :param measure: a Gaussian measure
         :param integral_name: the (variable) name(s) of the integral
         """
+        # Todo: 10 is an arbitrary factor here to make the optimizer work
+        integral_bounds = measure.dim * [(10 * np.sqrt(measure.variance),  10 * np.sqrt(measure.variance))]
         super().__init__(kern=rbf_kernel, integral_bounds=integral_bounds, integral_name=integral_name)
         self.measure = measure
         self._lengthscale_for_qK = self._compute_lengthscale_for_qK()

@@ -14,6 +14,7 @@ class IntegrationMeasure:
         :param name: Name of the integration measure
         """
         self.name = name
+    # Todo: should this have a compute density method?
 
 
 class UniformMeasure(IntegrationMeasure):
@@ -63,8 +64,8 @@ class IsotropicGaussianMeasure(IntegrationMeasure):
         self.variance = variance
 
     @property
-    def covariance(self):
-        return self._compute_full_covariance()
+    def full_covariance_matrix(self):
+        return self.variance * np.eye(self.dim)
 
     def set_new_parameters(self, new_mean: np.ndarray = None, new_variance: float = None) -> None:
         """
@@ -107,10 +108,6 @@ class IsotropicGaussianMeasure(IntegrationMeasure):
 
         if not variance > 0:
             raise ValueError('Variance must be positive, current value is ', variance, '.')
-
-    def _compute_full_covariance(self):
-        """Constructs full covariance matrix"""
-        return self.variance * np.eye(self.dim)
 
 
 class NumericalPrecisionError(Exception):

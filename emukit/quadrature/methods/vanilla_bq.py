@@ -4,11 +4,11 @@
 
 import numpy as np
 from scipy.linalg import lapack
-from typing import Tuple, Union
+from typing import Tuple
 
 from ...quadrature.interfaces.base_gp import IBaseGaussianProcess
 from .warped_bq_model import WarpedBayesianQuadratureModel
-from .integration_measures import UniformMeasure
+from emukit.quadrature.kernels.integration_measures import UniformMeasure
 
 
 class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel):
