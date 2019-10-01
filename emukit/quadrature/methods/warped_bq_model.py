@@ -8,7 +8,7 @@ from typing import Tuple, List
 from ...core.continuous_parameter import ContinuousParameter
 from ...core.interfaces.models import IModel
 from ...quadrature.interfaces.base_gp import IBaseGaussianProcess
-from ...quadrature.kernels.integral_bounds import IntegralBounds
+from ...quadrature.kernels.bounds import BoxBounds
 
 
 class WarpedBayesianQuadratureModel(IModel):
@@ -24,13 +24,15 @@ class WarpedBayesianQuadratureModel(IModel):
     - no approximation if there is no warping (Vanilla BQ)
     - ...
     """
-    def __init__(self, base_gp: IBaseGaussianProcess):
+    def __init__(self, base_gp: IBaseGaussianProcess, X: np.ndarray, Y: np.ndarray):
         """
         :param base_gp: the underlying GP model
+        :param X: the initial locations of integrand evaluations
+        :param Y: the values of the integrand at Y
         """
         self.base_gp = base_gp
         # this is to ensure that the base_gp get the correct transform
-        self.set_data(base_gp.X, base_gp.Y)
+        self.set_data(X, Y)
 
     @property
     def X(self) -> np.ndarray:
@@ -41,21 +43,16 @@ class WarpedBayesianQuadratureModel(IModel):
         return self.transform(self.base_gp.Y)
 
     @property
-    def integral_bounds(self) -> IntegralBounds:
+    def integral_bounds(self) -> BoxBounds:
         return self.base_gp.kern.integral_bounds
+
+    @property
+    def optimization_bounds(self) -> BoxBounds:
+        return self.base_gp.kern.optimization_bounds
 
     @property
     def integral_parameters(self) -> List[ContinuousParameter]:
         return self.base_gp.kern.integral_bounds.convert_to_list_of_continuous_parameters()
-
-    @integral_bounds.setter
-    def integral_bounds(self, new_bounds: List[Tuple[float, float]]) -> None:
-        """
-        Sets new integral bounds and checks their validity
-        :param new_bounds: List of D tuples, where D is the dimensionality of the integral and the tuples contain the
-        lower and upper bounds of the integral i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)]
-        """
-        self.base_gp.kern.integral_bounds.bounds = new_bounds
 
     def transform(self, Y: np.ndarray) -> np.ndarray:
         """

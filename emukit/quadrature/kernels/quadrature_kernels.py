@@ -3,10 +3,11 @@
 
 
 import numpy as np
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 from ...quadrature.interfaces.standard_kernels import IStandardKernel
-from .integral_bounds import IntegralBounds
+from .bounds import BoxBounds
+from .integration_measures import IntegrationMeasure
 
 
 class QuadratureKernel:
@@ -20,18 +21,35 @@ class QuadratureKernel:
     An example of a specific QuadratureKernel and IStandardKernel pair is QuadratureRBF and IRBF.
     """
 
-    def __init__(self, kern: IStandardKernel, integral_bounds: List[Tuple[float, float]], integral_name: str='') \
+    def __init__(self, kern: IStandardKernel, integral_bounds: Union[None, List[Tuple[float, float]]],
+                 measure: Union[None, IntegrationMeasure], variable_names: str= '') \
             -> None:
         """
         :param kern: standard emukit kernel
         :param integral_bounds: defines the domain of the integral. List of D tuples, where D is the dimensionality
         of the integral and the tuples contain the lower and upper bounds of the integral
-        i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)]
-        :param integral_name: the (variable) name(s) of the integral
+        i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)]. None if bounds are infinite
+        :param measure: the integration measure. Note that the integral in the QuadratureKernel are specific to the
+        measure. None if no measure.
+        :param variable_names: the (variable) name(s) of the integral
         """
+
+        # we define optimization bounds because the optimizer of the acquisition function requires finite bounds.
+        # The box is define by the integration measure. See each integration measure for details. Note that this only
+        # affects the optimizers. The integrals in this kernel will have infinite bounds still.
+        if (integral_bounds is None) and (measure is None):
+            raise ValueError('integral_bounds and measure are both None. At least one of them must be given.')
+        if integral_bounds is None:
+            optimization_bounds = self.measure.get_box()
+            self.integral_bounds = None
+        else:
+            optimization_bounds = integral_bounds
+            self.integral_bounds = BoxBounds(name=variable_names, bounds=integral_bounds)
+
+        self.optimization_bounds = BoxBounds(name=variable_names, bounds=optimization_bounds)
         self.kern = kern
-        self.integral_bounds = IntegralBounds(name=integral_name, bounds=integral_bounds)
-        self.input_dim = self.integral_bounds.dim
+        self.measure = measure
+        self.input_dim = self.optimization_bounds.dim
 
     def K(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
         """

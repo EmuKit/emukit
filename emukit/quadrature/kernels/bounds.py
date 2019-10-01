@@ -3,21 +3,20 @@
 
 
 import numpy as np
-
 from typing import Tuple, List
 
 from ...core.continuous_parameter import ContinuousParameter
 
 
-class IntegralBounds:
+class BoxBounds:
     """
-    The integral bounds i.e., the edges of the domain of the integral
+    Box bounds
     """
     def __init__(self, name: str, bounds: List[Tuple[float, float]]):
         """
         :param name: Name of parameter
-        :param bounds: List of D tuples, where D is the dimensionality of the integral and the tuples contain the
-        lower and upper bounds of the integral i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)]
+        :param bounds: List of D tuples, where D is the dimensionality and the tuples contain the
+        lower and upper bounds of the box i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)]
         """
 
         self.name = name
@@ -33,12 +32,12 @@ class IntegralBounds:
     @bounds.setter
     def bounds(self, new_bounds: List[Tuple[float, float]]) -> None:
         """
-        Sets new integral bounds and checks their validity
-        :param new_bounds: List of D tuples, where D is the dimensionality of the integral and the tuples contain the
-        lower and upper bounds of the integral i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)]
+        Sets new box bounds and checks their validity
+        :param new_bounds: List of D tuples, where D is the dimensionality of the box and the tuples contain the
+        lower and upper bounds of the box i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)]
         """
         if not len(new_bounds) == self.dim:
-            raise ValueError('Length of new integral bounds is ' + str(len(new_bounds)) + ' (length ' + str(self.dim)
+            raise ValueError('Length of new box bounds is ' + str(len(new_bounds)) + ' (length ' + str(self.dim)
                              + ' expected).')
 
         self._check_bound_validity(new_bounds)
@@ -48,21 +47,21 @@ class IntegralBounds:
     def _check_bound_validity(self, bounds: List[Tuple[float, float]]) -> None:
         """
         checks if lower bounds are smaller than upper bounds.
-        :param bounds: List of D tuples, where D is the dimensionality of the integral and the tuples contain the
-        lower and upper bounds of the integral i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)]
+        :param bounds: List of D tuples, where D is the dimensionality of the box and the tuples contain the
+        lower and upper bounds of the box i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)]
         """
         if self.dim == 0:
             raise ValueError("Length of bound list must be > 0; empty list found.")
         for bounds_d in bounds:
             lb_d, ub_d = bounds_d
             if lb_d >= ub_d:
-                raise ValueError("Upper integral bound must be larger than lower bound. Found a pair containing ("
+                raise ValueError("Upper box bound must be larger than lower bound. Found a pair containing ("
                                  + str(lb_d) + ", " + str(ub_d) + ").")
 
     def get_lower_and_upper_bounds(self) -> Tuple[np.ndarray, np.ndarray]:
         """
         returns two arrays, one containing all lower bounds and one containing all upper bounds.
-        :return: lower bounds, upper bounds of integral, shapes (1, input_dim)
+        :return: lower bounds, upper bounds of box, shapes (1, input_dim)
         """
         lower_bounds = np.zeros([self.dim, 1])
         upper_bounds = np.zeros([self.dim, 1])
@@ -74,7 +73,7 @@ class IntegralBounds:
 
     def convert_to_list_of_continuous_parameters(self) -> List[ContinuousParameter]:
         """
-        converts the integral bounds into a list of ContinuousParameter objects
+        converts the box bounds into a list of ContinuousParameter objects
         :return: a list if ContinuousParameter objects (one for each dimension)
         """
         continuous_parameters = []

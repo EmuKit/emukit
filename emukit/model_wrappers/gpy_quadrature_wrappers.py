@@ -3,20 +3,22 @@
 
 
 import numpy as np
-from typing import Tuple, List
+from typing import Tuple, List, Union
 
 from emukit.quadrature.interfaces.standard_kernels import IRBF
 from emukit.quadrature.interfaces import IBaseGaussianProcess
 from emukit.quadrature.kernels.quadrature_kernels import QuadratureKernel
-from emukit.quadrature.kernels.quadrature_rbf import QuadratureRBF
+from emukit.quadrature.kernels.quadrature_rbf import QuadratureRBF, QuadratureRBFIsoGaussMeasure, QuadratureRBFnoMeasure
+from emukit.quadrature.kernels.integration_measures import IntegrationMeasure, IsotropicGaussianMeasure, UniformMeasure
 
 
 class BaseGaussianProcessGPy(IBaseGaussianProcess):
     """
     Wrapper for GPy GPRegression
-    An instance of this can be passed as 'base_gp' to an ApproximateWarpedGPSurrogate object.
+    An instance of this can be passed as 'base_gp' to an WarpedBayesianQuadratureModel object.
 
-    If this GP is initialized with data, use the raw evaluations Y of the integrand and not transformed values.
+    Note that the GPy cannot take None as initial values for X and Y. Thus we initialize it with some values. These will
+    be re-set in the WarpedBayesianQuadratureModel.
     """
     def __init__(self, kern: QuadratureKernel, gpy_model, noise_free: bool=True):
         """
@@ -162,26 +164,57 @@ class RBFGPy(IRBF):
         return np.zeros((input_dim, num_points))
 
 
-def convert_gpy_model_to_emukit_model(gpy_model, integral_bounds: List[Tuple[float, float]], integral_name: str = '') \
+def convert_gpy_model_to_emukit_model(gpy_model, integral_bounds: Union[None, List[Tuple[float, float]]],
+                                      measure: Union[None, IntegrationMeasure], integral_name: str = '') \
         -> BaseGaussianProcessGPy:
     """
-    Wraps a GPy model and returns an emukit quadrature model
+    Wraps a GPy model and returns an emukit quadrature model.
 
     :param gpy_model: A GPy Gaussian process regression model, GPy.models.GPRegression
     :param integral_bounds: List of D tuples, where D is the dimensionality of the integral and the tuples contain the
-        lower and upper bounds of the integral i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)]
+    lower and upper bounds of the integral i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)]. None means infinite
+    bounds.
+    :param measure: an integration measure. None means no measure.
     :param integral_name: the (variable) name(s) of the integral
 
-    :return: emukit model for quadrature witg GPy backend (IBaseGaussianProcessGPy)
+    :return: emukit model for quadrature with GPy backend (IBaseGaussianProcessGPy)
     """
 
-    # wrap standard kernel and get quadrature kernel
-    if gpy_model.kern.name is 'rbf':
+    # wrap standard kernel
+    if gpy_model.kern.name == 'rbf':
         standard_kernel_emukit = RBFGPy(gpy_model.kern)
-        quadrature_kernel_emukit = QuadratureRBF(standard_kernel_emukit, integral_bounds=integral_bounds,
-                                                 integral_name=integral_name)
     else:
-        raise NotImplementedError("Only the GPy rbf-kernel is supported right now.")
+        raise ValueError('Only RBF kernel is supported. Got ', gpy_model.kern.name, ' instead.')
+
+    # check if measure and bounds fit together and wrap combination in a quadrature kernel
+    # infinite bounds and no measure. Can't do.
+    if (integral_bounds is None) and (measure is None):
+        raise ValueError('integral_bounds are infinite and measure is None. Choose either finite bounds or an '
+                         'appropriate integration measure.')
+
+    # infinite bounds. Gauss yes, uniform measure not implemented yet
+    elif (integral_bounds is None) and (measure is not None):
+        if isinstance(measure, UniformMeasure):
+            raise ValueError('Q-kernel for uniform measure not implemented yet.')
+        elif isinstance(measure, IsotropicGaussianMeasure):
+            quadrature_kernel_emukit = QuadratureRBFIsoGaussMeasure(rbf_kernel=standard_kernel_emukit,
+                                                                    measure=measure,
+                                                                    variable_names=integral_name)
+        else:
+            raise ValueError('Currently only IsotropicGaussianMeasure supported with these integral bounds.')
+
+    # finite bounds, no measure
+    elif (integral_bounds is not None) and (measure is None):
+        quadrature_kernel_emukit = QuadratureRBFnoMeasure(rbf_kernel=standard_kernel_emukit,
+                                                          integral_bounds=integral_bounds,
+                                                          variable_names=integral_name)
+
+    # finite bounds: measure: uniform only not implemented
+    else:
+        if isinstance(measure, UniformMeasure):
+            raise ValueError('Q-kernel for uniform measure and finite bounds not implemented yet.')
+        else:
+            raise ValueError('Currently only None measure supported with these integral bounds.')
 
     # wrap the base-gp model
     return BaseGaussianProcessGPy(kern=quadrature_kernel_emukit, gpy_model=gpy_model)
