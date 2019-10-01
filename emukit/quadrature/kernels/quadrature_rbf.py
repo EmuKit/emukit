@@ -218,4 +218,4 @@ class QuadratureRBFIsoGaussMeasure(QuadratureRBF):
         det_factor = (self.measure.variance / self.lengthscale ** 2 + 1) ** (self.input_dim / 2)
         scale_factor = self.lengthscale ** 2 + self.measure.variance
         factor = self.variance / (det_factor * scale_factor)
-        return factor * (x2 - self.measure.mean)
+        return factor * (x2 - self.measure.mean).T

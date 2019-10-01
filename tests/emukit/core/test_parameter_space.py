@@ -68,7 +68,7 @@ def test_duplicate_parameter_names_fail():
 
 
 def test_get_bounds(space_3d_mixed):
-    assert space_3d_mixed.get_box() == [(1., 5.), (1., 3.), (0, 1), (0, 1)]
+    assert space_3d_mixed.get_bounds() == [(1., 5.), (1., 3.), (0, 1), (0, 1)]
 
 
 class MockRandom:

@@ -49,8 +49,8 @@ acquisition_tests = [acquisition_test_tuple('negative_lower_confidence_bound_acq
 @pytest.fixture
 def vanilla_bq_model(gpy_model, continuous_space, n_dims):
     integral_bounds = continuous_space.get_bounds()
-    model = convert_gpy_model_to_emukit_model(gpy_model.model, integral_bounds)
-    return VanillaBayesianQuadrature(model)
+    model = convert_gpy_model_to_emukit_model(gpy_model.model, integral_bounds, None)
+    return VanillaBayesianQuadrature(model, model.X, model.Y)
 
 
 # Acquisition function fixtures

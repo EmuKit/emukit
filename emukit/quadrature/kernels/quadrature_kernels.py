@@ -40,7 +40,7 @@ class QuadratureKernel:
         if (integral_bounds is None) and (measure is None):
             raise ValueError('integral_bounds and measure are both None. At least one of them must be given.')
         if integral_bounds is None:
-            optimization_bounds = self.measure.get_box()
+            optimization_bounds = measure.get_box()
             self.integral_bounds = None
         else:
             optimization_bounds = integral_bounds

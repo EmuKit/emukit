@@ -7,7 +7,7 @@ import pytest
 import GPy
 from math import isclose
 
-from emukit.model_wrappers.gpy_quadrature_wrappers import QuadratureRBF, RBFGPy, BaseGaussianProcessGPy
+from emukit.model_wrappers.gpy_quadrature_wrappers import QuadratureRBFnoMeasure, RBFGPy, BaseGaussianProcessGPy
 from emukit.quadrature.methods import VanillaBayesianQuadrature
 from emukit.quadrature.acquisitions import MutualInformation, IntegralVarianceReduction
 
@@ -24,9 +24,9 @@ def model():
 
     gpy_kernel = GPy.kern.RBF(input_dim=x_init.shape[1])
     gpy_model = GPy.models.GPRegression(X=x_init, Y=y_init, kernel=gpy_kernel)
-    qrbf = QuadratureRBF(RBFGPy(gpy_kernel), integral_bounds=x_init.shape[1] * [(-3, 3)])
+    qrbf = QuadratureRBFnoMeasure(RBFGPy(gpy_kernel), integral_bounds=x_init.shape[1] * [(-3, 3)])
     basegp = BaseGaussianProcessGPy(kern=qrbf, gpy_model=gpy_model)
-    model = VanillaBayesianQuadrature(base_gp=basegp)
+    model = VanillaBayesianQuadrature(base_gp=basegp, X=x_init, Y=y_init)
     return model
 
 
