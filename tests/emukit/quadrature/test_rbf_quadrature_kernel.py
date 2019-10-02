@@ -4,13 +4,15 @@
 
 import numpy as np
 import GPy
+import pytest
 
 from emukit.model_wrappers.gpy_quadrature_wrappers import RBFGPy
 from emukit.quadrature.kernels import QuadratureRBFnoMeasure, QuadratureRBFIsoGaussMeasure
 from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure
 
 
-def test_rbf_qkernel_no_measure_shapes():
+@pytest.fixture
+def qrbf_no_measure():
     x1 = np.array([[-1, 1], [0, 0], [-2, 0.1]])
     x2 = np.array([[-1, 1], [0, 0], [-2, 0.1], [-3, 3]])
     M1 = x1.shape[0]
@@ -24,6 +26,26 @@ def test_rbf_qkernel_no_measure_shapes():
     gpy_kernel = GPy.kern.RBF(input_dim=D)
     emukit_rbf = RBFGPy(gpy_kernel)
     emukit_qrbf = QuadratureRBFnoMeasure(emukit_rbf, integral_bounds=D * [(lb, ub)])
+    return emukit_qrbf, x1, x2, M1, M2, D
+
+
+@pytest.fixture
+def qrbf_iso_gauss_measure():
+    x1 = np.array([[-1, 1], [0, 0], [-2, 0.1]])
+    x2 = np.array([[-1, 1], [0, 0], [-2, 0.1], [-3, 3]])
+    M1 = x1.shape[0]
+    M2 = x2.shape[0]
+    D = x1.shape[1]
+
+    gpy_kernel = GPy.kern.RBF(input_dim=D)
+    emukit_rbf = RBFGPy(gpy_kernel)
+    measure = IsotropicGaussianMeasure(mean=np.zeros(D), variance=1.)
+    emukit_qrbf = QuadratureRBFIsoGaussMeasure(rbf_kernel=emukit_rbf, measure=measure)
+    return emukit_qrbf, x1, x2, M1, M2, D
+
+
+def test_rbf_qkernel_no_measure_shapes():
+    emukit_qrbf, x1, x2, M1, M2, D = qrbf_no_measure()
 
     # kernel shapes
     assert emukit_qrbf.K(x1, x2).shape == (M1, M2)
@@ -37,16 +59,7 @@ def test_rbf_qkernel_no_measure_shapes():
 
 
 def test_rbf_qkernel_iso_gauss_shapes():
-    x1 = np.array([[-1, 1], [0, 0], [-2, 0.1]])
-    x2 = np.array([[-1, 1], [0, 0], [-2, 0.1], [-3, 3]])
-    M1 = x1.shape[0]
-    M2 = x2.shape[0]
-    D = x1.shape[1]
-
-    gpy_kernel = GPy.kern.RBF(input_dim=D)
-    emukit_rbf = RBFGPy(gpy_kernel)
-    measure = IsotropicGaussianMeasure(mean=np.zeros(D), variance=1.)
-    emukit_qrbf = QuadratureRBFIsoGaussMeasure(rbf_kernel=emukit_rbf, measure=measure)
+    emukit_qrbf, x1, x2, M1, M2, D = qrbf_iso_gauss_measure()
 
     # kernel shapes
     assert emukit_qrbf.K(x1, x2).shape == (M1, M2)

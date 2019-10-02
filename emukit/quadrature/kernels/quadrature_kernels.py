@@ -46,10 +46,10 @@ class QuadratureKernel:
             optimization_bounds = integral_bounds
             self.integral_bounds = BoxBounds(name=variable_names, bounds=integral_bounds)
 
-        self.optimization_bounds = BoxBounds(name=variable_names, bounds=optimization_bounds)
+        self.reasonable_box_bounds = BoxBounds(name=variable_names, bounds=optimization_bounds)
         self.kern = kern
         self.measure = measure
-        self.input_dim = self.optimization_bounds.dim
+        self.input_dim = self.reasonable_box_bounds.dim
 
     def K(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
         """

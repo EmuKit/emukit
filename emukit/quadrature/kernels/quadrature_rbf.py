@@ -8,7 +8,7 @@ from typing import List, Tuple, Union
 
 from .quadrature_kernels import QuadratureKernel
 from ...quadrature.interfaces.standard_kernels import IRBF
-from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure, IntegrationMeasure
+from ...quadrature.kernels.integration_measures import IsotropicGaussianMeasure, IntegrationMeasure
 
 
 class QuadratureRBF(QuadratureKernel):

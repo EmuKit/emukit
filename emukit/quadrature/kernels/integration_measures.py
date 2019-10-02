@@ -44,7 +44,7 @@ class UniformMeasure(IntegrationMeasure):
         super().__init__('UniformMeasure')
 
         # checks if lower bounds are smaller than upper bounds.
-        for bounds_d in self.bounds:
+        for bounds_d in bounds:
             lb_d, ub_d = bounds_d
             if lb_d >= ub_d:
                 raise ValueError("Upper bound of uniform measure must be larger than lower bound. Found a pair "
