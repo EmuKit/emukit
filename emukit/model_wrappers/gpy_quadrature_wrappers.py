@@ -119,11 +119,11 @@ class RBFGPy(IRBF):
 
     @property
     def lengthscale(self) -> np.float:
-        return self.gpy_rbf.lengthscale
+        return self.gpy_rbf.lengthscale[0]
 
     @property
     def variance(self) -> np.float:
-        return self.gpy_rbf.variance
+        return self.gpy_rbf.variance.values[0]
 
     def K(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
         """

@@ -215,7 +215,6 @@ class QuadratureRBFIsoGaussMeasure(QuadratureRBF):
         :param x2: points at which to evaluate, shape (n_point N, input_dim)
         :return: the gradient with shape (input_dim, N)
         """
-        det_factor = (self.measure.variance / self.lengthscale ** 2 + 1) ** (self.input_dim / 2)
-        scale_factor = self.lengthscale ** 2 + self.measure.variance
-        factor = self.variance / (det_factor * scale_factor)
-        return factor * (x2 - self.measure.mean).T
+        qK_x = self.qK(x2)
+        factor = 1. / (self.lengthscale ** 2 + self.measure.variance)
+        return - (qK_x * factor) * (x2 - self.measure.mean).T
