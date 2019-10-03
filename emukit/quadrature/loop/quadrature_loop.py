@@ -33,7 +33,7 @@ class VanillaBayesianQuadratureLoop(OuterLoop):
         if model_updater is None:
             model_updater = FixedIntervalUpdater(model, 1)
 
-        space = ParameterSpace(model.optimization_bounds.convert_to_list_of_continuous_parameters())
+        space = ParameterSpace(model.reasonable_box_bounds.convert_to_list_of_continuous_parameters())
         if acquisition_optimizer is None:
             acquisition_optimizer = GradientAcquisitionOptimizer(space)
         candidate_point_calculator = SequentialPointCalculator(acquisition, acquisition_optimizer)

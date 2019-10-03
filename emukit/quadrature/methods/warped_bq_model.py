@@ -47,7 +47,7 @@ class WarpedBayesianQuadratureModel(IModel):
         return self.base_gp.kern.integral_bounds
 
     @property
-    def optimization_bounds(self) -> BoxBounds:
+    def reasonable_box_bounds(self) -> BoxBounds:
         return self.base_gp.kern.reasonable_box_bounds
 
     @property
