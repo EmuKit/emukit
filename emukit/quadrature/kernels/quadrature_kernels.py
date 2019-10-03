@@ -34,9 +34,10 @@ class QuadratureKernel:
         :param variable_names: the (variable) name(s) of the integral
         """
 
-        # we define optimization bounds because the optimizer of the acquisition function requires finite bounds.
-        # The box is define by the integration measure. See each integration measure for details. Note that this only
-        # affects the optimizers. The integrals in this kernel will have infinite bounds still.
+        # we define reasonable box bounds for the integral because e.g., the optimizer of the acquisition function
+        # requires finite bounds. The box is defined by the integration measure. See each integration measure for
+        # details. Note that this only affects methods that use this box, e.g. the acqusition optimizers. The integrals
+        # in this kernel will have infinite bounds still.
         if (integral_bounds is None) and (measure is None):
             raise ValueError('integral_bounds and measure are both None. At least one of them must be given.')
         if integral_bounds is None:
