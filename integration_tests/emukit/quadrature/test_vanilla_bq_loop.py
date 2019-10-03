@@ -27,7 +27,7 @@ def test_vanilla_bq_loop():
                                                                                 lengthscale=1., variance=1.))
     emukit_qrbf = QuadratureRBFnoMeasure(RBFGPy(gpy_model.kern), integral_bounds=bounds)
     emukit_model = BaseGaussianProcessGPy(kern=emukit_qrbf, gpy_model=gpy_model)
-    emukit_method = VanillaBayesianQuadrature(base_gp=emukit_model)
+    emukit_method = VanillaBayesianQuadrature(base_gp=emukit_model, X=x_init, Y=y_init)
     emukit_loop = VanillaBayesianQuadratureLoop(model=emukit_method)
 
     num_iter = 5
@@ -47,7 +47,7 @@ def test_vanilla_bq_loop_initial_state():
                                                                                 lengthscale=1., variance=1.))
     emukit_qrbf = QuadratureRBFnoMeasure(RBFGPy(gpy_model.kern), integral_bounds=bounds)
     emukit_model = BaseGaussianProcessGPy(kern=emukit_qrbf, gpy_model=gpy_model)
-    emukit_method = VanillaBayesianQuadrature(base_gp=emukit_model)
+    emukit_method = VanillaBayesianQuadrature(base_gp=emukit_model, X=x_init, Y=y_init)
     emukit_loop = VanillaBayesianQuadratureLoop(model=emukit_method)
 
     assert_array_equal(emukit_loop.loop_state.X, x_init)
