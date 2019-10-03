@@ -44,8 +44,8 @@ def qrbf_iso_gauss_measure():
     return emukit_qrbf, x1, x2, M1, M2, D
 
 
-def test_rbf_qkernel_no_measure_shapes():
-    emukit_qrbf, x1, x2, M1, M2, D = qrbf_no_measure()
+def test_rbf_qkernel_no_measure_shapes(qrbf_no_measure):
+    emukit_qrbf, x1, x2, M1, M2, D = qrbf_no_measure
 
     # kernel shapes
     assert emukit_qrbf.K(x1, x2).shape == (M1, M2)
@@ -58,8 +58,8 @@ def test_rbf_qkernel_no_measure_shapes():
     assert emukit_qrbf.dqK_dx(x2).shape == (D, M2)
 
 
-def test_rbf_qkernel_iso_gauss_shapes():
-    emukit_qrbf, x1, x2, M1, M2, D = qrbf_iso_gauss_measure()
+def test_rbf_qkernel_iso_gauss_shapes(qrbf_iso_gauss_measure):
+    emukit_qrbf, x1, x2, M1, M2, D = qrbf_iso_gauss_measure
 
     # kernel shapes
     assert emukit_qrbf.K(x1, x2).shape == (M1, M2)

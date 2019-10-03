@@ -52,5 +52,3 @@ def test_iso_gauss_measure_invalid_input():
 
     with pytest.raises(ValueError):
         IsotropicGaussianMeasure(mean=np.ones(3), variance=variance)
-
-
