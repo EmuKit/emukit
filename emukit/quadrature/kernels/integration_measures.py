@@ -69,7 +69,13 @@ class UniformMeasure(IntegrationMeasure):
         :param x: points at which density is computes, shape (num_points, dim)
         :return: the density at x, shape (num_points, )
         """
-        return np.ones(x.shape[0]) * self.density
+        # check if points are inside the box
+        bounds_lower = np.array([b[0] for b in self.bounds])
+        bounds_upper = np.array([b[1] for b in self.bounds])
+        inside_lower = 1 - (x < bounds_lower)
+        inside_upper = 1 - (x > bounds_upper)
+        inside_upper_lower = (inside_lower * inside_upper).sum(axis=1) == x.shape[1]
+        return inside_upper_lower * self.density
 
     def get_box(self) -> List[Tuple[float, float]]:
         """
