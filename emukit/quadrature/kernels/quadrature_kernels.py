@@ -41,13 +41,13 @@ class QuadratureKernel:
         if (integral_bounds is None) and (measure is None):
             raise ValueError('integral_bounds and measure are both None. At least one of them must be given.')
         if integral_bounds is None:
-            optimization_bounds = measure.get_box()
+            reasonable_box_bounds = measure.get_box()
             self.integral_bounds = None
         else:
-            optimization_bounds = integral_bounds
+            reasonable_box_bounds = integral_bounds
             self.integral_bounds = BoxBounds(name=variable_names, bounds=integral_bounds)
 
-        self.reasonable_box_bounds = BoxBounds(name=variable_names, bounds=optimization_bounds)
+        self.reasonable_box_bounds = BoxBounds(name=variable_names, bounds=reasonable_box_bounds)
         self.kern = kern
         self.measure = measure
         self.input_dim = self.reasonable_box_bounds.dim
