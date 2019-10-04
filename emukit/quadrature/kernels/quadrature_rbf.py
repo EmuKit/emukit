@@ -218,3 +218,69 @@ class QuadratureRBFIsoGaussMeasure(QuadratureRBF):
         qK_x = self.qK(x2)
         factor = 1. / (self.lengthscale ** 2 + self.measure.variance)
         return - (qK_x * factor) * (x2 - self.measure.mean).T
+
+
+class QuadratureRBFUniformMeasure(QuadratureRBF):
+    """
+    And RBF kernel with integrability over no measure. Can only be used with finite integral bounds.
+
+    Note that each standard kernel goes with a corresponding quadrature kernel, in this case QuadratureRBF
+    """
+
+    def __init__(self, rbf_kernel: IRBF, integral_bounds: Union[None, List[Tuple[float, float]]], variable_names: str= '') -> None:
+        """
+        :param rbf_kernel: standard emukit rbf-kernel
+        :param integral_bounds: defines the domain of the integral. List of D tuples, where D is the dimensionality
+        of the integral and the tuples contain the lower and upper bounds of the integral
+        i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)]
+        :param variable_names: the (variable) name(s) of the integral
+        """
+        super().__init__(rbf_kernel=rbf_kernel, integral_bounds=integral_bounds, measure=None,
+                         variable_names=variable_names)
+
+    def qK(self, x2: np.ndarray) -> np.ndarray:
+        """
+        RBF kernel with the first component integrated out aka. kernel mean
+
+        :param x2: remaining argument of the once integrated kernel, shape (n_point N, input_dim)
+        :returns: kernel mean at location x2, shape (1, N)
+        """
+        lower_bounds = self.integral_bounds.lower_bounds
+        upper_bounds = self.integral_bounds.upper_bounds
+        erf_lo = erf(self._scaled_vector_diff(lower_bounds, x2))
+        erf_up = erf(self._scaled_vector_diff(upper_bounds, x2))
+        kernel_mean = self.variance * (self.lengthscale * np.sqrt(np.pi / 2.) * (erf_up - erf_lo)).prod(axis=1)
+
+        return kernel_mean.reshape(1, -1)
+
+    def qKq(self) -> np.float:
+        """
+        RBF kernel integrated over both arguments x1 and x2
+
+        :returns: double integrated kernel
+        """
+        lower_bounds = self.integral_bounds.lower_bounds
+        upper_bounds = self.integral_bounds.upper_bounds
+        prefac = self.variance * (2. * self.lengthscale**2)**self.input_dim
+        diff_bounds_scaled = self._scaled_vector_diff(upper_bounds, lower_bounds)
+        exp_term = np.exp(-diff_bounds_scaled**2) - 1.
+        erf_term = erf(diff_bounds_scaled) * diff_bounds_scaled * np.sqrt(np.pi)
+
+        return np.float(prefac * (exp_term + erf_term).prod())
+
+    def dqK_dx(self, x2: np.ndarray) -> np.ndarray:
+        """
+        gradient of the kernel mean (integrated in first argument) evaluated at x2
+        :param x2: points at which to evaluate, shape (n_point N, input_dim)
+        :return: the gradient with shape (input_dim, N)
+        """
+        lower_bounds = self.integral_bounds.lower_bounds
+        upper_bounds = self.integral_bounds.upper_bounds
+        exp_lo = np.exp(- self._scaled_vector_diff(x2, lower_bounds) ** 2)
+        exp_up = np.exp(- self._scaled_vector_diff(x2, upper_bounds) ** 2)
+        erf_lo = erf(self._scaled_vector_diff(lower_bounds, x2))
+        erf_up = erf(self._scaled_vector_diff(upper_bounds, x2))
+
+        fraction = ((exp_lo - exp_up) / (self.lengthscale * np.sqrt(np.pi / 2.) * (erf_up - erf_lo))).T
+
+        return self.qK(x2) * fraction
