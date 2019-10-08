@@ -22,7 +22,7 @@ def vanilla_bq():
     X = np.array([[-1, 1], [0, 0], [-2, 0.1]])
     Y = np.array([[1], [2], [3]])
     D = X.shape[1]
-    integral_bounds = D * [(-3, 3)]
+    integral_bounds = [(-1, 2), (-3, 3)]
 
     gpy_model = GPy.models.GPRegression(X=X, Y=Y, kernel=GPy.kern.RBF(input_dim=D))
     qrbf = QuadratureRBFnoMeasure(RBFGPy(gpy_model.kern), integral_bounds=integral_bounds)
@@ -107,3 +107,17 @@ def test_vanilla_bq_model():
     # bounds should be done with care.
     assert method.integral_bounds == mock_bounds
     assert method.integral_parameters == 2 * [mock_cparam]
+
+
+def test_vanilla_bq_integrate(vanilla_bq):
+    # to check the integral, we check if it lies in some confidence interval.
+    # these intervals were computed as follows: the mean vanilla_bq.predict (first argument) was integrated by
+    # simple random sampling with 1e6 samples, and the variance (second argument) with 5*1e3 samples. This was done 100
+    # times. The intervals show mean\pm 3 std of the 100 integrals obtained by sampling. There might be a very small
+    # chance the true integrals lies outside the specified intervals.
+    interval_mean = [10.020723475428762, 10.09043533562786]
+    interval_var = [41.97715934990283, 46.23549367612568]
+
+    integral_value, integral_variance = vanilla_bq.integrate()
+    assert interval_mean[0] < integral_value < interval_mean[1]
+    assert interval_var[0] < integral_variance < interval_var[1]
