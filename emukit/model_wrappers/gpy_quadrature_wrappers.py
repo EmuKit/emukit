@@ -9,7 +9,8 @@ import GPy
 from emukit.quadrature.interfaces.standard_kernels import IRBF
 from emukit.quadrature.interfaces import IBaseGaussianProcess
 from emukit.quadrature.kernels.quadrature_kernels import QuadratureKernel
-from emukit.quadrature.kernels.quadrature_rbf import QuadratureRBFIsoGaussMeasure, QuadratureRBFnoMeasure
+from emukit.quadrature.kernels.quadrature_rbf import QuadratureRBFIsoGaussMeasure, QuadratureRBFnoMeasure, \
+    QuadratureRBFUniformMeasure
 from emukit.quadrature.kernels.integration_measures import IntegrationMeasure, IsotropicGaussianMeasure, UniformMeasure
 
 
@@ -199,13 +200,17 @@ def create_emukit_model_from_gpy_model(gpy_model: GPy.models.GPRegression,
     # infinite bounds. Gauss yes, uniform measure not implemented yet
     elif (integral_bounds is None) and (measure is not None):
         if isinstance(measure, UniformMeasure):
-            raise ValueError('Q-kernel for uniform measure not implemented yet.')
+            quadrature_kernel_emukit = QuadratureRBFUniformMeasure(rbf_kernel=standard_kernel_emukit,
+                                                                   integral_bounds=integral_bounds,
+                                                                   measure=measure,
+                                                                   variable_names=integral_name)
         elif isinstance(measure, IsotropicGaussianMeasure):
             quadrature_kernel_emukit = QuadratureRBFIsoGaussMeasure(rbf_kernel=standard_kernel_emukit,
                                                                     measure=measure,
                                                                     variable_names=integral_name)
         else:
-            raise ValueError('Currently only IsotropicGaussianMeasure supported with infinite integral bounds.')
+            raise ValueError('Currently only IsotropicGaussianMeasure and UniformMeasure supported with infinite '
+                             'integral bounds.')
 
     # finite bounds, no measure
     elif (integral_bounds is not None) and (measure is None):
@@ -216,9 +221,12 @@ def create_emukit_model_from_gpy_model(gpy_model: GPy.models.GPRegression,
     # finite bounds: measure: uniform only not implemented
     else:
         if isinstance(measure, UniformMeasure):
-            raise ValueError('Q-kernel for uniform measure and finite bounds not implemented yet.')
+            quadrature_kernel_emukit = QuadratureRBFUniformMeasure(rbf_kernel=standard_kernel_emukit,
+                                                                   integral_bounds=integral_bounds,
+                                                                   measure=measure,
+                                                                   variable_names=integral_name)
         else:
-            raise ValueError('Currently only measure=None is supported with these integral bounds.')
+            raise ValueError('Currently only measure=None and UniformMeasure is supported with these integral bounds.')
 
     # wrap the base-gp model
     return BaseGaussianProcessGPy(kern=quadrature_kernel_emukit, gpy_model=gpy_model)
