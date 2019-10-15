@@ -37,8 +37,7 @@ class BoxBounds:
         lower and upper bounds of the box i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)]
         """
         if not len(new_bounds) == self.dim:
-            raise ValueError('Length of new box bounds is ' + str(len(new_bounds)) + ' (length ' + str(self.dim)
-                             + ' expected).')
+            raise ValueError('Length of new box bounds is {} (length {} expected).'.format(len(new_bounds), self.dim))
 
         self._check_bound_validity(new_bounds)
         self._bounds = new_bounds
@@ -55,8 +54,8 @@ class BoxBounds:
         for bounds_d in bounds:
             lb_d, ub_d = bounds_d
             if lb_d >= ub_d:
-                raise ValueError("Upper box bound must be larger than lower bound. Found a pair containing ("
-                                 + str(lb_d) + ", " + str(ub_d) + ").")
+                raise ValueError("Upper box bound must be larger than lower bound. Found a pair containing ({}, "
+                                 "{}).".format(lb_d, ub_d))
 
     def get_lower_and_upper_bounds(self) -> Tuple[np.ndarray, np.ndarray]:
         """

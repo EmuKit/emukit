@@ -8,7 +8,6 @@ from typing import Tuple
 
 from ...quadrature.interfaces.base_gp import IBaseGaussianProcess
 from .warped_bq_model import WarpedBayesianQuadratureModel
-from emukit.quadrature.kernels.integration_measures import UniformMeasure
 
 
 class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel):

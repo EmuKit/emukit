@@ -3,7 +3,7 @@
 
 
 import numpy as np
-from typing import List, Tuple, Union
+from typing import List, Tuple, Optional
 
 from ...quadrature.interfaces.standard_kernels import IStandardKernel
 from .bounds import BoxBounds
@@ -21,9 +21,8 @@ class QuadratureKernel:
     An example of a specific QuadratureKernel and IStandardKernel pair is QuadratureRBF and IRBF.
     """
 
-    def __init__(self, kern: IStandardKernel, integral_bounds: Union[None, List[Tuple[float, float]]],
-                 measure: Union[None, IntegrationMeasure], variable_names: str= '') \
-            -> None:
+    def __init__(self, kern: IStandardKernel, integral_bounds: Optional[List[Tuple[float, float]]],
+                 measure: Optional[IntegrationMeasure], variable_names: str='') -> None:
         """
         :param kern: standard emukit kernel
         :param integral_bounds: defines the domain of the integral. List of D tuples, where D is the dimensionality
