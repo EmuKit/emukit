@@ -4,7 +4,7 @@
 
 import numpy as np
 from scipy.special import erf
-from typing import List, Tuple, Union
+from typing import List, Tuple, Optional
 
 from .quadrature_kernels import QuadratureKernel
 from ...quadrature.interfaces.standard_kernels import IRBF
@@ -19,8 +19,8 @@ class QuadratureRBF(QuadratureKernel):
     Note 2: each child of this class implements a unique measure-integralBounds pair
     """
 
-    def __init__(self, rbf_kernel: IRBF, integral_bounds: Union[None, List[Tuple[float, float]]],
-                 measure: Union[None, IntegrationMeasure], variable_names: str= '') -> None:
+    def __init__(self, rbf_kernel: IRBF, integral_bounds: Optional[List[Tuple[float, float]]],
+                 measure: Optional[IntegrationMeasure], variable_names: str= '') -> None:
         """
         :param rbf_kernel: standard emukit rbf-kernel
         :param integral_bounds: defines the domain of the integral. List of D tuples, where D is the dimensionality

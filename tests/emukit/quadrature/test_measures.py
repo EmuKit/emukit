@@ -48,7 +48,15 @@ def test_iso_gauss_measure_shapes():
 
 
 def test_iso_gauss_measure_invalid_input():
-    variance = -2.
+    wrong_variance = -2.
+    mean_wrong_dim = np.ones([3, 1])
+    mean_wrong_type = 0.
 
     with pytest.raises(ValueError):
-        IsotropicGaussianMeasure(mean=np.ones(3), variance=variance)
+        IsotropicGaussianMeasure(mean=np.ones(3), variance=wrong_variance)
+
+    with pytest.raises(TypeError):
+        IsotropicGaussianMeasure(mean=mean_wrong_type, variance=1.)
+
+    with pytest.raises(ValueError):
+        IsotropicGaussianMeasure(mean=mean_wrong_dim, variance=1.)

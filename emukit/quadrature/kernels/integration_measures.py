@@ -18,7 +18,7 @@ class IntegrationMeasure:
     def compute_density(self, x: np.ndarray) -> np.ndarray:
         """
         Computes the density at point x
-        :param x: points at which density is computes, shape (num_points, dim)
+        :param x: points at which density is computed, shape (num_points, dim)
         :return: the density at x, shape (num_points, )
         """
         raise NotImplementedError
@@ -44,11 +44,10 @@ class UniformMeasure(IntegrationMeasure):
         super().__init__('UniformMeasure')
 
         # checks if lower bounds are smaller than upper bounds.
-        for bounds_d in bounds:
-            lb_d, ub_d = bounds_d
+        for (lb_d, ub_d) in bounds:
             if lb_d >= ub_d:
                 raise ValueError("Upper bound of uniform measure must be larger than lower bound. Found a pair "
-                                 "containing (" + str(lb_d) + ", " + str(ub_d) + ").")
+                                 "containing ({}, {}).".format(lb_d, ub_d))
 
         self.bounds = bounds
         # uniform measure has constant density which is computed here.
@@ -58,18 +57,26 @@ class UniformMeasure(IntegrationMeasure):
         differences = np.array([x[1] - x[0] for x in self.bounds])
         volume = np.prod(differences)
 
-        if not volume > 0:
-            raise NumericalPrecisionError("Domain volume of uniform measure is not positive. Its value is "
-                                          + str(volume) + ". It might be numerical problems...")
-        return np.float(1. / volume)
+        if volume <= 0:
+            raise NumericalPrecisionError("Domain volume of uniform measure is not positive. Its value is {}.".format(
+                volume))
+        return float(1. / volume)
 
     def compute_density(self, x: np.ndarray) -> np.ndarray:
         """
         Computes the density at point x
-        :param x: points at which density is computes, shape (num_points, dim)
+        :param x: points at which density is computed, shape (num_points, dim)
         :return: the density at x, shape (num_points, )
         """
-        return np.ones(x.shape[0]) * self.density
+        # compute density: (i) check if points are inside the box. (ii) multiply this bool value with density.
+        bounds_lower = np.array([b[0] for b in self.bounds])
+        bounds_upper = np.array([b[1] for b in self.bounds])
+        inside_lower = 1 - (x < bounds_lower)  # contains 1 if element in x is above its lower bound, 0 otherwise
+        inside_upper = 1 - (x > bounds_upper)  # contains 1 if element in x is below its upper bound, 0 otherwise
+        # contain True if element in x is inside box, False otherwise. This array multiplied with the constant density
+        # as done in the return statement yields self.density for a point inside the box and 0 otherwise.
+        inside_upper_lower = (inside_lower * inside_upper).sum(axis=1) == x.shape[1]
+        return inside_upper_lower * self.density
 
     def get_box(self) -> List[Tuple[float, float]]:
         """
@@ -92,17 +99,17 @@ class IsotropicGaussianMeasure(IntegrationMeasure):
         super().__init__('GaussianMeasure')
         # check mean
         if not isinstance(mean, np.ndarray):
-            raise TypeError('Mean must be of type numpy.ndarray, ' + str(type(mean)) + ' given.')
+            raise TypeError('Mean must be of type numpy.ndarray, {} given.'.format(type(mean)))
 
         if mean.ndim != 1:
-            raise ValueError('Dimension of mean must be 1, dimension ' + str(mean.ndim) + ' given.')
+            raise ValueError('Dimension of mean must be 1, dimension {} given.'.format(mean.ndim))
 
         # check covariance
         if not isinstance(variance, float):
-            raise TypeError('Variance must be of type float, ' + str(type(variance)) + ' given.')
+            raise TypeError('Variance must be of type float, {} given.'.format(type(variance)))
 
         if not variance > 0:
-            raise ValueError('Variance must be positive, current value is ', variance, '.')
+            raise ValueError('Variance must be positive, current value is {}.'.format(variance))
 
         self.mean = mean
         self.variance = variance
@@ -115,7 +122,7 @@ class IsotropicGaussianMeasure(IntegrationMeasure):
     def compute_density(self, x: np.ndarray) -> np.ndarray:
         """
         Computes the density at point x
-        :param x: points at which density is computes, shape (num_points, dim)
+        :param x: points at which density is computed, shape (num_points, dim)
         :return: the density at x, shape (num_points, )
         """
         factor = (2 * np.pi * self.variance) ** (self.dim / 2)
@@ -129,12 +136,13 @@ class IsotropicGaussianMeasure(IntegrationMeasure):
         :return: box in which the measure lies. List of D tuples, where D is the dimensionality and the tuples contain
         the lower and upper bounds of the box i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)]
         """
-        # Note: the factor 10 is pretty arbitrary here. Investigate if we can find a formula that adapts to
-        # higher dimensions where most of the volume is located in a sphere rather than around the mean.
+        # Note: the factor 10 is somewhat arbitrary but well motivated. If this method is used to get a box for
+        # data-collection, the box will be 2x 10 standard deviations wide in all directions, centered around the mean.
+        # Outside the box the density is virtually zero.
         factor = 10
         lower = self.mean - factor * np.sqrt(self.variance)
         upper = self.mean + factor * np.sqrt(self.variance)
-        return [(lb, up) for lb, up in zip(lower, upper)]
+        return list(zip(lower, upper))
 
 
 class NumericalPrecisionError(Exception):

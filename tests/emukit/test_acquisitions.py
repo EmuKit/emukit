@@ -17,7 +17,7 @@ from emukit.core.acquisition.acquisition_per_cost import CostAcquisition
 from emukit.bayesian_optimization.acquisitions import ProbabilityOfImprovement
 from emukit.bayesian_optimization.acquisitions import ProbabilityOfFeasibility
 from emukit.experimental_design.model_based.acquisitions import ModelVariance, IntegratedVarianceReduction
-from emukit.model_wrappers.gpy_quadrature_wrappers import convert_gpy_model_to_emukit_model
+from emukit.model_wrappers.gpy_quadrature_wrappers import create_emukit_model_from_gpy_model
 from emukit.quadrature.acquisitions import SquaredCorrelation, MutualInformation
 from emukit.quadrature.methods import VanillaBayesianQuadrature
 
@@ -49,7 +49,7 @@ acquisition_tests = [acquisition_test_tuple('negative_lower_confidence_bound_acq
 @pytest.fixture
 def vanilla_bq_model(gpy_model, continuous_space, n_dims):
     integral_bounds = continuous_space.get_bounds()
-    model = convert_gpy_model_to_emukit_model(gpy_model.model, integral_bounds, None)
+    model = create_emukit_model_from_gpy_model(gpy_model.model, integral_bounds, None)
     return VanillaBayesianQuadrature(model, model.X, model.Y)
 
 
