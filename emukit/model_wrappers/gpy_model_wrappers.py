@@ -7,12 +7,12 @@ from typing import Tuple
 import numpy as np
 import GPy
 
-from ..core.interfaces import IModel, IDifferentiable, IPriorHyperparameters
+from ..core.interfaces import IModel, IDifferentiable, IJointlyDifferentiable, IPriorHyperparameters
 from ..experimental_design.interfaces import ICalculateVarianceReduction
 from ..bayesian_optimization.interfaces import IEntropySearchModel
 
 
-class GPyModelWrapper(IModel, IDifferentiable, ICalculateVarianceReduction, IEntropySearchModel, IPriorHyperparameters):
+class GPyModelWrapper(IModel, IDifferentiable, IJointlyDifferentiable, ICalculateVarianceReduction, IEntropySearchModel, IPriorHyperparameters):
     """
     This is a thin wrapper around GPy models to allow users to plug GPy models into Emukit
     """
@@ -24,12 +24,13 @@ class GPyModelWrapper(IModel, IDifferentiable, ICalculateVarianceReduction, IEnt
         self.model = gpy_model
         self.n_restarts = n_restarts
 
-    def predict(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    def predict(self, X: np.ndarray, full_cov: bool = False) -> Tuple[np.ndarray, np.ndarray]:
         """
         :param X: (n_points x n_dimensions) array containing locations at which to get predictions
+        :param full_cov: boolean value indicating whether or not the full covariance matrix should be returned
         :return: (mean, variance) Arrays of size n_points x 1 of the predictive distribution at each input location
         """
-        return self.model.predict(X)
+        return self.model.predict(X, full_cov=full_cov)
 
     def get_prediction_gradients(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
@@ -39,6 +40,19 @@ class GPyModelWrapper(IModel, IDifferentiable, ICalculateVarianceReduction, IEnt
         """
         d_mean_dx, d_variance_dx = self.model.predictive_gradients(X)
         return d_mean_dx[:, :, 0], d_variance_dx
+
+    def get_joint_prediction_gradients(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Computes and returns model gradients of mean and full covariance matrix at given points
+
+        :param X: points to compute gradients at, nd array of shape (q, d)
+        :return: Tuple with first item being gradient of the mean of shape (q) at X with respect to X (return shape is (q, q, d)).
+                 The second item is the gradient of the full covariance matrix of shape (q, q) at X with respect to X
+                 (return shape is (q, q, q, d)).
+        """
+        dmean_dx = dmean(X, self.model.X, self.model.kern, self.model.posterior.woodbury_vector[:, 0])
+        dvariance_dx = dSigma(X, self.model.X, self.model.kern, self.model.posterior.woodbury_inv)
+        return dmean_dx, dvariance_dx
 
     def set_data(self, X: np.ndarray, Y: np.ndarray) -> None:
         """
@@ -132,6 +146,55 @@ class GPyModelWrapper(IModel, IDifferentiable, ICalculateVarianceReduction, IEnt
         self.model._trigger_params_changed()
 
 
+def dSigma(x: np.ndarray, X: np.ndarray, kern: GPy.kern, w_inv: np.ndarray) -> np.ndarray:
+    """
+    Compute the derivative of the posterior covariance with respect to the prediction input
+
+    :param x: Prediction inputs of shape (q, d)
+    :param X: Training inputs of shape (n, d)
+    :param kern: Covariance of the GP model
+    :param w_inv: Woodbury inverse of the posterior fit of the GP
+    :return: Gradient of the posterior covariance of shape (q, q, q, d)
+    """
+    q, d, n = x.shape[0], x.shape[1], X.shape[0]
+    dkxX_dx = np.empty((q, n, d))
+    dkxx_dx = np.empty((q, q, d))
+    for i in range(d):
+        dkxX_dx[:, :, i] = kern.dK_dX(x, X, i)
+        dkxx_dx[:, :, i] = kern.dK_dX(x, x, i)
+    K = kern.K(x, X)
+
+    dsigma = np.zeros((q, q, q, d))
+    for i in range(q):
+        for j in range(d):
+            Ks = np.zeros((q, n))
+            Ks[i, :] = dkxX_dx[i, :, j]
+            dKss_dxi = np.zeros((q, q))
+            dKss_dxi[i, :] = dkxx_dx[i, :, j]
+            dKss_dxi[:, i] = dkxx_dx[i, :, j].T
+            dKss_dxi[i, i] = 0
+            dsigma[:, :, i, j] = dKss_dxi - Ks @ w_inv @ K.T - K @ w_inv @ Ks.T
+    return dsigma
+
+
+def dmean(x: np.ndarray, X: np.ndarray, kern: GPy.kern, w_vec: np.ndarray) -> np.ndarray:
+    """
+    Compute the derivative of the posterior mean with respect to prediction input
+
+    :param x: Prediction inputs of shape (q, d)
+    :param X: Training inputs of shape (n, d)
+    :param kern: Covariance of the GP model
+    :param w_inv: Woodbury vector of the posterior fit of the GP
+    :return: Gradient of the posterior mean of shape (q, q, d)
+    """
+    q, d, n = x.shape[0], x.shape[1], X.shape[0]
+    dkxX_dx = np.empty((q, n, d))
+    dmu = np.zeros((q, q, d))
+    for i in range(d):
+        dkxX_dx[:, :, i] = kern.dK_dX(x, X, i)
+        for j in range(q):
+            dmu[j, j, i] = (dkxX_dx[j, :, i][None, :] @ w_vec[:, None]).flatten()
+    return dmu
 
 class GPyMultiOutputWrapper(IModel, IDifferentiable, ICalculateVarianceReduction, IEntropySearchModel):
     """
