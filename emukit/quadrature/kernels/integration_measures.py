@@ -7,7 +7,7 @@ from typing import Tuple, List
 
 
 class IntegrationMeasure:
-    """An integration measure"""
+    """An abstract class for an integration measure"""
 
     def __init__(self, name: str):
         """
@@ -89,7 +89,12 @@ class UniformMeasure(IntegrationMeasure):
 
 
 class IsotropicGaussianMeasure(IntegrationMeasure):
-    """The isotropic Gaussian measure"""
+    """
+    The isotropic Gaussian measure.
+
+    An isotropic Gaussian is a Gaussian with scalar co-variance matrix. The density is
+    :math:`p(x)=(2\pi\sigma^2)^{-\frac{D}{2}} e^{-\frac{1}{2}\frac{\|x-\mu\|^2}{\sigma^2}}`
+    """
 
     def __init__(self, mean: np.ndarray, variance: float):
         """
