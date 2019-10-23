@@ -9,8 +9,8 @@ import GPy
 from typing import List, Tuple
 
 from emukit.model_wrappers.gpy_quadrature_wrappers import RBFGPy
-from emukit.quadrature.kernels import QuadratureRBFnoMeasure, QuadratureRBFIsoGaussMeasure
-from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure
+from emukit.quadrature.kernels import QuadratureRBFnoMeasure, QuadratureRBFIsoGaussMeasure, QuadratureRBFUniformMeasure
+from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure, UniformMeasure
 from emukit.quadrature.methods import VanillaBayesianQuadrature
 
 
@@ -41,6 +41,13 @@ def qK_no_measure(num_samples: int, qrbf: QuadratureRBFnoMeasure, x2: np.ndarray
 
 def qK_gauss_iso(num_samples: int, measure: IsotropicGaussianMeasure, qrbf: QuadratureRBFIsoGaussMeasure, x2: np.ndarray):
     samples = _sample_gauss_iso(num_samples, measure)
+    Kx = qrbf.K(samples, x2)
+    return np.mean(Kx, axis=0)
+
+
+def qK_uniform(num_samples: int, qrbf: QuadratureRBFIsoGaussMeasure, x2: np.ndarray):
+    bounds = qrbf.reasonable_box_bounds.bounds
+    samples = _sample_uniform(num_samples, bounds)
     Kx = qrbf.K(samples, x2)
     return np.mean(Kx, axis=0)
 
@@ -84,8 +91,9 @@ if __name__ == "__main__":
     np.random.seed(0)
 
     # === Choose MEASURE BELOW ======
-    MEASURE = 'None'
+    #MEASURE = 'None'
     #MEASURE = 'GaussIso'
+    MEASURE = 'Uniform'
     # === CHOOSE MEASURE ABOVE ======
 
     x1 = np.array([[-1, 1], [0, 0], [-2, 0.1]])
@@ -97,13 +105,18 @@ if __name__ == "__main__":
     gpy_kernel = GPy.kern.RBF(input_dim=D)
     emukit_rbf = RBFGPy(gpy_kernel)
 
-    if MEASURE == 'None':
+    if MEASURE == 'None-finite':
         bounds = [(-1, 2), (-3, 3)]  # integral bounds
         emukit_qrbf = QuadratureRBFnoMeasure(emukit_rbf, integral_bounds=bounds)
 
     elif MEASURE == 'GaussIso':
         measure = IsotropicGaussianMeasure(mean=np.arange(D), variance=2.)
         emukit_qrbf = QuadratureRBFIsoGaussMeasure(rbf_kernel=emukit_rbf, measure=measure)
+    elif MEASURE == 'Uniform':
+        integral_bounds = [(-1, 2), (-3, 3)]
+        measure_bounds = [(0, 2), (-4, 3)]
+        measure = UniformMeasure(bounds=measure_bounds)
+        emukit_qrbf = QuadratureRBFUniformMeasure(emukit_rbf, integral_bounds=integral_bounds, measure=measure)
     else:
         raise ValueError('Measure not defined.')
 
@@ -126,6 +139,8 @@ if __name__ == "__main__":
             qK_samples = qK_no_measure(num_samples, emukit_qrbf, x2)
         elif MEASURE == 'GaussIso':
             qK_samples = qK_gauss_iso(num_samples, measure, emukit_qrbf, x2)
+        elif MEASURE == 'Uniform':
+            qK_samples = qK_uniform(num_samples, measure, emukit_qrbf, x2)
         else:
             raise ValueError('Measure not defined')
 
@@ -154,6 +169,8 @@ if __name__ == "__main__":
             qKq_samples = qKq_no_measure(num_samples, emukit_qrbf)
         elif MEASURE == 'GaussIso':
             qKq_samples = qKq_gauss_iso(num_samples, measure, emukit_qrbf)
+        elif MEASURE == 'Uniform':
+            qKq_samples = qKq_uniform(num_samples, measure, emukit_qrbf)
         else:
             raise ValueError('Measure not defined')
 
