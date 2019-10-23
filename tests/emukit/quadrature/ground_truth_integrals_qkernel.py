@@ -11,7 +11,6 @@ from typing import List, Tuple
 from emukit.model_wrappers.gpy_quadrature_wrappers import RBFGPy
 from emukit.quadrature.kernels import QuadratureRBFnoMeasure, QuadratureRBFIsoGaussMeasure
 from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure
-from emukit.quadrature.methods import VanillaBayesianQuadrature
 
 
 # samplers
@@ -59,25 +58,6 @@ def qKq_gauss_iso(num_samples: int, measure: IsotropicGaussianMeasure, qrbf: Qua
     samples = _sample_gauss_iso(num_samples, measure)
     qKx = qrbf.qK(samples)
     return np.mean(qKx)
-
-
-# integral mean and variance
-def integral_mean_uniform(num_samples: int, model: VanillaBayesianQuadrature):
-    bounds = model.integral_bounds.bounds
-    samples = _sample_uniform(num_samples, bounds)
-    gp_mean_at_samples, _ = model.predict(samples)
-    differences = np.array([x[1] - x[0] for x in bounds])
-    volume = np.prod(differences)
-    return np.mean(gp_mean_at_samples) * volume
-
-
-def integral_var_uniform(num_samples: int, model: VanillaBayesianQuadrature):
-    bounds = model.integral_bounds.bounds
-    samples = _sample_uniform(num_samples, bounds)
-    _, gp_cov_at_samples = model.predict_with_full_covariance(samples)
-    differences = np.array([x[1] - x[0] for x in bounds])
-    volume = np.prod(differences)
-    return np.sum(gp_cov_at_samples) * (volume / num_samples) ** 2
 
 
 if __name__ == "__main__":
