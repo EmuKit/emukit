@@ -83,7 +83,9 @@ class OuterLoop(object):
 
             self._update_models()
             new_x = self.candidate_point_calculator.compute_next_points(self.loop_state, context)
+            _log.debug("Next suggested point(s): {}".format(new_x))
             results = user_function.evaluate(new_x)
+            _log.debug("User function returned: {}".format(results))
             self.loop_state.update(results)
             self.iteration_end_event(self, self.loop_state)
 

@@ -9,11 +9,11 @@ class UserFunctionResult(object):
     """
     A class that records the inputs, outputs and meta-data of an evaluation of the user function.
     """
-    def __init__(self, X: np.ndarray, Y: np.ndarray, cost: np.ndarray=None) -> None:
+    def __init__(self, X: np.ndarray, Y: np.ndarray, **kwargs) -> None:
         """
-        :param X: Function input, 1 by function input dimension
-        :param Y: Function output(s), 1 by function output dimension
-        :param cost: Cost of evaluating the function, 1 by function cost dimension
+        :param X: Function input. Shape: (function input dimension,)
+        :param Y: Function output(s). Shape: (function output dimension,)
+        :param kwargs: Extra outputs of the UserFunction to store. Shape: (extra output dimension,)
         """
         if X.ndim != 1:
             raise ValueError("x is expected to be 1-dimensional, actual dimensionality is {}".format(X.ndim))
@@ -21,9 +21,23 @@ class UserFunctionResult(object):
         if Y.ndim != 1:
             raise ValueError("y is expected to be 1-dimensional, actual dimensionality is {}".format(Y.ndim))
 
-        if cost is not None and cost.ndim != 1:
-            raise ValueError("cost is expected to be 1-dimensional, actual dimensionality is {}".format(cost.ndim))
+        self.extra_outputs = dict()
+        for (key, val) in kwargs.items():
+            if val.ndim != 1:
+                raise ValueError('Key word arguments must be 1-dimensional but {} is {}d'.format(key, val.ndim))
+            self.extra_outputs[key] = val
 
         self.X = X
         self.Y = Y
-        self.cost = cost
+
+    def __getattr__(self, item):
+        """
+        Allow extra output values to be accessed as an attribute
+
+        :param item: The name of the extra output to be accessed
+        :return: The value of the extra output
+        """
+        return self.extra_outputs[item]
+
+    def __repr__(self):
+        return "UserFunctionResult(X: {}, Y: {}, extra_outputs: {})".format(self.X, self.Y, self.extra_outputs)
