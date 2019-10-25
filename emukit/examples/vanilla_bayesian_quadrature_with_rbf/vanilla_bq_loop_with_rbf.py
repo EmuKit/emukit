@@ -24,7 +24,7 @@ def create_vanilla_bq_loop_with_rbf_kernel(X: np.ndarray, Y: np.ndarray,
     :param integral_bounds: List of input_dim tuples, where input_dim is the dimensionality of the integral
     and the tuples contain the lower and upper bounds of the integral i.e.,
     [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)]. None means infinite bounds.
-    :param measure: the integration measure. None means no measure.
+    :param measure: the integration measure. None means the standard Lebesgue measure is used.
     :param rbf_lengthscale: the lengthscale of the rbf kernel, defaults to 1.
     :param rbf_variance: the variance of the rbf kernel, defaults to 1.
     :return: The vanilla BQ loop

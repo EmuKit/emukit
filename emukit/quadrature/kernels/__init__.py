@@ -4,4 +4,4 @@
 
 from .quadrature_kernels import QuadratureKernel  # noqa: F401
 from .bounds import BoxBounds  # noqa: F401
-from .quadrature_rbf import QuadratureRBFnoMeasure, QuadratureRBFIsoGaussMeasure  # noqa: F401
+from .quadrature_rbf import QuadratureRBFLebesgueMeasure, QuadratureRBFIsoGaussMeasure  # noqa: F401

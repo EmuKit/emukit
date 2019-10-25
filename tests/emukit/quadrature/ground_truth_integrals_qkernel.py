@@ -9,7 +9,7 @@ import GPy
 from typing import List, Tuple
 
 from emukit.model_wrappers.gpy_quadrature_wrappers import RBFGPy
-from emukit.quadrature.kernels import QuadratureRBFnoMeasure, QuadratureRBFIsoGaussMeasure
+from emukit.quadrature.kernels import QuadratureRBFLebesgueMeasure, QuadratureRBFIsoGaussMeasure
 from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure
 
 
@@ -29,7 +29,7 @@ def _sample_gauss_iso(num_samples: int, measure: IsotropicGaussianMeasure):
 
 
 # qK integrals
-def qK_no_measure(num_samples: int, qrbf: QuadratureRBFnoMeasure, x2: np.ndarray):
+def qK_lebesgue_measure(num_samples: int, qrbf: QuadratureRBFLebesgueMeasure, x2: np.ndarray):
     bounds = qrbf.integral_bounds._bounds
     samples = _sample_uniform(num_samples, bounds)
     Kx = qrbf.K(samples, x2)
@@ -45,7 +45,7 @@ def qK_gauss_iso(num_samples: int, measure: IsotropicGaussianMeasure, qrbf: Quad
 
 
 # qKq integrals
-def qKq_no_measure(num_samples: int, qrbf: QuadratureRBFnoMeasure):
+def qKq_lebesgue_measure(num_samples: int, qrbf: QuadratureRBFLebesgueMeasure):
     bounds = qrbf.integral_bounds._bounds
     samples = _sample_uniform(num_samples, bounds)
     qKx = qrbf.qK(samples)
@@ -64,7 +64,7 @@ if __name__ == "__main__":
     np.random.seed(0)
 
     # === Choose MEASURE BELOW ======
-    MEASURE = 'None'
+    MEASURE = 'Lebesgue'
     #MEASURE = 'GaussIso'
     # === CHOOSE MEASURE ABOVE ======
 
@@ -77,9 +77,9 @@ if __name__ == "__main__":
     gpy_kernel = GPy.kern.RBF(input_dim=D)
     emukit_rbf = RBFGPy(gpy_kernel)
 
-    if MEASURE == 'None':
+    if MEASURE == 'Lebesgue':
         bounds = [(-1, 2), (-3, 3)]  # integral bounds
-        emukit_qrbf = QuadratureRBFnoMeasure(emukit_rbf, integral_bounds=bounds)
+        emukit_qrbf = QuadratureRBFLebesgueMeasure(emukit_rbf, integral_bounds=bounds)
 
     elif MEASURE == 'GaussIso':
         measure = IsotropicGaussianMeasure(mean=np.arange(D), variance=2.)
@@ -102,8 +102,8 @@ if __name__ == "__main__":
     for i in range(num_runs):
         num_samples = int(num_samples)
 
-        if MEASURE == 'None':
-            qK_samples = qK_no_measure(num_samples, emukit_qrbf, x2)
+        if MEASURE == 'Lebesgue':
+            qK_samples = qK_lebesgue_measure(num_samples, emukit_qrbf, x2)
         elif MEASURE == 'GaussIso':
             qK_samples = qK_gauss_iso(num_samples, measure, emukit_qrbf, x2)
         else:
@@ -130,8 +130,8 @@ if __name__ == "__main__":
     for i in range(num_runs):
         num_samples = int(num_samples)
 
-        if MEASURE == 'None':
-            qKq_samples = qKq_no_measure(num_samples, emukit_qrbf)
+        if MEASURE == 'Lebesgue':
+            qKq_samples = qKq_lebesgue_measure(num_samples, emukit_qrbf)
         elif MEASURE == 'GaussIso':
             qKq_samples = qKq_gauss_iso(num_samples, measure, emukit_qrbf)
         else:

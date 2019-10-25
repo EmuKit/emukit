@@ -7,7 +7,7 @@ from typing import Tuple, List
 
 
 class IntegrationMeasure:
-    """An abstract class for an integration measure"""
+    """An abstract class for a probability measure with a density"""
 
     def __init__(self, name: str):
         """
