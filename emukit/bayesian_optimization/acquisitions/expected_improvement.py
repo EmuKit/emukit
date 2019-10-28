@@ -277,8 +277,8 @@ class MultipointExpectedImprovement(ExpectedImprovement):
 
     def _gradient_of_the_acquisition_first_term(self, mu: np.ndarray, dmu_dx: np.ndarray, dSigma_dx: np.ndarray,
                                                 y_minimum: float, pk: np.ndarray, k: int, bk: np.ndarray,
-                                                mk: np.ndarray, Sigk: np.ndarray, Lk: np.ndarray)
-                                                -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+                                                mk: np.ndarray, Sigk: np.ndarray, Lk: np.ndarray) -> Tuple[np.ndarray,
+                                                np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
         Helper function for computing the first term of the gradient of the Acquisition (First row of Equation (6))
 
@@ -302,7 +302,7 @@ class MultipointExpectedImprovement(ExpectedImprovement):
         Dpk, Sigk_dx, mk_dx = np.zeros((q, d)), np.zeros((q, d, q, q)), np.zeros((q, d, q))
 
         # term A1: First term in Equation (6) in the paper
-        grad_a[k, :] = dmu_dx[k, k, :] * pk[k]  # q x q x d
+        grad_a[k, :] = - dmu_dx[k, k, :] * pk[k]  # q x q x d
 
         # compute gradient and hessian matrix of the CDF term pk.
         gradpk = Phi_gradient(bk - mk, np.zeros((q, 1)), Sigk)
