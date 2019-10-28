@@ -52,6 +52,14 @@ class IDifferentiable:
 
 
 class IJointlyDifferentiable:
+    def predict_with_full_covariance(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        :param X: (n_points x n_dimensions) array containing locations at which to get predictions
+        :return: (mean, variance) Arrays of size n_points x 1 and n_points x n_points of the predictive
+                 mean and variance at each input location
+        """
+        raise NotImplementedError
+
     def get_joint_prediction_gradients(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
         Computes and returns model gradients of mean and full covariance matrix at given points

@@ -24,13 +24,20 @@ class GPyModelWrapper(IModel, IDifferentiable, IJointlyDifferentiable, ICalculat
         self.model = gpy_model
         self.n_restarts = n_restarts
 
-    def predict(self, X: np.ndarray, full_cov: bool = False) -> Tuple[np.ndarray, np.ndarray]:
+    def predict(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
         :param X: (n_points x n_dimensions) array containing locations at which to get predictions
-        :param full_cov: boolean value indicating whether or not the full covariance matrix should be returned
         :return: (mean, variance) Arrays of size n_points x 1 of the predictive distribution at each input location
         """
-        return self.model.predict(X, full_cov=full_cov)
+        return self.model.predict(X)
+
+    def predict_with_full_covariance(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        :param X: (n_points x n_dimensions) array containing locations at which to get predictions
+        :return: (mean, variance) Arrays of size n_points x 1 and n_points x n_points of the predictive
+                 mean and variance at each input location
+        """
+        return self.model.predict(X, full_cov=True)
 
     def get_prediction_gradients(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
