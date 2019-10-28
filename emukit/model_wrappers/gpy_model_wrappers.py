@@ -153,23 +153,23 @@ class GPyModelWrapper(IModel, IDifferentiable, IJointlyDifferentiable, ICalculat
         self.model._trigger_params_changed()
 
 
-def dSigma(x: np.ndarray, X: np.ndarray, kern: GPy.kern, w_inv: np.ndarray) -> np.ndarray:
+def dSigma(x_predict: np.ndarray, x_train: np.ndarray, kern: GPy.kern, w_inv: np.ndarray) -> np.ndarray:
     """
     Compute the derivative of the posterior covariance with respect to the prediction input
 
-    :param x: Prediction inputs of shape (q, d)
-    :param X: Training inputs of shape (n, d)
+    :param x_predict: Prediction inputs of shape (q, d)
+    :param x_train: Training inputs of shape (n, d)
     :param kern: Covariance of the GP model
     :param w_inv: Woodbury inverse of the posterior fit of the GP
     :return: Gradient of the posterior covariance of shape (q, q, q, d)
     """
-    q, d, n = x.shape[0], x.shape[1], X.shape[0]
+    q, d, n = x_predict.shape[0], x_predict.shape[1], x_train.shape[0]
     dkxX_dx = np.empty((q, n, d))
     dkxx_dx = np.empty((q, q, d))
     for i in range(d):
-        dkxX_dx[:, :, i] = kern.dK_dX(x, X, i)
-        dkxx_dx[:, :, i] = kern.dK_dX(x, x, i)
-    K = kern.K(x, X)
+        dkxX_dx[:, :, i] = kern.dK_dX(x_predict, x_train, i)
+        dkxx_dx[:, :, i] = kern.dK_dX(x_predict, x_predict, i)
+    K = kern.K(x_predict, x_train)
 
     dsigma = np.zeros((q, q, q, d))
     for i in range(q):
@@ -184,7 +184,7 @@ def dSigma(x: np.ndarray, X: np.ndarray, kern: GPy.kern, w_inv: np.ndarray) -> n
     return dsigma
 
 
-def dmean(x: np.ndarray, X: np.ndarray, kern: GPy.kern, w_vec: np.ndarray) -> np.ndarray:
+def dmean(x_predict: np.ndarray, x_train: np.ndarray, kern: GPy.kern, w_vec: np.ndarray) -> np.ndarray:
     """
     Compute the derivative of the posterior mean with respect to prediction input
 
@@ -194,11 +194,11 @@ def dmean(x: np.ndarray, X: np.ndarray, kern: GPy.kern, w_vec: np.ndarray) -> np
     :param w_inv: Woodbury vector of the posterior fit of the GP
     :return: Gradient of the posterior mean of shape (q, q, d)
     """
-    q, d, n = x.shape[0], x.shape[1], X.shape[0]
+    q, d, n = x_predict.shape[0], x_predict.shape[1], x_train.shape[0]
     dkxX_dx = np.empty((q, n, d))
     dmu = np.zeros((q, q, d))
     for i in range(d):
-        dkxX_dx[:, :, i] = kern.dK_dX(x, X, i)
+        dkxX_dx[:, :, i] = kern.dK_dX(x_predict, x_train, i)
         for j in range(q):
             dmu[j, j, i] = (dkxX_dx[j, :, i][None, :] @ w_vec[:, None]).flatten()
     return dmu

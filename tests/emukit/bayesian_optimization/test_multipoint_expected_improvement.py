@@ -13,7 +13,7 @@ TOL_GRAD = 1e-6
 TOL_GRAD_FAST = 1e-4
 
 
-def test_acquisition_qei():
+def test_acquisition_multipoint_expected_improvement():
     '''
     Check if the q-EI acquisition function produces similar results as sampling
     '''
@@ -40,14 +40,11 @@ def test_acquisition_qei():
     samples = np.random.multivariate_normal(mu, Sigma, size=N)
     qei_sampled = current_minimum - np.min(samples, axis=1)
     qei_sampled = sum(qei_sampled[qei_sampled > 0]) / float(N)
-    print(qei_sampled)
-    print(qei_analytic_fast)
-    print(qei_analytic)
 
     assert np.abs(qei_sampled - qei_analytic) < TOL
     assert np.abs(qei_analytic_fast - qei_analytic) < TOL
 
-def test_acquisition_gradient_qei():
+def test_acquisition_gradient_multipoint_expected_improvement():
     '''
     Check the q-EI acquisition function gradients with numeric differentiation
     '''
@@ -65,4 +62,4 @@ def _check_grad(lp, tol, x0):
     grad_error = check_grad(lambda x: lp.evaluate(x[:, None]).flatten(),
                             lambda x: lp.evaluate_with_gradients(x[:, None])[1].flatten(), x0)
     print(grad_error)
-    #assert np.all(grad_error < tol)
+    assert np.all(grad_error < tol)
