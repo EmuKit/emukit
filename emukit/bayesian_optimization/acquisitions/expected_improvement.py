@@ -14,7 +14,7 @@ from ...core.acquisition import Acquisition
 
 
 class ExpectedImprovement(Acquisition):
-    def __init__(self, model: Union[IModel, IDifferentiable], jitter: float = float(0))-> None:
+    def __init__(self, model: Union[IModel, IDifferentiable], jitter: float=0.0)-> None:
         """
         This acquisition computes for a given input the improvement over the current best observed value in
         expectation. For more information see:
@@ -92,9 +92,9 @@ def get_standard_normal_pdf_cdf(x: np.array, mean: np.array, standard_deviation:
     return u, pdf, cdf
 
 
-class QExpectedImprovement(ExpectedImprovement):
-    def __init__(self, model: Union[IModel, IDifferentiable, IJointlyDifferentiable], jitter: float = float(0),
-                 fast_compute: bool = False, eps: float = 1e-3) -> None:
+class MultipointExpectedImprovement(ExpectedImprovement):
+    def __init__(self, model: Union[IModel, IDifferentiable, IJointlyDifferentiable], jitter: float=0.0,
+                 fast_compute: bool=False, eps: float=1e-3) -> None:
         """
         This acquisition computes for a given input the improvement over the current best observed value in
         expectation for multiple points. For more information see:
@@ -103,73 +103,73 @@ class QExpectedImprovement(ExpectedImprovement):
         Jones, Donald R. and Schonlau, Matthias and Welch, William J.
         Journal of Global Optimization
 
-        Implementation based on paper and its source code:
+        Implementation based on papers and their implementations:
 
-        Fast computation of the multipoint ExpectedImprovement with
+        Fast computation of the multipoint Expected Improvement with
         applications in batch selection
         Chevalier, C. and Ginsbourger, D.
         International Conference on Learning and Intelligent Optimization.
         Springer, Berlin, Heidelberg, 2013.
 
-        Source code: https://github.com/cran/DiceOptim
+        Gradient of the acquisition is derived in:
+
+        Differentiating the multipoint Expected Improvement for optimal batch design
+        Marmin, S., Chevalier, C. and Ginsbourger, D.
+        International Workshop on Machine Learning, Optimization and Big Data.
+        Springer, Cham, 2015.
+
+        Source code for both: https://github.com/cran/DiceOptim
 
         :param model: model that is used to compute the improvement.
         :param jitter: parameter to encourage extra exploration.
         :param fast_compute: Whether to use faster approximative method.
         :param eps: Grid length for numerical derivative in approximative method.
         """
-        super(QExpectedImprovement, self).__init__(model, jitter)
+        super(MultipointExpectedImprovement, self).__init__(model, jitter)
         self.fast_compute = fast_compute
         self.eps = eps
 
     def evaluate(self, x: np.ndarray) -> np.ndarray:
         """
-        Computes the multi point Expected Improvement.
+        Computes the multipoint Expected Improvement.
 
         :param x: points where the acquisition is evaluated.
         """
-        mean, variance = self.model.predict(x, full_cov=True)
+        mean, variance = self.model.predict_with_full_covariance(x)
         y_minimum = np.min(self.model.Y, axis=0)
-        return -QExpectedImprovement.get_acquisition(mean.flatten(), variance,
-                                                     y_minimum, self.fast_compute, self.eps)[0]
+        return -self._get_acquisition(mean.flatten(), variance, y_minimum)[0]
 
     def evaluate_with_gradients(self, x: np.ndarray) -> Tuple:
         """
-        Computes the Expected Improvement and its derivative.
+        Computes the multipoint Expected Improvement and its derivative.
 
         :param x: locations where the evaluation with gradients is done.
         """
-        mean, variance = self.model.predict(x, full_cov=True)
+        mean, variance = self.model.predict_with_full_covariance(x)
         mean = mean.flatten()
         y_minimum = np.min(self.model.Y, axis=0)
-        qei, pk, symmetric_term = QExpectedImprovement.get_acquisition(mean, variance, y_minimum,
-                                                                       self.fast_compute, self.eps)
+        qei, pk, symmetric_term = self._get_acquisition(mean, variance, y_minimum)
 
         mean_dx, variance_dx = self.model.get_joint_prediction_gradients(x)
-        qei_grad = QExpectedImprovement.get_acquisition_gradient(mean, variance, mean_dx, variance_dx, y_minimum,
-                                                                 pk, symmetric_term, self.fast_compute, self.eps)
+        qei_grad = self._get_acquisition_gradient(mean, variance, mean_dx, variance_dx,
+                                                  y_minimum, pk, symmetric_term)
         return -qei, -qei_grad
 
-    @staticmethod
-    def get_acquisition(mu: np.ndarray, Sigma: np.ndarray, y_minimum: float,
-                        fast_compute: bool = False, eps: float = float(1e-5)) -> tuple:
+    def _get_acquisition(self, mu: np.ndarray, Sigma: np.ndarray, y_minimum: float) -> Tuple:
         """
         Computes the multi point Expected Improvement. A helper function for the class.
 
         :param mu: Prediction mean at locations where the evaluation is done.
         :param Sigma: Prediction covariance at locations where the evaluation is done.
         :param y_minimum: The best value evaluated so far by the black box function.
-        :param fast_compute: Whether to use faster approximative method.
-        :param eps: Grid length for numerical derivative in approximative method.
         """
         q = mu.shape[0]
         pk = np.zeros((q,))
         first_term = np.zeros((q,))
         non_symmetric_term = np.zeros((q, q))
         symmetric_term = np.zeros((q, q))
-        second_term = np.zeros((q,))
         for k in range(q):
-            Sigma_k = covZk(Sigma, k)
+            Sigma_k = get_Sigma_given_smallest(Sigma, k)
             mu_k = mu[k] - mu
             mu_k[k] = mu[k]
             b_k = np.zeros((q,))
@@ -178,138 +178,225 @@ class QExpectedImprovement(ExpectedImprovement):
             pk[k] = scipy.stats.multivariate_normal.cdf(b_k - mu_k, np.zeros((q,)), Sigma_k)
 
             first_term[k] = (y_minimum - mu[k]) * pk[k]
+            symmetric_term[k, :], non_symmetric_term[k, :] = self._get_non_symmetric_and_symmetric_term_k(b_k, mu_k, Sigma_k, pk, k)
 
-            if fast_compute:
-                second_term[k] = 1. / eps * (scipy.stats.multivariate_normal.cdf(b_k - mu_k
-                                                                                 + eps * Sigma_k[:, k].flatten(),
-                                                                                 np.zeros((q,)), Sigma_k) - pk[k])
-            else:
-                for i in range(q):
-                    non_symmetric_term[k, i] = Sigma_k[i, k]
-                    if(i >= k):
-                        mik = mu_k[i]
-                        sigma_ii_k = Sigma_k[i, i]
-                        bik = b_k[i]
-                        phi_ik = scipy.stats.norm.pdf(bik, loc=mik, scale=np.sqrt(sigma_ii_k))
-                        cik = get_cik(b_k, mu_k, Sigma_k, i).flatten()
-                        sigmaik = get_sigmaik(Sigma_k, i)
-                        Phi_ik = scipy.stats.multivariate_normal.cdf(cik, np.zeros((q - 1,)), sigmaik)
-                        symmetric_term[k, i] = phi_ik * Phi_ik
-        if not fast_compute:
-            symmetric_term = symmetric_term + symmetric_term.T
-            symmetric_term[range(q), range(q)] = 0.5 * np.diag(symmetric_term)
-            second_term = np.sum(symmetric_term * non_symmetric_term)
+        # Symmetrify the symmetric term
+        symmetric_term = symmetric_term + symmetric_term.T
+        symmetric_term[range(q), range(q)] = 0.5 * np.diag(symmetric_term)
+        second_term = np.sum(symmetric_term * non_symmetric_term)
+
+        # See equation (3) in the paper for details:
         opt_val = np.sum(first_term) + np.sum(second_term)
+
         return opt_val, pk, symmetric_term
 
-    @staticmethod
-    def get_acquisition_gradient(mu: np.ndarray, Sigma: np.ndarray, dmu_dx: np.ndarray,
-                                 dSigma_dx: np.ndarray, y_minimum: float, pk: np.ndarray,
-                                 symmetric_term: np.ndarray, fast_compute: bool = False,
-                                 eps: float = float(1e-3)) -> np.ndarray:
+    def _get_acquisition_gradient(self, mu: np.ndarray, Sigma: np.ndarray, dmu_dx: np.ndarray,
+                                  dSigma_dx: np.ndarray, y_minimum: float, pk: np.ndarray,
+                                  symmetric_term: np.ndarray) -> np.ndarray:
         """
         Computes the gradient of multi point Expected Improvement. A helper function for the class.
 
         :param mu: Prediction mean at locations where the evaluation is done.
         :param Sigma: Prediction covariance at locations where the evaluation is done.
         :param dmu_dx: Prediction mean gradient at locations where the evaluation is done.
-        :param Sigma: Prediction covariance gradient at locations where the evaluation is done.
+        :param dSigma_dx: Prediction covariance gradient at locations where the evaluation is done.
         :param y_minimum: The best value evaluated so far by the black box function.
         :param pk: Probabilities of each random variable being smaller than the rest.
         :param symmetric_term: A helper matrix generated by the acquistion function.
-        :param fast_compute: Whether to use faster approximative method.
-        :param eps: Grid length for numerical derivative in approximative method.
         """
         q, d = Sigma.shape[0], dmu_dx.shape[2]
-        grad = np.zeros((q, d))  # result
-        b = np.zeros((q, 1))
-        L = -np.diag(np.ones(q))
-        Dpk = np.zeros((q, d))
-        Sigk_dx = np.zeros((q, d, q, q))
-        mk_dx = np.zeros((q, d, q))
+
+        # Initialize empty vectors
+        grad, L = np.zeros((q, d)), -np.diag(np.ones(q))
+
         # First sum of the formula
         for k in range(q):
-            bk = b.copy()
+            bk = np.zeros((q, 1))
             bk[k, 0] = y_minimum  # creation of vector b^(k)
             Lk = L.copy()
             Lk[:, k] = 1.0  # linear application to transform Y to Zk
-            tLk = Lk.T
             mk = Lk @ mu[:, None]  # mean of Zk (written m^(k) in the formula)
-            Sigk = Lk @ Sigma @ tLk  # covariance of Zk
-            Sigk = 0.5 * (Sigk + Sigk.T)  # numerical symetrization
+            Sigk = Lk @ Sigma @ Lk.T  # covariance of Zk
+            Sigk = 0.5 * (Sigk + Sigk.T)  # numerical symmetrization
 
-            grad[k, :] = grad[k, :] - dmu_dx[k, k, :] * pk[k]  # q x q x d
+            # Compute the first two terms of the gradient (First row of Equation (6))
+            grad_a, mk_dx, Sigk_dx, gradpk, hesspk = self._gradient_of_the_acquisition_first_term(mu, dmu_dx, dSigma_dx,
+                                                                                                  y_minimum, pk, k, bk,
+                                                                                                  mk, Sigk, Lk)
+            grad = grad + grad_a
 
-            # compute gradient ans hessian matrix of the CDF term pk.
-            gradpk = GPhi(bk - mk, b, Sigk)
-            hesspk = HPhi(bk, mk, Sigk, gradient=gradpk)
-            # import pdb; pdb.set_trace()
-            # term A2
-            for l, j in itertools.product(range(q), range(d)):
-                Sigk_dx[l, j, :, :] = Lk @ dSigma_dx[:, :, l, j] @ tLk
-                mk_dx[l, j, :] = Lk @ dmu_dx[:, l, j]
-                Dpk[l, j] = 0.5 * np.sum(hesspk * Sigk_dx[l, j, :, :]) - gradpk[None, :] @ mk_dx[l, j, :, None]
-            grad = grad + (y_minimum - mu[k]) * Dpk
+            # Compute the last three terms of the gradiens (Rows 2-4 of Equation (6))
+            grad = grad + self._gradient_of_the_acquisition_second_term(mu, dmu_dx, dSigma_dx, y_minimum,
+                                                                        pk, k, bk, mk, Sigk, mk_dx, Sigk_dx,
+                                                                        symmetric_term, gradpk, hesspk)
 
-            # term B
-            if fast_compute:
-                B = np.zeros((q, d))
-                gradpk1 = GPhi(bk - mk + Sigk[:, k, None] * eps, b, Sigk)
-                hesspk1 = HPhi(bk + Sigk[:, k, None] * eps, mk, Sigk, gradient=gradpk1)
-                for l, j in itertools.product(range(q), range(d)):
-                    f1 = (-(mk_dx[None, l, j, :] @ gradpk1[:, None])
-                          + eps * (Sigk_dx[None, l, j, :, k] @ gradpk1)
-                          + 0.5 * np.sum(Sigk_dx[l, j, :, :] * hesspk1))
-                    f = -(mk_dx[None, l, j, :] @ gradpk[:, None]) + 0.5 * np.sum(Sigk_dx[l, j, :, :] * hesspk)
-                    B[l, j] = 1.0 / eps * (f1 - f)
-                grad = grad + B
-            else:
-                B1, B2, B3 = np.zeros((q, d)), np.zeros((q, d)), np.zeros((q, d))
-                for i in range(q):
-                    ineq = [n for n in range(q) if n is not i]
-                    Sigk_ik = Sigk[i, k]
-                    Sigk_ii = Sigk[i, i]
-                    mk_i = mk[i]
-                    mk_dx_i = mk_dx[:, :, i]
-                    bk_i = bk[i, 0]
-                    ck_pi = (bk[ineq, 0] - mk[ineq, 0] - (bk[i, 0] - mk[i, 0]) / Sigk_ii * Sigk[ineq, :][:, i])[:, None]
-                    Sigk_pi = 0.5 * (Sigk[ineq, :][:, ineq]
-                                     - 1.0 / Sigk_ii * Sigk[ineq, :][:, i, None] @ Sigk[ineq, :][:, i, None].T
-                                     + (Sigk[ineq, :][:, ineq]
-                                     - 1.0 / Sigk_ii * Sigk[ineq, :][:, i, None] @ Sigk[ineq, :][:, i, None].T).T)
-                    Sigk_dx_ii = Sigk_dx[:, :, i, i]
-                    Sigk_dx_ik = Sigk_dx[:, :, i, k]
-                    phi_ik = np.max([scipy.stats.multivariate_normal.pdf(bk[i, 0], mk_i, Sigk_ii), 1e-11])
-                    dphi_ik_dSig = ((bk_i - mk_i)**2 / (2.0 * Sigk_ii**2) - 0.5 / Sigk_ii) * phi_ik
-                    dphi_ik_dm = (bk_i - mk_i) / Sigk_ii * phi_ik
-                    Phi_ik = symmetric_term[k, i] / phi_ik
-                    GPhi_ik = GPhi(ck_pi, np.zeros((q - 1, 1)), Sigk_pi)
-                    HPhi_ik = HPhi(ck_pi, np.zeros((q - 1, 1)), Sigk_pi, GPhi_ik)
-                    Sigk_mi = Sigk[ineq, i, None]
-                    for l, j in itertools.product(range(q), range(d)):
-                        # B1
-                        B1[l, j] = B1[l, j] + Sigk_dx_ik[l, j] * phi_ik * Phi_ik
-                        # B2
-                        B2[l, j] = B2[l, j] + Sigk_ik * (mk_dx_i[l, j] * dphi_ik_dm
-                                                         + dphi_ik_dSig * Sigk_dx_ii[l, j]) * Phi_ik
-                        # B3
-                        dck_pi = (-mk_dx[l, j, ineq] + (mk_dx_i[l, j] * Sigk_ii
-                                                        + (bk_i - mk_i) * Sigk_dx_ii[l, j])
-                                  / (Sigk_ii**2) * Sigk_mi[:, 0]
-                                  - (bk[i, 0] - mk_i) / Sigk_ii * Sigk_dx[l, j, ineq, i])
-                        SigtCross = Sigk_dx[l, j, ineq, i, None] @ Sigk_mi.T
-                        dSigk_pi = (Sigk_dx[l, j, :, :][:, ineq][ineq, :]
-                                    + Sigk_dx_ii[l, j] / (Sigk_ii**2) * (Sigk_mi @ Sigk_mi.T)
-                                    - (1.0 / Sigk_ii) * (SigtCross + SigtCross.T))
-                        B3[l, j] = (B3[l, j] + Sigk_ik * phi_ik * ((GPhi_ik.T @ dck_pi)
-                                    + 0.5 * np.sum(HPhi_ik * dSigk_pi)))
-                grad = grad + B1 + B2 + B3
         return grad
 
+    def _get_non_symmetric_and_symmetric_term_k(self, b_k: np.ndarray, mu_k: np.ndarray,
+                                                Sigma_k: np.ndarray, pk: np.ndarray, k: int) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Helper function for computing Second term in Equation (3) of the paper
+        for computing the multipoint Expected Improvement
 
-def covZk(Sigma: np.ndarray, k: int) -> np.ndarray:
+        :param b_k: Vector b^{k} in Equation (3) in the paper for computing the acquisition function.
+        :param mu_k: Mean of Y - Y_min given that Y_k is smaller than any other Y_i, i not k.
+        :param Sigma_k: Covariance of Y - Y_min given that Y_k is smaller than any other Y_i, i not k.
+        :param pk: Vector of probabilities of Y_k being smaller than the rest for all k.
+        """
+        q = mu_k.shape[0]
+        non_symmetric_term = np.zeros((q,))
+        symmetric_term = np.zeros((q,))
+        if self.fast_compute:
+            non_symmetric_term[k] = 1. / self.eps * (scipy.stats.multivariate_normal.cdf(b_k - mu_k
+                                                                                         + self.eps * Sigma_k[:, k].flatten(),
+                                                                                         np.zeros((q,)), Sigma_k) - pk[k])
+            symmetric_term[k] = 1.0
+
+        else:
+            for i in range(q):
+                # First item inside the second sum of Equation (3) in the paper
+                non_symmetric_term[i] = Sigma_k[i, k]
+
+                if(i >= k):
+                    mik = mu_k[i]
+                    sigma_ii_k = Sigma_k[i, i]
+                    bik = b_k[i]
+                    phi_ik = scipy.stats.norm.pdf(bik, loc=mik, scale=np.sqrt(sigma_ii_k))
+                    cik = get_correlations_given_value_of_i(b_k, mu_k, Sigma_k, i).flatten()
+                    sigmaik = get_Sigma_given_value_of_i(Sigma_k, i)
+                    Phi_ik = scipy.stats.multivariate_normal.cdf(cik, np.zeros((q - 1,)), sigmaik)
+
+                    # pdf times cdf in the paper, Equation (3) in the paper, two last items:
+                    symmetric_term[i] = phi_ik * Phi_ik
+        return symmetric_term, non_symmetric_term
+
+    def _gradient_of_the_acquisition_first_term(self, mu: np.ndarray, dmu_dx: np.ndarray, dSigma_dx: np.ndarray,
+                                                y_minimum: float, pk: np.ndarray, k: int, bk: np.ndarray,
+                                                mk: np.ndarray, Sigk: np.ndarray, Lk: np.ndarray) -> Tuple:
+        """
+        Helper function for computing the first term of the gradient of the Acquisition (First row of Equation (6))
+
+        :param mu: Prediction mean at locations where the evaluation is done.
+        :param dmu_dx: Prediction mean gradient at locations where the evaluation is done.
+        :param dSigma_dx: Prediction covariance gradient at locations where the evaluation is done.
+        :param y_minimum: The best value evaluated so far by the black box function.
+        :param pk: Probabilities of each random variable being smaller than the rest.
+        :param k: Index of the assumed winner, as in Y_k < Y_i for all i not k
+        :param bk: Vector b^{k} in the Equation (6) in the paper.
+        :param mk: Mean of Y - Y_min given that Y_k is smaller than any other Y_i, i not k.
+        :param Sigk: Covariance of Y - Y_min given that Y_k is smaller than any other Y_i, i not k.
+        :param Lk: Linear application to transform Y to Zk
+        """
+        q, d = dSigma_dx.shape[0], dmu_dx.shape[2]
+        grad_a = np.zeros((q, d))
+        tLk = Lk.T
+        Dpk, Sigk_dx, mk_dx = np.zeros((q, d)), np.zeros((q, d, q, q)), np.zeros((q, d, q))
+
+        # term A1: First term in Equation (6) in the paper
+        grad_a[k, :] = dmu_dx[k, k, :] * pk[k]  # q x q x d
+
+        # compute gradient and hessian matrix of the CDF term pk.
+        gradpk = Phi_gradient(bk - mk, np.zeros((q, 1)), Sigk)
+        hesspk = Phi_hessian(bk, mk, Sigk, gradient=gradpk)
+        for l, j in itertools.product(range(q), range(d)):
+            Sigk_dx[l, j, :, :] = Lk @ dSigma_dx[:, :, l, j] @ tLk
+            mk_dx[l, j, :] = Lk @ dmu_dx[:, l, j]
+            Dpk[l, j] = 0.5 * np.sum(hesspk * Sigk_dx[l, j, :, :]) - gradpk[None, :] @ mk_dx[l, j, :, None]
+
+        # term A2: Second term in Equation (6) in the paper
+        return grad_a + (y_minimum - mu[k]) * Dpk, mk_dx, Sigk_dx, gradpk, hesspk
+
+    def _gradient_of_the_acquisition_second_term(self, mu: np.ndarray, dmu_dx: np.ndarray, dSigma_dx: np.ndarray,
+                                                 y_minimum: float, pk: np.ndarray, k: int, bk: np.ndarray,
+                                                 mk: np.ndarray, Sigk: np.ndarray, mk_dx: np.ndarray,
+                                                 Sigk_dx: np.ndarray, symmetric_term: np.ndarray,
+                                                 gradpk: np.ndarray, hesspk: np.ndarray) -> np.ndarray:
+        """
+        Helper function for computing the second term of the gradient of the Acquisition (2-4 rows of Equation (6))
+
+        :param mu: Prediction mean at locations where the evaluation is done.
+        :param dmu_dx: Prediction mean gradient at locations where the evaluation is done.
+        :param dSigma_dx: Prediction covariance gradient at locations where the evaluation is done.
+        :param y_minimum: The best value evaluated so far by the black box function.
+        :param pk: Probabilities of each random variable being smaller than the rest.
+        :param k: Index of the assumed winner, as in Y_k < Y_i for all i not k
+        :param bk: Vector b^{k} in the Equation (6) in the paper.
+        :param mk: Mean of Y - Y_min given that Y_k is smaller than any other Y_i, i not k.
+        :param Sigk: Covariance of Y - Y_min given that Y_k is smaller than any other Y_i, i not k.
+        :param mk_dx: Gradient of mk.
+        :param Sigk_dx: Gradient of Sigk.
+        :param symmetric_term: A helper matrix generated by the acquistion function.
+        :param gradpk: Gradient of vector pk.
+        :param hesspk: Hessian of vecotr pk.
+        """
+        q, d = dSigma_dx.shape[0], dmu_dx.shape[2]
+        B = np.zeros((q, d))
+
+        # term B (Rows 2-4 in Equation (6) in the paper)
+        if self.fast_compute:
+            # Numerical approximation through
+
+            gradpk1 = Phi_gradient(bk - mk + Sigk[:, k, None] * self.eps, np.zeros((q, 1)), Sigk)
+            hesspk1 = Phi_hessian(bk + Sigk[:, k, None] * self.eps, mk, Sigk, gradient=gradpk1)
+            for l, j in itertools.product(range(q), range(d)):
+                f1 = (-(mk_dx[None, l, j, :] @ gradpk1[:, None])
+                      + self.eps * (Sigk_dx[None, l, j, :, k] @ gradpk1)
+                      + 0.5 * np.sum(Sigk_dx[l, j, :, :] * hesspk1))
+                f = -(mk_dx[None, l, j, :] @ gradpk[:, None]) + 0.5 * np.sum(Sigk_dx[l, j, :, :] * hesspk)
+                B[l, j] = 1.0 / self.eps * (f1 - f)
+        else:
+            B1, B2, B3 = np.zeros((q, d)), np.zeros((q, d)), np.zeros((q, d))
+            for i in range(q):
+
+                # Assign helper variables needed by the gradients (See equation (6) for details)
+                ineq = [n for n in range(q) if n is not i]
+                Sigk_ik = Sigk[i, k]
+                Sigk_ii = Sigk[i, i]
+                mk_i = mk[i]
+                mk_dx_i = mk_dx[:, :, i]
+                bk_i = bk[i, 0]
+                ck_pi = (bk[ineq, 0] - mk[ineq, 0] - (bk[i, 0] - mk[i, 0]) / Sigk_ii * Sigk[ineq, :][:, i])[:, None]
+                Sigk_pi = 0.5 * (Sigk[ineq, :][:, ineq]
+                                 - 1.0 / Sigk_ii * Sigk[ineq, :][:, i, None] @ Sigk[ineq, :][:, i, None].T
+                                 + (Sigk[ineq, :][:, ineq]
+                                 - 1.0 / Sigk_ii * Sigk[ineq, :][:, i, None] @ Sigk[ineq, :][:, i, None].T).T)
+                Sigk_dx_ii = Sigk_dx[:, :, i, i]
+                Sigk_dx_ik = Sigk_dx[:, :, i, k]
+                phi_ik = np.max([scipy.stats.multivariate_normal.pdf(bk[i, 0], mk_i, Sigk_ii), 1e-11])
+                dphi_ik_dSig = ((bk_i - mk_i)**2 / (2.0 * Sigk_ii**2) - 0.5 / Sigk_ii) * phi_ik
+                dphi_ik_dm = (bk_i - mk_i) / Sigk_ii * phi_ik
+                Phi_ik = symmetric_term[k, i] / phi_ik
+                GPhi_ik = Phi_gradient(ck_pi, np.zeros((q - 1, 1)), Sigk_pi)
+                HPhi_ik = Phi_hessian(ck_pi, np.zeros((q - 1, 1)), Sigk_pi, GPhi_ik)
+                Sigk_mi = Sigk[ineq, i, None]
+
+                # Compute the terms pf the gradient
+                for l, j in itertools.product(range(q), range(d)):
+                    # B1: Second row of Equation (6) in the paper
+                    B1[l, j] = B1[l, j] + Sigk_dx_ik[l, j] * phi_ik * Phi_ik
+
+                    # B2: Third row of Equation (6) in the paper
+                    B2[l, j] = B2[l, j] + Sigk_ik * (mk_dx_i[l, j] * dphi_ik_dm
+                                                     + dphi_ik_dSig * Sigk_dx_ii[l, j]) * Phi_ik
+
+                    # B3: Fourth row of Equation (6) in the paper
+                    dck_pi = (-mk_dx[l, j, ineq] + (mk_dx_i[l, j] * Sigk_ii
+                                                    + (bk_i - mk_i) * Sigk_dx_ii[l, j])
+                              / (Sigk_ii**2) * Sigk_mi[:, 0]
+                              - (bk[i, 0] - mk_i) / Sigk_ii * Sigk_dx[l, j, ineq, i])
+                    SigtCross = Sigk_dx[l, j, ineq, i, None] @ Sigk_mi.T
+                    dSigk_pi = (Sigk_dx[l, j, :, :][:, ineq][ineq, :]
+                                + Sigk_dx_ii[l, j] / (Sigk_ii**2) * (Sigk_mi @ Sigk_mi.T)
+                                - (1.0 / Sigk_ii) * (SigtCross + SigtCross.T))
+                    B3[l, j] = (B3[l, j] + Sigk_ik * phi_ik * ((GPhi_ik.T @ dck_pi)
+                                + 0.5 * np.sum(HPhi_ik * dSigk_pi)))
+            B = B1 + B2 + B3
+        return B
+
+
+def get_Sigma_given_smallest(Sigma: np.ndarray, k: int) -> np.ndarray:
     """
-    Compute covariance of Y_k - Y_min given that Y_k is smaller than any other Y_i, i not k
+    Compute covariance of Y - Y_min given that Y_k is smaller than any other Y_i, i not k
 
     :param Sigma: Covariance of the multivariate gaussian.
     :param k: Index of random variable.
@@ -327,7 +414,7 @@ def covZk(Sigma: np.ndarray, k: int) -> np.ndarray:
     return res
 
 
-def get_sigmaik(Sigma: np.ndarray, i: int) -> np.ndarray:
+def get_Sigma_given_value_of_i(Sigma: np.ndarray, i: int) -> np.ndarray:
     """
     Covariances of variables k knowing the value of variable i.
 
@@ -341,7 +428,7 @@ def get_sigmaik(Sigma: np.ndarray, i: int) -> np.ndarray:
     return result[neqi, :][:, neqi]
 
 
-def get_cik(b: np.ndarray, mu: np.ndarray, Sigma: np.ndarray, i: int) -> np.ndarray:
+def get_correlations_given_value_of_i(b: np.ndarray, mu: np.ndarray, Sigma: np.ndarray, i: int) -> np.ndarray:
     """
     Partial correlations of variables k knowing the value of variable i.
 
@@ -355,7 +442,7 @@ def get_cik(b: np.ndarray, mu: np.ndarray, Sigma: np.ndarray, i: int) -> np.ndar
     return result[np.arange(Sigma.shape[0]) != i]
 
 
-def decompo(x: np.ndarray, mu: np.ndarray, Sigma: np.ndarray, k: list) -> np.ndarray:
+def decompose_mvn(x: np.ndarray, mu: np.ndarray, Sigma: np.ndarray, k: list) -> np.ndarray:
     """
     Decompose Multivariate normal to probability of some random variables being smaller than the rest and multiply this
     with the marginal probability distribution of those random variables.
@@ -388,7 +475,7 @@ def decompo(x: np.ndarray, mu: np.ndarray, Sigma: np.ndarray, k: list) -> np.nda
         * scipy.stats.mvn.mvnun(low, x2, moy, varcov, maxpts=1000 * q)[0]
 
 
-def GPhi(x: np.ndarray, mu: np.ndarray, Sigma: np.ndarray) -> np.ndarray:
+def Phi_gradient(x: np.ndarray, mu: np.ndarray, Sigma: np.ndarray) -> np.ndarray:
     """
     Compute gradient of CDF of multivariate Gaussian distribution.
 
@@ -396,10 +483,10 @@ def GPhi(x: np.ndarray, mu: np.ndarray, Sigma: np.ndarray) -> np.ndarray:
     :param mu: Mean of the multivariate Gaussian.
     :param Sigma: Covariance of the multivariate Gaussian.
     """
-    return np.array([decompo(x, mu, Sigma, [i]) for i in range(Sigma.shape[0])])
+    return np.array([decompose_mvn(x, mu, Sigma, [i]) for i in range(Sigma.shape[0])])
 
 
-def HPhi(x: np.ndarray, mu: np.ndarray, Sigma: np.ndarray, gradient=None) -> np.ndarray:
+def Phi_hessian(x: np.ndarray, mu: np.ndarray, Sigma: np.ndarray, gradient: np.ndarray=None) -> np.ndarray:
     """
     Compute hessian matrix of CDF of multivariate Gaussian distribution.
 
@@ -415,12 +502,12 @@ def HPhi(x: np.ndarray, mu: np.ndarray, Sigma: np.ndarray, gradient=None) -> np.
         res = np.zeros((q, q))
     for i in range(q - 1):
         for j in range(i + 1, q):
-            res[i, j] = decompo(x, mu, Sigma, [i, j])
+            res[i, j] = decompose_mvn(x, mu, Sigma, [i, j])
 
     res = res + res.T  # Hessian matrix is symmetric
     # diagonal terms can be computed with the gradient of CDF and the other hessian terms
     if (gradient is None):
-        res = res - np.diag(((x - mu).flatten() * GPhi(x, mu, Sigma)[:, None]
+        res = res - np.diag(((x - mu).flatten() * Phi_gradient(x, mu, Sigma)[:, None]
                              + np.diag(Sigma @ res).flatten()) / np.diag(Sigma).flatten())
     else:
         res = res - np.diag(((x - mu).flatten() * gradient + np.diag(Sigma @ res).flatten()) / np.diag(Sigma).flatten())
