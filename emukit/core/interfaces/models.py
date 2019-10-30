@@ -51,6 +51,27 @@ class IDifferentiable:
         raise NotImplementedError
 
 
+class IJointlyDifferentiable:
+    def predict_with_full_covariance(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        :param X: (n_points x n_dimensions) array containing locations at which to get predictions
+        :return: (mean, variance) Arrays of size n_points x 1 and n_points x n_points of the predictive
+                 mean and variance at each input location
+        """
+        raise NotImplementedError
+
+    def get_joint_prediction_gradients(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Computes and returns model gradients of mean and full covariance matrix at given points
+
+        :param X: points to compute gradients at, nd array of shape (q, d)
+        :return: Tuple with first item being gradient of the mean of shape (q) at X with respect to X (return shape is (q, q, d)).
+                 The second item is the gradient of the full covariance matrix of shape (q, q) at X with respect to X
+                 (return shape is (q, q, q, d)).
+        """
+        raise NotImplementedError
+
+
 class IPriorHyperparameters:
     def generate_hyperparameters_samples(self, n_samples: int, n_burnin: int,
                                          subsample_interval: int, step_size: float, leapfrog_steps: int) -> np.ndarray:
