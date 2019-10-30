@@ -27,7 +27,7 @@ class QuadratureRBF(QuadratureKernel):
         :param integral_bounds: defines the domain of the integral. List of D tuples, where D is the dimensionality
         of the integral and the tuples contain the lower and upper bounds of the integral
         i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)]. None for infinite bounds
-        :param measure: an integration measure, None if there is no measure.
+        :param measure: an integration measure. None means the standard Lebesgue measure is used.
         :param variable_names: the (variable) name(s) of the integral
         """
 
@@ -105,11 +105,11 @@ class QuadratureRBF(QuadratureKernel):
         return (v1 - v2) / (scale * np.sqrt(2))
 
 
-class QuadratureRBFnoMeasure(QuadratureRBF):
+class QuadratureRBFLebesgueMeasure(QuadratureRBF):
     """
-    And RBF kernel with integrability over no measure. Can only be used with finite integral bounds.
+    And RBF kernel with integrability over the standard Lebesgue measure. Can only be used with finite integral bounds.
 
-    Note that each standard kernel goes with a corresponding quadrature kernel, in this case QuadratureRBF
+    Note that each standard kernel goes with a corresponding quadrature kernel, in this case standard rbf kernel.
     """
 
     def __init__(self, rbf_kernel: IRBF, integral_bounds: List[Tuple[float, float]], variable_names: str= '') -> None:
@@ -175,7 +175,7 @@ class QuadratureRBFIsoGaussMeasure(QuadratureRBF):
     """
     Augments an RBF kernel with integrability
 
-    Note that each standard kernel goes with a corresponding quadrature kernel, in this case QuadratureRBF
+    Note that each standard kernel goes with a corresponding quadrature kernel, in this case standard rbf kernel.
     """
 
     def __init__(self, rbf_kernel: IRBF, measure: IsotropicGaussianMeasure, variable_names: str= '') -> None:

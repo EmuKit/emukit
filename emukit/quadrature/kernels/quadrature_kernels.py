@@ -28,8 +28,8 @@ class QuadratureKernel:
         :param integral_bounds: defines the domain of the integral. List of D tuples, where D is the dimensionality
         of the integral and the tuples contain the lower and upper bounds of the integral
         i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)]. None if bounds are infinite
-        :param measure: the integration measure. Note that the integral in the QuadratureKernel are specific to the
-        measure. None if no measure.
+        :param measure: the integration measure. Note that the integral in QuadratureKernel are specific to the
+        measure. None means the standard Lebesgue measure is used.
         :param variable_names: the (variable) name(s) of the integral
         """
 

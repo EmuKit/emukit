@@ -7,12 +7,12 @@ import GPy
 import pytest
 
 from emukit.model_wrappers.gpy_quadrature_wrappers import RBFGPy
-from emukit.quadrature.kernels import QuadratureRBFnoMeasure, QuadratureRBFIsoGaussMeasure, QuadratureRBFUniformMeasure
+from emukit.quadrature.kernels import QuadratureRBFLebesgueMeasure, QuadratureRBFIsoGaussMeasure, QuadratureRBFUniformMeasure
 from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure, UniformMeasure
 
 
 @pytest.fixture
-def qrbf_no_measure():
+def qrbf_lebesgue_measure():
     x1 = np.array([[-1, 1], [0, 0], [-2, 0.1]])
     x2 = np.array([[-1, 1], [0, 0], [-2, 0.1], [-3, 3]])
     M1 = x1.shape[0]
@@ -24,7 +24,7 @@ def qrbf_no_measure():
 
     gpy_kernel = GPy.kern.RBF(input_dim=D)
     emukit_rbf = RBFGPy(gpy_kernel)
-    emukit_qrbf = QuadratureRBFnoMeasure(emukit_rbf, integral_bounds=bounds)
+    emukit_qrbf = QuadratureRBFLebesgueMeasure(emukit_rbf, integral_bounds=bounds)
     return emukit_qrbf, x1, x2, M1, M2, D
 
 
@@ -103,8 +103,8 @@ def test_qkernel_uniform_measure_qKq(qrbf_uniform_measure):
 # Todo: test box for optimizer for uniform measure
 # Todo: test one uniform qrbf like all the other kernels, too. Need to add this to the sampler script
 
-def test_rbf_qkernel_no_measure_shapes(qrbf_no_measure):
-    emukit_qrbf, x1, x2, M1, M2, D = qrbf_no_measure
+def test_rbf_qkernel_lebesgue_shapes(qrbf_lebesgue_measure):
+    emukit_qrbf, x1, x2, M1, M2, D = qrbf_lebesgue_measure
 
     # kernel shapes
     assert emukit_qrbf.K(x1, x2).shape == (M1, M2)
@@ -117,8 +117,8 @@ def test_rbf_qkernel_no_measure_shapes(qrbf_no_measure):
     assert emukit_qrbf.dqK_dx(x2).shape == (D, M2)
 
 
-def test_rbf_qkernel_no_measure_qK(qrbf_no_measure):
-    emukit_qrbf, _, x2, _, _, _ = qrbf_no_measure
+def test_rbf_qkernel_lebesgue_qK(qrbf_lebesgue_measure):
+    emukit_qrbf, _, x2, _, _, _ = qrbf_lebesgue_measure
     # to check the integral, we check if it lies in some confidence interval.
     # these intervals were computed as follows: the kernel emukit_qrbf.K was integrated in the first argument by
     # simple random sampling with 1e6 samples. This was done 100 times. The intervals show mean\pm 3 std of the 100
@@ -134,8 +134,8 @@ def test_rbf_qkernel_no_measure_qK(qrbf_no_measure):
         assert intervals[i, 0] < qK[i] < intervals[i, 1]
 
 
-def test_qkernel_no_measure_qKq(qrbf_no_measure):
-    emukit_qrbf = qrbf_no_measure[0]
+def test_qkernel_lebesgue_qKq(qrbf_lebesgue_measure):
+    emukit_qrbf = qrbf_lebesgue_measure[0]
     # interval was computed as in test_rbf_qkernel_no_measure_qK
     interval = [71.95519933967581, 72.05007241434173]
 

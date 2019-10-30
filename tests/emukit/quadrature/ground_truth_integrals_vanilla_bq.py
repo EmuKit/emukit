@@ -9,7 +9,7 @@ import GPy
 from typing import List, Tuple
 
 from emukit.model_wrappers.gpy_quadrature_wrappers import RBFGPy, BaseGaussianProcessGPy
-from emukit.quadrature.kernels.quadrature_rbf import QuadratureRBFnoMeasure
+from emukit.quadrature.kernels.quadrature_rbf import QuadratureRBFLebesgueMeasure
 from emukit.quadrature.methods import VanillaBayesianQuadrature
 
 
@@ -51,7 +51,7 @@ if __name__ == "__main__":
     integral_bounds = [(-1, 2), (-3, 3)]
 
     gpy_model = GPy.models.GPRegression(X=X, Y=Y, kernel=GPy.kern.RBF(input_dim=D))
-    qrbf = QuadratureRBFnoMeasure(RBFGPy(gpy_model.kern), integral_bounds=integral_bounds)
+    qrbf = QuadratureRBFLebesgueMeasure(RBFGPy(gpy_model.kern), integral_bounds=integral_bounds)
     model = BaseGaussianProcessGPy(kern=qrbf, gpy_model=gpy_model)
 
     vanilla_bq = VanillaBayesianQuadrature(base_gp=model, X=X, Y=Y)

@@ -9,9 +9,14 @@ import GPy
 from typing import List, Tuple
 
 from emukit.model_wrappers.gpy_quadrature_wrappers import RBFGPy
+<<<<<<< HEAD
 from emukit.quadrature.kernels import QuadratureRBFnoMeasure, QuadratureRBFIsoGaussMeasure, QuadratureRBFUniformMeasure
 from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure, UniformMeasure
 from emukit.quadrature.methods import VanillaBayesianQuadrature
+=======
+from emukit.quadrature.kernels import QuadratureRBFLebesgueMeasure, QuadratureRBFIsoGaussMeasure
+from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure
+>>>>>>> mmahsereci/gaussian-measure-for-bq
 
 
 # samplers
@@ -30,7 +35,7 @@ def _sample_gauss_iso(num_samples: int, measure: IsotropicGaussianMeasure):
 
 
 # qK integrals
-def qK_no_measure(num_samples: int, qrbf: QuadratureRBFnoMeasure, x2: np.ndarray):
+def qK_lebesgue_measure(num_samples: int, qrbf: QuadratureRBFLebesgueMeasure, x2: np.ndarray):
     bounds = qrbf.integral_bounds._bounds
     samples = _sample_uniform(num_samples, bounds)
     Kx = qrbf.K(samples, x2)
@@ -53,7 +58,7 @@ def qK_uniform(num_samples: int, qrbf: QuadratureRBFIsoGaussMeasure, x2: np.ndar
 
 
 # qKq integrals
-def qKq_no_measure(num_samples: int, qrbf: QuadratureRBFnoMeasure):
+def qKq_lebesgue_measure(num_samples: int, qrbf: QuadratureRBFLebesgueMeasure):
     bounds = qrbf.integral_bounds._bounds
     samples = _sample_uniform(num_samples, bounds)
     qKx = qrbf.qK(samples)
@@ -68,30 +73,15 @@ def qKq_gauss_iso(num_samples: int, measure: IsotropicGaussianMeasure, qrbf: Qua
     return np.mean(qKx)
 
 
-# integral mean and variance
-def integral_mean_uniform(num_samples: int, model: VanillaBayesianQuadrature):
-    bounds = model.integral_bounds.bounds
-    samples = _sample_uniform(num_samples, bounds)
-    gp_mean_at_samples, _ = model.predict(samples)
-    differences = np.array([x[1] - x[0] for x in bounds])
-    volume = np.prod(differences)
-    return np.mean(gp_mean_at_samples) * volume
-
-
-def integral_var_uniform(num_samples: int, model: VanillaBayesianQuadrature):
-    bounds = model.integral_bounds.bounds
-    samples = _sample_uniform(num_samples, bounds)
-    _, gp_cov_at_samples = model.predict_with_full_covariance(samples)
-    differences = np.array([x[1] - x[0] for x in bounds])
-    volume = np.prod(differences)
-    return np.sum(gp_cov_at_samples) * (volume / num_samples) ** 2
-
-
 if __name__ == "__main__":
     np.random.seed(0)
 
     # === Choose MEASURE BELOW ======
+<<<<<<< HEAD
     #MEASURE = 'None'
+=======
+    MEASURE = 'Lebesgue'
+>>>>>>> mmahsereci/gaussian-measure-for-bq
     #MEASURE = 'GaussIso'
     MEASURE = 'Uniform'
     # === CHOOSE MEASURE ABOVE ======
@@ -105,9 +95,13 @@ if __name__ == "__main__":
     gpy_kernel = GPy.kern.RBF(input_dim=D)
     emukit_rbf = RBFGPy(gpy_kernel)
 
+<<<<<<< HEAD
     if MEASURE == 'None-finite':
+=======
+    if MEASURE == 'Lebesgue':
+>>>>>>> mmahsereci/gaussian-measure-for-bq
         bounds = [(-1, 2), (-3, 3)]  # integral bounds
-        emukit_qrbf = QuadratureRBFnoMeasure(emukit_rbf, integral_bounds=bounds)
+        emukit_qrbf = QuadratureRBFLebesgueMeasure(emukit_rbf, integral_bounds=bounds)
 
     elif MEASURE == 'GaussIso':
         measure = IsotropicGaussianMeasure(mean=np.arange(D), variance=2.)
@@ -135,8 +129,8 @@ if __name__ == "__main__":
     for i in range(num_runs):
         num_samples = int(num_samples)
 
-        if MEASURE == 'None':
-            qK_samples = qK_no_measure(num_samples, emukit_qrbf, x2)
+        if MEASURE == 'Lebesgue':
+            qK_samples = qK_lebesgue_measure(num_samples, emukit_qrbf, x2)
         elif MEASURE == 'GaussIso':
             qK_samples = qK_gauss_iso(num_samples, measure, emukit_qrbf, x2)
         elif MEASURE == 'Uniform':
@@ -165,8 +159,8 @@ if __name__ == "__main__":
     for i in range(num_runs):
         num_samples = int(num_samples)
 
-        if MEASURE == 'None':
-            qKq_samples = qKq_no_measure(num_samples, emukit_qrbf)
+        if MEASURE == 'Lebesgue':
+            qKq_samples = qKq_lebesgue_measure(num_samples, emukit_qrbf)
         elif MEASURE == 'GaussIso':
             qKq_samples = qKq_gauss_iso(num_samples, measure, emukit_qrbf)
         elif MEASURE == 'Uniform':
