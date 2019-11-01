@@ -9,14 +9,8 @@ import GPy
 from typing import List, Tuple
 
 from emukit.model_wrappers.gpy_quadrature_wrappers import RBFGPy
-<<<<<<< HEAD
-from emukit.quadrature.kernels import QuadratureRBFnoMeasure, QuadratureRBFIsoGaussMeasure, QuadratureRBFUniformMeasure
 from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure, UniformMeasure
-from emukit.quadrature.methods import VanillaBayesianQuadrature
-=======
-from emukit.quadrature.kernels import QuadratureRBFLebesgueMeasure, QuadratureRBFIsoGaussMeasure
-from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure
->>>>>>> mmahsereci/gaussian-measure-for-bq
+from emukit.quadrature.kernels import QuadratureRBFLebesgueMeasure, QuadratureRBFIsoGaussMeasure, QuadratureRBFUniformMeasure
 
 
 # samplers
@@ -73,17 +67,17 @@ def qKq_gauss_iso(num_samples: int, measure: IsotropicGaussianMeasure, qrbf: Qua
     return np.mean(qKx)
 
 
+def qKq_uniform(num_samples: int, measure: UniformMeasure, qrbf: QuadratureRBFUniformMeasure):
+    pass
+
+
 if __name__ == "__main__":
     np.random.seed(0)
 
     # === Choose MEASURE BELOW ======
-<<<<<<< HEAD
-    #MEASURE = 'None'
-=======
     MEASURE = 'Lebesgue'
->>>>>>> mmahsereci/gaussian-measure-for-bq
-    #MEASURE = 'GaussIso'
     MEASURE = 'Uniform'
+    #MEASURE = 'GaussIso'
     # === CHOOSE MEASURE ABOVE ======
 
     x1 = np.array([[-1, 1], [0, 0], [-2, 0.1]])
@@ -95,11 +89,7 @@ if __name__ == "__main__":
     gpy_kernel = GPy.kern.RBF(input_dim=D)
     emukit_rbf = RBFGPy(gpy_kernel)
 
-<<<<<<< HEAD
-    if MEASURE == 'None-finite':
-=======
     if MEASURE == 'Lebesgue':
->>>>>>> mmahsereci/gaussian-measure-for-bq
         bounds = [(-1, 2), (-3, 3)]  # integral bounds
         emukit_qrbf = QuadratureRBFLebesgueMeasure(emukit_rbf, integral_bounds=bounds)
 

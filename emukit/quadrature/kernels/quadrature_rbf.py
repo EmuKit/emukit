@@ -303,3 +303,4 @@ class QuadratureRBFUniformMeasure(QuadratureRBF):
         fraction = ((exp_lo - exp_up) / (self.lengthscale * np.sqrt(np.pi / 2.) * (erf_up - erf_lo))).T
 
         return (self.qK(x2) * fraction) * self.measure.density
+
