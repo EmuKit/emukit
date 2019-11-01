@@ -8,7 +8,7 @@ import GPy
 from emukit.quadrature.methods.vanilla_bq import VanillaBayesianQuadrature
 from emukit.quadrature.loop.quadrature_loop import VanillaBayesianQuadratureLoop
 from emukit.core.loop.user_function import UserFunctionWrapper
-from emukit.model_wrappers.gpy_quadrature_wrappers import QuadratureRBF, RBFGPy, BaseGaussianProcessGPy
+from emukit.model_wrappers.gpy_quadrature_wrappers import QuadratureRBFLebesgueMeasure, RBFGPy, BaseGaussianProcessGPy
 
 from numpy.testing import assert_array_equal
 
@@ -25,9 +25,9 @@ def test_vanilla_bq_loop():
 
     gpy_model = GPy.models.GPRegression(X=x_init, Y=y_init, kernel=GPy.kern.RBF(input_dim=x_init.shape[1],
                                                                                 lengthscale=1., variance=1.))
-    emukit_qrbf = QuadratureRBF(RBFGPy(gpy_model.kern), integral_bounds=bounds)
+    emukit_qrbf = QuadratureRBFLebesgueMeasure(RBFGPy(gpy_model.kern), integral_bounds=bounds)
     emukit_model = BaseGaussianProcessGPy(kern=emukit_qrbf, gpy_model=gpy_model)
-    emukit_method = VanillaBayesianQuadrature(base_gp=emukit_model)
+    emukit_method = VanillaBayesianQuadrature(base_gp=emukit_model, X=x_init, Y=y_init)
     emukit_loop = VanillaBayesianQuadratureLoop(model=emukit_method)
 
     num_iter = 5
@@ -45,9 +45,9 @@ def test_vanilla_bq_loop_initial_state():
 
     gpy_model = GPy.models.GPRegression(X=x_init, Y=y_init, kernel=GPy.kern.RBF(input_dim=x_init.shape[1],
                                                                                 lengthscale=1., variance=1.))
-    emukit_qrbf = QuadratureRBF(RBFGPy(gpy_model.kern), integral_bounds=bounds)
+    emukit_qrbf = QuadratureRBFLebesgueMeasure(RBFGPy(gpy_model.kern), integral_bounds=bounds)
     emukit_model = BaseGaussianProcessGPy(kern=emukit_qrbf, gpy_model=gpy_model)
-    emukit_method = VanillaBayesianQuadrature(base_gp=emukit_model)
+    emukit_method = VanillaBayesianQuadrature(base_gp=emukit_model, X=x_init, Y=y_init)
     emukit_loop = VanillaBayesianQuadratureLoop(model=emukit_method)
 
     assert_array_equal(emukit_loop.loop_state.X, x_init)
