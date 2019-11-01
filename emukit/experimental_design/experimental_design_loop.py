@@ -1,14 +1,14 @@
 # Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 from .acquisitions import ModelVariance
-from ...core.acquisition import Acquisition
-from ...core.interfaces.models import IModel
-from ...core.loop import OuterLoop, SequentialPointCalculator, FixedIntervalUpdater
-from ...core.loop.candidate_point_calculators import GreedyBatchPointCalculator
-from ...core.loop.loop_state import create_loop_state
-from ...core.optimization import AcquisitionOptimizerBase
-from ...core.optimization import GradientAcquisitionOptimizer
-from ...core.parameter_space import ParameterSpace
+from ..core.acquisition import Acquisition
+from ..core.interfaces.models import IModel
+from ..core.loop import OuterLoop, SequentialPointCalculator, FixedIntervalUpdater
+from ..core.loop.candidate_point_calculators import GreedyBatchPointCalculator
+from ..core.loop.loop_state import create_loop_state
+from ..core.optimization import AcquisitionOptimizerBase
+from ..core.optimization import GradientAcquisitionOptimizer
+from ..core.parameter_space import ParameterSpace
 
 
 class ExperimentalDesignLoop(OuterLoop):

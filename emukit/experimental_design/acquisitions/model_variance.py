@@ -6,8 +6,8 @@ from typing import Tuple, Union
 
 import numpy as np
 
-from ....core.acquisition import Acquisition
-from ....core.interfaces import IModel, IDifferentiable
+from ...core.acquisition import Acquisition
+from ...core.interfaces import IModel, IDifferentiable
 
 
 class ModelVariance(Acquisition):

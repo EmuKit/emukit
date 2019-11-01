@@ -3,8 +3,8 @@ import numpy as np
 
 from emukit.core import ParameterSpace, ContinuousParameter, CategoricalParameter, OneHotEncoding
 
-from emukit.experimental_design.model_based.experimental_design_loop import ExperimentalDesignLoop
-from emukit.experimental_design.model_free.latin_design import LatinDesign
+from emukit.experimental_design.experimental_design_loop import ExperimentalDesignLoop
+from emukit.core.initial_designs import LatinDesign
 from emukit.model_wrappers import GPyModelWrapper
 
 

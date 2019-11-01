@@ -1,6 +1,5 @@
 from emukit.core import CategoricalParameter, ContinuousParameter, DiscreteParameter, ParameterSpace
-from emukit.experimental_design import RandomDesign
-from emukit.experimental_design.model_free.latin_design import LatinDesign
+from emukit.core.initial_designs import RandomDesign, LatinDesign
 
 
 def create_model_free_designs(space: ParameterSpace):
