@@ -49,6 +49,7 @@ class IBaseGaussianProcess(IModel):
 
         :return: a lower triangular cholesky of G(X, X)
         """
+        # Todo: is it too much to impose the cholesky? maybe inverse would be better
         raise NotImplementedError
 
     def graminv_residual(self) -> np.ndarray:
