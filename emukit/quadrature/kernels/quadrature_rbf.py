@@ -21,7 +21,7 @@ class QuadratureRBF(QuadratureKernel):
     """
 
     def __init__(self, rbf_kernel: IRBF, integral_bounds: Optional[List[Tuple[float, float]]],
-                 measure: Optional[IntegrationMeasure], variable_names: str= '') -> None:
+                 measure: Optional[IntegrationMeasure], variable_names: str='') -> None:
         """
         :param rbf_kernel: standard emukit rbf-kernel
         :param integral_bounds: defines the domain of the integral. List of D tuples, where D is the dimensionality
@@ -112,7 +112,7 @@ class QuadratureRBFLebesgueMeasure(QuadratureRBF):
     Note that each standard kernel goes with a corresponding quadrature kernel, in this case standard rbf kernel.
     """
 
-    def __init__(self, rbf_kernel: IRBF, integral_bounds: List[Tuple[float, float]], variable_names: str= '') -> None:
+    def __init__(self, rbf_kernel: IRBF, integral_bounds: List[Tuple[float, float]], variable_names: str='') -> None:
         """
         :param rbf_kernel: standard emukit rbf-kernel
         :param integral_bounds: defines the domain of the integral. List of D tuples, where D is the dimensionality
@@ -178,7 +178,7 @@ class QuadratureRBFIsoGaussMeasure(QuadratureRBF):
     Note that each standard kernel goes with a corresponding quadrature kernel, in this case standard rbf kernel.
     """
 
-    def __init__(self, rbf_kernel: IRBF, measure: IsotropicGaussianMeasure, variable_names: str= '') -> None:
+    def __init__(self, rbf_kernel: IRBF, measure: IsotropicGaussianMeasure, variable_names: str='') -> None:
         """
         :param rbf_kernel: standard emukit rbf-kernel
         :param measure: a Gaussian measure
@@ -229,7 +229,7 @@ class QuadratureRBFUniformMeasure(QuadratureRBF):
     """
 
     def __init__(self, rbf_kernel: IRBF, integral_bounds: Optional[List[Tuple[float, float]]],
-                 measure=UniformMeasure, variable_names: str= ''):
+                 measure=UniformMeasure, variable_names: str=''):
         """
         :param rbf_kernel: standard emukit rbf-kernel
         :param integral_bounds: defines the domain of the integral. List of D tuples, where D is the dimensionality
@@ -302,5 +302,4 @@ class QuadratureRBFUniformMeasure(QuadratureRBF):
 
         fraction = ((exp_lo - exp_up) / (self.lengthscale * np.sqrt(np.pi / 2.) * (erf_up - erf_lo))).T
 
-        return (self.qK(x2) * fraction) * self.measure.density
-
+        return self.qK(x2) * fraction
