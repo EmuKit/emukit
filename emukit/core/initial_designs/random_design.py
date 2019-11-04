@@ -10,7 +10,7 @@ from .. import ParameterSpace
 class RandomDesign(ModelFreeDesignBase):
     """
     Random experiment design.
-    Unofirm random values for all variables within the given bounds.
+    Uniform random values for all variables within the given bounds.
     """
     def __init__(self, parameter_space: ParameterSpace) -> None:
         """
