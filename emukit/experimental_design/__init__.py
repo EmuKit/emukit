@@ -2,4 +2,4 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from .model_free.random_design import RandomDesign  # noqa: F401
+from .experimental_design_loop import ExperimentalDesignLoop  # noqa: F401

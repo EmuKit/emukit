@@ -6,8 +6,8 @@ from emukit.core.loop.candidate_point_calculators import GreedyBatchPointCalcula
 from emukit.core.loop.loop_state import LoopState
 from emukit.core.optimization import GradientAcquisitionOptimizer
 from emukit.core.optimization.multi_source_acquisition_optimizer import MultiSourceAcquisitionOptimizer
-from emukit.experimental_design import RandomDesign
-from emukit.experimental_design.model_based.acquisitions import ModelVariance
+from emukit.core.initial_designs import RandomDesign
+from emukit.experimental_design.acquisitions import ModelVariance
 from emukit.model_wrappers import GPyModelWrapper
 from emukit.test_functions import multi_fidelity_forrester_function
 
