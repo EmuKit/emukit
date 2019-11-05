@@ -16,7 +16,7 @@ from emukit.core.acquisition.acquisition_per_cost import CostAcquisition
 
 from emukit.bayesian_optimization.acquisitions import ProbabilityOfImprovement
 from emukit.bayesian_optimization.acquisitions import ProbabilityOfFeasibility
-from emukit.experimental_design.model_based.acquisitions import ModelVariance, IntegratedVarianceReduction
+from emukit.experimental_design.acquisitions import ModelVariance, IntegratedVarianceReduction
 from emukit.model_wrappers.gpy_quadrature_wrappers import create_emukit_model_from_gpy_model
 from emukit.quadrature.acquisitions import SquaredCorrelation, MutualInformation
 from emukit.quadrature.methods import VanillaBayesianQuadrature

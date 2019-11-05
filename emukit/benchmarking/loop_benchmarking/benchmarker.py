@@ -5,8 +5,8 @@ from typing import Callable, List, Tuple, Union
 
 from ...core import ParameterSpace
 from ...core.loop import LoopState, UserFunction, UserFunctionWrapper
-from ...experimental_design import RandomDesign
-from ...experimental_design.model_free.base import ModelFreeDesignBase
+from ...core.initial_designs import RandomDesign
+from ...core.initial_designs.base import ModelFreeDesignBase
 from .benchmark_result import BenchmarkResult
 from .metrics import Metric
 

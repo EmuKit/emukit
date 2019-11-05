@@ -12,9 +12,9 @@ from scipy.optimize import bisect
 from ...core.acquisition import Acquisition
 from ...core.interfaces import IModel
 from ...core.parameter_space import ParameterSpace
+from ...core.initial_designs import RandomDesign
 
 from ..interfaces import IEntropySearchModel
-from ...experimental_design import RandomDesign
 
 
 class MaxValueEntropySearch(Acquisition):
