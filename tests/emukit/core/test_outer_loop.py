@@ -9,7 +9,7 @@ from emukit.core.loop import (OuterLoop, ModelUpdater, StoppingCondition, Candid
                               UserFunction, SequentialPointCalculator, FixedIntervalUpdater)
 from emukit.core.loop.loop_state import create_loop_state
 from emukit.core.optimization import GradientAcquisitionOptimizer
-from emukit.experimental_design.model_based.acquisitions import ModelVariance
+from emukit.experimental_design.acquisitions import ModelVariance
 from emukit.model_wrappers import GPyModelWrapper
 
 

@@ -12,7 +12,7 @@ from emukit.core.interfaces import IModel
 from emukit.core.loop.loop_state import create_loop_state
 from emukit.core.optimization import GradientAcquisitionOptimizer
 from emukit.core.loop.candidate_point_calculators import GreedyBatchPointCalculator
-from emukit.experimental_design.model_based.experimental_design_loop import ExperimentalDesignLoop
+from emukit.experimental_design import ExperimentalDesignLoop
 
 
 class MockModel(IModel):

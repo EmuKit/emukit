@@ -1,6 +1,6 @@
 import pytest
 
-from emukit.experimental_design.model_free.random_design import RandomDesign
+from emukit.core.initial_designs import RandomDesign
 from emukit.test_functions.multi_fidelity import (
     multi_fidelity_borehole_function, multi_fidelity_branin_function, multi_fidelity_currin_function,
     multi_fidelity_hartmann_3d, multi_fidelity_park_function)
