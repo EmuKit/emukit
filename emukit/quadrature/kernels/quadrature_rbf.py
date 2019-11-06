@@ -243,7 +243,7 @@ class QuadratureRBFUniformMeasure(QuadratureRBF):
 
         # construct bounds that are used in the computation of the kernel integrals. The lower bounds are the max of
         # the lower bounds of integral and measure. The upper bounds are the min of the upper bounds of integral and
-        # measure.
+        # measure, i.e., the resulting bounds are the overlap over the integral bounds and the measure bounds.
         if integral_bounds is None:
             bounds = measure.get_box()
         else:

@@ -115,7 +115,7 @@ def test_rbf_qkernel_lebesgue_qK(qrbf_lebesgue_finite):
 
 def test_qkernel_lebesgue_qKq(qrbf_lebesgue_finite):
     emukit_qrbf = qrbf_lebesgue_finite[0]
-    # interval was computed as in test_rbf_qkernel_no_measure_qK
+    # interval was computed as in test_rbf_qkernel_lebesgue_qK
     interval = [71.95519933967581, 72.05007241434173]
 
     qKq = emukit_qrbf.qKq()
@@ -195,7 +195,7 @@ def test_rbf_qkernel_uniform_infinite_qK(qrbf_uniform_infinite):
 
 def test_qkernel_uniform_infinite_qKq(qrbf_uniform_infinite):
     emukit_qrbf = qrbf_uniform_infinite[0]
-    # interval was computed as in test_rbf_qkernel_no_measure_qK
+    # interval was computed as in test_rbf_qkernel_uniform_infinite_qK
     interval = [0.24224605771012733, 0.24251553613161855]
 
     qKq = emukit_qrbf.qKq()
@@ -235,8 +235,16 @@ def test_rbf_qkernel_uniform_finite_qK(qrbf_uniform_finite):
 
 def test_qkernel_uniform_finite_qKq(qrbf_uniform_finite):
     emukit_qrbf = qrbf_uniform_finite[0]
-    # interval was computed as in test_rbf_qkernel_no_measure_qK
+    # interval was computed as in test_rbf_qkernel_uniform_finite_qK
     interval = [0.26910154162464783, 0.2718773521646697]
 
     qKq = emukit_qrbf.qKq()
     assert interval[0] < qKq < interval[1]
+
+
+def test_qkernel_uniform_finite_correct_box(qrbf_uniform_finite):
+    emukit_qrbf = qrbf_uniform_finite[0]
+    # integral bounds are [(-1, 2), (-3, 3)]
+    # measure bounds are [(1, 2), (-4, 2)]
+    # this test checks that the reasonable box is the union of those boxes
+    assert emukit_qrbf.reasonable_box_bounds.bounds == [(1, 2), (-3, 2)]
