@@ -223,9 +223,10 @@ class QuadratureRBFIsoGaussMeasure(QuadratureRBF):
 
 class QuadratureRBFUniformMeasure(QuadratureRBF):
     """
-    And RBF kernel with integrability over a uniform measure. Can only be used with finite and infinite integral bounds.
+    And RBF kernel with integrability over a uniform measure. Can be used with finite as well as infinite integral
+    bounds.
 
-    Note that each standard kernel goes with a corresponding quadrature kernel, in this case QuadratureRBF
+    Note that each standard kernel goes with a corresponding quadrature kernel, in this case standard rbf kernel.
     """
 
     def __init__(self, rbf_kernel: IRBF, integral_bounds: Optional[List[Tuple[float, float]]],
