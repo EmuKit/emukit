@@ -7,10 +7,11 @@ from scipy.linalg import lapack
 from typing import Tuple
 
 from ...quadrature.interfaces.base_gp import IBaseGaussianProcess
+from ...core.interfaces.models import IDifferentiable
 from .warped_bq_model import WarpedBayesianQuadratureModel
 
 
-class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel):
+class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel, IDifferentiable):
     """
     Vanilla Bayesian quadrature.
     """
@@ -30,26 +31,6 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel):
     def inverse_transform(self, Y: np.ndarray) -> np.ndarray:
         """ Transform from integrand to base-GP """
         return Y
-
-    def get_prediction_gradients(self, X: np.ndarray) -> Tuple:
-        """
-        Computes and returns model gradients of mean and variance at given points
-
-        :param X: points to compute gradients at
-        :returns: Tuple of gradients of mean and variance.
-        """
-        # gradient of mean
-        d_mean_dx = self.base_gp.kern.dK_dx1(X) @ self.base_gp.graminv_residual()
-
-        # gradient of variance
-        dKdiag_dx = self.base_gp.kern.dKdiag_dx(X)
-        dKxX_dx1 = self.base_gp.kern.dK_dx1(X, self.X)
-        lower_chol = self.base_gp.gram_chol()
-        KXx = self.base_gp.kern.K(self.base_gp.X, X)
-        graminv_KXx = lapack.dtrtrs(lower_chol.T, (lapack.dtrtrs(lower_chol, KXx, lower=1)[0]), lower=0)[0]
-        d_var_dx = dKdiag_dx - 2. * (dKxX_dx1 * np.transpose(graminv_KXx)).sum(axis=2, keepdims=False)
-
-        return d_mean_dx, d_var_dx
 
     def predict_base(self, X_pred: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
@@ -86,4 +67,22 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel):
                                                            lower=1)[0]).sum(axis=0, keepdims=True)[0][0]
         return integral_mean, integral_var
 
+    def get_prediction_gradients(self, X: np.ndarray) -> Tuple:
+        """
+        Computes and returns model gradients of mean and variance at given points
 
+        :param X: points to compute gradients at
+        :returns: Tuple of gradients of mean and variance.
+        """
+        # gradient of mean
+        d_mean_dx = self.base_gp.kern.dK_dx1(X) @ self.base_gp.graminv_residual()
+
+        # gradient of variance
+        dKdiag_dx = self.base_gp.kern.dKdiag_dx(X)
+        dKxX_dx1 = self.base_gp.kern.dK_dx1(X, self.X)
+        lower_chol = self.base_gp.gram_chol()
+        KXx = self.base_gp.kern.K(self.base_gp.X, X)
+        graminv_KXx = lapack.dtrtrs(lower_chol.T, (lapack.dtrtrs(lower_chol, KXx, lower=1)[0]), lower=0)[0]
+        d_var_dx = dKdiag_dx - 2. * (dKxX_dx1 * np.transpose(graminv_KXx)).sum(axis=2, keepdims=False)
+
+        return d_mean_dx, d_var_dx
