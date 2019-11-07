@@ -13,7 +13,6 @@ from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeas
 from emukit.quadrature.kernels import QuadratureRBFLebesgueMeasure, QuadratureRBFIsoGaussMeasure, QuadratureRBFUniformMeasure
 
 
-# samplers
 def _sample_uniform(num_samples: int, bounds: List[Tuple[float, float]]):
     D = len(bounds)
     samples = np.reshape(np.random.rand(num_samples * D), [num_samples, D])
@@ -29,7 +28,6 @@ def _sample_gauss_iso(num_samples: int, measure: IsotropicGaussianMeasure):
     return measure.mean + np.sqrt(measure.variance) * samples
 
 
-# lebesque
 def qK_lebesgue(num_samples: int, qrbf: QuadratureRBFLebesgueMeasure, x2: np.ndarray):
     bounds = qrbf.integral_bounds._bounds
     samples = _sample_uniform(num_samples, bounds)
@@ -48,7 +46,6 @@ def qKq_lebesgue(num_samples: int, qrbf: QuadratureRBFLebesgueMeasure):
     return np.mean(qKx) * volume
 
 
-# Gauss iso
 def qK_gauss_iso(num_samples: int, qrbf: QuadratureRBFIsoGaussMeasure, x2: np.ndarray):
     measure = qrbf.measure
     samples = _sample_gauss_iso(num_samples, measure)
@@ -63,7 +60,6 @@ def qKq_gauss_iso(num_samples: int, qrbf: QuadratureRBFIsoGaussMeasure):
     return np.mean(qKx)
 
 
-# uniform
 def qK_uniform(num_samples: int, qrbf: QuadratureRBFUniformMeasure, x2: np.ndarray):
     if qrbf.integral_bounds is None:
         bounds = qrbf.measure.bounds
