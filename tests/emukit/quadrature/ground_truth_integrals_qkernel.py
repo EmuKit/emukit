@@ -9,11 +9,10 @@ import GPy
 from typing import List, Tuple
 
 from emukit.model_wrappers.gpy_quadrature_wrappers import RBFGPy
-from emukit.quadrature.kernels import QuadratureRBFLebesgueMeasure, QuadratureRBFIsoGaussMeasure
-from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure
+from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure, UniformMeasure
+from emukit.quadrature.kernels import QuadratureRBFLebesgueMeasure, QuadratureRBFIsoGaussMeasure, QuadratureRBFUniformMeasure
 
 
-# samplers
 def _sample_uniform(num_samples: int, bounds: List[Tuple[float, float]]):
     D = len(bounds)
     samples = np.reshape(np.random.rand(num_samples * D), [num_samples, D])
@@ -24,12 +23,12 @@ def _sample_uniform(num_samples: int, bounds: List[Tuple[float, float]]):
 
 
 def _sample_gauss_iso(num_samples: int, measure: IsotropicGaussianMeasure):
-    samples = np.reshape(np.random.randn(num_samples * measure.dim), [num_samples, D])
+    D = measure.dim
+    samples = np.reshape(np.random.randn(num_samples * D), [num_samples, D])
     return measure.mean + np.sqrt(measure.variance) * samples
 
 
-# qK integrals
-def qK_lebesgue_measure(num_samples: int, qrbf: QuadratureRBFLebesgueMeasure, x2: np.ndarray):
+def qK_lebesgue(num_samples: int, qrbf: QuadratureRBFLebesgueMeasure, x2: np.ndarray):
     bounds = qrbf.integral_bounds._bounds
     samples = _sample_uniform(num_samples, bounds)
     Kx = qrbf.K(samples, x2)
@@ -38,14 +37,7 @@ def qK_lebesgue_measure(num_samples: int, qrbf: QuadratureRBFLebesgueMeasure, x2
     return np.mean(Kx, axis=0) * volume
 
 
-def qK_gauss_iso(num_samples: int, measure: IsotropicGaussianMeasure, qrbf: QuadratureRBFIsoGaussMeasure, x2: np.ndarray):
-    samples = _sample_gauss_iso(num_samples, measure)
-    Kx = qrbf.K(samples, x2)
-    return np.mean(Kx, axis=0)
-
-
-# qKq integrals
-def qKq_lebesgue_measure(num_samples: int, qrbf: QuadratureRBFLebesgueMeasure):
+def qKq_lebesgue(num_samples: int, qrbf: QuadratureRBFLebesgueMeasure):
     bounds = qrbf.integral_bounds._bounds
     samples = _sample_uniform(num_samples, bounds)
     qKx = qrbf.qK(samples)
@@ -54,41 +46,83 @@ def qKq_lebesgue_measure(num_samples: int, qrbf: QuadratureRBFLebesgueMeasure):
     return np.mean(qKx) * volume
 
 
-def qKq_gauss_iso(num_samples: int, measure: IsotropicGaussianMeasure, qrbf: QuadratureRBFIsoGaussMeasure):
+def qK_gauss_iso(num_samples: int, qrbf: QuadratureRBFIsoGaussMeasure, x2: np.ndarray):
+    measure = qrbf.measure
+    samples = _sample_gauss_iso(num_samples, measure)
+    Kx = qrbf.K(samples, x2)
+    return np.mean(Kx, axis=0)
+
+
+def qKq_gauss_iso(num_samples: int, qrbf: QuadratureRBFIsoGaussMeasure):
+    measure = qrbf.measure
     samples = _sample_gauss_iso(num_samples, measure)
     qKx = qrbf.qK(samples)
     return np.mean(qKx)
+
+
+def qK_uniform(num_samples: int, qrbf: QuadratureRBFUniformMeasure, x2: np.ndarray):
+    if qrbf.integral_bounds is None:
+        bounds = qrbf.measure.bounds
+        samples = _sample_uniform(num_samples, bounds)
+        Kx = qrbf.K(samples, x2)
+        return np.mean(Kx, axis=0)
+    else:
+        bounds = qrbf.integral_bounds._bounds
+        samples = _sample_uniform(num_samples, bounds)
+        Kx = qrbf.K(samples, x2) * qrbf.measure.compute_density(samples)[:, np.newaxis]
+        differences = np.array([x[1] - x[0] for x in bounds])
+        volume = np.prod(differences)
+        return np.mean(Kx, axis=0) * volume
+
+
+def qKq_uniform(num_samples: int, qrbf: QuadratureRBFUniformMeasure):
+    if qrbf.integral_bounds is None:
+        bounds = qrbf.measure.bounds
+        samples = _sample_uniform(num_samples, bounds)
+        qKx = qrbf.qK(samples)
+        return np.mean(qKx)
+    else:
+        bounds = qrbf.integral_bounds._bounds
+        samples = _sample_uniform(num_samples, bounds)
+        qKx = qrbf.qK(samples) * qrbf.measure.compute_density(samples)[np.newaxis, :]
+        differences = np.array([x[1] - x[0] for x in bounds])
+        volume = np.prod(differences)
+        return np.mean(qKx) * volume
 
 
 if __name__ == "__main__":
     np.random.seed(0)
 
     # === Choose MEASURE BELOW ======
-    MEASURE = 'Lebesgue'
-    #MEASURE = 'GaussIso'
+    #MEASURE_INTBOUNDS = 'Lebesgue-finite'
+    #MEASURE_INTBOUNDS = 'GaussIso-infinite'
+    #MEASURE_INTBOUNDS = 'Uniform-infinite'
+    MEASURE_INTBOUNDS = 'Uniform-finite'
     # === CHOOSE MEASURE ABOVE ======
 
     x1 = np.array([[-1, 1], [0, 0], [-2, 0.1]])
     x2 = np.array([[-1, 1], [0, 0], [-2, 0.1], [-3, 3]])
-    M1 = x1.shape[0]
-    M2 = x2.shape[0]
     D = x1.shape[1]
 
     gpy_kernel = GPy.kern.RBF(input_dim=D)
     emukit_rbf = RBFGPy(gpy_kernel)
 
-    if MEASURE == 'Lebesgue':
-        bounds = [(-1, 2), (-3, 3)]  # integral bounds
-        emukit_qrbf = QuadratureRBFLebesgueMeasure(emukit_rbf, integral_bounds=bounds)
-
-    elif MEASURE == 'GaussIso':
+    if MEASURE_INTBOUNDS == 'Lebesgue-finite':
+        emukit_qrbf = QuadratureRBFLebesgueMeasure(emukit_rbf, integral_bounds=[(-1, 2), (-3, 3)])
+    elif MEASURE_INTBOUNDS == 'GaussIso-infinite':
         measure = IsotropicGaussianMeasure(mean=np.arange(D), variance=2.)
         emukit_qrbf = QuadratureRBFIsoGaussMeasure(rbf_kernel=emukit_rbf, measure=measure)
+    elif MEASURE_INTBOUNDS == 'Uniform-infinite':
+        measure = UniformMeasure(bounds=[(0, 2), (-4, 3)])
+        emukit_qrbf = QuadratureRBFUniformMeasure(emukit_rbf, integral_bounds=None, measure=measure)
+    elif MEASURE_INTBOUNDS == 'Uniform-finite':
+        measure = UniformMeasure(bounds=[(1, 2), (-4, 2)])
+        emukit_qrbf = QuadratureRBFUniformMeasure(emukit_rbf, integral_bounds=[(-1, 2), (-3, 3)], measure=measure)
     else:
-        raise ValueError('Measure not defined.')
+        raise ValueError('Measure-integral-bounds combination not defined')
 
     print()
-    print('measure: {}'.format(MEASURE))
+    print('measure: {}'.format(MEASURE_INTBOUNDS))
     print('no dimensions: {}'.format(D))
     print()
 
@@ -102,12 +136,16 @@ if __name__ == "__main__":
     for i in range(num_runs):
         num_samples = int(num_samples)
 
-        if MEASURE == 'Lebesgue':
-            qK_samples = qK_lebesgue_measure(num_samples, emukit_qrbf, x2)
-        elif MEASURE == 'GaussIso':
-            qK_samples = qK_gauss_iso(num_samples, measure, emukit_qrbf, x2)
+        if MEASURE_INTBOUNDS == 'Lebesgue-finite':
+            qK_samples = qK_lebesgue(num_samples, emukit_qrbf, x2)
+        elif MEASURE_INTBOUNDS == 'GaussIso-infinite':
+            qK_samples = qK_gauss_iso(num_samples, emukit_qrbf, x2)
+        elif MEASURE_INTBOUNDS == 'Uniform-infinite':
+            qK_samples = qK_uniform(num_samples, emukit_qrbf, x2)
+        elif MEASURE_INTBOUNDS == 'Uniform-finite':
+            qK_samples = qK_uniform(num_samples, emukit_qrbf, x2)
         else:
-            raise ValueError('Measure not defined')
+            raise ValueError('Measure-integral-bounds combination not defined')
 
         qK_SAMPLES[i, :] = qK_samples
 
@@ -130,12 +168,16 @@ if __name__ == "__main__":
     for i in range(num_runs):
         num_samples = int(num_samples)
 
-        if MEASURE == 'Lebesgue':
-            qKq_samples = qKq_lebesgue_measure(num_samples, emukit_qrbf)
-        elif MEASURE == 'GaussIso':
-            qKq_samples = qKq_gauss_iso(num_samples, measure, emukit_qrbf)
+        if MEASURE_INTBOUNDS == 'Lebesgue-finite':
+            qKq_samples = qKq_lebesgue(num_samples, emukit_qrbf)
+        elif MEASURE_INTBOUNDS == 'GaussIso-infinite':
+            qKq_samples = qKq_gauss_iso(num_samples, emukit_qrbf)
+        elif MEASURE_INTBOUNDS == 'Uniform-infinite':
+            qKq_samples = qKq_uniform(num_samples, emukit_qrbf)
+        elif MEASURE_INTBOUNDS == 'Uniform-finite':
+            qKq_samples = qKq_uniform(num_samples, emukit_qrbf)
         else:
-            raise ValueError('Measure not defined')
+            raise ValueError('Measure-integral-bounds combination not defined')
 
         qKq_SAMPLES[i] = qKq_samples
 
