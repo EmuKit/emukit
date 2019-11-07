@@ -90,7 +90,7 @@ class BaseGaussianProcessGPy(IBaseGaussianProcess):
         ..math::
 
             (K_{XX} + \sigma^2 I)^{-1} (Y - m(X))
-`
+
         where the data is given by {X, Y} and m is the prior mean and sigma^2 the observation noise
 
         :return: the inverse Gram matrix multiplied with the mean-corrected data with shape: (number of datapoints, 1)
