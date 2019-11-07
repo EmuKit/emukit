@@ -6,12 +6,12 @@ import numpy as np
 from typing import Tuple, List
 
 from ...core.continuous_parameter import ContinuousParameter
-from ...core.interfaces.models import IModel
+from ...core.interfaces.models import IModel, IDifferentiable
 from ...quadrature.interfaces.base_gp import IBaseGaussianProcess
 from ...quadrature.kernels.bounds import BoxBounds
 
 
-class WarpedBayesianQuadratureModel(IModel):
+class WarpedBayesianQuadratureModel(IModel, IDifferentiable):
     """
     The general class for Bayesian quadrature (BQ) with a warped Gaussian process.
 
@@ -104,6 +104,15 @@ class WarpedBayesianQuadratureModel(IModel):
         :return: predictive mean, predictive variances of warped-GP, both shapes (n_points, 1)
         """
         return self.predict_base(X_pred)[:2]
+
+    def get_prediction_gradients(self, X: np.ndarray) -> Tuple:
+        """
+        Computes and returns model gradients of mean and variance at given points
+
+        :param X: points to compute gradients at
+        :returns: Tuple of gradients of mean and variance.
+        """
+        raise NotImplementedError
 
     def set_data(self, X: np.ndarray, Y: np.ndarray) -> None:
         """
