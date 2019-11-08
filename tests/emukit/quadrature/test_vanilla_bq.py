@@ -106,12 +106,6 @@ def test_vanilla_bq_model():
     assert_array_equal(method.X, X_train)
     assert_array_equal(method.Y, Y_train)
     assert_array_equal(method.integral_bounds.bounds, mock_bounds.bounds)
-    # we assert that the integral bounds are the same in the method and the quadrature kernel, since all integration
-    # happens in the kernel. The test is restrictive but easier to do for the init than behavioral test. There are some
-    # behavioral tests for setting new bounds in the vanilla_bq method and the bounds itself. Setting the integral
-    # bounds should be done with care.
-    assert method.integral_bounds == mock_bounds
-    assert method.integral_parameters == 2 * [mock_cparam]
 
 
 def test_vanilla_bq_integrate(vanilla_bq):
