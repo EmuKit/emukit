@@ -18,7 +18,7 @@ from emukit.bayesian_optimization.acquisitions import ProbabilityOfImprovement
 from emukit.bayesian_optimization.acquisitions import ProbabilityOfFeasibility
 from emukit.experimental_design.acquisitions import ModelVariance, IntegratedVarianceReduction
 from emukit.model_wrappers.gpy_quadrature_wrappers import create_emukit_model_from_gpy_model
-from emukit.quadrature.acquisitions import SquaredCorrelation, MutualInformation
+from emukit.quadrature.acquisitions import SquaredCorrelation, MutualInformation, UncertaintySampling
 from emukit.quadrature.methods import VanillaBayesianQuadrature
 
 
@@ -36,6 +36,7 @@ acquisition_tests = [acquisition_test_tuple('negative_lower_confidence_bound_acq
                      acquisition_test_tuple('model_variance_acquisition', True, 1e-5),
                      acquisition_test_tuple('squared_correlation_acquisition', True, 1e-3),
                      acquisition_test_tuple('mutual_information_acquisition', True, 1e-3),
+                     acquisition_test_tuple('uncertainty_sampling_acquisition', True, 1e-3),
                      acquisition_test_tuple('entropy_search_acquisition', False, np.nan),
                      acquisition_test_tuple('max_value_entropy_search_acquisition', False, np.nan),
                      acquisition_test_tuple('multi_source_entropy_search_acquisition', False, np.nan),
@@ -117,6 +118,11 @@ def squared_correlation_acquisition(vanilla_bq_model):
 @pytest.fixture
 def mutual_information_acquisition(vanilla_bq_model):
     return MutualInformation(vanilla_bq_model)
+
+
+@pytest.fixture
+def uncertainty_sampling_acquisition(vanilla_bq):
+    return UncertaintySampling(vanilla_bq_model)
 
 
 @pytest.fixture

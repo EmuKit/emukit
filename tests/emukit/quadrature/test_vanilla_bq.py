@@ -76,6 +76,12 @@ def test_vanilla_bq_shapes(vanilla_bq):
     assert res[0].shape == (x.shape[0], 1)
     assert res[1].shape == (x.shape[0], x.shape[0])
 
+    # predict gradients
+    res = vanilla_bq.get_prediction_gradients(x)
+    assert len(res) == 2
+    assert res[0].shape == (x.shape[0], x.shape[1])
+    assert res[1].shape == (x.shape[0], x.shape[1])
+
 
 def test_vanilla_bq_transformations():
     X = np.random.rand(5, 2)

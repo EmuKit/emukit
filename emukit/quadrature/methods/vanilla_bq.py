@@ -73,8 +73,8 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel, IDifferentiable):
         """
         Computes and returns model gradients of mean and variance at given points
 
-        :param X: points to compute gradients at
-        :returns: Tuple of gradients of mean and variance.
+        :param X: points to compute gradients at, shape (num_points, dim)
+        :returns: Tuple of gradients of mean and variance, shapes of both (num_points, dim)
         """
         # gradient of mean
         d_mean_dx = (self.base_gp.kern.dK_dx1(X, self.X) @ self.base_gp.graminv_residual())[:, :, 0].T
