@@ -13,7 +13,9 @@ from ...quadrature.methods import WarpedBayesianQuadratureModel
 class UncertaintySampling(Acquisition):
     """
     Uncertainty sampling acquisition function for (warped) Bayesian quadrature.
-    The variance of the approximate transformed GP is used.
+
+    The variance of the approximate transformed GP is used. If the integration measure is a probability measure,
+    then the variance will we weighted with the probability density at each point.
     """
 
     def __init__(self, model: Union[WarpedBayesianQuadratureModel, IDifferentiable]):
