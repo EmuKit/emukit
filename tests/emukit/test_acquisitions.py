@@ -121,7 +121,7 @@ def mutual_information_acquisition(vanilla_bq_model):
 
 
 @pytest.fixture
-def uncertainty_sampling_acquisition(vanilla_bq):
+def uncertainty_sampling_acquisition(vanilla_bq_model):
     return UncertaintySampling(vanilla_bq_model)
 
 
