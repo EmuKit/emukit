@@ -43,7 +43,7 @@ class QuadratureRBF(QuadratureKernel):
 
     def qK(self, x2: np.ndarray) -> np.ndarray:
         """
-        RBF kernel with the first component integrated out aka. kernel mean
+        RBF kernel with the first component integrated out aka kernel mean
 
         :param x2: remaining argument of the once integrated kernel, shape (n_point N, input_dim)
         :returns: kernel mean at location x2, shape (1, N)
@@ -52,14 +52,14 @@ class QuadratureRBF(QuadratureKernel):
 
     def Kq(self, x1: np.ndarray) -> np.ndarray:
         """
-        RBF kernel with the second component integrated out aka. kernel mean
+        RBF kernel with the second component integrated out aka kernel mean
 
         :param x1: remaining argument of the once integrated kernel, shape (n_point N, input_dim)
         :returns: kernel mean at location x1, shape (N, 1)
         """
         return self.qK(x1).T
 
-    def qKq(self) -> np.float:
+    def qKq(self) -> float:
         """
         RBF kernel integrated over both arguments x1 and x2
 
@@ -125,7 +125,7 @@ class QuadratureRBFLebesgueMeasure(QuadratureRBF):
 
     def qK(self, x2: np.ndarray) -> np.ndarray:
         """
-        RBF kernel with the first component integrated out aka. kernel mean
+        RBF kernel with the first component integrated out aka kernel mean
 
         :param x2: remaining argument of the once integrated kernel, shape (n_point N, input_dim)
         :returns: kernel mean at location x2, shape (1, N)
@@ -138,7 +138,7 @@ class QuadratureRBFLebesgueMeasure(QuadratureRBF):
 
         return kernel_mean.reshape(1, -1)
 
-    def qKq(self) -> np.float:
+    def qKq(self) -> float:
         """
         RBF kernel integrated over both arguments x1 and x2
 
@@ -151,7 +151,7 @@ class QuadratureRBFLebesgueMeasure(QuadratureRBF):
         exp_term = np.exp(-diff_bounds_scaled**2) - 1.
         erf_term = erf(diff_bounds_scaled) * diff_bounds_scaled * np.sqrt(np.pi)
 
-        return np.float(prefac * (exp_term + erf_term).prod())
+        return float(prefac * (exp_term + erf_term).prod())
 
     def dqK_dx(self, x2: np.ndarray) -> np.ndarray:
         """
@@ -188,7 +188,7 @@ class QuadratureRBFIsoGaussMeasure(QuadratureRBF):
 
     def qK(self, x2: np.ndarray, scale_factor: float = 1.) -> np.ndarray:
         """
-        RBF kernel with the first component integrated out aka. kernel mean
+        RBF kernel with the first component integrated out aka kernel mean
 
         :param x2: remaining argument of the once integrated kernel, shape (n_point N, input_dim)
         :param scale_factor: scales the lengthscale of the RBF kernel with the multiplicative factor.
@@ -201,7 +201,7 @@ class QuadratureRBFIsoGaussMeasure(QuadratureRBF):
         kernel_mean = (self.variance / det_factor) * np.exp(- np.sum(scaled_vector_diff ** 2, axis=1))
         return kernel_mean.reshape(1, -1)
 
-    def qKq(self) -> np.float:
+    def qKq(self) -> float:
         """
         RBF kernel integrated over both arguments x1 and x2
 
@@ -209,7 +209,7 @@ class QuadratureRBFIsoGaussMeasure(QuadratureRBF):
         """
         factor = (2 * self.measure.variance / self.lengthscale ** 2 + 1) ** (self.input_dim / 2)
         result = self.variance / factor
-        return np.float(result)
+        return float(result)
 
     def dqK_dx(self, x2: np.ndarray) -> np.ndarray:
         """
@@ -232,7 +232,7 @@ class QuadratureRBFUniformMeasure(QuadratureRBF):
     """
 
     def __init__(self, rbf_kernel: IRBF, integral_bounds: Optional[List[Tuple[float, float]]],
-                 measure=UniformMeasure, variable_names: str=''):
+                 measure: UniformMeasure, variable_names: str=''):
         """
         :param rbf_kernel: standard emukit rbf-kernel
         :param integral_bounds: defines the domain of the integral. List of D tuples, where D is the dimensionality
@@ -262,7 +262,7 @@ class QuadratureRBFUniformMeasure(QuadratureRBF):
 
     def qK(self, x2: np.ndarray) -> np.ndarray:
         """
-        RBF kernel with the first component integrated out aka. kernel mean
+        RBF kernel with the first component integrated out aka kernel mean
 
         :param x2: remaining argument of the once integrated kernel, shape (n_point N, input_dim)
         :returns: kernel mean at location x2, shape (1, N)
@@ -275,7 +275,7 @@ class QuadratureRBFUniformMeasure(QuadratureRBF):
 
         return kernel_mean.reshape(1, -1) * self.measure.density
 
-    def qKq(self) -> np.float:
+    def qKq(self) -> float:
         """
         RBF kernel integrated over both arguments x1 and x2
 

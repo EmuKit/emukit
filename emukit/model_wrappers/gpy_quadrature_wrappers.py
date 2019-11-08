@@ -196,7 +196,7 @@ def create_emukit_model_from_gpy_model(gpy_model: GPy.models.GPRegression,
         raise ValueError('integral_bounds are infinite and measure is standard Lebesgue. Choose either finite bounds '
                          'or an appropriate integration measure.')
 
-    # infinite bounds. Gauss yes, uniform measure not implemented yet
+    # infinite bounds: Gauss and uniform measure only
     elif (integral_bounds is None) and (measure is not None):
         if isinstance(measure, UniformMeasure):
             quadrature_kernel_emukit = QuadratureRBFUniformMeasure(rbf_kernel=standard_kernel_emukit,
@@ -217,7 +217,7 @@ def create_emukit_model_from_gpy_model(gpy_model: GPy.models.GPRegression,
                                                                 integral_bounds=integral_bounds,
                                                                 variable_names=integral_name)
 
-    # finite bounds: measure: uniform only not implemented
+    # finite bounds: measure: uniform measure only
     else:
         if isinstance(measure, UniformMeasure):
             quadrature_kernel_emukit = QuadratureRBFUniformMeasure(rbf_kernel=standard_kernel_emukit,
