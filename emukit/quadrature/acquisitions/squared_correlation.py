@@ -98,7 +98,7 @@ class SquaredCorrelation(Acquisition):
         :return: the gradient of (y_predictive_var, predictive_cov) wrt. x at param x, shapes (n_points, input_dim)
         """
         # gradient of predictive variance of y
-        d_y_predictive_var_dx = self.model.get_prediction_gradients(x)[1]
+        d_y_predictive_var_dx = self.model.get_prediction_gradients(x)[1].T
 
         # gradient of predictive covariance between integral and (x, y)-pair
         dqKx_dx = np.transpose(self.model.base_gp.kern.dqK_dx(x))

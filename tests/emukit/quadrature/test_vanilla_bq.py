@@ -4,6 +4,7 @@
 
 import numpy as np
 from numpy.testing import assert_array_equal
+from math import isclose
 import mock
 import GPy
 import pytest
@@ -15,6 +16,10 @@ from emukit.quadrature.kernels.quadrature_kernels import QuadratureKernel
 from emukit.quadrature.kernels import QuadratureRBFLebesgueMeasure
 from emukit.core.continuous_parameter import ContinuousParameter
 from emukit.model_wrappers.gpy_quadrature_wrappers import RBFGPy, BaseGaussianProcessGPy
+
+
+REL_TOL = 1e-5
+ABS_TOL = 1e-4
 
 
 @pytest.fixture
@@ -121,3 +126,40 @@ def test_vanilla_bq_integrate(vanilla_bq):
     integral_value, integral_variance = vanilla_bq.integrate()
     assert interval_mean[0] < integral_value < interval_mean[1]
     assert interval_var[0] < integral_variance < interval_var[1]
+
+
+def test_vanilla_bq_gradients(vanilla_bq):
+    N = 4
+    D = 2
+    x = np.reshape(np.random.randn(D * N), [N, D])
+
+    # mean
+    mean_func = lambda z: vanilla_bq.predict(z)[0]
+    mean_grad_func = lambda z: vanilla_bq.get_prediction_gradients(z)[0]
+    _check_grad(mean_func, mean_grad_func, x)
+
+    # var
+    var_func = lambda z: vanilla_bq.predict(z)[1]
+    var_grad_func = lambda z: vanilla_bq.get_prediction_gradients(z)[1]
+    _check_grad(var_func, var_grad_func, x)
+
+
+def _compute_numerical_gradient(func, grad_func, x, eps=1e-6):
+    f = func(x)
+    grad = grad_func(x)
+
+    grad_num = np.zeros(grad.shape)
+    for d in range(x.shape[1]):
+        x_tmp = x.copy()
+        x_tmp[:, d] = x_tmp[:, d] + eps
+        f_tmp = func(x_tmp)
+        grad_num_d = (f_tmp - f) / eps
+        grad_num[:, d] = grad_num_d[:, 0]
+    return grad, grad_num
+
+
+def _check_grad(func, grad_func, x):
+    grad, grad_num = _compute_numerical_gradient(func, grad_func, x)
+    isclose_all = 1 - np.array([isclose(grad[i, j], grad_num[i, j], rel_tol=REL_TOL, abs_tol=ABS_TOL)
+                                for i in range(grad.shape[0]) for j in range(grad.shape[1])])
+    assert isclose_all.sum() == 0

@@ -14,6 +14,8 @@ from .warped_bq_model import WarpedBayesianQuadratureModel
 class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel, IDifferentiable):
     """
     Vanilla Bayesian quadrature.
+
+    Vanilla Bayesian quadrature uses a Gaussian process as surrogate for the integrand.
     """
 
     def __init__(self, base_gp: IBaseGaussianProcess, X: np.ndarray, Y: np.ndarray):
@@ -75,7 +77,7 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel, IDifferentiable):
         :returns: Tuple of gradients of mean and variance.
         """
         # gradient of mean
-        d_mean_dx = self.base_gp.kern.dK_dx1(X, self.X) @ self.base_gp.graminv_residual()
+        d_mean_dx = (self.base_gp.kern.dK_dx1(X, self.X) @ self.base_gp.graminv_residual())[:, :, 0].T
 
         # gradient of variance
         dKdiag_dx = self.base_gp.kern.dKdiag_dx(X)
@@ -85,4 +87,4 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel, IDifferentiable):
         graminv_KXx = lapack.dtrtrs(lower_chol.T, (lapack.dtrtrs(lower_chol, KXx, lower=1)[0]), lower=0)[0]
         d_var_dx = dKdiag_dx - 2. * (dKxX_dx1 * np.transpose(graminv_KXx)).sum(axis=2, keepdims=False)
 
-        return d_mean_dx, d_var_dx
+        return d_mean_dx, d_var_dx.T
