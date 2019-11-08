@@ -4,8 +4,13 @@
 
 import numpy as np
 import pytest
+from math import isclose
 
 from emukit.quadrature.kernels.integration_measures import UniformMeasure, IsotropicGaussianMeasure
+
+
+REL_TOL = 1e-5
+ABS_TOL = 1e-4
 
 
 def test_uniform_measure_shapes():
@@ -31,8 +36,15 @@ def test_uniform_measure_wrong_bounds():
     with pytest.raises(ValueError):
         UniformMeasure(bounds)
 
+
 def test_uniform_measure_gradients():
-    pass
+    measure_bounds = [(-1, 2), (0, 1)]
+    measure = UniformMeasure(bounds=measure_bounds)
+
+    N = 3
+    D = len(measure_bounds)
+    x = np.reshape(np.random.randn(D * N), [N, D])
+    _check_grad(measure, x)
 
 
 def test_iso_gauss_measure_shapes():
@@ -65,6 +77,15 @@ def test_iso_gauss_measure_invalid_input():
         IsotropicGaussianMeasure(mean=mean_wrong_dim, variance=1.)
 
 
+def test_iso_gauss_measure_gradients():
+    D = 2
+    measure = IsotropicGaussianMeasure(mean=np.random.randn(D), variance=np.random.randn()**2)
+
+    N = 3
+    x = np.reshape(np.random.randn(D * N), [N, D])
+    _check_grad(measure, x)
+
+
 def _compute_numerical_gradient(m, x, eps=1e-6):
     f = m.compute_density(x)
     grad = m.compute_density_gradient(x)
@@ -75,7 +96,7 @@ def _compute_numerical_gradient(m, x, eps=1e-6):
         x_tmp[:, d] = x_tmp[:, d] + eps
         f_tmp = m.compute_density(x_tmp)
         grad_num_d = (f_tmp - f) / eps
-        grad_num[:, d] = grad_num_d[:, 0]
+        grad_num[:, d] = grad_num_d
     return grad, grad_num
 
 

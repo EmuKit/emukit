@@ -159,7 +159,7 @@ class IsotropicGaussianMeasure(IntegrationMeasure):
         :return: the gradient of the density at x, shape (num_points, dim)
         """
         values = self.compute_density(x)
-        return (- values / self.variance) * (x - self.mean)
+        return ((- values / self.variance) * (x - self.mean).T).T
 
     def get_box(self) -> List[Tuple[float, float]]:
         """

@@ -75,7 +75,7 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel, IDifferentiable):
         :returns: Tuple of gradients of mean and variance.
         """
         # gradient of mean
-        d_mean_dx = self.base_gp.kern.dK_dx1(X) @ self.base_gp.graminv_residual()
+        d_mean_dx = self.base_gp.kern.dK_dx1(X, self.X) @ self.base_gp.graminv_residual()
 
         # gradient of variance
         dKdiag_dx = self.base_gp.kern.dKdiag_dx(X)
