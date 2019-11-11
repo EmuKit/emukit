@@ -14,9 +14,9 @@ def test_compute_ecdf():
     error = np.random.randn(100, 20, 50)
     targets = np.random.rand(100, 10)
 
-    ecdf = compute_ecdf(error, targets)
+    error_range, cdf = compute_ecdf(error, targets)
 
-    assert len(ecdf["x"]) == len(ecdf["y"])
+    assert len(error_range) == len(cdf)
 
 
 def compute_ranks():
