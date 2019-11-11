@@ -24,6 +24,11 @@ def test_uniform_measure_shapes():
     res = measure.compute_density(x)
     assert res.shape == (N,)
 
+    # sampling capabilities
+    assert measure.can_sample
+    res = measure.get_samples(N)
+    assert res.shape == (N, D)
+
 
 def test_uniform_measure_wrong_bounds():
     bounds = [(-1, 1), (3, 2), (1.3, 5.)]
@@ -45,6 +50,11 @@ def test_iso_gauss_measure_shapes():
 
     res = measure.compute_density(x)
     assert res.shape == (N, )
+
+    # sampling capabilities
+    assert measure.can_sample
+    res = measure.get_samples(N)
+    assert res.shape == (N, D)
 
 
 def test_iso_gauss_measure_invalid_input():

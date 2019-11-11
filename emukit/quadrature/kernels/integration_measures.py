@@ -32,8 +32,26 @@ class IntegrationMeasure:
         """
         raise NotImplementedError
 
+    @property
+    def can_sample(self):
+        """True if combined with IntegrationMeasureSampler"""
+        raise NotImplementedError
 
-class UniformMeasure(IntegrationMeasure):
+
+class IntegrationMeasureSampler:
+    """Augments the integration measure with sampling capabilities. This might be needed for some acquisition
+    functions."""
+
+    def get_samples(self, num_samples: int) -> np.ndarray:
+        """
+        samples from the probability distribution defined by the integration measure.
+        :param num_samples: number of samples
+        :return: samples, shape (num_samples, dim)
+        """
+        raise NotImplementedError
+
+
+class UniformMeasure(IntegrationMeasure, IntegrationMeasureSampler):
     """The Uniform measure"""
 
     def __init__(self, bounds: List[Tuple[float, float]]):
@@ -62,6 +80,10 @@ class UniformMeasure(IntegrationMeasure):
                 volume))
         return float(1. / volume)
 
+    @property
+    def can_sample(self):
+        return True
+
     def compute_density(self, x: np.ndarray) -> np.ndarray:
         """
         Computes the density at point x
@@ -87,8 +109,20 @@ class UniformMeasure(IntegrationMeasure):
         """
         return self.bounds
 
+    def get_samples(self, num_samples: int) -> np.ndarray:
+        """
+        samples from the uniform distribution.
+        :param num_samples: number of samples
+        :return: samples, shape (num_samples, dim)
+        """
+        D = len(self.bounds)
+        samples = np.reshape(np.random.rand(num_samples * D), [num_samples, D])
+        for d in range(D):
+            samples[:, d] = samples[:, d] * (self.bounds[d][1] - self.bounds[d][0]) + self.bounds[d][0]
+        return samples
 
-class IsotropicGaussianMeasure(IntegrationMeasure):
+
+class IsotropicGaussianMeasure(IntegrationMeasure, IntegrationMeasureSampler):
     """
     The isotropic Gaussian measure.
 
@@ -124,6 +158,10 @@ class IsotropicGaussianMeasure(IntegrationMeasure):
     def full_covariance_matrix(self):
         return self.variance * np.eye(self.dim)
 
+    @property
+    def can_sample(self):
+        return True
+
     def compute_density(self, x: np.ndarray) -> np.ndarray:
         """
         Computes the density at point x
@@ -148,6 +186,15 @@ class IsotropicGaussianMeasure(IntegrationMeasure):
         lower = self.mean - factor * np.sqrt(self.variance)
         upper = self.mean + factor * np.sqrt(self.variance)
         return list(zip(lower, upper))
+
+    def get_samples(self, num_samples: int) -> np.ndarray:
+        """
+        samples from the isotropic Gaussian distribution.
+        :param num_samples: number of samples
+        :return: samples, shape (num_samples, dim)
+        """
+        samples = np.reshape(np.random.randn(num_samples * self.dim), [num_samples, self.dim])
+        return self.mean + np.sqrt(self.variance) * samples
 
 
 class NumericalPrecisionError(Exception):
