@@ -14,8 +14,10 @@ Sphinx-apidoc is used to generate API reference source .rst files. If you are ch
 
 ```
 rm api/*
-sphinx-apidoc -d 1 -E -o ./api ../emukit
+sphinx-apidoc -d 1 -E -o ./api ../emukit  ../emukit/examples
 ```
+
+Notice we exclude examples from documentation, as they have specific dependencies.
 
 ### Generating docs locally
 
