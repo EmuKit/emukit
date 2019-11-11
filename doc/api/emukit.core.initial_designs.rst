@@ -1,20 +1,20 @@
-emukit.model\_wrappers package
-==============================
+emukit.core.initial\_designs package
+====================================
 
 Submodules
 ----------
 
-.. automodule:: emukit.model_wrappers.gpy_model_wrappers
+.. automodule:: emukit.core.initial_designs.base
     :members:
     :undoc-members:
     :show-inheritance:
 
-.. automodule:: emukit.model_wrappers.gpy_quadrature_wrappers
+.. automodule:: emukit.core.initial_designs.latin_design
     :members:
     :undoc-members:
     :show-inheritance:
 
-.. automodule:: emukit.model_wrappers.simple_gp_model
+.. automodule:: emukit.core.initial_designs.random_design
     :members:
     :undoc-members:
     :show-inheritance:
@@ -23,7 +23,7 @@ Submodules
 Module contents
 ---------------
 
-.. automodule:: emukit.model_wrappers
+.. automodule:: emukit.core.initial_designs
     :members:
     :undoc-members:
     :show-inheritance:
