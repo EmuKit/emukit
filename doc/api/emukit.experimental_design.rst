@@ -6,9 +6,17 @@ Subpackages
 
 .. toctree::
 
+    emukit.experimental_design.acquisitions
     emukit.experimental_design.interfaces
-    emukit.experimental_design.model_based
-    emukit.experimental_design.model_free
+
+Submodules
+----------
+
+.. automodule:: emukit.experimental_design.experimental_design_loop
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

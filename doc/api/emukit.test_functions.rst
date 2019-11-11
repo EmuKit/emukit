@@ -6,15 +6,12 @@ Subpackages
 
 .. toctree::
 
+    emukit.test_functions.multi_fidelity
+    emukit.test_functions.quadrature
     emukit.test_functions.sensitivity
 
 Submodules
 ----------
-
-.. automodule:: emukit.test_functions.borehole
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
 .. automodule:: emukit.test_functions.branin
     :members:
@@ -31,7 +28,7 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
-.. automodule:: emukit.test_functions.quadrature_functions
+.. automodule:: emukit.test_functions.sixhumpcamel
     :members:
     :undoc-members:
     :show-inheritance:

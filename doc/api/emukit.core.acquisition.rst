@@ -14,6 +14,11 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+.. automodule:: emukit.core.acquisition.integrated_acquisition
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------
