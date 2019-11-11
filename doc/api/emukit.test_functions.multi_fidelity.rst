@@ -1,30 +1,30 @@
-emukit.benchmarking.loop\_benchmarking package
+emukit.test\_functions.multi\_fidelity package
 ==============================================
 
 Submodules
 ----------
 
-.. automodule:: emukit.benchmarking.loop_benchmarking.benchmark_plot
+.. automodule:: emukit.test_functions.multi_fidelity.borehole
     :members:
     :undoc-members:
     :show-inheritance:
 
-.. automodule:: emukit.benchmarking.loop_benchmarking.benchmark_result
+.. automodule:: emukit.test_functions.multi_fidelity.branin
     :members:
     :undoc-members:
     :show-inheritance:
 
-.. automodule:: emukit.benchmarking.loop_benchmarking.benchmarker
+.. automodule:: emukit.test_functions.multi_fidelity.currin
     :members:
     :undoc-members:
     :show-inheritance:
 
-.. automodule:: emukit.benchmarking.loop_benchmarking.metrics
+.. automodule:: emukit.test_functions.multi_fidelity.hartmann
     :members:
     :undoc-members:
     :show-inheritance:
 
-.. automodule:: emukit.benchmarking.loop_benchmarking.random_search
+.. automodule:: emukit.test_functions.multi_fidelity.park
     :members:
     :undoc-members:
     :show-inheritance:
@@ -33,7 +33,7 @@ Submodules
 Module contents
 ---------------
 
-.. automodule:: emukit.benchmarking.loop_benchmarking
+.. automodule:: emukit.test_functions.multi_fidelity
     :members:
     :undoc-members:
     :show-inheritance:
