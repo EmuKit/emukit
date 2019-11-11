@@ -9,7 +9,6 @@ Subpackages
     emukit.bayesian_optimization
     emukit.benchmarking
     emukit.core
-    emukit.examples
     emukit.experimental_design
     emukit.model_wrappers
     emukit.multi_fidelity
