@@ -83,7 +83,7 @@ See installing from source.
 ### Running tests
 Run the full suite of tests by running:
 ```
-python -m pytests
+python -m pytest
 ```
 from the top level directory. This also does coverage checks.
 
@@ -98,7 +98,7 @@ make html
 
 ## Licensing
 
-See the [LICENSE](https://github.com/${GITHUB_ORG}/${GITHUB_REPO}/blob/master/LICENSE) file for our project's licensing. We will ask you to confirm the licensing of your contribution.
+See the [LICENSE](LICENSE) file for our project's licensing. We will ask you to confirm the licensing of your contribution.
 
 We may ask you to sign a [Contributor License Agreement (CLA)](http://en.wikipedia.org/wiki/Contributor_License_Agreement) for larger changes.
 

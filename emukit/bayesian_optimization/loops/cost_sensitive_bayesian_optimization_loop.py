@@ -48,7 +48,7 @@ class CostSensitiveBayesianOptimizationLoop(OuterLoop):
             acquisition_optimizer = GradientAcquisitionOptimizer(space)
         candidate_point_calculator = SequentialPointCalculator(acquisition, acquisition_optimizer)
 
-        loop_state = create_loop_state(model_objective.X, model_objective.Y, model_cost.Y)
+        loop_state = create_loop_state(model_objective.X, model_objective.Y, cost=model_cost.Y)
 
         super(CostSensitiveBayesianOptimizationLoop, self).__init__(candidate_point_calculator,
                                                                     [model_updater_objective, model_updater_cost],

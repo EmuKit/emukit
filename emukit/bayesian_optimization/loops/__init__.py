@@ -3,3 +3,4 @@
 
 
 from .bayesian_optimization_loop import BayesianOptimizationLoop  # noqa: F401
+from .unknown_constraint_bayesian_optimization_loop import UnknownConstraintBayesianOptimizationLoop  # noqa: F401
