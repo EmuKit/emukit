@@ -24,7 +24,17 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+.. automodule:: emukit.bayesian_optimization.acquisitions.max_value_entropy_search
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 .. automodule:: emukit.bayesian_optimization.acquisitions.negative_lower_confidence_bound
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. automodule:: emukit.bayesian_optimization.acquisitions.probability_of_feasibility
     :members:
     :undoc-members:
     :show-inheritance:

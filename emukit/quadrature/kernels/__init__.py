@@ -3,5 +3,5 @@
 
 
 from .quadrature_kernels import QuadratureKernel  # noqa: F401
-from .integral_bounds import IntegralBounds  # noqa: F401
-from .quadrature_rbf import QuadratureRBF  # noqa: F401
+from .bounds import BoxBounds  # noqa: F401
+from .quadrature_rbf import QuadratureRBFLebesgueMeasure, QuadratureRBFIsoGaussMeasure, QuadratureRBFUniformMeasure  # noqa: F401

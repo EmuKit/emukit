@@ -14,6 +14,11 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+.. automodule:: emukit.model_wrappers.simple_gp_model
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------

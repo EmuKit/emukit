@@ -10,9 +10,9 @@ import pytest
 
 from emukit.quadrature.interfaces.base_gp import IBaseGaussianProcess
 from emukit.quadrature.methods.vanilla_bq import VanillaBayesianQuadrature
-from emukit.quadrature.kernels.integral_bounds import IntegralBounds
+from emukit.quadrature.kernels.bounds import BoxBounds
 from emukit.quadrature.kernels.quadrature_kernels import QuadratureKernel
-from emukit.quadrature.kernels import QuadratureRBF
+from emukit.quadrature.kernels import QuadratureRBFLebesgueMeasure
 from emukit.core.continuous_parameter import ContinuousParameter
 from emukit.model_wrappers.gpy_quadrature_wrappers import RBFGPy, BaseGaussianProcessGPy
 
@@ -22,12 +22,12 @@ def vanilla_bq():
     X = np.array([[-1, 1], [0, 0], [-2, 0.1]])
     Y = np.array([[1], [2], [3]])
     D = X.shape[1]
-    integral_bounds = D * [(-3, 3)]
+    integral_bounds = [(-1, 2), (-3, 3)]
 
     gpy_model = GPy.models.GPRegression(X=X, Y=Y, kernel=GPy.kern.RBF(input_dim=D))
-    qrbf = QuadratureRBF(RBFGPy(gpy_model.kern), integral_bounds=integral_bounds)
+    qrbf = QuadratureRBFLebesgueMeasure(RBFGPy(gpy_model.kern), integral_bounds=integral_bounds)
     model = BaseGaussianProcessGPy(kern=qrbf, gpy_model=gpy_model)
-    vanilla_bq = VanillaBayesianQuadrature(base_gp=model)
+    vanilla_bq = VanillaBayesianQuadrature(base_gp=model, X=X, Y=Y)
     return vanilla_bq
 
 
@@ -72,43 +72,12 @@ def test_vanilla_bq_shapes(vanilla_bq):
     assert res[1].shape == (x.shape[0], x.shape[0])
 
 
-def test_vanilla_bq_set_new_bounds(vanilla_bq):
-    new_bounds = 2 * [(-2, 2)]
-    new_lower = np.array([[-2, -2]])
-    new_upper = np.array([[2, 2]])
-    vanilla_bq.integral_bounds = new_bounds
-
-    res = vanilla_bq.integral_bounds.get_lower_and_upper_bounds()
-    assert_array_equal(res[0], new_lower)
-    assert_array_equal(res[1], new_upper)
-
-    res = vanilla_bq.integral_bounds.bounds
-    assert all([res_i == nb_i for res_i, nb_i in zip(res, new_bounds)])
-
-
-def test_vanilla_bq_set_wrong_bounds(vanilla_bq):
-    # wrong dimensionality
-    wrong_dim = vanilla_bq.integral_bounds.dim + 1
-    wrong_bounds = wrong_dim * [(-2, 2)]
-    with pytest.raises(ValueError):
-        vanilla_bq.integral_bounds = wrong_bounds
-
-    # empty bounds
-    wrong_bounds = []
-    with pytest.raises(ValueError):
-        vanilla_bq.integral_bounds = wrong_bounds
-
-    # wrong bound values
-    wrong_bounds = 3 * [(-2, -3)]
-    with pytest.raises(ValueError):
-        vanilla_bq.integral_bounds = wrong_bounds
-
-
 def test_vanilla_bq_transformations():
+    X = np.random.rand(5, 2)
     Y = np.random.rand(5, 1)
 
     mock_gp = mock.create_autospec(IBaseGaussianProcess)
-    method = VanillaBayesianQuadrature(base_gp=mock_gp)
+    method = VanillaBayesianQuadrature(base_gp=mock_gp, X=X, Y=Y)
 
     # we can use equal comparison here because vanilla bq uses the identity transform. For non-trivial transforms
     # with numerical errors use a closeness test instead.
@@ -118,23 +87,31 @@ def test_vanilla_bq_transformations():
     assert_array_equal(method.transform(method.inverse_transform(Y)), Y)
 
 
-def test_vanilla_bq_model(vanilla_bq):
+def test_vanilla_bq_model():
     X_train = np.random.rand(5, 2)
     Y_train = np.random.rand(5, 1)
 
     mock_cparam = mock.create_autospec(ContinuousParameter)
-    mock_bounds = mock.create_autospec(IntegralBounds)
+    mock_bounds = mock.create_autospec(BoxBounds)
     mock_bounds.convert_to_list_of_continuous_parameters.return_value = 2 * [mock_cparam]
     mock_kern = mock.create_autospec(QuadratureKernel, integral_bounds=mock_bounds)
     mock_gp = mock.create_autospec(IBaseGaussianProcess, kern=mock_kern, X=X_train, Y=Y_train)
-    method = VanillaBayesianQuadrature(base_gp=mock_gp)
+    method = VanillaBayesianQuadrature(base_gp=mock_gp, X=X_train, Y=Y_train)
 
     assert_array_equal(method.X, X_train)
     assert_array_equal(method.Y, Y_train)
     assert_array_equal(method.integral_bounds.bounds, mock_bounds.bounds)
-    # we assert that the integral bounds are the same in the method and the quadrature kernel, since all integration
-    # happens in the kernel. The test is restrictive but easier to do for the init than behavioral test. There are some
-    # behavioral tests for setting new bounds in the vanilla_bq method and the bounds itself. Setting the integral
-    # bounds should be done with care.
-    assert method.integral_bounds == mock_bounds
-    assert method.integral_parameters == 2 * [mock_cparam]
+
+
+def test_vanilla_bq_integrate(vanilla_bq):
+    # to check the integral, we check if it lies in some confidence interval.
+    # these intervals were computed as follows: the mean vanilla_bq.predict (first argument) was integrated by
+    # simple random sampling with 1e6 samples, and the variance (second argument) with 5*1e3 samples. This was done 100
+    # times. The intervals show mean\pm 3 std of the 100 integrals obtained by sampling. There might be a very small
+    # chance the true integrals lies outside the specified intervals.
+    interval_mean = [10.020723475428762, 10.09043533562786]
+    interval_var = [41.97715934990283, 46.23549367612568]
+
+    integral_value, integral_variance = vanilla_bq.integrate()
+    assert interval_mean[0] < integral_value < interval_mean[1]
+    assert interval_var[0] < integral_variance < interval_var[1]

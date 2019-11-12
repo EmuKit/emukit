@@ -24,6 +24,11 @@ Submodules
     :undoc-members:
     :show-inheritance:
 
+.. automodule:: emukit.benchmarking.loop_benchmarking.random_search
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 
 Module contents
 ---------------
