@@ -2,8 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import abc
-
 import numpy as np
 
 from ...core.parameter_space import ParameterSpace
@@ -13,7 +11,7 @@ from ..methods.warped_bq_model import WarpedBayesianQuadratureModel
 from ...core.optimization.context_manager import ContextManager
 
 
-class SimpleBayesianMonteCarlo(CandidatePointCalculator):
+class SimpleBayesianMonteCarloPointCalculator(CandidatePointCalculator):
     """
     This point calculator implements Simple Bayesian Monte Carlo.
 
@@ -44,11 +42,14 @@ class SimpleBayesianMonteCarlo(CandidatePointCalculator):
                 raise ValueError("The given probability measure has no method 'get_samples', but Simple Bayesian Monte "
                                  "Carlo requires sampling capability.")
 
-    def compute_next_points(self, loop_state: LoopState) -> np.ndarray:
+    def compute_next_points(self, loop_state: LoopState, context: dict=None) -> np.ndarray:
         """
         :param loop_state: Object that contains current state of the loop
+        :param context: Contains variables to fix through optimization of acquisition function. The dictionary key is
+                        the parameter name and the value is the value to fix the parameter to.
         :return: (1 x n_dims) array of next inputs to evaluate the function at
         """
+        # Todo: context is ignored here.
         if self.model.base_gp.kern.measure is None:
             return self.parameter_space.sample_uniform(1)
         else:

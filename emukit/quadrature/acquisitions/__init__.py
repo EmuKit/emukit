@@ -5,4 +5,3 @@
 from .squared_correlation import SquaredCorrelation  # noqa: F401
 from .squared_correlation import SquaredCorrelation as IntegralVarianceReduction  # noqa: F401
 from .mutual_information import MutualInformation  # noqa: F401
-from .monte_carlo import SimpleBayesianMonteCarlo  # noqa: F401
