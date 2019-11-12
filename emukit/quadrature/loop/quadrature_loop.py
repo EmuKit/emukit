@@ -4,7 +4,6 @@
 
 from ...core.loop.loop_state import create_loop_state
 from ...core.loop import OuterLoop, SequentialPointCalculator, FixedIntervalUpdater, ModelUpdater
-from ...core.loop.model_updaters import NoopModelUpdater
 from ...core.optimization import AcquisitionOptimizerBase, GradientAcquisitionOptimizer
 from ...core.parameter_space import ParameterSpace
 from ...core.acquisition import Acquisition

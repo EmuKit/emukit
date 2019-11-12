@@ -49,8 +49,23 @@ class SimpleBayesianMonteCarloPointCalculator(CandidatePointCalculator):
                         the parameter name and the value is the value to fix the parameter to.
         :return: (1 x n_dims) array of next inputs to evaluate the function at
         """
-        # Todo: context is ignored here.
+
+        # Lebesgue measure
         if self.model.base_gp.kern.measure is None:
-            return self.parameter_space.sample_uniform(1)
+            if context is None:
+                return self.parameter_space.sample_uniform(1)
+            else:
+                context_manager = ContextManager(self.parameter_space, context)
+                samples = context_manager.contextfree_space.sample_uniform(1)
+                return context_manager.expand_vector(samples)
+
+        # probability measure
         else:
-            return self.model.base_gp.kern.measure.get_samples(1)
+            if context is None:
+                return self.model.base_gp.kern.measure.get_samples(1)
+            else:
+                context_manager = ContextManager(self.parameter_space, context)
+                samples = self.model.base_gp.kern.measure.get_samples(1)
+                for i, value in zip(context_manager.context_idxs, context_manager.context_values):
+                    samples[:, i] = value
+                return samples
