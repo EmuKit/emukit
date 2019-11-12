@@ -69,7 +69,7 @@ class SimpleBayesianMonteCarlo(OuterLoop):
         :param model_updater: Defines how and when the quadrature model is updated if new data arrives. Defaults to
         FixedIntervalUpdater. If the dummy updater NoopModelUpdater is used which does not update the model, the
         collected nodes are stored in the loop state. When using NoopModelUpdater, you can update the model after the
-        loop ran by calling model.set_data(loop_state.X, loop_state.Y); mode.optimize().
+        loop ran by calling model.set_data(loop_state.X, loop_state.Y); model.optimize().
         """
         if model_updater is None:
             model_updater = FixedIntervalUpdater(model, 1)
