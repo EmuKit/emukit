@@ -69,3 +69,6 @@ class SimpleBayesianMonteCarloPointCalculator(CandidatePointCalculator):
                 for i, value in zip(context_manager.context_idxs, context_manager.context_values):
                     samples[:, i] = value
                 return samples
+
+        # Todo: simplify uniform sampling with vector operations.
+        # Todo: context to get_samples for efficiency.
