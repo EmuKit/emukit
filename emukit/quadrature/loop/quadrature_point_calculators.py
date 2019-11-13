@@ -66,9 +66,5 @@ class SimpleBayesianMonteCarloPointCalculator(CandidatePointCalculator):
             else:
                 context_manager = ContextManager(self.parameter_space, context)
                 samples = self.model.base_gp.kern.measure.get_samples(1)
-                for i, value in zip(context_manager.context_idxs, context_manager.context_values):
-                    samples[:, i] = value
+                samples[:, context_manager.context_idxs] = context_manager.context_values
                 return samples
-
-        # Todo: simplify uniform sampling with vector operations.
-        # Todo: context to get_samples for efficiency.

@@ -117,9 +117,8 @@ class UniformMeasure(IntegrationMeasure, IntegrationMeasureSampler):
         """
         D = len(self.bounds)
         samples = np.reshape(np.random.rand(num_samples * D), [num_samples, D])
-        for d in range(D):
-            samples[:, d] = samples[:, d] * (self.bounds[d][1] - self.bounds[d][0]) + self.bounds[d][0]
-        return samples
+        bounds = np.asarray(self.bounds)
+        return samples * (bounds[:, 1] - bounds[:, 0]) + bounds[:, 0]
 
 
 class IsotropicGaussianMeasure(IntegrationMeasure, IntegrationMeasureSampler):
