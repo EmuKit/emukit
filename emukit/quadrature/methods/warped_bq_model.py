@@ -8,6 +8,7 @@ from typing import Tuple, Union
 from ...core.interfaces.models import IModel
 from ...quadrature.interfaces.base_gp import IBaseGaussianProcess
 from ...quadrature.kernels.bounds import BoxBounds
+from ...quadrature.kernels.integration_measures import IntegrationMeasure
 
 
 class WarpedBayesianQuadratureModel(IModel):
@@ -48,6 +49,12 @@ class WarpedBayesianQuadratureModel(IModel):
     @property
     def reasonable_box_bounds(self) -> BoxBounds:
         return self.base_gp.kern.reasonable_box_bounds
+
+    @property
+    def measure(self) -> Union[None, IntegrationMeasure]:
+        """probability measure used for integration. Returns None for standard Lebesgue measure (not a probability
+        measure) """
+        return self.base_gp.kern.measure
 
     def transform(self, Y: np.ndarray) -> np.ndarray:
         """

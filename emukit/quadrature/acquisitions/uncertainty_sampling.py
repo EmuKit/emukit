@@ -15,7 +15,7 @@ class UncertaintySampling(Acquisition):
     Uncertainty sampling acquisition function for (warped) Bayesian quadrature.
 
     The variance of the approximate transformed GP is used. If the integration measure is a probability measure,
-    then the variance will e weighted with the probability density at each point.
+    then the variance will be weighted with the probability density at each point.
     """
 
     def __init__(self, model: Union[WarpedBayesianQuadratureModel, IDifferentiable]):
@@ -36,10 +36,10 @@ class UncertaintySampling(Acquisition):
         :return: (n_points x 1) array of acquisition function values, unweighted variances
         """
         variances = self.model.predict(x)[1]
-        if self.model.base_gp.kern.measure is None:
+        if self.model.measure is None:
             return variances, variances
         else:
-            weights = self.model.base_gp.kern.measure.compute_density(x).reshape(variances.shape)
+            weights = self.model.measure.compute_density(x).reshape(variances.shape)
             return variances * weights, variances
 
     def evaluate(self, x: np.ndarray) -> np.ndarray:
@@ -64,10 +64,10 @@ class UncertaintySampling(Acquisition):
         variance_weighted, variance = self._evaluate(x)
 
         variance_gradient = self.model.get_prediction_gradients(x)[1]
-        if self.model.base_gp.kern.measure is None:
+        if self.model.measure is None:
             return variance, variance_gradient
         else:
-            density = self.model.base_gp.kern.measure.compute_density(x)
-            density_gradient = self.model.base_gp.kern.measure.compute_density_gradient(x)
+            density = self.model.measure.compute_density(x)
+            density_gradient = self.model.measure.compute_density_gradient(x)
             gradient_weighted = (density * variance_gradient.T).T + (variance[:, 0] * density_gradient.T).T
             return variance_weighted, gradient_weighted
