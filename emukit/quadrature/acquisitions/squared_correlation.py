@@ -3,7 +3,6 @@
 
 
 import numpy as np
-from scipy.linalg import lapack
 from typing import Tuple
 
 from ...core.acquisition import Acquisition
@@ -91,7 +90,7 @@ class SquaredCorrelation(Acquisition):
         predictive_cov = np.transpose(qKx - np.dot(qKX, graminv_KXx))
         return integral_current_var, y_predictive_var, predictive_cov
 
-    def _gradient_terms(self, x):
+    def _gradient_terms(self, x: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
         Computes the terms needed for the gradient of the squared correlation
 
@@ -99,11 +98,7 @@ class SquaredCorrelation(Acquisition):
         :return: the gradient of (y_predictive_var, predictive_cov) wrt. x at param x, shapes (n_points, input_dim)
         """
         # gradient of predictive variance of y
-        dvar_dx = self.model.base_gp.kern.dKdiag_dx(x)
-        dKxX_dx1 = self.model.base_gp.kern.dK_dx1(x, self.model.X)
-        graminv_KXx = self.model.base_gp.solve_linear(self.model.base_gp.kern.K(self.model.base_gp.X, x))
-
-        d_y_predictive_var_dx = dvar_dx - 2. * (dKxX_dx1 * np.transpose(graminv_KXx)).sum(axis=2, keepdims=False)
+        d_y_predictive_var_dx = self.model.get_prediction_gradients(x)[1].T
 
         # gradient of predictive covariance between integral and (x, y)-pair
         dqKx_dx = np.transpose(self.model.base_gp.kern.dqK_dx(x))

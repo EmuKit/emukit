@@ -7,9 +7,11 @@ import pytest
 import GPy
 from math import isclose
 
-from emukit.model_wrappers.gpy_quadrature_wrappers import QuadratureRBFLebesgueMeasure, RBFGPy, BaseGaussianProcessGPy
+from emukit.model_wrappers.gpy_quadrature_wrappers import RBFGPy, BaseGaussianProcessGPy
 from emukit.quadrature.methods import VanillaBayesianQuadrature
-from emukit.quadrature.acquisitions import MutualInformation, IntegralVarianceReduction
+from emukit.quadrature.kernels.quadrature_rbf import QuadratureRBFIsoGaussMeasure, QuadratureRBFLebesgueMeasure
+from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure
+from emukit.quadrature.acquisitions import MutualInformation, IntegralVarianceReduction, UncertaintySampling
 
 
 REL_TOL = 1e-5
@@ -25,6 +27,21 @@ def model():
     gpy_kernel = GPy.kern.RBF(input_dim=x_init.shape[1])
     gpy_model = GPy.models.GPRegression(X=x_init, Y=y_init, kernel=gpy_kernel)
     qrbf = QuadratureRBFLebesgueMeasure(RBFGPy(gpy_kernel), integral_bounds=x_init.shape[1] * [(-3, 3)])
+    basegp = BaseGaussianProcessGPy(kern=qrbf, gpy_model=gpy_model)
+    model = VanillaBayesianQuadrature(base_gp=basegp, X=x_init, Y=y_init)
+    return model
+
+
+@pytest.fixture
+def model_with_density():
+    rng = np.random.RandomState(42)
+    x_init = rng.rand(5, 2)
+    y_init = rng.rand(5, 1)
+
+    gpy_kernel = GPy.kern.RBF(input_dim=x_init.shape[1])
+    gpy_model = GPy.models.GPRegression(X=x_init, Y=y_init, kernel=gpy_kernel)
+    measure = IsotropicGaussianMeasure(mean=np.arange(x_init.shape[1]), variance=2.)
+    qrbf = QuadratureRBFIsoGaussMeasure(RBFGPy(gpy_kernel), measure=measure)
     basegp = BaseGaussianProcessGPy(kern=qrbf, gpy_model=gpy_model)
     model = VanillaBayesianQuadrature(base_gp=basegp, X=x_init, Y=y_init)
     return model
@@ -58,6 +75,32 @@ def test_integral_variance_reduction_shapes(model):
     assert res[1].shape == (3, 2)
 
 
+def test_uncertainty_sampling_shapes(model, model_with_density):
+    # test both with Lebesgue measure and with a probability measure because the gradients are computed differently
+    x = np.array([[-1, 1], [0, 0], [-2, 0.1]])
+
+    aq = UncertaintySampling(model)
+    aq_with_density = UncertaintySampling(model_with_density)
+
+    # value
+    res = aq.evaluate(x)
+    assert res.shape == (3, 1)
+
+    # gradient
+    res = aq.evaluate_with_gradients(x)
+    assert res[0].shape == (3, 1)
+    assert res[1].shape == (3, 2)
+
+    # value
+    res = aq_with_density.evaluate(x)
+    assert res.shape == (3, 1)
+
+    # gradient
+    res = aq_with_density.evaluate_with_gradients(x)
+    assert res[0].shape == (3, 1)
+    assert res[1].shape == (3, 2)
+
+
 def test_mutual_information_gradients(model):
     aq = MutualInformation(model)
     x = np.array([[-2.5, 1.5]])
@@ -68,6 +111,14 @@ def test_integral_variance_reduction_gradients(model):
     aq = IntegralVarianceReduction(model)
     x = np.array([[-2.5, 1.5]])
     _check_grad(aq, x)
+
+
+def test_uncertainty_sampling_gradients(model, model_with_density):
+    aq = UncertaintySampling(model)
+    aq_with_density = UncertaintySampling(model_with_density)
+    x = np.array([[-2.5, 1.5]])
+    _check_grad(aq, x)
+    _check_grad(aq_with_density, x)
 
 
 def _compute_numerical_gradient(aq, x, eps=1e-6):

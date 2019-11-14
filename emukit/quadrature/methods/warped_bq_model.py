@@ -3,12 +3,12 @@
 
 
 import numpy as np
-from typing import Tuple, List
+from typing import Tuple, Union
 
-from ...core.continuous_parameter import ContinuousParameter
 from ...core.interfaces.models import IModel
 from ...quadrature.interfaces.base_gp import IBaseGaussianProcess
 from ...quadrature.kernels.bounds import BoxBounds
+from ...quadrature.kernels.integration_measures import IntegrationMeasure
 
 
 class WarpedBayesianQuadratureModel(IModel):
@@ -43,7 +43,7 @@ class WarpedBayesianQuadratureModel(IModel):
         return self.transform(self.base_gp.Y)
 
     @property
-    def integral_bounds(self) -> BoxBounds:
+    def integral_bounds(self) -> Union[None, BoxBounds]:
         return self.base_gp.kern.integral_bounds
 
     @property
@@ -51,8 +51,10 @@ class WarpedBayesianQuadratureModel(IModel):
         return self.base_gp.kern.reasonable_box_bounds
 
     @property
-    def integral_parameters(self) -> List[ContinuousParameter]:
-        return self.base_gp.kern.integral_bounds.convert_to_list_of_continuous_parameters()
+    def measure(self) -> Union[None, IntegrationMeasure]:
+        """probability measure used for integration. Returns None for standard Lebesgue measure (not a probability
+        measure) """
+        return self.base_gp.kern.measure
 
     def transform(self, Y: np.ndarray) -> np.ndarray:
         """
