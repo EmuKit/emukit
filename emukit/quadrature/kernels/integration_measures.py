@@ -25,6 +25,16 @@ class IntegrationMeasure:
         """
         raise NotImplementedError
 
+    def compute_density_gradient(self, x: np.ndarray) -> np.ndarray:
+        """
+        Computes the gradient of the density at point x.
+        Might be needed for some acquisition functions.
+
+        :param x: points at which the gradient is computed, shape (num_points, dim)
+        :return: the gradient of the density at x, shape (num_points, dim)
+        """
+        raise NotImplementedError
+
     def get_box(self) -> List[Tuple[float, float]]:
         """
         Meaningful box-bounds around the measure. Outside this box, the measure should be virtually zero.
@@ -73,9 +83,9 @@ class UniformMeasure(IntegrationMeasure, IntegrationMeasureSampler):
 
         self.bounds = bounds
         # uniform measure has constant density which is computed here.
-        self.density = self._compute_density()
+        self.density = self._compute_constant_density()
 
-    def _compute_density(self) -> float:
+    def _compute_constant_density(self) -> float:
         differences = np.array([x[1] - x[0] for x in self.bounds])
         volume = np.prod(differences)
 
@@ -103,6 +113,14 @@ class UniformMeasure(IntegrationMeasure, IntegrationMeasureSampler):
         # as done in the return statement yields self.density for a point inside the box and 0 otherwise.
         inside_upper_lower = (inside_lower * inside_upper).sum(axis=1) == x.shape[1]
         return inside_upper_lower * self.density
+
+    def compute_density_gradient(self, x: np.ndarray) -> np.ndarray:
+        """
+        Computes the gradient of the density at point x
+        :param x: points at which the gradient is computed, shape (num_points, dim)
+        :return: the gradient of the density at x, shape (num_points, dim)
+        """
+        return np.zeros(x.shape)
 
     def get_box(self) -> List[Tuple[float, float]]:
         """
@@ -182,6 +200,15 @@ class IsotropicGaussianMeasure(IntegrationMeasure, IntegrationMeasureSampler):
         factor = (2 * np.pi * self.variance) ** (self.dim / 2)
         scaled_diff = (x - self.mean) / (np.sqrt(2 * self.variance))
         return np.exp(- np.sum(scaled_diff ** 2, axis=1)) / factor
+
+    def compute_density_gradient(self, x: np.ndarray) -> np.ndarray:
+        """
+        Computes the gradient of the density at point x
+        :param x: points at which the gradient is computed, shape (num_points, dim)
+        :return: the gradient of the density at x, shape (num_points, dim)
+        """
+        values = self.compute_density(x)
+        return ((- values / self.variance) * (x - self.mean).T).T
 
     def get_box(self) -> List[Tuple[float, float]]:
         """
