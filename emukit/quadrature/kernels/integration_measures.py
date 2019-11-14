@@ -39,8 +39,8 @@ class IntegrationMeasure:
 
 
 class IntegrationMeasureSampler:
-    """Augments the integration measure with sampling capabilities. This might be needed for some acquisition
-    functions."""
+    """Augments the integration measure with sampling capabilities. This might be needed for some candidate point
+    collection schemes."""
 
     def get_samples(self, num_samples: int) -> np.ndarray:
         """

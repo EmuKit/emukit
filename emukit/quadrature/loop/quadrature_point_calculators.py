@@ -66,5 +66,6 @@ class SimpleBayesianMonteCarloPointCalculator(CandidatePointCalculator):
             else:
                 context_manager = ContextManager(self.parameter_space, context)
                 samples = self.model.base_gp.kern.measure.get_samples(1)
+                # Todo: check of in domain?
                 samples[:, context_manager.context_idxs] = context_manager.context_values
                 return samples
