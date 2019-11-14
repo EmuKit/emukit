@@ -7,7 +7,7 @@ from typing import Tuple
 
 from ...core.acquisition import Acquisition
 from .squared_correlation import SquaredCorrelation
-from ...quadrature.methods import VanillaBayesianQuadrature
+from ..methods import VanillaBayesianQuadrature
 
 
 class MutualInformation(Acquisition):

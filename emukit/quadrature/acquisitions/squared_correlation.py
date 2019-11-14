@@ -7,7 +7,7 @@ from scipy.linalg import lapack
 from typing import Tuple
 
 from ...core.acquisition import Acquisition
-from ...quadrature.methods import VanillaBayesianQuadrature
+from ..methods import VanillaBayesianQuadrature
 
 
 class SquaredCorrelation(Acquisition):

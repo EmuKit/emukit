@@ -7,8 +7,8 @@ from ...core.loop import OuterLoop, SequentialPointCalculator, FixedIntervalUpda
 from ...core.optimization import AcquisitionOptimizerBase, GradientAcquisitionOptimizer
 from ...core.parameter_space import ParameterSpace
 from ...core.acquisition import Acquisition
-from ...quadrature.methods import VanillaBayesianQuadrature
-from ...quadrature.acquisitions import IntegralVarianceReduction
+from ..methods import VanillaBayesianQuadrature
+from ..acquisitions import IntegralVarianceReduction
 
 
 class VanillaBayesianQuadratureLoop(OuterLoop):

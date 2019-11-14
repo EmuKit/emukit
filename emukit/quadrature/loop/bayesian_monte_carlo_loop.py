@@ -5,8 +5,8 @@
 from ...core.loop.loop_state import create_loop_state
 from ...core.loop import OuterLoop, FixedIntervalUpdater, ModelUpdater
 from ...core.parameter_space import ParameterSpace
-from ...quadrature.methods import WarpedBayesianQuadratureModel
-from ...quadrature.loop.quadrature_point_calculators import SimpleBayesianMonteCarloPointCalculator
+from ..methods import WarpedBayesianQuadratureModel
+from ..loop.quadrature_point_calculators import SimpleBayesianMonteCarloPointCalculator
 
 
 class SimpleBayesianMonteCarlo(OuterLoop):

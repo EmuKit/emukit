@@ -6,8 +6,8 @@ import numpy as np
 from typing import Tuple, Union
 
 from ...core.interfaces.models import IModel
-from ...quadrature.interfaces.base_gp import IBaseGaussianProcess
-from ...quadrature.kernels.bounds import BoxBounds
+from ..interfaces.base_gp import IBaseGaussianProcess
+from ..kernels.bounds import BoxBounds
 
 
 class WarpedBayesianQuadratureModel(IModel):

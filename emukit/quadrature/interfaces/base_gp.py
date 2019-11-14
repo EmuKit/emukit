@@ -6,7 +6,7 @@ import numpy as np
 from typing import Tuple
 
 from ...core.interfaces import IModel
-from ...quadrature.kernels.quadrature_kernels import QuadratureKernel
+from ..kernels.quadrature_kernels import QuadratureKernel
 
 
 class IBaseGaussianProcess(IModel):
