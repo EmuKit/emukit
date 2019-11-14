@@ -5,6 +5,8 @@
 import numpy as np
 from typing import Tuple, List
 
+from ...core.optimization.context_manager import ContextManager
+
 
 class IntegrationMeasure:
     """An abstract class for a probability measure with a density"""
@@ -42,10 +44,12 @@ class IntegrationMeasureSampler:
     """Augments the integration measure with sampling capabilities. This might be needed for some candidate point
     collection schemes."""
 
-    def get_samples(self, num_samples: int) -> np.ndarray:
+    def get_samples(self, num_samples: int, context_manager: ContextManager=None) -> np.ndarray:
         """
         samples from the probability distribution defined by the integration measure.
         :param num_samples: number of samples
+        :param context_manager: The context manager Contains variables to fix. If a context is given, this method
+        samples from the conditional distribution.
         :return: samples, shape (num_samples, dim)
         """
         raise NotImplementedError
@@ -109,16 +113,24 @@ class UniformMeasure(IntegrationMeasure, IntegrationMeasureSampler):
         """
         return self.bounds
 
-    def get_samples(self, num_samples: int) -> np.ndarray:
+    def get_samples(self, num_samples: int, context_manager: ContextManager=None) -> np.ndarray:
         """
         samples from the uniform distribution.
         :param num_samples: number of samples
+        :param context_manager: The context manager Contains variables to fix. If a context is given, this method
+        samples from the conditional distribution.
         :return: samples, shape (num_samples, dim)
         """
+
         D = len(self.bounds)
-        samples = np.reshape(np.random.rand(num_samples * D), [num_samples, D])
         bounds = np.asarray(self.bounds)
-        return samples * (bounds[:, 1] - bounds[:, 0]) + bounds[:, 0]
+        samples = np.reshape(np.random.rand(num_samples * D), [num_samples, D]) * (bounds[:, 1] - bounds[:, 0]) \
+                  + bounds[:, 0]
+
+        if context_manager is not None:
+            samples[:, context_manager.context_idxs] = context_manager.context_values
+
+        return samples
 
 
 class IsotropicGaussianMeasure(IntegrationMeasure, IntegrationMeasureSampler):
@@ -186,14 +198,22 @@ class IsotropicGaussianMeasure(IntegrationMeasure, IntegrationMeasureSampler):
         upper = self.mean + factor * np.sqrt(self.variance)
         return list(zip(lower, upper))
 
-    def get_samples(self, num_samples: int) -> np.ndarray:
+    def get_samples(self, num_samples: int, context_manager: ContextManager=None) -> np.ndarray:
         """
         samples from the isotropic Gaussian distribution.
         :param num_samples: number of samples
+        :param context_manager: The context manager Contains variables to fix. If a context is given, this method
+        samples from the conditional distribution.
         :return: samples, shape (num_samples, dim)
         """
-        samples = np.reshape(np.random.randn(num_samples * self.dim), [num_samples, self.dim])
-        return self.mean + np.sqrt(self.variance) * samples
+        samples = self.mean + np.sqrt(self.variance) * np.reshape(np.random.randn(num_samples * self.dim), [num_samples, self.dim])
+
+        if context_manager is not None:
+            # since the Gaussian is isotropic, fixing the value after sampling the joint is equal to sampling the
+            # conditional.
+            samples[:, context_manager.context_idxs] = context_manager.context_values
+
+        return samples
 
 
 class NumericalPrecisionError(Exception):
