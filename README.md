@@ -49,7 +49,7 @@ If you are using emukit, we would appreciate if you could cite our paper in your
     @inproceedings{emukit2019,
       author = {Paleyes, Andrei and Pullin, Mark and Mahsereci, Maren and Lawrence, Neil and González, Javier},
       title = {Emulation of physical processes with Emukit},
-      booktitle = {Second Workshop on Machine Learning and the Physical Sciences, NeurIPS 2019},
+      booktitle = {Second Workshop on Machine Learning and the Physical Sciences, NeurIPS},
       year = {2019}
     }
 
