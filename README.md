@@ -42,6 +42,17 @@ To learn more about Emukit, refer to our [documentation](https://emukit.readthed
 
 To learn about emulation as a concept, check out the [Emukit playground](https://github.com/amzn/Emukit-playground) project.
 
+## Citing the library
+
+If you are using emukit, we would appreciate if you could cite our paper in your research:
+
+    @inproceedings{emukit2019,
+      author = {Andrei Paleyes, Mark Pullin, Maren Mahsereci, Neil Lawrence and Javier González},
+      title = {Emulation of physical processes with Emukit},
+      booktitle = {Second Workshop on Machine Learning and the Physical Sciences, NeurIPS 2019},
+      year = {2019}
+    }
+
 ## License
 
 Emukit is licensed under Apache 2.0. Please refer to [LICENSE](LICENSE) and [NOTICE](NOTICE) for further license information.
