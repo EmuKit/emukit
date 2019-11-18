@@ -65,8 +65,7 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel, IDifferentiable):
         """
         kernel_mean_X = self.base_gp.kern.qK(self.X)
         integral_mean = np.dot(kernel_mean_X, self.base_gp.graminv_residual())[0, 0]
-        integral_var = self.base_gp.kern.qKq() - np.square(lapack.dtrtrs(self.base_gp.gram_chol(), kernel_mean_X.T,
-                                                           lower=1)[0]).sum(axis=0, keepdims=True)[0][0]
+        integral_var = self.base_gp.kern.qKq() - (kernel_mean_X @ self.base_gp.solve_linear(kernel_mean_X.T))[0, 0]
         return integral_mean, integral_var
 
     def get_prediction_gradients(self, X: np.ndarray) -> Tuple:
@@ -82,9 +81,7 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel, IDifferentiable):
         # gradient of variance
         dKdiag_dx = self.base_gp.kern.dKdiag_dx(X)
         dKxX_dx1 = self.base_gp.kern.dK_dx1(X, self.X)
-        lower_chol = self.base_gp.gram_chol()
-        KXx = self.base_gp.kern.K(self.base_gp.X, X)
-        graminv_KXx = lapack.dtrtrs(lower_chol.T, (lapack.dtrtrs(lower_chol, KXx, lower=1)[0]), lower=0)[0]
+        graminv_KXx = self.base_gp.solve_linear(self.base_gp.kern.K(self.base_gp.X, X))
         d_var_dx = dKdiag_dx - 2. * (dKxX_dx1 * np.transpose(graminv_KXx)).sum(axis=2, keepdims=False)
 
         return d_mean_dx, d_var_dx.T
