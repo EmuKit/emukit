@@ -113,7 +113,17 @@ class WarpedBayesianQuadratureModel(IModel):
         :param X: observed locations
         :param Y: observed integrand values
         """
+        self.update_parameters(X, Y)
         self.base_gp.set_data(X, self.inverse_transform(Y))
+
+    def update_parameters(self, X: np.ndarray, Y: np.ndarray) -> None:
+        """
+        Update parameters of the model that are not being optimized. Use pass if no parameters need to be updated.
+
+        :param X: observation locations, shape (num_points, dim)
+        :param Y: values of observations, shape (num_points, 1)
+        """
+        raise NotImplementedError
 
     def optimize(self) -> None:
         """Optimizes the hyperparameters of the base GP"""
