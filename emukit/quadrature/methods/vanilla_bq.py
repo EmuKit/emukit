@@ -3,7 +3,6 @@
 
 
 import numpy as np
-from scipy.linalg import lapack
 from typing import Tuple
 
 from ...quadrature.interfaces.base_gp import IBaseGaussianProcess
@@ -85,3 +84,12 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel, IDifferentiable):
         d_var_dx = dKdiag_dx - 2. * (dKxX_dx1 * np.transpose(graminv_KXx)).sum(axis=2, keepdims=False)
 
         return d_mean_dx, d_var_dx.T
+
+    def update_parameters(self, X: np.ndarray, Y: np.ndarray) -> None:
+        """
+        Update parameters of the model that are not being optimized. Use pass if no parameters need to be updated.
+
+        :param X: observation locations, shape (num_points, dim)
+        :param Y: values of observations, shape (num_points, 1)
+        """
+        pass
