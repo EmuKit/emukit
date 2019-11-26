@@ -61,7 +61,7 @@ def test_iso_gauss_measure_shapes():
     bounds = measure.get_box()
     assert len(bounds) == D
     assert len(bounds[0]) == 2
-    assert measure.dim == D
+    assert measure.num_dimensions == D
 
     res = measure.compute_density(x)
     assert res.shape == (N, )

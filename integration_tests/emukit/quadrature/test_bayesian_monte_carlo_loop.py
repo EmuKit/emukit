@@ -7,7 +7,7 @@ import GPy
 import pytest
 
 from emukit.quadrature.methods.vanilla_bq import VanillaBayesianQuadrature
-from emukit.quadrature.loop.bayesian_monte_carlo_loop import SimpleBayesianMonteCarlo
+from emukit.quadrature.loop.bayesian_monte_carlo_loop import BayesianMonteCarlo
 from emukit.core.loop.user_function import UserFunctionWrapper
 from emukit.model_wrappers.gpy_quadrature_wrappers import QuadratureRBFLebesgueMeasure, RBFGPy, BaseGaussianProcessGPy
 
@@ -30,7 +30,7 @@ def loop():
     emukit_qrbf = QuadratureRBFLebesgueMeasure(RBFGPy(gpy_model.kern), integral_bounds=bounds)
     emukit_model = BaseGaussianProcessGPy(kern=emukit_qrbf, gpy_model=gpy_model)
     emukit_method = VanillaBayesianQuadrature(base_gp=emukit_model, X=x_init, Y=y_init)
-    emukit_loop = SimpleBayesianMonteCarlo(model=emukit_method)
+    emukit_loop = BayesianMonteCarlo(model=emukit_method)
     return emukit_loop, init_size, x_init, y_init
 
 

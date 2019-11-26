@@ -3,4 +3,4 @@
 
 
 from .vanilla_bq_loop import VanillaBayesianQuadratureLoop  # noqa: F401
-from .bayesian_monte_carlo_loop import SimpleBayesianMonteCarlo  # noqa: F401
+from .bayesian_monte_carlo_loop import BayesianMonteCarlo  # noqa: F401

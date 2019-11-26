@@ -9,9 +9,9 @@ from ..methods import WarpedBayesianQuadratureModel
 from ..loop.quadrature_point_calculators import SimpleBayesianMonteCarloPointCalculator
 
 
-class SimpleBayesianMonteCarlo(OuterLoop):
+class BayesianMonteCarlo(OuterLoop):
     """
-    This loop implements Simple Bayesian Monte Carlo.
+    This loop implements Bayesian Monte Carlo with simple random sampling.
 
     Nodes are samples from the probability distribution defined by the integration measure.
     If the integration measure is the standard Lebesgue measure, then the nodes are sampled uniformly in a
@@ -22,18 +22,22 @@ class SimpleBayesianMonteCarlo(OuterLoop):
 
     Note: implemented as described in Section 2.1 of the paper.
 
-    Note that this method does not depend at all on past observations. Thus it is equivalent to sampling
-    all points and then fit the model to them. The purpose of the loop is convenience, as it can be
-    used with the same interface as the active and adaptive learning schemes that depend explicitly or implicitly
-    (through hyperparameters) on the previous evaluations.
+    Note that the sampling scheme does not depend at all on past observations. Thus it is equivalent to sampling
+    all points and then fit the model to them. The purpose of the loop is convenience, as it can be used with the same
+    interface as the active and adaptive learning schemes that depend explicitly or implicitly (through hyperparameters)
+    on the previous evaluations.
     """
     def __init__(self, model: WarpedBayesianQuadratureModel, model_updater: ModelUpdater=None):
         """
         :param model: a warped Bayesian quadrature method, e.g., VanillaBayesianQuadrature
         :param model_updater: Defines how and when the quadrature model is updated if new data arrives. Defaults to
-        FixedIntervalUpdater. If the dummy updater NoopModelUpdater is used which does not update the model, the
-        collected nodes are stored in the loop state. When using NoopModelUpdater, you can update the model after the
-        loop ran by calling model.set_data(loop_state.X, loop_state.Y); model.optimize().
+        FixedIntervalUpdater.
+
+        Hint: The default model_updater `FixedIntervalUpdater' updates and optimizes the model after each new sample.
+        Since the sampling scheme of Bayesian Monte Carlo does not depend on the model, alternatively, the dummy updater
+        NoopModelUpdater may be used which does not update the model. This may save compute time. However, the model
+        then needs to be updated manually after the loop ran: i) the collected nodes are stored in model.loop_state.
+        ii) call model.set_data(loop_state.X, loop_state.Y) iii) call model.optimize().
         """
         if model_updater is None:
             model_updater = FixedIntervalUpdater(model, 1)
