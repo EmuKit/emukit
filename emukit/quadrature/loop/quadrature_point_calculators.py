@@ -39,14 +39,14 @@ class SimpleBayesianMonteCarloPointCalculator(CandidatePointCalculator):
         # if measure is probability measure, check if it has sampling capabilities
         if self.model.base_gp.kern.measure is not None:
             if not self.model.base_gp.kern.measure.can_sample:
-                raise ValueError("The given probability measure has no method 'get_samples', but Simple Bayesian Monte "
+                raise ValueError("The given probability measure does not support sampling, but Simple Bayesian Monte "
                                  "Carlo requires sampling capability.")
 
     def compute_next_points(self, loop_state: LoopState, context: dict=None) -> np.ndarray:
         """
         :param loop_state: Object that contains current state of the loop
-        :param context: Contains variables to fix through optimization of acquisition function. The dictionary key is
-                        the parameter name and the value is the value to fix the parameter to.
+        :param context: Contains variables to fix and the values to fix them to. The dictionary key is the parameter
+        name and the value is the value to fix the parameter to.
         :return: (1 x n_dims) array of next inputs to evaluate the function at
         """
 

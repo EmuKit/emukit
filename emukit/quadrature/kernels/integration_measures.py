@@ -58,8 +58,8 @@ class IntegrationMeasureSampler:
         """
         samples from the probability distribution defined by the integration measure.
         :param num_samples: number of samples
-        :param context_manager: The context manager Contains variables to fix. If a context is given, this method
-        samples from the conditional distribution.
+        :param context_manager: The context manager that contains variables to fix and the values to fix them to. If a
+        context is given, this method samples from the conditional distribution.
         :return: samples, shape (num_samples, dim)
         """
         raise NotImplementedError
@@ -135,15 +135,15 @@ class UniformMeasure(IntegrationMeasure, IntegrationMeasureSampler):
         """
         samples from the uniform distribution.
         :param num_samples: number of samples
-        :param context_manager: The context manager Contains variables to fix. If a context is given, this method
-        samples from the conditional distribution.
+        :param context_manager: The context manager that contains variables to fix and the values to fix them to. If a
+        context is given, this method samples from the conditional distribution.
         :return: samples, shape (num_samples, dim)
         """
 
         D = len(self.bounds)
         bounds = np.asarray(self.bounds)
-        samples = np.reshape(np.random.rand(num_samples * D), [num_samples, D]) * (bounds[:, 1] - bounds[:, 0]) \
-                  + bounds[:, 0]
+
+        samples = np.random.rand(num_samples, D) * (bounds[:, 1] - bounds[:, 0]) + bounds[:, 0]
 
         if context_manager is not None:
             samples[:, context_manager.context_idxs] = context_manager.context_values
@@ -229,11 +229,11 @@ class IsotropicGaussianMeasure(IntegrationMeasure, IntegrationMeasureSampler):
         """
         samples from the isotropic Gaussian distribution.
         :param num_samples: number of samples
-        :param context_manager: The context manager Contains variables to fix. If a context is given, this method
-        samples from the conditional distribution.
+        :param context_manager: The context manager that contains variables to fix and the values to fix them to. If a
+        context is given, this method samples from the conditional distribution.
         :return: samples, shape (num_samples, dim)
         """
-        samples = self.mean + np.sqrt(self.variance) * np.reshape(np.random.randn(num_samples * self.dim), [num_samples, self.dim])
+        samples = self.mean + np.sqrt(self.variance) * np.random.randn(num_samples, self.dim)
 
         if context_manager is not None:
             # since the Gaussian is isotropic, fixing the value after sampling the joint is equal to sampling the
