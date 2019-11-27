@@ -11,9 +11,9 @@ from ..methods.warped_bq_model import WarpedBayesianQuadratureModel
 from ...core.optimization.context_manager import ContextManager
 
 
-class SimpleBayesianMonteCarloPointCalculator(CandidatePointCalculator):
+class BayesianMonteCarloPointCalculator(CandidatePointCalculator):
     """
-    This point calculator implements Simple Bayesian Monte Carlo.
+    This point calculator implements Bayesian Monte Carlo with simple random sampling.
 
     The point calculator samples from the probability distribution defined by the integration measure.
     If the integration measure is the standard Lebesgue measure, then this point calculator samples uniformly in a
@@ -22,7 +22,7 @@ class SimpleBayesianMonteCarloPointCalculator(CandidatePointCalculator):
     C.E. Rasmussen and Z. Ghahramani
     `Bayesian Monte Carlo' Advances in Neural Information Processing Systems 15 (NeurIPS) 2003
 
-    Note: implemented as described in Section 2.1 of the paper.
+    Implemented as described in Section 2.1 of the paper.
 
     Note that the point calculator does not depend at all on past observations. Thus it is equivalent to sampling
     all points and then fit the model to them. The purpose of the point calculator is convenience, as it can be
@@ -31,7 +31,7 @@ class SimpleBayesianMonteCarloPointCalculator(CandidatePointCalculator):
     """
     def __init__(self, model: WarpedBayesianQuadratureModel, parameter_space: ParameterSpace):
         """
-        :param model: The vanilla Bayesian quadrature model
+        :param model: A warped Bayesian quadrature model
         """
         self.parameter_space = parameter_space
         self.model = model
@@ -39,8 +39,8 @@ class SimpleBayesianMonteCarloPointCalculator(CandidatePointCalculator):
         # if measure is probability measure, check if it has sampling capabilities
         if self.model.base_gp.kern.measure is not None:
             if not self.model.base_gp.kern.measure.can_sample:
-                raise ValueError("The given probability measure does not support sampling, but Simple Bayesian Monte "
-                                 "Carlo requires sampling capability.")
+                raise ValueError("The given probability measure does not support sampling, but Bayesian Monte Carlo "
+                                 "requires sampling capability.")
 
     def compute_next_points(self, loop_state: LoopState, context: dict=None) -> np.ndarray:
         """

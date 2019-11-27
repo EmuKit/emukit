@@ -6,7 +6,7 @@ from ...core.loop.loop_state import create_loop_state
 from ...core.loop import OuterLoop, FixedIntervalUpdater, ModelUpdater
 from ...core.parameter_space import ParameterSpace
 from ..methods import WarpedBayesianQuadratureModel
-from ..loop.quadrature_point_calculators import SimpleBayesianMonteCarloPointCalculator
+from ..loop.quadrature_point_calculators import BayesianMonteCarloPointCalculator
 
 
 class BayesianMonteCarlo(OuterLoop):
@@ -43,7 +43,7 @@ class BayesianMonteCarlo(OuterLoop):
             model_updater = FixedIntervalUpdater(model, 1)
 
         space = ParameterSpace(model.reasonable_box_bounds.convert_to_list_of_continuous_parameters())
-        candidate_point_calculator = SimpleBayesianMonteCarloPointCalculator(model, space)
+        candidate_point_calculator = BayesianMonteCarloPointCalculator(model, space)
         loop_state = create_loop_state(model.X, model.Y)
 
         super().__init__(candidate_point_calculator, model_updater, loop_state)
