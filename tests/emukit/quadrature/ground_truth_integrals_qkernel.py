@@ -23,7 +23,7 @@ def _sample_uniform(num_samples: int, bounds: List[Tuple[float, float]]):
 
 
 def _sample_gauss_iso(num_samples: int, measure: IsotropicGaussianMeasure):
-    D = measure.dim
+    D = measure.num_dimensions
     samples = np.reshape(np.random.randn(num_samples * D), [num_samples, D])
     return measure.mean + np.sqrt(measure.variance) * samples
 

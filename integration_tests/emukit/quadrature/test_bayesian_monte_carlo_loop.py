@@ -1,4 +1,4 @@
-# Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 
@@ -7,7 +7,7 @@ import GPy
 import pytest
 
 from emukit.quadrature.methods.vanilla_bq import VanillaBayesianQuadrature
-from emukit.quadrature.loop.vanilla_bq_loop import VanillaBayesianQuadratureLoop
+from emukit.quadrature.loop.bayesian_monte_carlo_loop import BayesianMonteCarlo
 from emukit.core.loop.user_function import UserFunctionWrapper
 from emukit.model_wrappers.gpy_quadrature_wrappers import QuadratureRBFLebesgueMeasure, RBFGPy, BaseGaussianProcessGPy
 
@@ -30,21 +30,21 @@ def loop():
     emukit_qrbf = QuadratureRBFLebesgueMeasure(RBFGPy(gpy_model.kern), integral_bounds=bounds)
     emukit_model = BaseGaussianProcessGPy(kern=emukit_qrbf, gpy_model=gpy_model)
     emukit_method = VanillaBayesianQuadrature(base_gp=emukit_model, X=x_init, Y=y_init)
-    emukit_loop = VanillaBayesianQuadratureLoop(model=emukit_method)
+    emukit_loop = BayesianMonteCarlo(model=emukit_method)
     return emukit_loop, init_size, x_init, y_init
 
 
-def test_vanilla_bq_loop(loop):
+def test_bayesian_monte_carlo_loop(loop):
     emukit_loop, init_size, _, _ = loop
-    num_iter = 5
 
+    num_iter = 5
     emukit_loop.run_loop(user_function=UserFunctionWrapper(func), stopping_condition=num_iter)
 
     assert emukit_loop.loop_state.X.shape[0] == num_iter + init_size
     assert emukit_loop.loop_state.Y.shape[0] == num_iter + init_size
 
 
-def test_vanilla_bq_loop_initial_state(loop):
+def test_bayesian_monte_carlo_loop_initial_state(loop):
     emukit_loop, _, x_init, y_init = loop
 
     assert_array_equal(emukit_loop.loop_state.X, x_init)
