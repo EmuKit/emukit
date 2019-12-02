@@ -58,7 +58,7 @@ def test_local_penalization_gradients_with_multiple_points_in_batch():
     _check_grad(lp, TOL, x0)
 
 
-def test_local_penaliztion_at_batch_point():
+def test_local_penalization_at_batch_point():
     # Test edge case where evaluating local penalization at a point already in the batch.
     # This can lead to divide by zero errors if not done correctly.
 
