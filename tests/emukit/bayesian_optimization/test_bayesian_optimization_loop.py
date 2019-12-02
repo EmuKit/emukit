@@ -18,11 +18,13 @@ def f(x):
     return x**2
 
 
-def test_loop():
+@pytest.mark.parametrize("batch_size", [1, 3])
+def test_loop(batch_size):
+    n_init = 5
     n_iterations = 5
 
-    x_init = np.random.rand(5, 1)
-    y_init = np.random.rand(5, 1)
+    x_init = np.random.rand(n_init, 1)
+    y_init = np.random.rand(n_init, 1)
 
     # Make GPy model
     gpy_model = GPy.models.GPRegression(x_init, y_init)
@@ -32,27 +34,14 @@ def test_loop():
     acquisition = ExpectedImprovement(model)
 
     # Make loop and collect points
-    bo = BayesianOptimizationLoop(model=model, space=space, acquisition=acquisition)
+    bo = BayesianOptimizationLoop(model=model, space=space, acquisition=acquisition, batch_size=batch_size)
     bo.run_loop(UserFunctionWrapper(f), FixedIterationsStoppingCondition(n_iterations))
 
     # Check we got the correct number of points
-    assert bo.loop_state.X.shape[0] == n_iterations + 5
+    assert bo.loop_state.X.shape[0] == n_iterations * batch_size + n_init
 
     # Check the obtained results
     results = bo.get_results()
 
     assert results.minimum_location.shape[0] == 1
-    assert results.best_found_value_per_iteration.shape[0] == n_iterations + 5
-
-
-def test_batch_loop_fails_without_gradients_implemented():
-    parameter_space = ParameterSpace([ContinuousParameter('x', 0, 1)])
-
-    model = mock.create_autospec(IModel)
-
-    base_acquisition = ExpectedImprovement(model)
-
-    batch_size = 10
-
-    with pytest.raises(ValueError):
-        BayesianOptimizationLoop(parameter_space, model, base_acquisition, batch_size)
+    assert results.best_found_value_per_iteration.shape[0] == n_iterations * batch_size + n_init
