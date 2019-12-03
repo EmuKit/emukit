@@ -5,12 +5,12 @@ All notable changes to Emukit will be documented in this file.
 - Added simple GP model for examples
 - Bayesian optimization with unknown constraints
 - Removed dependency on libomp
-- Max Value Entropy Search acquisition function
+- Max value entropy search acquisition function
 - Multi point expected improvement acquisition function
 - Moved model free designs to core
 - Profet implementation
 - Added citation info
-- QRBF for uniform measure
+- QRBF for uniform and Gaussian measures
 - uncertainty sampling acquisition for bq
 - Bayesian Monte Carlo
 - Bugfixes
