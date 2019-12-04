@@ -4,6 +4,7 @@
 
 import abc
 import numpy as np
+import math
 
 from . import LoopState
 
@@ -60,8 +61,7 @@ class ConvergenceStoppingCondition(StoppingCondition):
         if loop_state.iteration < 2:
             # less than 2 evaluations so cannot calculate distance
             return False
-        status= np.sqrt(np.sum((loop_state.X[-1, :] - loop_state.X[-2, :]) ** 2)) <= self.eps
-        print(np.sqrt(np.sum((loop_state.X[-1, :] - loop_state.X[-2, :]) ** 2)))
-        if status==True:
+        status = math.sqrt(sum((loop_state.X[-1, :] - loop_state.X[-2, :]) ** 2)) <= self.eps
+        if status is True:
             _log.info("Stopped as consecutive evaluations are within {}".format(self.eps))
         return status

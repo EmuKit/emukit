@@ -54,18 +54,18 @@ class OuterLoop(object):
         self.loop_start_event = EventHandler()
         self.iteration_end_event = EventHandler()
 
-    def run_loop(self, user_function: Union[UserFunction, Callable], 
+    def run_loop(self, user_function: Union[UserFunction, Callable],
                  stopping_condition: Union[StoppingCondition, int, List[StoppingCondition]],
-                 context: dict=None) -> None:
+                 context: dict = None) -> None:
         """
         :param user_function: The function that we are emulating
-        :param stopping_condition: If integer - a number of iterations to run, if object (or list of such objects) - a stopping 
+        :param stopping_condition: If integer - a number of iterations to run, if object (or list of such objects) - a stopping
                         condition object that decides whether we should stop collecting more points
         :param context: The context is used to force certain parameters of the inputs to the function of interest to
                         have a given value. It is a dictionary whose keys are the parameter names to fix and the values
                         are the values to fix the parameters to.
         """
-        
+
         if not ((isinstance(stopping_condition, list) and
                 all([isinstance(condition, StoppingCondition) for condition in stopping_condition])) or
                 isinstance(stopping_condition, int) or isinstance(stopping_condition, StoppingCondition)):
@@ -79,7 +79,7 @@ class OuterLoop(object):
             stopping_condition = FixedIterationsStoppingCondition(stopping_condition + self.loop_state.iteration)
 
         if isinstance(stopping_condition, StoppingCondition):
-            stopping_condition = [stopping_condition]            
+            stopping_condition = [stopping_condition]
 
         _log.info("Starting outer loop")
 
