@@ -59,16 +59,20 @@ class OuterLoop(object):
                  context: dict = None) -> None:
         """
         :param user_function: The function that we are emulating
-        :param stopping_condition: If integer - a number of iterations to run, if object (or list of such objects) - a stopping
-                        condition object that decides whether we should stop collecting more points
+        :param stopping_condition: If integer - a number of iterations to run, or an object (or list of such objects) - a stopping
+                        condition object that decides whether we should stop collecting more points. When input is a list,
+                        we stop when any of the conditions are violated.
         :param context: The context is used to force certain parameters of the inputs to the function of interest to
                         have a given value. It is a dictionary whose keys are the parameter names to fix and the values
                         are the values to fix the parameters to.
         """
 
-        if not ((isinstance(stopping_condition, list) and
-                all([isinstance(condition, StoppingCondition) for condition in stopping_condition])) or
-                isinstance(stopping_condition, int) or isinstance(stopping_condition, StoppingCondition)):
+        is_int = isinstance(stopping_condition, int)
+        is_single_condition = isinstance(stopping_condition, StoppingCondition)
+        is_list_of_conditions = (isinstance(stopping_condition, list)
+                                 and all([isinstance(condition, StoppingCondition) for condition in stopping_condition]))
+
+        if not (is_int or is_single_condition or is_list_of_conditions):
             raise ValueError("Expected stopping_condition to be an int or a single/list of StoppingCondition instance(s),"
                              "but received {}".format(type(stopping_condition)))
 

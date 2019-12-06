@@ -48,25 +48,40 @@ def test_convergence_stopping_condition():
 
 
 def test_list_of_stopping_conditions():
-    stopping_condition = [ConvergenceStoppingCondition(0.1), FixedIterationsStoppingCondition(5)]
+    
 
     # check if we stop when neither criterion triggered
+    m = mock.Mock()
+    m.side_effect = [ConvergenceStoppingCondition(0.1), FixedIterationsStoppingCondition(5)]
     loop_state_mock = mock.create_autospec(LoopState)
     loop_state_mock.iteration = 3
     loop_state_mock.X = np.array([[0], [10], [20]])
-    assert(any([condition.should_stop(loop_state_mock)for condition in stopping_condition]) is False)
+    assert(m().should_stop(loop_state_mock) is False)
+    assert(m().should_stop(loop_state_mock)is False)
 
     # check if we stop when we should due to criterion 1
+    m.side_effect = [ConvergenceStoppingCondition(0.1), FixedIterationsStoppingCondition(5)]
     loop_state_mock = mock.create_autospec(LoopState)
     loop_state_mock.iteration = 3
-    loop_state_mock.X.return_value(np.array([[0], [1], [1.01]]))
-    assert(any([condition.should_stop(loop_state_mock)for condition in stopping_condition]) is True)
+    loop_state_mock.X = np.array([[0], [1], [1.01]])
+    assert(m().should_stop(loop_state_mock) is True)
+    assert(m().should_stop(loop_state_mock) is False)
 
     # check if we stop when we should due to criterion 2
+    m.side_effect = [ConvergenceStoppingCondition(0.1), FixedIterationsStoppingCondition(5)]
     loop_state_mock = mock.create_autospec(LoopState)
     loop_state_mock.iteration = 6
-    loop_state_mock.X.return_value(np.array([[0], [10], [20], [30], [40], [50]]))
-    assert(any([condition.should_stop(loop_state_mock)for condition in stopping_condition]) is True)
+    loop_state_mock.X = np.array([[0], [10], [20], [30], [40], [50]])
+    assert(m().should_stop(loop_state_mock) is False)
+    assert(m().should_stop(loop_state_mock) is True)
+
+    # check if we stop when we should due to both criteria
+    m.side_effect = [ConvergenceStoppingCondition(0.1), FixedIterationsStoppingCondition(5)]
+    loop_state_mock = mock.create_autospec(LoopState)
+    loop_state_mock.iteration = 6
+    loop_state_mock.X = np.array([[0], [10], [20], [30], [40], [40.01]])
+    assert(m().should_stop(loop_state_mock) is True)
+    assert(m().should_stop(loop_state_mock) is True)
 
 
 def test_every_iteration_model_updater():

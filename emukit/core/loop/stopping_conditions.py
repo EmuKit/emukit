@@ -28,7 +28,7 @@ class FixedIterationsStoppingCondition(StoppingCondition):
     def __init__(self, i_max: int) -> None:
         """
         :param i_max: Maximum number of function
-        observations within the loop, excluding initial points
+            observations within the loop, excluding initial points
         """
         self.i_max = i_max
 
@@ -37,15 +37,18 @@ class FixedIterationsStoppingCondition(StoppingCondition):
         :param loop_state: Object that contains current state of the loop
         :return: True if maximum number of iterations has been reached
         """
-        status = loop_state.iteration >= self.i_max
-        if status is True:
-            _log.info("Stopped after {} Evaluations".format(self.i_max))
-        return status
+        should_stop = loop_state.iteration >= self.i_max
+        if should_stop is True:
+            _log.info("Stopped after {} evaluations".format(self.i_max))
+        return should_stop
 
 
 class ConvergenceStoppingCondition(StoppingCondition):
     """ Stops once we choose a point within eps of a previous
-    point (with respect to euclidean norm), a notion of convergence"""
+            point (with respect to euclidean norm). Close evaluations
+            can suggest convergence of the optimization for problems 
+            with low observation noise.
+            """
     def __init__(self, eps: float) -> None:
         """
         :param eps: minimum distance between
@@ -56,12 +59,13 @@ class ConvergenceStoppingCondition(StoppingCondition):
     def should_stop(self, loop_state: LoopState) -> bool:
         """
         :param loop_state: Object that contains current state of the loop
-        :return: True if consecutive x's are too close
+        :return: True if the euclidean distance between the last two evaluations
+                    is smaller than the specified eps.
         """
         if loop_state.iteration < 2:
             # less than 2 evaluations so cannot calculate distance
             return False
-        status = math.sqrt(sum((loop_state.X[-1, :] - loop_state.X[-2, :]) ** 2)) <= self.eps
-        if status is True:
+        should_stop = np.linalg.norm(loop_state.X[-1, :]-loop_state.X[-2, :]).item() <= self.eps
+        if should_stop is True:
             _log.info("Stopped as consecutive evaluations are within {}".format(self.eps))
-        return status
+        return should_stop
