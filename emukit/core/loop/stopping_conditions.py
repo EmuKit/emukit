@@ -14,6 +14,19 @@ _log = logging.getLogger(__name__)
 
 class StoppingCondition(abc.ABC):
     """ Chooses whether to stop the optimization based on the loop state """
+
+    def __and__(self, other: 'StoppingCondition') -> 'And':
+        """
+        Overloads self & other
+        """
+        return And(self, other)
+
+    def __or__(self, other: 'StoppingCondition') -> 'Or':
+        """
+        Overloads self | other
+        """
+        return Or(self, other)
+
     @abc.abstractmethod
     def should_stop(self, loop_state: LoopState) -> bool:
         """
@@ -21,6 +34,50 @@ class StoppingCondition(abc.ABC):
         :return: Whether to stop collecting new data
         """
         pass
+
+
+class And(StoppingCondition):
+    """
+    Logical AND of two stopping conditions
+    """
+    def __init__(self, left: StoppingCondition, right: StoppingCondition):
+        """
+        :param left: One stopping condition in AND
+        :param right: Another stopping condition in AND
+        """
+        self.left = left
+        self.right = right
+
+    def should_stop(self, loop_state: LoopState) -> bool:
+        """
+        Evaluate logical AND of two stopping conditions
+
+        :param loop_state: Object that contains current state of the loop
+        :return: Whether to stop collecting new data
+        """
+        return self.left.should_stop(loop_state) and self.right.should_stop(loop_state)
+
+
+class Or(StoppingCondition):
+    """
+    Logical OR of two stopping conditions
+    """
+    def __init__(self, left: StoppingCondition, right: StoppingCondition):
+        """
+        :param left: One stopping condition in OR
+        :param right: Another stopping condition in OR
+        """
+        self.left = left
+        self.right = right
+
+    def should_stop(self, loop_state: LoopState) -> bool:
+        """
+        Evaluate logical OR of two stopping conditions
+
+        :param loop_state: Object that contains current state of the loop
+        :return: Whether to stop collecting new data
+        """
+        return self.left.should_stop(loop_state) or self.right.should_stop(loop_state)
 
 
 class FixedIterationsStoppingCondition(StoppingCondition):

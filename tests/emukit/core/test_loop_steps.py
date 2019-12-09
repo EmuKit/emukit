@@ -6,82 +6,9 @@ from emukit.core.acquisition import Acquisition
 from emukit.core.interfaces import IModel
 from emukit.core.loop import (FixedIntervalUpdater,
                               FixedIterationsStoppingCondition, LoopState,
-                              SequentialPointCalculator,
-                              UserFunctionWrapper, RandomSampling,
-                              ConvergenceStoppingCondition)
+                              RandomSampling, SequentialPointCalculator,
+                              UserFunctionWrapper)
 from emukit.core.optimization import GradientAcquisitionOptimizer
-
-
-def test_fixed_iteration_stopping_condition():
-    stopping_condition = FixedIterationsStoppingCondition(5)
-    loop_state_mock = mock.create_autospec(LoopState)
-    loop_state_mock.iteration = 0
-
-    assert(stopping_condition.should_stop(loop_state_mock) is False)
-
-    loop_state_mock = mock.create_autospec(LoopState)
-    loop_state_mock.iteration = 5
-
-    assert(stopping_condition.should_stop(loop_state_mock) is True)
-
-
-def test_convergence_stopping_condition():
-    stopping_condition = ConvergenceStoppingCondition(0.1)
-
-    # check if we stop before criterion can be calculated
-    loop_state_mock = mock.create_autospec(LoopState)
-    loop_state_mock.iteration = 1
-    loop_state_mock.X = np.array([[0]])
-    assert(stopping_condition.should_stop(loop_state_mock) is False)
-
-    # check if we stop when we should not
-    loop_state_mock = mock.create_autospec(LoopState)
-    loop_state_mock.iteration = 5
-    loop_state_mock.X = np.array([[0], [10], [20], [30], [40]])
-    assert(stopping_condition.should_stop(loop_state_mock) is False)
-
-    # check if we stop when we should
-    loop_state_mock = mock.create_autospec(LoopState)
-    loop_state_mock.iteration = 5
-    loop_state_mock.X.return_value(np.array([[0], [1], [2], [3], [3.01]]))
-    assert(stopping_condition.should_stop(loop_state_mock) is True)
-
-
-def test_list_of_stopping_conditions():
-    
-
-    # check if we stop when neither criterion triggered
-    m = mock.Mock()
-    m.side_effect = [ConvergenceStoppingCondition(0.1), FixedIterationsStoppingCondition(5)]
-    loop_state_mock = mock.create_autospec(LoopState)
-    loop_state_mock.iteration = 3
-    loop_state_mock.X = np.array([[0], [10], [20]])
-    assert(m().should_stop(loop_state_mock) is False)
-    assert(m().should_stop(loop_state_mock)is False)
-
-    # check if we stop when we should due to criterion 1
-    m.side_effect = [ConvergenceStoppingCondition(0.1), FixedIterationsStoppingCondition(5)]
-    loop_state_mock = mock.create_autospec(LoopState)
-    loop_state_mock.iteration = 3
-    loop_state_mock.X = np.array([[0], [1], [1.01]])
-    assert(m().should_stop(loop_state_mock) is True)
-    assert(m().should_stop(loop_state_mock) is False)
-
-    # check if we stop when we should due to criterion 2
-    m.side_effect = [ConvergenceStoppingCondition(0.1), FixedIterationsStoppingCondition(5)]
-    loop_state_mock = mock.create_autospec(LoopState)
-    loop_state_mock.iteration = 6
-    loop_state_mock.X = np.array([[0], [10], [20], [30], [40], [50]])
-    assert(m().should_stop(loop_state_mock) is False)
-    assert(m().should_stop(loop_state_mock) is True)
-
-    # check if we stop when we should due to both criteria
-    m.side_effect = [ConvergenceStoppingCondition(0.1), FixedIterationsStoppingCondition(5)]
-    loop_state_mock = mock.create_autospec(LoopState)
-    loop_state_mock.iteration = 6
-    loop_state_mock.X = np.array([[0], [10], [20], [30], [40], [40.01]])
-    assert(m().should_stop(loop_state_mock) is True)
-    assert(m().should_stop(loop_state_mock) is True)
 
 
 def test_every_iteration_model_updater():
