@@ -13,15 +13,18 @@ class DummyStoppingCondition(StoppingCondition):
 
 
 def test_fixed_iteration_stopping_condition():
-    stopping_condition = FixedIterationsStoppingCondition(5)
-    loop_state_mock = mock.create_autospec(LoopState)
-    loop_state_mock.iteration = 0
+    n_iterations = 5
 
+    stopping_condition = FixedIterationsStoppingCondition(n_iterations)
+    loop_state_mock = mock.create_autospec(LoopState)
+
+    loop_state_mock.iteration = 0
     assert(stopping_condition.should_stop(loop_state_mock) is False)
 
-    loop_state_mock = mock.create_autospec(LoopState)
-    loop_state_mock.iteration = 5
+    loop_state_mock.iteration = n_iterations - 1
+    assert(stopping_condition.should_stop(loop_state_mock) is False)
 
+    loop_state_mock.iteration = n_iterations
     assert(stopping_condition.should_stop(loop_state_mock) is True)
 
 

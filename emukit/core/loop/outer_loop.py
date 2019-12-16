@@ -61,7 +61,8 @@ class OuterLoop(object):
         :param user_function: The function that we are emulating
         :param stopping_condition: If integer - a number of iterations to run, or an object - a stopping
                         condition object that decides whether we should stop collecting more points.
-                        Note that stopping conditions can be logically combined to represent complex stopping criteria.
+                        Note that stopping conditions can be logically combined (&, |)
+                        to represent complex stopping criteria.
         :param context: The context is used to force certain parameters of the inputs to the function of interest to
                         have a given value. It is a dictionary whose keys are the parameter names to fix and the values
                         are the values to fix the parameters to.
@@ -71,7 +72,7 @@ class OuterLoop(object):
         is_single_condition = isinstance(stopping_condition, StoppingCondition)
 
         if not (is_int or is_single_condition):
-            raise ValueError("Expected stopping_condition to be an int or a single StoppingCondition instance,"
+            raise ValueError("Expected stopping_condition to be an int or a StoppingCondition instance,"
                              "but received {}".format(type(stopping_condition)))
 
         if not isinstance(user_function, UserFunction):
