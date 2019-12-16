@@ -55,13 +55,14 @@ class OuterLoop(object):
         self.iteration_end_event = EventHandler()
 
     def run_loop(self, user_function: Union[UserFunction, Callable],
-                 stopping_condition: Union[StoppingCondition, int, List[StoppingCondition]],
+                 stopping_condition: Union[StoppingCondition, int],
                  context: dict = None) -> None:
         """
         :param user_function: The function that we are emulating
-        :param stopping_condition: If integer - a number of iterations to run, or an object (or list of such objects) - a stopping
-                        condition object that decides whether we should stop collecting more points. When input is a list,
-                        we stop when any of the conditions are violated.
+        :param stopping_condition: If integer - a number of iterations to run, or an object - a stopping
+                        condition object that decides whether we should stop collecting more points.
+                        Note that stopping conditions can be logically combined (&, |)
+                        to represent complex stopping criteria.
         :param context: The context is used to force certain parameters of the inputs to the function of interest to
                         have a given value. It is a dictionary whose keys are the parameter names to fix and the values
                         are the values to fix the parameters to.
@@ -69,11 +70,9 @@ class OuterLoop(object):
 
         is_int = isinstance(stopping_condition, int)
         is_single_condition = isinstance(stopping_condition, StoppingCondition)
-        is_list_of_conditions = (isinstance(stopping_condition, list)
-                                 and all([isinstance(condition, StoppingCondition) for condition in stopping_condition]))
 
-        if not (is_int or is_single_condition or is_list_of_conditions):
-            raise ValueError("Expected stopping_condition to be an int or a single/list of StoppingCondition instance(s),"
+        if not (is_int or is_single_condition):
+            raise ValueError("Expected stopping_condition to be an int or a StoppingCondition instance,"
                              "but received {}".format(type(stopping_condition)))
 
         if not isinstance(user_function, UserFunction):
@@ -82,14 +81,11 @@ class OuterLoop(object):
         if isinstance(stopping_condition, int):
             stopping_condition = FixedIterationsStoppingCondition(stopping_condition + self.loop_state.iteration)
 
-        if isinstance(stopping_condition, StoppingCondition):
-            stopping_condition = [stopping_condition]
-
         _log.info("Starting outer loop")
 
         self.loop_start_event(self, self.loop_state)
 
-        while not any([condition.should_stop(self.loop_state)for condition in stopping_condition]):
+        while not stopping_condition.should_stop(self.loop_state):
             _log.info("Iteration {}".format(self.loop_state.iteration))
 
             self._update_models()
