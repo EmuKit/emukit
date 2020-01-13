@@ -46,7 +46,7 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
            International Conference on Learning and Intelligent Optimization.
            Springer, Berlin, Heidelberg, 2011.
     """
-    def __init__(self, space: ParameterSpace, num_steps: int, num_init_points: int,
+    def __init__(self, space: ParameterSpace, num_steps: int = 10, num_init_points: int = 5,
                  std_dev: float = 0.02, num_continuous: int = 4) -> None:
         """
         :param space: The parameter space spanning the search problem.
