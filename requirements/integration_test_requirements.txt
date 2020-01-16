@@ -2,8 +2,6 @@
 scikit-learn
 # For BNN model
 pybnn==0.0.5
-# For Latin design
-PyDOE>=0.3.0
 # For notebook tests
 jupyter==1.0.0
 pandas==0.24.2

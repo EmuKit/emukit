@@ -1,7 +1,12 @@
 coverage>=4.5.1
 codecov>=2.0.15
 flake8>=3.5.0
-pytest==3.5.1
-pytest-cov==2.5.1
-mock==2.0.0
+pytest>=3.5.1
+pytest-cov>=2.5.1
+mock>=2.0.0
 pytest-lazy-fixture>=0.4.2
+
+# For Latin design
+PyDOE>=0.3.0
+# For Sobol design
+sobol_seq
