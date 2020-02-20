@@ -4,22 +4,11 @@ import numpy as np
 from emukit.core import ContinuousParameter, ParameterSpace
 from emukit.core.acquisition import Acquisition
 from emukit.core.interfaces import IModel
-from emukit.core.loop import (FixedIntervalUpdater, FixedIterationsStoppingCondition, LoopState, SequentialPointCalculator,
-                              UserFunctionWrapper, RandomSampling)
+from emukit.core.loop import (FixedIntervalUpdater,
+                              FixedIterationsStoppingCondition, LoopState,
+                              RandomSampling, SequentialPointCalculator,
+                              UserFunctionWrapper)
 from emukit.core.optimization import GradientAcquisitionOptimizer
-
-
-def test_fixed_iteration_stopping_condition():
-    stopping_condition = FixedIterationsStoppingCondition(5)
-    loop_state_mock = mock.create_autospec(LoopState)
-    loop_state_mock.iteration = 0
-
-    assert(stopping_condition.should_stop(loop_state_mock) is False)
-
-    loop_state_mock = mock.create_autospec(LoopState)
-    loop_state_mock.iteration = 5
-
-    assert(stopping_condition.should_stop(loop_state_mock) is True)
 
 
 def test_every_iteration_model_updater():
@@ -37,7 +26,8 @@ def test_every_iteration_model_updater():
 
 def test_every_iteration_model_updater_with_cost():
     """
-    Tests that the model updater can use a different attribute from loop_state as the training targets
+    Tests that the model updater can use a different attribute
+    from loop_state as the training targets
     """
 
     class MockModel(IModel):
