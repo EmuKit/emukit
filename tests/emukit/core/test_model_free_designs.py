@@ -1,9 +1,11 @@
 from emukit.core import CategoricalParameter, ContinuousParameter, DiscreteParameter, ParameterSpace
-from emukit.core.initial_designs import RandomDesign, LatinDesign
+from emukit.core.initial_designs import RandomDesign
+from emukit.core.initial_designs.latin_design import LatinDesign
+from emukit.core.initial_designs.sobol_design import SobolDesign
 
 
 def create_model_free_designs(space: ParameterSpace):
-    return [RandomDesign(space), LatinDesign(space)]
+    return [RandomDesign(space), LatinDesign(space), SobolDesign(space)]
 
 
 def test_design_returns_correct_number_of_points():
