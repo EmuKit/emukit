@@ -1,3 +1,7 @@
+# Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+
 import numpy as np
 try:
     from sobol_seq import i4_sobol_generate
@@ -23,15 +27,16 @@ class SobolDesign(ModelFreeDesignBase):
     def get_samples(self, point_count: int) -> np.ndarray:
         """
         Generates requested amount of points.
+
         :param point_count: Number of points required.
-        :return: A numpy array with shape (point_count x space_dim)
+        :return: A numpy array of generated samples, shape (point_count x space_dim)
         """
         bounds = self.parameter_space.get_bounds()
         lower_bound = np.asarray(bounds)[:, 0].reshape(1, len(bounds))
         upper_bound = np.asarray(bounds)[:, 1].reshape(1, len(bounds))
         diff = upper_bound - lower_bound
 
-        X_design = np.dot(i4_sobol_generate(len(bounds), point_count), np.diag(diff.flatten())) + lower_bound
+        X_design = np.dot(i4_sobol_generate(len(bounds), point_count), np.diag(diff[0, :])) + lower_bound
 
         samples = self.parameter_space.round(X_design)
 
