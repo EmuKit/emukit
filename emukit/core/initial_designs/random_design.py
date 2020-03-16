@@ -23,6 +23,6 @@ class RandomDesign(ModelFreeDesignBase):
         Generates requested amount of points.
 
         :param point_count: Number of points required.
-        :return: A numpy array with shape (point_count x space_dim)
+        :return: A numpy array of generated samples, shape (point_count x space_dim)
         """
         return self.parameter_space.sample_uniform(point_count)
