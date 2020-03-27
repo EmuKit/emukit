@@ -1,0 +1,12 @@
+# It is recommended to install on a new anaconda environment
+conda create --name pbbo python=3.7
+# Activate the made environment
+source activate pbbo
+
+# First install the needed basic libraries
+conda install pip numpy scipy=1.1.0 cython matplotlib
+pip install GPy numdifftools pystan quadpy GPyOpt gitpython pandas emukit, pyDOE
+
+#On macs matplotlib doesn't necessarily work so running the following lines should fix it
+mkdir -p ~/.matplotlib
+echo "backend: TkAgg" > ~/.matplotlib/matplotlibrc
