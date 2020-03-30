@@ -1,5 +1,6 @@
 from pbbo import *
 import GPy
+import evalset
 
 # Select one of the following as the inference method: MCMCComparisonGP, EPComparisonGP, VIComparisonGPMF, VIComparisonGPFR
 # We demonstrate here with the EP inference: 
@@ -10,13 +11,13 @@ inference = EPComparisonGP
 acquisition = ThompsonSampling 
 
 # Select objective, we demonstrate here with the 4 dimensional Sushi data
-objective = Sushi()
+objective = evalset.test_funcs.Sushi()
 
 # Normalize the objective and add noise:
 objective.init_normalize_X() # scale bounds between 0 and 1
 objective.init_normalize_Y() # scale function maximum and minimum between 0 and 1
 noise_level = 0.05
-objective = Noisifier(objective, 'add', noise_level) # add normally distributed noise with std 'noise_level'
+objective = evalset.test_funcs.Noisifier(objective, 'add', noise_level) # add normally distributed noise with std 'noise_level'
 
 # Generate a kernel for the GP
 kernel = GPy.kern.RBF(input_dim=len(objective.bounds), ARD=True, variance=1.0, lengthscale=[0.5]*len(objective.bounds))

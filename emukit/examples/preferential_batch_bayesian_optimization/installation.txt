@@ -5,7 +5,7 @@ source activate pbbo
 
 # First install the needed basic libraries
 conda install pip numpy scipy=1.1.0 cython matplotlib
-pip install GPy numdifftools pystan quadpy GPyOpt gitpython pandas emukit, pyDOE
+pip install GPy numdifftools pystan quadpy GPyOpt gitpython pandas emukit pyDOE git+https://github.com/esiivola/evalset@master
 
 #On macs matplotlib doesn't necessarily work so running the following lines should fix it
 mkdir -p ~/.matplotlib
