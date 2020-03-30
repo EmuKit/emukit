@@ -1,11 +1,6 @@
 import numpy as np
 
-from emukit.bayesian_optimization.acquisitions import ExpectedImprovement, ProbabilityOfImprovement, \
-    NegativeLowerConfidenceBound
 from emukit.core import ParameterSpace, ContinuousParameter
-from emukit.core.loop import OuterLoop, FixedIntervalUpdater, SequentialPointCalculator
-from emukit.core.loop.loop_state import create_loop_state
-from emukit.core.optimization import AcquisitionOptimizerBase
 from emukit.core.optimization import GradientAcquisitionOptimizer
 from emukit.bayesian_optimization.loops import BayesianOptimizationLoop
 
@@ -14,11 +9,11 @@ import numpy as np
 import math
 import logging
 import emukit
+import evalset.test_funcs
 from typing import Dict, Tuple
 from functools import partial
 
 from . import util
-from . import sigopt_functions
 from . import ComparisonGP, ComparisonGPEmukitWrapper
 from .acquisitions import AcquisitionFunction, EmukitAcquisitionFunctionWrapper, ThompsonSampling, SequentialGradientAcquisitionOptimizer 
 
@@ -103,7 +98,7 @@ class BayesianOptimization():
         """
         return logging.getLogger(self.log_file)
     
-    def bayesian_optimization(self, objective: sigopt_functions.TestFunction) -> Tuple[np.ndarray, np.ndarray]:
+    def bayesian_optimization(self, objective: evalset.test_funcs.TestFunction) -> Tuple[np.ndarray, np.ndarray]:
         """
         This function implements the main loop of Bayesian Optimization,
         
@@ -111,29 +106,6 @@ class BayesianOptimization():
         
         The function returns the final set of points X_all, the respective
         batch feedbacks yc_all
-
-        The main work is done in the following lines:
-
-        ---------------------------------
-        X_new = self.acquisition.acq_fun_optimizer(m, bounds, self.batch_size, self.get_logger)
-        ---------------------------------
-        The new batch of points X_new is chosen
-        by optimizing the acquisition function
-
-        ---------------------------------------------------
-        yc_new = [ (yc[0]+N_old, yc[1]+N_old) for yc in util.comparison_form(objective.f(X_new))]
-        yc_all = yc_all + [yc_new]
-        ---------------------------------------------------
-        The actual objective function (objective.f) is called on the
-        selected points and the output is saved.
-
-        ------------------------------------------------------
-        m = self.inference(X_all, y_all, yc_all, [self.kernel.copy()], [lik], get_logger=self.get_logger)
-                OR
-        m.set_XY(X_all, y_all, yc_all)
-        ------------------------------------------------------
-        The GP is updated & retrained to also take into account the newly
-        acquired points
         
         :param objective: The black box function to be optimized
         :return: The locations the function has been evaluated so far and the comparison outcomes

@@ -10,13 +10,12 @@ If you want to gain deeper knowledge, the actual implementation can be found fro
 folder and the structure of the code is as follows:
 
 - bayesian_optimization.py implements the Bayesian optimization loop needed for 
-  the PBBO algorithm. The file is heavily inspired by
-  https://github.com/oxfordcontrol/Bayesian-Optimization/blob/GPy-based/methods/bo.py
+  the PBBO algorithm.
 
 - gp_models.py implements different GP models for all inference methods discussed in
   the paper. The actual inference implementations are in "inferences" folder and the
   inference implementations return a posterior approximation that the GP models use.
-  
+
 - "acquisitions" folder contain the implementations for the acquisition functions.
 
 - sigopt_functions.py contains all the functions used as examples in the paper.
