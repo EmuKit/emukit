@@ -4,7 +4,7 @@ import evalset.test_funcs
 
 # Select one of the following as the inference method: MCMCComparisonGP, EPComparisonGP, VIComparisonGPMF, VIComparisonGPFR
 # We demonstrate here with the EP inference: 
-inference = EPComparisonGP
+inference = MCMCComparisonGP#EPComparisonGP
 
 # Select one of the following as the acquisition function: SumOfVariances, QExpectedImprovement, ThompsonSampling
 # We demonstrate here with the Thompson sampling

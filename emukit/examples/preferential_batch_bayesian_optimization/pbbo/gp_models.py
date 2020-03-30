@@ -24,10 +24,12 @@ from typing import Tuple, List, Callable, Dict
 
 from .inferences import vi_batch_comparison as vi
 from .inferences import ep_batch_comparison as ep
-from .inferences import stan_utility
+import stan_utility
 from .inferences import StanPosterior
 from . import util
 from emukit.core.interfaces import IModel
+import os
+
 
         
 class ComparisonGP(GPy.core.Model):
@@ -320,7 +322,9 @@ class MCMCComparisonGP(ComparisonGP):
         self.lengthscale = np.array([kernel.lengthscale[:]]).flatten()
         self.kern = kernel
         self.posterior = None
-        self.model = stan_utility.compile_model(os.path.join(os.path.dirname(__file__), "inferences/sexpgp_comparison.stan"))
+        if not os.path.exists(stan_utility.file_utils. get_path_of_cache()):
+            os.makedirs(stan_utility.file_utils. get_path_of_cache())
+        self.model = stan_utility.compile_model(os.path.join(os.path.dirname(__file__), "inferences/sexpgp_comparison.stan"), model_name='comparison_model')
         self.get_logger = get_logger
         self.parameters_changed()
 

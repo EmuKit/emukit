@@ -15,7 +15,7 @@ from importlib import reload
 
 from GPy.inference.latent_function_inference.posterior import Posterior
 from GPy.util.linalg import tdot, dpotrs, pdinv, jitchol, dpotri
-from . import stan_utility
+import stan_utility
 import os
 import sys
 
