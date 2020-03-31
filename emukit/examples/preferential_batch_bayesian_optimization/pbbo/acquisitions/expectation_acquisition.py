@@ -230,7 +230,6 @@ class ExpectationAcquisition(AcquisitionFunction):
             (opt_val_i, dpdX_i) = self.acquisition_fun(X_i.reshape(k, n), m)
             opt_val += [opt_val_i]
             dpdX = np.concatenate((dpdX, dpdX_i.flatten().reshape((1,-1))), axis=0)
-            #(opt_val, dpdX) = self.acquisition_fun(X.reshape(k, n), m)
         return np.array(opt_val).reshape((-1,1)), dpdX
 
     def acq_fun_optimizer(self, m: ComparisonGP, bounds: np.ndarray, batch_size: int, get_logger: Callable) -> np.ndarray:
