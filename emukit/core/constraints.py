@@ -55,6 +55,10 @@ class LinearInequalityConstraint(InequalityConstraint):
         :param upper_bound: Upper bound vector of size (n_constraint,). Can be np.inf for one sided constraint
         """
         super().__init__(lower_bound, upper_bound)
+        if (constraint_matrix.shape[0] != lower_bound.shape[0]) or (constraint_matrix.shape[0] != upper_bound.shape[0]):
+            raise ValueError('Shape mismatch between constraint matrix {} and lower {} or upper {} bounds'.format(
+                              constraint_matrix.shape, lower_bound.shape, upper_bound.shape))
+
         self.constraint_matrix = constraint_matrix
 
     def evaluate(self, x: np.ndarray) -> np.ndarray:
@@ -62,11 +66,17 @@ class LinearInequalityConstraint(InequalityConstraint):
         Evaluate whether constraints are violated or satisfied at a set of x locations
 
         :param x: Array of shape (n_points x n_dims) containing input locations to evaluate constraint at
-        :return: Numpy array of shape (n_input,) where an element will be 1 if the corresponding input satisfies the
-                 constraint and zero if the constraint is violated
+        :return: Numpy array of shape (n_points, ) where an element will be 1 if the corresponding input satisfies all
+                 constraints and zero if any constraint is violated
         """
-        ax = self.constraint_matrix.dot(x)
-        return np.all([ax >= self.lower_bound, ax <= self.upper_bound], axis=0)
+        if self.constraint_matrix.shape[1] != x.shape[1]:
+            raise ValueError('Dimension mismatch between constraint matrix (second dim {})' +
+                            ' and input x (second dim {})'.format(self.constraint_matrix.shape[1], x.shape[1]))
+
+        # Transpose here is needed to handle input dimensions
+        # that is, A is (n_const, n_dims) and x is (n_points, n_dims)
+        ax = self.constraint_matrix.dot(x.T).T
+        return np.all((ax >= self.lower_bound) & (ax <= self.upper_bound), axis=1)
 
 
 class NonlinearInequalityConstraint(InequalityConstraint):
