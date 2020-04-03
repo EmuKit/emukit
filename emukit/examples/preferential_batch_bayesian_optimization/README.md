@@ -18,10 +18,6 @@ folder and the structure of the code is as follows:
 
 - "acquisitions" folder contain the implementations for the acquisition functions.
 
-- sigopt_functions.py contains all the functions used as examples in the paper.
-  The functions are mostly copied from
-  https://github.com/sigopt/evalset/blob/master/evalset/test_funcs.py
-
 - utils.py contains useful methods used by many parts of the code
 
 
