@@ -44,6 +44,7 @@ class GPBayesianOptimization(BayesianOptimizationLoop):
         :param acquisition_optimizer_type: selects the type of optimizer of the acquisition.
             - LBFGS: uses L-BFGS with multiple initializations.
         :param model_update_interval: interval of interactions in which the model is updated.
+        :param batch_size: How many points to evaluate in one iteration of the optimization loop. Defaults to 1.
         """
 
         self.variables_list = variables_list
