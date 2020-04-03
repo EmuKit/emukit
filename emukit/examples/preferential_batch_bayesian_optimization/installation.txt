@@ -4,9 +4,9 @@ conda create --name pbbo python=3.7
 source activate pbbo
 
 # First install the needed basic libraries
-conda install pip numpy scipy=1.1.0 cython matplotlib
-pip install GPy numdifftools pystan quadpy GPyOpt gitpython pandas emukit pyDOE stan_utility git+https://github.com/esiivola/evalset@master git+https://github.com/esiivola/nearestPD@master
+conda install pip numpy scipy=1.1.0 cython
+pip install GPy numdifftools pystan quadpy gitpython emukit pyDOE stan_utility git+https://github.com/esiivola/evalset@master git+https://github.com/esiivola/nearestPD@master
 
-#On macs matplotlib doesn't necessarily work so running the following lines should fix it
-mkdir -p ~/.matplotlib
-echo "backend: TkAgg" > ~/.matplotlib/matplotlibrc
+
+# If running on cluster, you probably want to restrict the Stan to use only one chain, if so, in /pbbo/inferences/mcmc_batch_comparison.py, uncomment the following:
+# os.environ['STAN_NUM_THREADS'] = "1" # To make our lives easier on clusters

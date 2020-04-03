@@ -20,9 +20,11 @@ import os
 import sys
 
 from typing import Tuple, List, Callable, Dict
+
+# IF RUNNING ON CLUSTER AND RESTRICTED TO USE ONLY ONE CORE, UNCOMMENT THIS
 # set environmental variable STAN_NUM_THREADS
 # Use 4 cores per chain
-os.environ['STAN_NUM_THREADS'] = "1" # To make our lives easier on clusters
+# os.environ['STAN_NUM_THREADS'] = "1" # To make our lives easier on clusters
 
 
 def remove_level_uncertainty(samples: np.ndarray, mean_same: bool=True) -> np.ndarray:
