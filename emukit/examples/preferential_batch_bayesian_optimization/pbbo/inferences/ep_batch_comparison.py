@@ -7,6 +7,8 @@ from scipy.linalg import sqrtm, inv, svd
 import scipy.linalg as la
 
 import GPy
+import nearestPD
+
 from GPy.inference.latent_function_inference.expectation_propagation import posteriorParams #, gaussianApproximation
 from GPy.inference.latent_function_inference.posterior import PosteriorEP as Posterior
 
@@ -95,7 +97,7 @@ class GaussianApproximation(object):
         tmp = (1-delta)*self.tau[np.ix_(batch,batch)] + delta_tau
         
         #Let us umake sure that sigma_hat_inv-post_sigma_inv is positive definite        
-        tmp, added_value = util.nearestPD(tmp)        
+        tmp, added_value = nearestPD.nearestPD(tmp)        
         update = True        
         if (added_value > 1) and (sigma2s is not None):
             update = False                
@@ -138,7 +140,7 @@ class CavityParams(object):
         """
         post_sigma_inv = inv(post_params.Sigma[np.ix_(batch,batch)])
         tmp = post_sigma_inv - eta*ga_approx.tau[np.ix_(batch,batch)]
-        self.tau[np.ix_(batch,batch)], _ = util.nearestPD(tmp)
+        self.tau[np.ix_(batch,batch)], _ = nearestPD.nearestPD(tmp)
         self.v[batch] = np.dot(post_sigma_inv, post_params.mu[batch]) - eta*ga_approx.v[batch]
 
 def update_posterior(K: np.ndarray, v: np.ndarray, tau: np.ndarray, y: List[Tuple[int, float]],
