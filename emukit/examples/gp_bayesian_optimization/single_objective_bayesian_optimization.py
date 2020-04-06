@@ -24,7 +24,7 @@ class GPBayesianOptimization(BayesianOptimizationLoop):
     def __init__(self, variables_list: list, X: np.array, Y: np.array, noiseless: bool = False,
                  acquisition_type: AcquisitionType = AcquisitionType.EI, normalize_Y: bool = True,
                  acquisition_optimizer_type: OptimizerType = OptimizerType.LBFGS,
-                 model_update_interval: int = int(1)) -> None:
+                 model_update_interval: int = int(1), batch_size: int = 1) -> None:
 
         """
         Generic class to run Bayesian optimization with GPyRegression model.
@@ -44,6 +44,7 @@ class GPBayesianOptimization(BayesianOptimizationLoop):
         :param acquisition_optimizer_type: selects the type of optimizer of the acquisition.
             - LBFGS: uses L-BFGS with multiple initializations.
         :param model_update_interval: interval of interactions in which the model is updated.
+        :param batch_size: How many points to evaluate in one iteration of the optimization loop. Defaults to 1.
         """
 
         self.variables_list = variables_list
@@ -66,7 +67,8 @@ class GPBayesianOptimization(BayesianOptimizationLoop):
 
         super(GPBayesianOptimization, self).__init__(model=self.model,
                                                      space=self.space,
-                                                     acquisition=self.acquisition)
+                                                     acquisition=self.acquisition,
+                                                     batch_size=batch_size)
 
     def _model_chooser(self):
         """ Initialize the model used for the optimization """
@@ -89,7 +91,7 @@ class GPBayesianOptimization(BayesianOptimizationLoop):
 
     def suggest_new_locations(self):
         """ Returns one or a batch of locations without evaluating the objective """
-        return self.candidate_point_calculator.compute_next_points(self.loop_state)[0]
+        return self.candidate_point_calculator.compute_next_points(self.loop_state)
 
     def run_optimization(self, user_function: UserFunction, num_iterations: int) -> None:
         """
