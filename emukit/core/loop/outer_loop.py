@@ -103,15 +103,18 @@ class OuterLoop(object):
         for model_updater in self.model_updaters:
             model_updater.update(self.loop_state)
 
-    def get_next_points(self, results: List[UserFunctionResult]) -> np.ndarray:
+    def get_next_points(self, results: List[UserFunctionResult], context: dict={}) -> np.ndarray:
         """
         This method is used when the user doesn't want Emukit to evaluate the function of interest but rather just wants
         the input locations to evaluate the function at. This method calculates the new input locations.
 
         :param results: Function results since last loop step
+        :param context: A dictionary of fixed parameters, identical to the context used in
+                        self.run_loop()
         :return: Next batch of points to run
         """
         if results:
             self.loop_state.update(results)
             self._update_models()
-        return self.candidate_point_calculator.compute_next_points(self.loop_state)
+        new_x = self.candidate_point_calculator.compute_next_points(self.loop_state, context)
+        return new_x
