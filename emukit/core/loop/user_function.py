@@ -26,6 +26,7 @@ class UserFunction(abc.ABC, Callable):
     @abc.abstractmethod
     def evaluate(self, X: np.ndarray) -> List[UserFunctionResult]:
         pass
+
     def __call__(self, X: np.ndarray) -> List[UserFunctionResult]:
         return self.evaluate(X)
 
