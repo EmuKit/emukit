@@ -30,6 +30,13 @@ class UserFunctionResult(object):
         self.X = X
         self.Y = Y
 
+    def __eq__(self, other):
+        is_eq = False
+        try:
+            is_eq = all(self.X == other.X) and all(self.Y == other.Y) and self.extra_outputs == other.extra_outputs
+        finally:
+            return is_eq
+
     def __getattr__(self, item):
         """
         Allow extra output values to be accessed as an attribute
