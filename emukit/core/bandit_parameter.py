@@ -48,10 +48,13 @@ class BanditParameter(Parameter):
                 encoding = OneHotEncoding(domain_unq)
                 parameter = CategoricalParameter(name = parameter_name, encoding = encoding)
                 raise NotImplementedError("Categorical sub-parameters not yet fully supported")
+                # NOTE Categorical sub-parameters not yet implemented because inputs are
+                # homogeneously typed np.ndarrays rather than structured arrays. In the future,
+                # using structured arrays for all inputs may be more appropriate.
             parameters.append(parameter)
         return(parameters)
 
-    def check_in_domain(self, x: Union[np.ndarray, float]) -> bool:
+    def check_in_domain(self, x: Union[np.ndarray, float]) -> Union[bool, np.ndarray]:
         """
         Checks if all the points in x lie in the domain set
 
@@ -63,6 +66,9 @@ class BanditParameter(Parameter):
         if isinstance(x, np.ndarray):
             if x.ndim == 2 and x.shape[1] == 1:
                 x = x.ravel()
+            elif x.ndim == 2 and x.shape[1] > 1:
+                result = np.array([self.check_in_domain(xx) for xx in x])
+                return result
             elif x.ndim > 1:
                 raise ValueError("Expected x shape (n,) or (n, 1), actual is {}".format(x.shape))
         return (self.domain == x).all(axis=1).any()

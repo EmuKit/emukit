@@ -1,8 +1,30 @@
 import numpy as np
 import pytest
 
-from emukit.core import ContinuousParameter
-from emukit.core import DiscreteParameter, InformationSourceParameter
+from emukit.core import (
+    BanditParameter,
+    ContinuousParameter,
+    DiscreteParameter,
+    InformationSourceParameter,
+)
+
+
+def test_bandit_parameter():
+    # domain = np.array([('a',1),('a',2),('b',2)], dtype=[('x0','S1'),('x1','i4')])
+    domain = np.array([[1,1],[1,2],[2,2]])
+    param = BanditParameter('x',domain)
+    assert param.name == 'x'
+    assert not param.check_in_domain(np.array([1, 3]))
+    assert param.check_in_domain([1,2])
+    assert all(param.check_in_domain(np.array([[1,1], [1,2]])))
+    assert (param.round(np.array([[1,1.2]])) == [1,1]).all()
+    assert all([isinstance(sp, DiscreteParameter) for sp in param.parameters])
+    assert all(param.check_in_domain(param.sample_uniform(10)))
+
+    with pytest.raises(ValueError):  # too many columns
+        param.check_in_domain(np.array([[1, 0, 0], [0, 2, 0]]))
+    with pytest.raises(ValueError):  # not a 1d/2d array
+        param.check_in_domain(np.array([[[1]]]))
 
 
 def test_continuous_parameter():
