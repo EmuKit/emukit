@@ -25,8 +25,10 @@ class BanditParameter(Parameter):
         be reflected from the domain
         """
         self.name = name
-        assert isinstance(domain, np.ndarray)
-        assert domain.ndim==2
+        if not isinstance(domain, np.ndarray):
+            raise ValueError("Domain must be a 2D np.ndarray, got type: {}".format(type(domain)))
+        if not domain.ndim==2:
+            raise ValueError("Domain must be a 2D np.ndarray, got dimensions: {}".format(domain.shape))
         self.domain = domain  # each column is homogeneously typed thanks to numpy.ndarray
         self.parameters = self._create_parameters(domain, sub_parameter_names)
 
@@ -71,7 +73,16 @@ class BanditParameter(Parameter):
                 return result
             elif x.ndim > 1:
                 raise ValueError("Expected x shape (n,) or (n, 1), actual is {}".format(x.shape))
-        return (self.domain == x).all(axis=1).any()
+            if x.shape[0] != self.domain.shape[1]:
+                raise ValueError("Received x with dimension {}, expected dimension is {}".format(x.shape[0],self.domain.shape[1]))
+            result = (self.domain == x).all(axis=1).any()
+        elif isinstance(x, float):
+            result = (self.domain == x).all(axis=1).any()
+        # elif isinstance(x, list):
+        #     result = (self.domain == x).all(axis=1).any()
+        else:
+            raise ValueError("Unsupported type for point x: {}".format(type(x)))
+        return result
 
     @property
     def bounds(self) -> List[Tuple]:
@@ -99,7 +110,7 @@ class BanditParameter(Parameter):
         for row in x:
             dists = np.sqrt(np.sum((self.domain - row)**2))
             rounded_value = min(self.domain, key=lambda d: np.linalg.norm(d-row))
-            x_rounded.append([rounded_value])
+            x_rounded.append(rounded_value)
 
         assert all([self.check_in_domain(xr) for xr in x_rounded])
         return np.row_stack(x_rounded)

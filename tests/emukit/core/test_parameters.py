@@ -15,7 +15,7 @@ def test_bandit_parameter():
     param = BanditParameter('x',domain)
     assert param.name == 'x'
     assert not param.check_in_domain(np.array([1, 3]))
-    assert param.check_in_domain([1,2])
+    assert param.check_in_domain(np.array([1,2]))
     assert all(param.check_in_domain(np.array([[1,1], [1,2]])))
     assert (param.round(np.array([[1,1.2]])) == [1,1]).all()
     assert all([isinstance(sp, DiscreteParameter) for sp in param.parameters])
