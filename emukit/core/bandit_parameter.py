@@ -40,7 +40,8 @@ class BanditParameter(Parameter):
         """
         parameters = []
         parameter_names = parameter_names if parameter_names else self._create_parameter_names(domain)
-        assert domain.shape[1] == len(parameter_names)
+        if domain.shape[1] != len(parameter_names):
+            raise ValueError("Provided domain shape {} != number of parameter names {}".format(domain.shape[1], len(parameter_names)))
         for cix, parameter_name in enumerate(parameter_names):
             sub_param_domain = domain[:,cix]
             domain_unq = np.unique(sub_param_domain)
@@ -56,7 +57,7 @@ class BanditParameter(Parameter):
             parameters.append(parameter)
         return(parameters)
 
-    def check_in_domain(self, x: Union[np.ndarray, float]) -> Union[bool, np.ndarray]:
+    def check_in_domain(self, x: Union[np.ndarray, float, list]) -> Union[bool, np.ndarray]:
         """
         Checks if all the points in x lie in the domain set
 
@@ -77,9 +78,11 @@ class BanditParameter(Parameter):
                 raise ValueError("Received x with dimension {}, expected dimension is {}".format(x.shape[0],self.domain.shape[1]))
             result = (self.domain == x).all(axis=1).any()
         elif isinstance(x, float):
+            if self.domain.shape[1] > 1:
+                raise ValueError("Received x with dimension 1, expected dimension is {}".format(x.shape[0],self.domain.shape[1]))
             result = (self.domain == x).all(axis=1).any()
-        # elif isinstance(x, list):
-        #     result = (self.domain == x).all(axis=1).any()
+        elif isinstance(x, list):
+            result = (self.domain == x).all(axis=1).any()
         else:
             raise ValueError("Unsupported type for point x: {}".format(type(x)))
         return result
@@ -112,7 +115,8 @@ class BanditParameter(Parameter):
             rounded_value = min(self.domain, key=lambda d: np.linalg.norm(d-row))
             x_rounded.append(rounded_value)
 
-        assert all([self.check_in_domain(xr) for xr in x_rounded])
+        if not all([self.check_in_domain(xr) for xr in x_rounded]):
+            raise ValueError("Rounding error encountered, not all rounded values in domain.")
         return np.row_stack(x_rounded)
 
     @property

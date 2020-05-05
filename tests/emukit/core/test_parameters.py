@@ -25,6 +25,10 @@ def test_bandit_parameter():
         param.check_in_domain(np.array([[1, 0, 0], [0, 2, 0]]))
     with pytest.raises(ValueError):  # not a 1d/2d array
         param.check_in_domain(np.array([[[1]]]))
+    with pytest.raises(ValueError):  # wrong type
+        param.check_in_domain((1,1))
+    with pytest.raises(ValueError):  # wrong type
+        param.check_in_domain(1)
 
 
 def test_continuous_parameter():
