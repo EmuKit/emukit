@@ -21,8 +21,8 @@ class BanditParameter(Parameter):
         """
         :param name: Name of parameter
         :param domain: List of tuples representing valid values
-        :param parameters: List of parameters, must correspond to domain if provided, otherwise will
-        be reflected from the domain
+        :param sub_parameter_names: List of parameters, must correspond to domain if provided,
+            otherwise will be reflected from the domain
         """
         self.name = name
         if not isinstance(domain, np.ndarray):
@@ -33,10 +33,22 @@ class BanditParameter(Parameter):
         self.parameters = self._create_parameters(domain, sub_parameter_names)
 
     def _create_parameter_names(self, domain: np.ndarray) -> List[str]:
+        """
+        Create names for sub-parameters, used when names are not already provided.
+
+        :param domain: 2D array (n by p) of valid states, each row represents one valid state
+        :returns: List of names
+        """
         return [f'{self.name}_{i}' for i in range(domain.shape[1])]
 
     def _create_parameters(self, domain: np.ndarray, parameter_names: Optional[List[str]]) -> List[Parameter]:
-        """ Reflect parameters from domain.
+        """
+        Reflect parameters from domain.
+
+        :param domain: 2D array (n by p) of valid states, each row represents one valid state
+        :param parameter_names: Optional list of names for sub-parameters. If not provided,
+            sub-parameter names will be automatically generated.
+        :returns: List of sub-parameters
         """
         parameters = []
         parameter_names = parameter_names if parameter_names else self._create_parameter_names(domain)
@@ -55,7 +67,7 @@ class BanditParameter(Parameter):
                 # homogeneously typed np.ndarrays rather than structured arrays. In the future,
                 # using structured arrays for all inputs may be more appropriate.
             parameters.append(parameter)
-        return(parameters)
+        return parameters
 
     def check_in_domain(self, x: Union[np.ndarray, float, list]) -> Union[bool, np.ndarray]:
         """
@@ -90,7 +102,9 @@ class BanditParameter(Parameter):
     @property
     def bounds(self) -> List[Tuple]:
         """
-        Returns a list containing the bounds for each constituent parameter
+        Calculate the limiting bounds of the sub-parameters
+
+        :returns: a list containing tuples (min, max) for each constituent sub-parameter
         """
         return [pb for p in self.parameters for pb in p.bounds]
 
@@ -104,7 +118,7 @@ class BanditParameter(Parameter):
                   that is closest to the corresponding row in x
         """
         if x.ndim != 2:
-            raise ValueError("Expected 2d array, got " + str(x.ndim))
+            raise ValueError("Expected 2d array, got {}".format(x.ndim))
 
         if x.shape[1] != self.dimension:
             raise ValueError("Expected {} column array, got {}".format(self.dimension, x.shape[1]))
@@ -121,6 +135,11 @@ class BanditParameter(Parameter):
 
     @property
     def dimension(self) -> int:
+        """
+        Calculate the aggregate dimensionality of the sub-parameters
+
+        :returns: dimensionality of the BanditParameter
+        """
         d = 0
         for p in self.parameters:
             if isinstance(p, ContinuousParameter): d+=1

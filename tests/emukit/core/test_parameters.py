@@ -10,7 +10,6 @@ from emukit.core import (
 
 
 def test_bandit_parameter():
-    # domain = np.array([('a',1),('a',2),('b',2)], dtype=[('x0','S1'),('x1','i4')])
     domain = np.array([[1,1],[1,2],[2,2]])
     param = BanditParameter('x',domain)
     assert param.name == 'x'
