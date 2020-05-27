@@ -65,7 +65,7 @@ class EmukitAcquisitionFunctionWrapper(Acquisition):
         :param x: points where the acquisition is evaluated.
         :return: acquisition function values
         """
-        return self.acquisitionFunction.evaluate(x, self.model)
+        return -self.acquisitionFunction.evaluate(x, self.model)
 
     def evaluate_with_gradients(self, x: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
@@ -73,7 +73,8 @@ class EmukitAcquisitionFunctionWrapper(Acquisition):
         :param x: points where the acquisition is evaluated.
         :return: a tuple containing the acquisition function values and their gradients
         """
-        return self.acquisitionFunction.evaluate_with_gradients(x, self.model)
+        f,g = self.acquisitionFunction.evaluate_with_gradients(x, self.model)
+        return -f, -g
     
     def reset(self, model: ComparisonGPEmukitWrapper) -> None:
         """
