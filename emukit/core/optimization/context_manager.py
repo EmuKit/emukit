@@ -20,6 +20,7 @@ class ContextManager:
         :param context: Dictionary of variables and their context values.
                         These values are fixed while optimization.
         """
+        self.context = context
         self.space = space
         self.contextfree_space = ParameterSpace(
             [param for param in self.space.parameters if param.name not in context])
@@ -36,7 +37,7 @@ class ContextManager:
             # Find encoded values of context variable
             param = self.space.get_parameter_by_name(name)
             if hasattr(param, 'encoding'):
-                self.context_values.append(param.encoding.get_encoding(context[name]))
+                self.context_values.extend(param.encoding.get_encoding(context[name]))
             else:
                 self.context_values.append(context[name])
 
