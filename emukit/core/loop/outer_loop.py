@@ -84,12 +84,15 @@ class OuterLoop(object):
         _log.info("Starting outer loop")
 
         self.loop_start_event(self, self.loop_state)
-
+        self.candidate_points = list()
+        
         while not stopping_condition.should_stop(self.loop_state):
             _log.info("Iteration {}".format(self.loop_state.iteration))
 
             self._update_models()
             new_x = self.candidate_point_calculator.compute_next_points(self.loop_state, context)
+            self.candidate_points.append(new_x)
+            
             _log.debug("Next suggested point(s): {}".format(new_x))
             results = user_function.evaluate(new_x)
             _log.debug("User function returned: {}".format(results))
