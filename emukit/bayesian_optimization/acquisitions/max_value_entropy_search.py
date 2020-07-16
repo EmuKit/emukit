@@ -57,7 +57,7 @@ class MaxValueEntropySearch(Acquisition):
 
         random_design = RandomDesign(self.space)
         grid = random_design.get_samples(self.grid_size)
-        fmean, fvar = self.model.predict(np.vstack([self.model.X, grid]), include_likelihood=False)
+        fmean, fvar = self.model.predict(np.vstack([self.model.X, grid]))
         fsd = np.sqrt(fvar)
         idx = np.argmin(fmean[:N])
 
