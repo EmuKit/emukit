@@ -74,7 +74,7 @@ class GPyModelWrapper(IModel, IDifferentiable, IJointlyDifferentiable, ICalculat
         """
         Optimizes model hyper-parameters
         """
-        self.model.optimize_restarts(self.n_restarts, robust=True)
+        self.model.optimize_restarts(self.n_restarts, robust=True, verbose=False)
 
     def calculate_variance_reduction(self, x_train_new: np.ndarray, x_test: np.ndarray) -> np.ndarray:
         """
