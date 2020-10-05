@@ -5,7 +5,7 @@ import numpy as np
 from numpy.testing import assert_array_equal
 
 from emukit.core import ContinuousParameter, ParameterSpace, InformationSourceParameter, DiscreteParameter, \
-    CategoricalParameter, OneHotEncoding
+    CategoricalParameter, OneHotEncoding, BanditParameter
 
 
 @pytest.fixture
@@ -36,6 +36,17 @@ def test_check_in_domain(space_2d, space_3d_mixed):
     x_mixed_test = np.array([[1.5, 0, 1, 1], [1.5, 1, 1., 0.]])
     in_domain = space_3d_mixed.check_points_in_domain(x_mixed_test)
     assert np.array_equal(in_domain, np.array([False, True]))
+
+
+def test_check_in_domain_with_bandit_parameter():
+    space_with_bandit = ParameterSpace([
+        ContinuousParameter('c', 1.0, 5.0),
+        DiscreteParameter('d', [0, 1, 2]),
+        CategoricalParameter('cat', OneHotEncoding(['blue', 'red'])),
+        BanditParameter('bandit', np.array([[0, 1], [1, 1], [1., 0]]))])
+    x_test = np.array([[1.5, 0, 1., 0., 0, 1], [1.5, 0, 1., 0., 0., 0.]])
+    in_domain = space_with_bandit.check_points_in_domain(x_test)
+    assert np.array_equal(in_domain, np.array([True, False]))
 
 
 def test_check_in_domain_fails(space_2d):

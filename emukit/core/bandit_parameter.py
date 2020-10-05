@@ -69,6 +69,10 @@ class BanditParameter(Parameter):
             parameters.append(parameter)
         return parameters
 
+    @property
+    def model_parameters(self) -> List:
+        return self.parameters
+
     def check_in_domain(self, x: Union[np.ndarray, float, list]) -> Union[bool, np.ndarray]:
         """
         Checks if all the points in x lie in the domain set
