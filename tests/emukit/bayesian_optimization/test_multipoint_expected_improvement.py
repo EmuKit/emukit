@@ -61,5 +61,5 @@ def test_acquisition_gradient_multipoint_expected_improvement():
 def _check_grad(lp, tol, x0):
     grad_error = check_grad(lambda x: lp.evaluate(x[:, None]).flatten(),
                             lambda x: lp.evaluate_with_gradients(x[:, None])[1].flatten(), x0)
-    print(grad_error)
+
     assert np.all(grad_error < tol)
