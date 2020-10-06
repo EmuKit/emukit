@@ -8,8 +8,16 @@ from emukit.core.constraints import (LinearInequalityConstraint,
 @pytest.fixture
 def linear_constraint():
     A = np.array([[1., 0.5]])
-    b_lower = np.array([-2])
-    b_upper = np.array([3])
+    b_lower = np.array([-5])
+    b_upper = np.array([5])
+    return LinearInequalityConstraint(A, b_lower, b_upper)
+
+
+@pytest.fixture
+def linear_constraint_2d():
+    A = np.array([[1., 0.5], [0.5, 1.]])
+    b_lower = np.array([-5, -5])
+    b_upper = np.array([5, 5])
     return LinearInequalityConstraint(A, b_lower, b_upper)
 
 
@@ -21,14 +29,38 @@ def nonlinear_constraint_no_jac():
     return NonlinearInequalityConstraint(fun, b_lower, b_upper)
 
 
-def test_linear_inequality_constraint_satisfied(linear_constraint):
+def test_linear_inequality_constraint_input_dims_mismatch(linear_constraint):
     x_test = np.array([[1], [2]])
-    assert linear_constraint.evaluate(x_test)[0] == 1
+    with pytest.raises(ValueError):
+        linear_constraint.evaluate(x_test)
+
+
+def test_linear_inequality_constraint_bounds_dims_mismatch():
+    A = np.array([[1., 0.5], [0.5, 1.]])
+    b_lower = np.array([-5, -5])
+    b_upper = np.array([5])
+    with pytest.raises(ValueError):
+        LinearInequalityConstraint(A, b_lower, b_upper)
+
+
+def test_linear_inequality_constraint_satisfied(linear_constraint):
+    x_test = np.array([[1, 1], [2, 2], [3, 3]])
+    assert np.all(linear_constraint.evaluate(x_test))
+
+
+def test_linear_inequality_constraint_satisfied_2d(linear_constraint_2d):
+    x_test = np.array([[1, 1], [2, 2], [3, 3]])
+    assert np.all(linear_constraint_2d.evaluate(x_test))
 
 
 def test_linear_inequality_constraint_violated(linear_constraint):
-    x_test = np.array([[50], [20]])
-    assert linear_constraint.evaluate(x_test)[0] == 0
+    x_test = np.array([[50, 50], [20, 20]])
+    assert np.all(linear_constraint.evaluate(x_test)) == False
+
+
+def test_linear_inequality_constraint_violated_2d(linear_constraint_2d):
+    x_test = np.array([[1, 1], [20, 20]])
+    assert np.all(linear_constraint_2d.evaluate(x_test)) == False
 
 
 def test_nonlinear_inequality_constraint_satisfied(nonlinear_constraint_no_jac):

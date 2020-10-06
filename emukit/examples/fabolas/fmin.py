@@ -53,7 +53,7 @@ def fmin_fabolas(func, space: ParameterSpace, s_min: float, s_max: float, n_iter
 
     loop = FabolasLoop(X_init=X_init, Y_init=Y_init, cost_init=cost_init, space=space, s_min=s_min,
                        s_max=s_max, marginalize_hypers=marginalize_hypers)
-    loop.run_loop(user_function=UserFunctionWrapper(wrapper),
+    loop.run_loop(user_function=UserFunctionWrapper(wrapper, extra_output_names=["cost"]),
                   stopping_condition=FixedIterationsStoppingCondition(n_iters - n_init))
 
     return loop.loop_state

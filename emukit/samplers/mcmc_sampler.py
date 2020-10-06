@@ -55,10 +55,14 @@ class AffineInvariantEnsembleSampler(McmcSampler):
         sampler = emcee.EnsembleSampler(n_samples, X_init.shape[1], log_p_function)
 
         # Burn-In
-        samples, samples_log, _ = sampler.run_mcmc(X_init, burn_in_steps)
+        state = list(sampler.run_mcmc(X_init, burn_in_steps)) # compatible with both emcee 2 and 3
+        samples = state[0]
+        samples_log = state[1]
 
         # MCMC Sampling
-        samples, samples_log, _ = sampler.run_mcmc(samples, n_steps)
+        state = list(sampler.run_mcmc(samples, n_steps))
+        samples = state[0]
+        samples_log = state[1]
 
         # make sure we have an array of shape (n samples, space input dim)
         if len(samples.shape) == 1:

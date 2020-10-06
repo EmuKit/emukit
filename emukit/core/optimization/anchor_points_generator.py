@@ -44,6 +44,9 @@ class AnchorPointsGenerator(object):
         :param context_manager: Describes any fixed parameters in the optimization
         :return: A (num_anchor x n_dims) array containing the anchor points
         """
+        if num_anchor > self.num_samples:
+            raise ValueError(f"Cannot return more points than were originally sampled, got {num_anchor} num_anchor for {self.num_samples} points sampled.")
+
         # We use the context handler to remove duplicates only over the non-context variables
         if context_manager is not None:
             space = context_manager.contextfree_space
