@@ -18,6 +18,7 @@ from ...core.initial_designs import RandomDesign
 
 from ..interfaces import IEntropySearchModel
 
+from IPython import embed
 
 class MaxValueEntropySearch(Acquisition):
     def __init__(self, model: Union[IModel, IEntropySearchModel], space: ParameterSpace,
@@ -247,7 +248,7 @@ class MUMBO(MaxValueEntropySearch):
         # Add target fidelity index to sample
         idx = np.ones((x.shape[0])) * self.target_information_source_index
         x_target_fidelity = np.insert(x_target_fidelity, self.source_idx, idx, axis=1)
-        gmean, gvar = self.model.gpy_model.predict(x_target_fidelity, include_likelihood=False)
+        gmean, gvar = self.model.predict(x_target_fidelity)
         gsd = np.sqrt(gvar)
         # clip below for numerical stability
         gsd = np.maximum(gvar, 1e-10)
