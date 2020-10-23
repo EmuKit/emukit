@@ -50,42 +50,30 @@ class MaxValueEntropySearch(Acquisition):
         self.mins = None
 
     def update_parameters(self):
-        # apply gumbel sampling to obtain samples from y*
-        # we approximate Pr(y*^hat<y) by Gumbel(alpha,beta)
-        # generate grid
-        N = self.model.X.shape[0]
+        """
+        MES requires acces to a sample of possible minimum values y* of the objective function.
+        To build this sample we approximate the empirical c.d.f of Pr(y*<y) with a Gumbel(a,b) distribution.
+        This Gumbel distribution can then be easily sampled to yield approximate samples of y*
+        
+        This needs to be called once at the start of each BO step.
+        """
 
+        # First we generate a random grid of locations at which to fit the Gumbel distribution
         random_design = RandomDesign(self.space)
         grid = random_design.get_samples(self.grid_size)
-        fmean, fvar = self.model.predict(np.vstack([self.model.X, grid]))
+        # also add the locations already queried in the previous BO steps
+        grid = np.vstack([self.model.X, grid])
+        # Get GP posterior at these points
+        fmean, fvar = self.model.predict(grid)
         fsd = np.sqrt(fvar)
-        idx = np.argmin(fmean[:N])
 
-        # scaling so that gumbel scale is proportional to IQ range of cdf Pr(y*<z)
-        # find quantiles Pr(y*<y1)=r1 and Pr(y*<y2)=r2
-        right = fmean[idx].flatten()
-        left = right
-        probf = lambda x: np.exp(np.sum(norm.logcdf(-(x - fmean) / fsd), axis=0))
-        i = 0
-        while probf(left) < 0.75:
-            left = 2. ** i * np.min(fmean - 5. * fsd) + (1. - 2. ** i) * right
-            i += 1
-        i = 0
-        while probf(right) > 0.25:
-            right = -2. ** i * np.min(fmean - 5. * fsd) + (1. + 2. ** i) * fmean[idx].flatten()
-            i += 1
+        # fit Gumbel distriubtion
+        a, b = _fit_gumbel(fmean, fsd)
 
-        # Binary search for 3 percentiles
-        q1, med, q2 = map(lambda val: bisect(lambda x: probf(x) - val, left, right, maxiter=10000, xtol=0.00001),
-                        [0.25, 0.5, 0.75])
-
-        # solve for gumbel params
-        beta = (q1 - q2) / (np.log(np.log(4. / 3.)) - np.log(np.log(4.)))
-        alpha = med + beta * np.log(np.log(2.))
-
-        # sample K length vector from unif([0,1])
-        # return K Y* samples
-        self.mins = -np.log(-np.log(np.random.rand(self.num_samples))) * beta + alpha
+        # sample K times from this Gumbel distribution
+        uniform_samples = np.random.rand(self.num_samples)
+        gumbel_samples = -np.log(-np.log(uniform_samples)) * b + a
+        self.mins = gumbel_samples
 
     def _required_parameters_initialized(self):
         """
@@ -95,22 +83,66 @@ class MaxValueEntropySearch(Acquisition):
 
     def evaluate(self, x: np.ndarray) -> np.ndarray:
         """
-        Computes the information gain, i.e the change in entropy of p_min if we would evaluate x.
+        Computes the information gain, i.e the predicted change in entropy of p_min (the distribution
+        of the minimal value of the objective function) if we evaluate x.
         :param x: points where the acquisition is evaluated.
         """
         if not self._required_parameters_initialized():
             self.update_parameters()
+
+        # Calculate GP posterior at candidate points
         fmean, fvar = self.model.predict(x)
         fsd = np.sqrt(fvar)
+        # Clip below to improve numerical stability
+        fsd = np.maximum(fsd, 1e-10)
+
+        # standardise
         gamma = (self.mins - fmean) / fsd
-        f_acqu_x = np.mean(-gamma * norm.pdf(gamma) / (2 * (1 - norm.cdf(gamma))) - np.log(1 - norm.cdf(gamma)),
-                            axis=1)
+
+        minus_cdf = 1 - norm.cdf(gamma)
+        # Clip  to improve numerical stability
+        minus_cdf = np.clip(minus_cdf, a_min = 1e-10, a_max = 1)
+
+        # calculate monte-carlo estimate of information gain
+        f_acqu_x = np.mean(-gamma * norm.pdf(gamma) / (2 * minus_cdf) - np.log(minus_cdf), axis=1)
         return f_acqu_x.reshape(-1, 1)
 
     @property
     def has_gradients(self) -> bool:
         """Returns that this acquisition has gradients"""
         return False
+
+
+
+def _fit_gumbel(fmean, fsd):
+    # helper function to fit gumbel distribution
+    # used when initialising the MES and MUMBO acquisition functions.
+
+    # find scaling parameters a and b such that the Gumbel scale is 
+    # proportional to the IQ range of the empirical CDF
+    # i.e.  Pr(y*<y1)=0.25 and Pr(y*<y2)=0.75
+
+    def probf(x: np.ndarray) -> float:
+        # Build empirical CDF function
+        return np.exp(np.sum(norm.logcdf(-(x - fmean) / fsd), axis=0))
+    
+    # initialise end-points for binary search (the choice of 5 standard deviations ensures that these are outside the IQ range)
+    left = np.min(fmean - 5 * fsd)
+    right = np.max(fmean + 5 * fsd)
+
+    def binary_search(val: float) -> float:
+        return bisect(lambda x: probf(x) - val, left, right, maxiter=10000, xtol=0.00001)
+
+
+    # Binary search for 3 percentiles
+    lower_quantile, medium, upper_quantile = map(binary_search, [0.25, 0.5, 0.75])
+
+    # solve for Gumbel scaling parameters
+    b = (lower_quantile - upper_quantile) / (np.log(np.log(4. / 3.)) - np.log(np.log(4.)))
+    a = medium + b * np.log(np.log(2.))
+
+    return a, b
+
 
 
 class MUMBO(MaxValueEntropySearch):
@@ -145,7 +177,8 @@ class MUMBO(MaxValueEntropySearch):
         info_source_parameter, source_idx = _find_source_parameter(space)
         self.source_idx = source_idx
 
-        # Assume we are in a multi-fidelity setting and the highest index is the highest fidelity
+        # If not told otherwise assume we are in a multi-fidelity setting 
+        # and the highest index is the highest fidelity
         if target_information_source_index is None:
             target_information_source_index = max(info_source_parameter.domain)
         self.target_information_source_index = target_information_source_index
@@ -161,123 +194,108 @@ class MUMBO(MaxValueEntropySearch):
         super().__init__(model, space, num_samples, grid_size)
 
     def update_parameters(self):
-        # apply gumbel sampling to obtain samples of y* from target information source
-        # we approximate Pr(y*^hat<y) by Gumbel(alpha,beta)
-        # generate grid
-        N = self.model.X.shape[0]
-
+        """
+        MUMBO requires acces to a sample of possible minimum values y* of the objective function.
+        To build this sample we approximate the empirical c.d.f of Pr(y*<y) with a Gumbel(a,b) distribution.
+        This Gumbel distribution can then be easily sampled to yield approximate samples of y*
+        
+        This needs to be called once at the start of each BO step.
+        """        
+        
+        # First we generate a random grid of locations at which to fit the Gumbel distribution
         random_design = RandomDesign(self.space)
         grid = random_design.get_samples(self.grid_size)
-        sample_points = np.vstack([self.model.X, grid])
+        # also add the locations already queried in the previous BO steps
+        grid = np.vstack([self.model.X, grid])
         # remove current fidelity index from sample
-        sample_points = np.delete(sample_points, self.source_idx, axis=1)
-        # Add target fidelity index to sample
-        idx = np.ones((sample_points.shape[0])) * self.target_information_source_index
-        sample_points = np.insert(sample_points, self.source_idx, idx, axis=1)
-        fmean, fvar = self.model.predict(sample_points)
+        grid = np.delete(grid, self.source_idx, axis=1)
+        # Add objective function fidelity index to sample
+        idx = np.ones((grid.shape[0])) * self.target_information_source_index
+        grid = np.insert(grid, self.source_idx, idx, axis=1)
+        # Get GP posterior at these points
+        fmean, fvar = self.model.predict(grid)
         fsd = np.sqrt(fvar)
-        idx = np.argmin(fmean[:N])
 
-        # scaling so that gumbel scale is proportional to IQ range of cdf Pr(y*<z)
-        # find quantiles Pr(y*<y1)=r1 and Pr(y*<y2)=r2
-        right = fmean[idx].flatten()
-        left = right
+        # fit Gumbel distriubtion
+        a, b = _fit_gumbel(fmean, fsd)
 
-        probf = lambda x: np.exp(np.sum(norm.logcdf(-(x - fmean) / fsd), axis=0))
-        i = 0
-        while probf(left) < 0.75:
-            left = 2. ** i * np.min(fmean - 5. * fsd) + (1. - 2. ** i) * right
-            i += 1
-        i = 0
-        while probf(right) > 0.25:
-            right = -2. ** i * np.min(fmean - 5. * fsd) + (1. + 2. ** i) * fmean[idx].flatten()
-            i += 1
+        # sample K times from this Gumbel distribution
+        uniform_samples = np.random.rand(self.num_samples)
+        gumbel_samples = -np.log(-np.log(uniform_samples)) * b + a
+        self.mins = gumbel_samples
 
-        # Binary search for 3 percentiles
-        q1, med, q2 = map(lambda val: bisect(lambda x: probf(x) - val, left, right, maxiter=10000, xtol=0.00001),
-                            [0.25, 0.5, 0.75])
-
-        # solve for gumbel params
-        beta = (q1 - q2) / (np.log(np.log(4. / 3.)) - np.log(np.log(4.)))
-        alpha = med + beta * np.log(np.log(2.))
-
-        # sample K length vector from unif([0,1])
-        # return K Y* samples
-        self.mins = -np.log(-np.log(np.random.rand(self.num_samples))) * beta + alpha
 
     def evaluate(self, x: np.ndarray) -> np.ndarray:
         """
-        Computes the information gain, i.e the change in entropy of p_min if we would evaluate x.
+        Computes the information gain, i.e the change in entropy of p_min (the distribution
+        of the minimal value of the objective function) if we would evaluate x.
         :param x: points where the acquisition is evaluated.
         """
         if not self._required_parameters_initialized():
             self.update_parameters()
 
-        # need model predictions at x and at the  x evaluated on the target fidelity (x_target_fidelity)
+
+        # Calculate GP posterior at candidate points
+        fmean, fvar = self.model.predict(x)
+        fsd = np.sqrt(fvar)
+        # clip below for numerical stability
+        fsd = np.maximum(fsd, 1e-10)
+
+        # Also need posterior at locations with same search-space positions as x but on the objective function g
         # remove current fidelity index from sample
         x_target_fidelity = np.delete(x, self.source_idx, axis=1)
         # Add target fidelity index to sample
         idx = np.ones((x.shape[0])) * self.target_information_source_index
         x_target_fidelity = np.insert(x_target_fidelity, self.source_idx, idx, axis=1)
+        gmean, gvar = self.model.gpy_model.predict(x_target_fidelity, include_likelihood=False)
+        gsd = np.sqrt(gvar)
+        # clip below for numerical stability
+        gsd = np.maximum(gvar, 1e-10)
 
-        # get predicted means and variances and pair-wise covariance
-        fmean, fvar = self.model.predict(x)
-        fsd = np.sqrt(fvar)
-        targetmean, targetvar = self.model.gpy_model.predict(x_target_fidelity, include_likelihood=False)
-        targetsd = np.sqrt(targetvar)
+        # also get pair-wise correlations between GP at x and x_target_fidelity
         # faster to do for loop rather than vectorize to avoid unecessary between term covariance calculations
-        covs = [self.model.get_covariance_between_points(x[i].reshape(1, -1), x_target_fidelity[i].reshape(1, -1)) for i in range(0, x.shape[0])]
-        covs = np.array(covs).reshape(-1, 1)
+        covariances = [self.model.get_covariance_between_points(x[i].reshape(1, -1), x_target_fidelity[i].reshape(1, -1)) for i in range(0, x.shape[0])]
+        covariances = np.array(covariances).reshape(-1, 1)
+        correlations = covariances / (fsd * gsd)
+        # clip for numerical stability
+        correlations = np.clip(correlations, -1, 1)
 
-        # convert to pair-wise correlations
-        corrs = covs / (fsd*targetsd)
-        # correct for some potential rounding errors
-        corrs = np.clip(corrs, -1, 1)
-        corrs[x[:, -1] == self.source_idx] = 1
+        # Calculate variance of extended skew Gaussian distributions (ESG) 
+        # These will be used to define reasonable ranges for the numerical 
+        # intergration of the ESG's differential entropy.
+        gammas = (self.mins - fmean) / fsd
+        minus_cdf = 1 - norm.cdf(gammas)
+        # Clip  to improve numerical stability
+        minus_cdf = np.clip(minus_cdf, a_min = 1e-10, a_max = 1)
+        ESGmean = correlations * (norm.pdf(gammas)) / minus_cdf
+        ESGvar = 1 + correlations * ESGmean * (gammas - norm.pdf(gammas) / minus_cdf)
+        # Clip  to improve numerical stability
+        ESGvar = np.maximum(ESGvar, 0)
 
-        # calculate moments of extended skew Gaussian distributions
-        gammas = (self.mins-targetmean)/targetsd
-        denom = 1 / (1 - norm.cdf(gammas))
-        # need to account for numerical instability
-        denom[denom == np.inf] = 0
-        means = corrs * (norm.pdf(gammas)) * denom
-        Vars = 1 + corrs * (means) * (gammas - norm.pdf(gammas) * denom)
-        Vars[Vars <= 0] = 0
+        # get upper limits for numerical integration 
+        # we need this range to contain almost all of the ESG's probability density
+        # we found +-8 standard deviations provides a tight enough approximation 
+        upper_limit = ESGmean + 8 * np.sqrt(ESGvar)
+        lower_limit = ESGmean - 8 * np.sqrt(ESGvar)
 
-        # get upper limits for numerical integration
-        upper_lim = means + 8 * np.sqrt(Vars)
-        lower_lim = means - 8 * np.sqrt(Vars)
-
-        # perform numerical integrations
-        approx = np.array([approx_int(corrs[i],
-                                 gammas[i],
-                                 upper_lim[i],
-                                 lower_lim[i]) for i in range(0, corrs.shape[0])]).reshape(-1, 1)
-        return (0.5*np.log(2*np.pi*np.e)-approx).reshape(-1, 1)
-
-
-def approx_int(corr, gamma, upper_lim, lower_lim):
-    # helper function to numerically approx differential entropy of ESG in MUMBO
-    # if corr is 1 then can just calc exactly (like MES)
-    if corr == 1:
-        term1 = 0.5 * np.log(2 * np.pi * np.e)
-        term2 = np.log(1 - norm.cdf(gamma))
-        term3 = gamma * norm.pdf(gamma) / (2 * (1 - norm.cdf(gamma)))
-        return np.mean(term1 + term2 + term3)
-    else:
-        denom1 = 1 / ((np.sqrt(1 - corr ** 2)))
-        denom2 = 1 / (1 - norm.cdf(gamma))
-        # need to account for numerical instability
-        denom2[denom2 == np.inf] = 0
-        where_are_NaNs = np.isnan(denom2)
-        denom2[where_are_NaNs] = 0
-        z = np.linspace(np.min(lower_lim), np.max(upper_lim), num=5000).reshape(-1, 1)
-        pdf = norm.pdf(z) * (1 - norm.cdf((gamma - corr * z) * denom1)) * denom2
-        fun = - pdf * np.log(pdf, out=np.zeros_like(pdf), where=(pdf != 0))
+        # perform numerical integrations 
+        # build discretisation
+        z = np.linspace(lower_limit, upper_limit, num=5000)
+        # calculate ESG density at these points
+        minus_correlations = np.sqrt(1 - correlations ** 2)
+        # clip below for numerical stability
+        minus_correlations = np.maximum(minus_correlations,1e-10)
+        density = norm.pdf(z) * (1 - norm.cdf((gammas - correlations* z) / minus_correlations)) / minus_cdf
+        # calculate point-wise entropy function contributions (carefuly where density is 0)
+        entropy_function = - density * np.log(density, out=np.zeros_like(density), where=(density != 0))
         # perform integration over ranges
-        integral = simps(fun.T, z.T).reshape(-1, 1)
-        return np.mean(integral)
+        approximate_entropy = simps(entropy_function.T, z.T)
+        # build monte-carlo estimate over the gumbel samples
+        approximate_entropy = np.mean(approximate_entropy, axis=0)
 
+        # build MUMBO acquisition function
+        f_acqu_x = (0.5*np.log(2*np.pi*np.e)-approximate_entropy)
+        return f_acqu_x.reshape(-1, 1)
 
 def _find_source_parameter(space):
     # Find information source parameter in parameter space
