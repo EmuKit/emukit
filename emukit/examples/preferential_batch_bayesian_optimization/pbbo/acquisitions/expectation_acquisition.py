@@ -158,10 +158,10 @@ class ExpectationAcquisition(AcquisitionFunction):
         """
         pools = self.pool_size
         N= self.acq_samples
-        if not m.name is "MCMC":
+        if  m.name != "MCMC":
             pools = 1
         else:
-            if pools is not -1:
+            if pools != -1:
                 N = N // pools
                 Np = 1
             else:
@@ -177,7 +177,7 @@ class ExpectationAcquisition(AcquisitionFunction):
         grad = np.zeros((b,d))
         for i in range(pools):
             #Take model specific variables
-            if(m.name is "MCMC"):
+            if(m.name == "MCMC"):
                 #We take predictive mu and L (Sigma = L L^T) of the posterior
                 mu, L, w_inv, w_vec = m.posterior._get_mu_L(x, N=Np, woodbury_inv=True)
                 L_inv = np.empty(L.shape)
