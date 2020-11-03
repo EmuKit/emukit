@@ -18,8 +18,6 @@ from ...core.initial_designs import RandomDesign
 
 from ..interfaces import IEntropySearchModel
 
-from IPython import embed
-
 class MaxValueEntropySearch(Acquisition):
     def __init__(self, model: Union[IModel, IEntropySearchModel], space: ParameterSpace,
                  num_samples: int = 10, grid_size: int = 5000) -> None:
