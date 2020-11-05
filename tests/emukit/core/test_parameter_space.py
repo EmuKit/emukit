@@ -5,7 +5,7 @@ import numpy as np
 from numpy.testing import assert_array_equal
 
 from emukit.core import ContinuousParameter, ParameterSpace, InformationSourceParameter, DiscreteParameter, \
-    CategoricalParameter, OneHotEncoding
+    CategoricalParameter, OneHotEncoding, BanditParameter
 
 
 @pytest.fixture
@@ -36,6 +36,31 @@ def test_check_in_domain(space_2d, space_3d_mixed):
     x_mixed_test = np.array([[1.5, 0, 1, 1], [1.5, 1, 1., 0.]])
     in_domain = space_3d_mixed.check_points_in_domain(x_mixed_test)
     assert np.array_equal(in_domain, np.array([False, True]))
+
+def test_check_in_domain_with_only_bandit_parameters():
+    p1 = BanditParameter('bandit1', np.array([[3, 4., 0], [3, 4, 0], [4, 4, 1]]))
+    p2 = BanditParameter('bandit2', np.array([[0, 1], [1, 1], [1., 0]]))
+
+    one_bandit_space = ParameterSpace([p1])
+    x_test = np.array([[3., 4, 0], [4., 3, 0]])
+    in_domain = one_bandit_space.check_points_in_domain(x_test)
+    assert np.array_equal(in_domain, np.array([True, False]))
+
+    two_bandits_space = ParameterSpace([p1, p2])
+    x_test = np.array([[3., 4, 0, 0, 1], [4., 3, 0, 0, 1], [3, 4, 0, 1, 1]])
+    in_domain = two_bandits_space.check_points_in_domain(x_test)
+    assert np.array_equal(in_domain, np.array([True, False, True]))
+
+
+def test_check_in_domain_with_bandit_parameter():
+    mixed_space_with_bandit = ParameterSpace([
+        ContinuousParameter('c', 1.0, 5.0),
+        DiscreteParameter('d', [0, 1, 2]),
+        CategoricalParameter('cat', OneHotEncoding(['blue', 'red'])),
+        BanditParameter('bandit', np.array([[0, 1], [1, 1], [1., 0]]))])
+    x_test = np.array([[1.5, 0, 1., 0., 0, 1], [1.5, 0, 1., 0., 0., 0.]])
+    in_domain = mixed_space_with_bandit.check_points_in_domain(x_test)
+    assert np.array_equal(in_domain, np.array([True, False]))
 
 
 def test_check_in_domain_fails(space_2d):
