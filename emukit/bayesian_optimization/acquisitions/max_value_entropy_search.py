@@ -69,9 +69,11 @@ class MaxValueEntropySearch(Acquisition):
         # fit Gumbel distriubtion
         a, b = _fit_gumbel(fmean, fsd)
 
-        # sample K times from this Gumbel distribution
+        # sample K times from this Gumbel distribution using the inverse probability integral transform,
+        # i.e. given a sample r ~ Unif[0,1] then g = a + b * log( -1 * log(1 - r)) follows g ~ Gumbel(a,b).
+
         uniform_samples = np.random.rand(self.num_samples)
-        gumbel_samples = -np.log(-np.log(uniform_samples)) * b + a
+        gumbel_samples = np.log(-1 * np.log(1 - uniform_samples)) * b + a
         self.mins = gumbel_samples
 
     def _required_parameters_initialized(self):
@@ -114,23 +116,24 @@ class MaxValueEntropySearch(Acquisition):
 
 
 def _fit_gumbel(fmean, fsd):
-    # helper function to fit gumbel distribution
-    # used when initialising the MES and MUMBO acquisition functions.
+    """ 
+    Helper function to fit gumbel distribution when initialising the MES and MUMBO acquisition functions.
 
-    # find scaling parameters a and b such that the Gumbel scale is 
-    # proportional to the IQ range of the empirical CDF
-    # i.e.  Pr(y*<y1)=0.25 and Pr(y*<y2)=0.75
-
+    The Gumbel distribution for minimas has a cumulative density function of f(y)= 1 - exp(-1 * exp((y - a) / b)), i.e. the q^th quantile is given by 
+    Q(q) = a + b * log( -1 * log(1 - q)). We choose values for a and b that match the Gumbel's 
+    interquartile range with that of the observed empirical cumulative density function of Pr(y*<y)
+    i.e.  Pr(y* < lower_quantile)=0.25 and Pr(y* < upper_quantile)=0.75.
+    """
     def probf(x: np.ndarray) -> float:
         # Build empirical CDF function
-        return np.exp(np.sum(norm.logcdf(-(x - fmean) / fsd), axis=0))
+        return 1 - np.exp(np.sum(norm.logcdf(-(x - fmean) / fsd), axis=0))
     
     # initialise end-points for binary search (the choice of 5 standard deviations ensures that these are outside the IQ range)
     left = np.min(fmean - 5 * fsd)
     right = np.max(fmean + 5 * fsd)
 
     def binary_search(val: float) -> float:
-        return bisect(lambda x: probf(x) - val, left, right, maxiter=10000, xtol=0.00001)
+        return bisect(lambda x: probf(x) - val, left, right, maxiter=10000)
 
 
     # Binary search for 3 percentiles
@@ -138,7 +141,7 @@ def _fit_gumbel(fmean, fsd):
 
     # solve for Gumbel scaling parameters
     b = (lower_quantile - upper_quantile) / (np.log(np.log(4. / 3.)) - np.log(np.log(4.)))
-    a = medium + b * np.log(np.log(2.))
+    a = medium - b * np.log(np.log(2.))
 
     return a, b
 
