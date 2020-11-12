@@ -47,7 +47,7 @@ def fmin_fabolas(func, space: ParameterSpace, s_min: float, s_max: float, n_iter
         cost_init[it] = cost
 
     def wrapper(x):
-        y, c = func(x[0, :-1], np.exp(x[0, -1]))
+        y, c = func(x[0, :-1], x[0, -1])
 
         return np.array([[y]]), np.array([[c]])
 
