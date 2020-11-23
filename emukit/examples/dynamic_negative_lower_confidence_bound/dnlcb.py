@@ -15,7 +15,7 @@ class DynamicNegativeLowerConfidenceBound(NegativeLowerConfidenceBound):
         :param input_space_size: the size of the finite D grid on which the function is evaluated
         :param delta: the exploration parameter determining the beta exploration coefficient; delta must be in (0, 1) and it is inversely related to beta
         """
-        assert input_space_size > 0, "Dimension must be a natural number"
+        assert input_space_size > 0, "Invalid dimension provided"
         assert 0 < delta < 1, "Delta must be in (0, 1)"
         super().__init__(model)
         self.input_space_size = input_space_size
