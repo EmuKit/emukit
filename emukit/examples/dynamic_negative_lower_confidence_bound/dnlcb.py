@@ -17,6 +17,7 @@ class DynamicNegativeLowerConfidenceBound(NegativeLowerConfidenceBound):
         """
         super().__init__(model)
         self.input_space_size = input_space_size
+        assert input_space_size > 0, "Dimension must be a nonzero integer"
         assert 0 < delta < 1, "Delta must be in (0, 1)"
         self.delta = delta
         self.iteration = 0
