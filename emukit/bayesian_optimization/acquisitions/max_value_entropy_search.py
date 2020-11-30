@@ -252,7 +252,7 @@ class MUMBO(MaxValueEntropySearch):
         gmean, gvar = self.model.predict(x_target_fidelity)
         gsd = np.sqrt(gvar)
         # clip below for numerical stability
-        gsd = np.maximum(gvar, 1e-10)
+        gsd = np.maximum(gsd, 1e-10)
 
         # also get pair-wise correlations between GP at x and x_target_fidelity
         # faster to do for loop rather than vectorize to avoid unecessary between term covariance calculations
