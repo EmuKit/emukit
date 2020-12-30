@@ -24,13 +24,21 @@ class BanditParameter(Parameter):
         :param sub_parameter_names: List of parameters, must correspond to domain if provided,
             otherwise will be reflected from the domain
         """
-        self.name = name
+        super().__init__(name)
         if not isinstance(domain, np.ndarray):
             raise ValueError("Domain must be a 2D np.ndarray, got type: {}".format(type(domain)))
         if not domain.ndim==2:
             raise ValueError("Domain must be a 2D np.ndarray, got dimensions: {}".format(domain.shape))
         self.domain = domain  # each column is homogeneously typed thanks to numpy.ndarray
         self.parameters = self._create_parameters(domain, sub_parameter_names)
+        self._sub_parameter_names = sub_parameter_names
+
+    def __str__(self):
+        return (f"<BanditParameter: {self.name} ndim={self.domain.ndim}"
+            f" ({','.join(self._sub_parameter_names})>")
+    def __repr__(self):
+        return f"BanditParameter({self.name}, {self.domain}, {self.sub_parameter_names})"
+
 
     def _create_parameter_names(self, domain: np.ndarray) -> List[str]:
         """
