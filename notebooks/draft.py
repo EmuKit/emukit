@@ -2,6 +2,7 @@ import asyncio
 import numpy as np
 import GPy
 import emukit
+from math import pi
 
 from GPy.models import GPRegression
 from emukit.model_wrappers import GPyModelWrapper
@@ -17,7 +18,24 @@ from emukit.test_functions.branin import (
     branin_function as _branin_function,
 )
 
+import matplotlib.pyplot as plt
+
+FIG_SIZE = (12,8)
+
 _branin, _ps = _branin_function()
+
+# Plotting stuff (from constrained optimization tutorial)
+x1b, x2b = _ps.get_bounds()
+plot_granularity = 50
+x_1 = np.linspace(x1b[0], x1b[1], plot_granularity)
+x_2 = np.linspace(x2b[0], x2b[1], plot_granularity)
+x_1_grid, x_2_grid = np.meshgrid(x_1, x_2)
+x_all = np.stack([x_1_grid.flatten(), x_2_grid.flatten()], axis=1)
+y_all = _branin(x_all)
+y_reshape = np.reshape(y_all, x_1_grid.shape)
+x_best = np.array([(-pi,12.275), (pi,2.275), (9.425,2.475)])
+
+# Functions
 
 async def a_cost(x: np.ndarray):
     # Cost function, defined arbitrarily
@@ -42,9 +60,17 @@ async def demo():
     r = await a_objective(x)
     print(f"Output: {r}")
 
+def plot_progress(loop_state, batch_size: int):
+    plt.figure(figsize=FIG_SIZE)
+    plt.contourf(x_1, x_2, y_reshape)
+    plt.plot(loop_state.X[:-batch_size, 0], loop_state.X[:-batch_size, 1], linestyle='', marker='.', markersize=16, color='b')
+    plt.plot(loop_state.X[-batch_size:, 0], loop_state.X[-batch_size:, 1], linestyle='', marker='.', markersize=16, color='r')
+    plt.plot(x_best[:,0], x_best[:,1], linestyle='', marker='x', markersize=18, color='g')
+    plt.legend(['Previously evaluated points', 'Last evaluation', 'True best'])
+
 async def main():
     # Configure
-    max_iter = 30
+    max_iter = 50
     n_init = 6
     batch_size = 6
     beta = 1  # tradeoff parameter for NCLB acq. opt.
@@ -85,12 +111,22 @@ async def main():
         Y_batch = np.concatenate(_results)
         results = list(map(UserFunctionResult, X_batch, Y_batch))
         n = n + len(results)
+        plot_progress(bo_loop.loop_state, batch_size)
+        plt.show()
     final_result = bo_loop.get_results()
+    true_best = 0.397887
+    # rel_err = (final_result.minimum_value - true_best)/true_best
     print(
-        "Done!\n"
+        "############################################################\n"
         f"Minimum found at location: {final_result.minimum_location}\n"
-        f"With score: {final_result.minimum_value}"
+        f"\twith score: {final_result.minimum_value}\n"
+        f"True minima at: {x_best}\n"
+        f"\twith score: {true_best}\n"
+        # f"Relative error (%): {rel_err*100:.2f}\n"
+        "\tsource: https://www.sfu.ca/~ssurjano/branin.html\n"
+        "############################################################"
         )
+
 
 if __name__ == '__main__':
     asyncio.run(main())
