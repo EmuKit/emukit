@@ -10,12 +10,12 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  all_tests:
 
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7, 3.8]
+        python-version: [3.7]
 
     steps:
     - uses: actions/checkout@v2
@@ -45,3 +45,29 @@ jobs:
     - name: Integration tests
       run: |
         pytest -c /dev/null integration_tests
+
+  os_versions:
+
+    runs-on: ${{ matrix.os }}
+      strategy:
+        matrix:
+          os: [ubuntu-latest, macos-latest]
+    
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.7
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install flake8 pytest
+        pip install -r requirements/requirements.txt
+        pip install -r requirements/test_requirements.txt
+        # work around issues with GPy and GPyOpt setting matplotlib backend
+        echo 'backend: Agg' > matplotlibrc
+        pip install .
+    - name: Unit tests
+      run: |
+        python -m pytest
