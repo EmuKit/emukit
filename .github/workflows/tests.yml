@@ -42,6 +42,6 @@ jobs:
     - name: Unit tests
       run: |
         python -m pytest
-    # - name: Integration tests
-    #   run: |
-    #     pytest -c /dev/null integration_tests
+    - name: Integration tests
+      run: |
+        pytest -c /dev/null integration_tests
