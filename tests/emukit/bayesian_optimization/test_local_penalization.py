@@ -78,6 +78,6 @@ class MockModel(IModel):
 
 
 def _check_grad(lp, tol, x0):
-    grad_error = check_grad(lambda x: lp.evaluate_with_gradients(x[None, :])[0],
+    grad_error = check_grad(lambda x: lp.evaluate_with_gradients(x[None, :])[0][0],
                             lambda x: lp.evaluate_with_gradients(x[None, :])[1], x0)
     assert np.all(grad_error < tol)

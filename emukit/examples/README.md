@@ -45,11 +45,14 @@ Do not forget to update the `notebooks/index.ipynb` for your tutorial to show up
 
 ## <a name="list-of-examples"></a>List of examples
 
-* [Cost sensitive Bayesian optimization](https://github.com/amzn/emukit/tree/master/emukit/examples/cost_sensitive_bayesian_optimization) - Wrapper for using Bayesian optimization when there is a cost involved in the evaluation of the objective.
 * [Gaussian process Bayesian Optimization](https://github.com/amzn/emukit/tree/master/emukit/examples/gp_bayesian_optimization) - Wrapper for using Bayesian optimization with Gaussian processes.
 * [Vanilla Bayesian Quadrature](https://github.com/amzn/emukit/tree/master/emukit/examples/vanilla_bayesian_quadrature_with_rbf) - Wrapper for vanilla Bayesian quadrature that uses a Gaussian processes with an RBF kernel.
 * [Models](https://github.com/amzn/emukit/tree/master/emukit/examples/models) - Implementation of a variety of models that can be used in combination with other Emukit features.
 * [Mountain car](https://github.com/amzn/emukit/tree/master/emukit/examples/emulation_montain_car_simulator) - Optimization of the control policy of the mountain car simulator. Optimization is applied using an emulator of the reward and of the dynamics of the simulator.
+* [Fabolas](https://github.com/EmuKit/emukit/tree/master/emukit/examples/fabolas) - Implementation of [Fabolas](https://arxiv.org/abs/1605.07079).
+* [Preferential Batch Bayesian Optimization](https://github.com/EmuKit/emukit/tree/master/emukit/examples/preferential_batch_bayesian_optimization)- impementation of [PBBO method](https://arxiv.org/abs/2003.11435).
+* [Profet](https://github.com/EmuKit/emukit/tree/master/emukit/examples/preferential_batch_bayesian_optimization) - impementation of [Meta-Surrogate Benchmarking](https://arxiv.org/abs/1905.12982).
+* [SEIR Model](https://github.com/EmuKit/emukit/tree/master/emukit/examples/spread_of_disease-with_seir_model) - example of using Bayesian Quadrature to analyze behavior of the epidemic model.
 
 
 ## <a name="list-of-tutorials"></a>List of tutorials
