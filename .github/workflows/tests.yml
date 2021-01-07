@@ -31,7 +31,7 @@ jobs:
         pip install -r requirements/test_requirements.txt
         pip install -r requirements/integration_test_requirements.txt -q
         # work around issues with GPy and GPyOpt setting matplotlib backend
-        "echo 'backend: Agg' > matplotlibrc"
+        echo 'backend: Agg' > matplotlibrc
         pip install .
     # - name: Lint with flake8
     #   run: |
