@@ -1,7 +1,7 @@
 # This workflow will install Python dependencies, run tests and lint with a variety of Python versions
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: Python tests
+name: Tests
 
 on:
   push:
@@ -30,7 +30,7 @@ jobs:
         pip install -r requirements/requirements.txt
         pip install -r requirements/test_requirements.txt
         pip install -r requirements/integration_test_requirements.txt -q
-        # work around issues with GPy and GPyOpt setting matplotlib backend
+        # work around issues with GPy setting matplotlib backend
         echo 'backend: Agg' > matplotlibrc
         pip install .
     # - name: Lint with flake8
@@ -65,7 +65,7 @@ jobs:
         python -m pip install flake8 pytest
         pip install -r requirements/requirements.txt
         pip install -r requirements/test_requirements.txt
-        # work around issues with GPy and GPyOpt setting matplotlib backend
+        # work around issues with GPy setting matplotlib backend
         echo 'backend: Agg' > matplotlibrc
         pip install .
     - name: Unit tests
