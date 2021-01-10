@@ -25,6 +25,7 @@ class ContinuousParameter(Parameter):
 
     def __str__(self):
         return f"<ContinuousParameter: {self.name} {self.bounds}>"
+
     def __repr__(self):
         return f"ContinuousParameter({self.name}, {self.min_value}, {self.max_value})"
 

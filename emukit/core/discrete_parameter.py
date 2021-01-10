@@ -23,6 +23,7 @@ class DiscreteParameter(Parameter):
 
     def __str__(self):
         return f"<DiscreteParameter: {self.name} {self.bounds}>"
+
     def __repr__(self):
         return f"DiscreteParameter({self.name}, {self.domain})"
 

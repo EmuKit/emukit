@@ -26,6 +26,7 @@ class CategoricalParameter(Parameter):
 
     def __str__(self):
         return f"<CategoricalParameter: {self.name} n_cat={self.dimension}>"
+
     def __repr__(self):
         return f"CategoricalParameter({self.name}, {self.encoding})"
 
