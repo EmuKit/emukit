@@ -1,6 +1,6 @@
 # Emukit
 
-[![Master Branch Build Status](https://travis-ci.org/emukit/emukit.svg?branch=master)](https://travis-ci.org/emukit/emukit) |
+[![Build Status](https://github.com/EmuKit/emukit/workflows/Tests/badge.svg)](https://github.com/EmuKit/emukit/actions?query=workflow%3ATests) |
 [![Documentation Status](https://readthedocs.org/projects/emukit/badge/?version=latest)](https://emukit.readthedocs.io/en/latest/?badge=latest) |
 [![Tests Coverage](https://codecov.io/gh/emukit/emukit/branch/master/graph/badge.svg)](https://codecov.io/gh/emukit/emukit) |
 [![GitHub License](https://img.shields.io/github/license/emukit/emukit.svg)](https://github.com/emukit/emukit/blob/master/LICENSE)
