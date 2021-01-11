@@ -30,6 +30,14 @@ def test_bandit_parameter():
         param.check_in_domain(1)
 
 
+def test_bandit_parameter_str_repr():
+    domain = np.array([[1,2,3],[2,3,4]])
+    for subparam_names in [['foo','bar'], None]:
+        param = BanditParameter('foobar', domain.T, subparam_names)
+        _ = str(param)
+        _ = repr(param)
+
+
 def test_continuous_parameter():
     param = ContinuousParameter('x', 1, 10)
     assert param.name == 'x'
@@ -43,6 +51,12 @@ def test_continuous_parameter():
         param.check_in_domain(np.array([[1, 0], [0, 2]]))
     with pytest.raises(ValueError):  # not a 1d/2d array
         param.check_in_domain(np.array([[[1]]]))
+
+
+def test_continuous_parameter_str_repr():
+    param = ContinuousParameter('x', 1, 10)
+    _ = str(param)
+    _ = repr(param)
 
 
 def test_discrete_parameter():
@@ -59,6 +73,12 @@ def test_discrete_parameter():
         param.check_in_domain(np.array([[1, 0], [0, 2]]))
     with pytest.raises(ValueError):  # not a 1d/2d array
         param.check_in_domain(np.array([[[1]]]))
+
+
+def test_discrete_parameter_str_repr():
+    param = DiscreteParameter('x', [0, 1, 2])
+    _ = str(param)
+    _ = repr(param)
 
 
 def test_single_value_in_domain_discrete_parameter():

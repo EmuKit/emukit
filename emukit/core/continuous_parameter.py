@@ -27,7 +27,7 @@ class ContinuousParameter(Parameter):
         return f"<ContinuousParameter: {self.name} {self.bounds}>"
 
     def __repr__(self):
-        return f"ContinuousParameter({self.name}, {self.min_value}, {self.max_value})"
+        return f"ContinuousParameter({self.name}, {self.min}, {self.max})"
 
     def check_in_domain(self, x: Union[np.ndarray, float]) -> bool:
         """

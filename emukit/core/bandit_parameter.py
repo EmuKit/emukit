@@ -34,8 +34,11 @@ class BanditParameter(Parameter):
         self._sub_parameter_names = sub_parameter_names
 
     def __str__(self):
-        return (f"<BanditParameter: {self.name} ndim={self.domain.ndim}"
-            f" ({','.join(self._sub_parameter_names)})>")
+        msg = f"<BanditParameter: {self.name} ndim={self.domain.ndim}"
+        if self._sub_parameter_names:
+            msg = msg + f" ({','.join(self._sub_parameter_names)})"
+        msg = msg + '>'
+        return msg
 
     def __repr__(self):
         return f"BanditParameter({self.name}, {self.domain}, {self._sub_parameter_names})"
