@@ -18,8 +18,14 @@ class DiscreteParameter(Parameter):
         :param name: Name of parameter
         :param domain: valid values the parameter can have
         """
-        self.name = name
+        super().__init__(name)
         self.domain = domain
+
+    def __str__(self):
+        return f"<DiscreteParameter: {self.name} {self.bounds}>"
+
+    def __repr__(self):
+        return f"DiscreteParameter({self.name}, {self.domain})"
 
     def check_in_domain(self, x: Union[np.ndarray, Iterable, float]) -> bool:
         """

@@ -12,7 +12,7 @@ from .continuous_parameter import ContinuousParameter
 
 class CategoricalParameter(Parameter):
     def __init__(self, name: str, encoding: Encoding):
-        self.name = name
+        super().__init__(name)
 
         # ensure float just in case we were given integers
         self.encoding = encoding
@@ -23,6 +23,12 @@ class CategoricalParameter(Parameter):
                                              np.min(self.encodings[:, column_idx]),
                                              np.max(self.encodings[:, column_idx]))
             self._cont_params.append(cont_param)
+
+    def __str__(self):
+        return f"<CategoricalParameter: {self.name} n_cat={self.dimension}>"
+
+    def __repr__(self):
+        return f"CategoricalParameter({self.name}, {self.encoding})"
 
     @property
     def encodings(self) -> np.ndarray:

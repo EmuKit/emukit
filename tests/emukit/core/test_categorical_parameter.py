@@ -31,3 +31,9 @@ def test_categorical_parameter_check_in_domain(encoding):
         param.check_in_domain(np.array([[1, 0], [0, 0.5]]))
     with pytest.raises(ValueError):  # not a 2d array
         param.check_in_domain(np.array([1, 0, 0]))
+
+
+def test_categorical_parameter_str_repr(encoding):
+    param = CategoricalParameter('v', encoding)
+    _ = str(param)
+    _ = repr(param)
