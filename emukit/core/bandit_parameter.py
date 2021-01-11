@@ -38,7 +38,7 @@ class BanditParameter(Parameter):
             f" ({','.join(self._sub_parameter_names)})>")
 
     def __repr__(self):
-        return f"BanditParameter({self.name}, {self.domain}, {self.sub_parameter_names})"
+        return f"BanditParameter({self.name}, {self.domain}, {self._sub_parameter_names})"
 
     def _create_parameter_names(self, domain: np.ndarray) -> List[str]:
         """
