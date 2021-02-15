@@ -96,10 +96,10 @@ if __name__ == "__main__":
         fname = "data_sobol_forrester.json"
         get_architecture = get_architecture_forrester
     elif args.benchmark == "svm":
-        get_architecture = functools.partial(get_default_architecture, classifcation=True)
+        get_architecture = functools.partial(get_default_architecture, classification=True)
         fname = "data_sobol_svm.json"
     elif args.benchmark == "fcnet":
-        get_architecture = functools.partial(get_default_architecture, classifcation=True)
+        get_architecture = functools.partial(get_default_architecture, classification=True)
         fname = "data_sobol_fcnet.json"
     elif args.benchmark == "xgboost":
         fname = "data_sobol_xgboost.json"
