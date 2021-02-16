@@ -133,7 +133,7 @@ class BayesianOptimization():
                 X0 = util.random_sample(bounds, 2**dim)
             else:
                 X0 = util.grid_sample(dim)
-            yc = BO.give_comparisons(objective.f, X0)
+            yc = util.give_comparisons(objective.f, X0)
         if self.use_direct_observations_in_init:
             if self.random:
                 Xn = util.random_sample(bounds, 2**dim)

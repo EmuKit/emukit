@@ -224,7 +224,7 @@ class VIComparisonGP(ComparisonGP):
                                                                   self.kern, self.sigma2s,
                                                                   self.alpha, self.beta,
                                                                   max_iters=50, method='mf')
-            self.beta = choleskies._triang_to_flat_pure(jitchol(posterior.covariance)[None,:])
+            self.beta = choleskies._triang_to_flat_pure(jitchol(self.posterior.covariance)[None,:])
 
     def parameters_changed(self):
         """

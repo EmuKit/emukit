@@ -47,11 +47,11 @@ class SequentialThompsonSampler():
         self.f_evaluations = np.empty((0,1))
         if seed is None:
             max = 1000000
-            if(self.model.name is "MCMC"):
+            if (self.model.name == "MCMC"):
                 max = self.model.posterior.samples['f'].shape[0]
             seed = np.random.randint(max)
             #Check if we already have used this seed
-            while(seed in self.seeds):
+            while (seed in self.seeds):
                 seed = np.random.randint(max)
         self.seeds = self.seeds + [seed]
         np.random.seed(seed)
@@ -73,14 +73,14 @@ class SequentialThompsonSampler():
         :param x: New locations where the distribution is wanted at
         :return: Tuple containing the predictive mean and covariance
         """
-        if(self.model.name is "MCMC"):
+        if (self.model.name == "MCMC"):
             mu, L = self.posterior._get_mu_L(x, with_index=self.seeds[-1])
             Sigma = L[0,:,:] @ L[0,:,:].T
         else:
             mu, Sigma = self.model.predict_noiseless(x, full_cov=True)
-            if(len(Sigma.shape) > 2):
+            if (len(Sigma.shape) > 2):
                 Sigma = Sigma[:,:,0]
-        mu = mu.reshape(-1,1)
+        mu = mu.reshape(-1, 1)
         Sigma = Sigma + 1e-7*np.eye(Sigma.shape[0]) #noise for robustness
         return mu, Sigma
 
