@@ -180,7 +180,7 @@ def configure_logger(log_file=None) -> None:
     else:
         logger = logging.getLogger(log_file)
         formatter = logging.Formatter('%(asctime)s - %(levelname)-8s \n %(message)s')
-        file_handler = logging.FileHandler(logfile, mode='w')
+        file_handler = logging.FileHandler(log_file, mode='w')
         file_handler.setFormatter(formatter)
     logger.addHandler(file_handler)
     logger.setLevel(logging.DEBUG)

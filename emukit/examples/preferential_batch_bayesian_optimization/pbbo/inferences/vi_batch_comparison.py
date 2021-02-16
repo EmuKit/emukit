@@ -333,7 +333,7 @@ def vi_comparison(X: np.ndarray, y: List[Tuple[int, float]], yc: List[List[Tuple
 
     X0 = np.r_[alpha, beta]
     args = [K, sigma2s, y, yc, recompute_posterior, s_to_l]
-    if optimize is "adam":
+    if optimize == "adam":
         X, log_marginal, _ = adam(log_lik, X0.flatten(), args, bounds=None, max_it=max_iters, get_logger=get_logger)
     else:
         res = sp.optimize.minimize(fun=log_lik,
