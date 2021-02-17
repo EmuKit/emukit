@@ -61,6 +61,19 @@ class GPyModelWrapper(IModel, IDifferentiable, IJointlyDifferentiable, ICalculat
         dvariance_dx = dSigma(X, self.model.X, self.model.kern, self.model.posterior.woodbury_inv)
         return dmean_dx, dvariance_dx
 
+    def get_covariance_between_points_gradients(self, X1: np.ndarray, X2: np.ndarray) -> np.ndarray:
+        """
+        Computes and returns model gradients of the covariance between outputs at points X1 and X2 with respect
+        to X1.
+
+        :param X1: points to compute gradients at, nd array of shape (q1, d)
+        :param X2: points for the covariance of which to compute the gradient, nd array of shape (q2, d)
+        :return: gradient of the covariance matrix of shape (q1, q2) between outputs at X1 and X2
+                 (return shape is (q1, q2, q1, d)).
+        """
+        dcov_dx1 = dCov(X1, X2, self.model.X, self.model.kern, self.model.posterior.woodbury_inv)
+        return dcov_dx1
+
     def set_data(self, X: np.ndarray, Y: np.ndarray) -> None:
         """
         Sets training data in model
@@ -164,24 +177,23 @@ def dSigma(x_predict: np.ndarray, x_train: np.ndarray, kern: GPy.kern, w_inv: np
     :return: Gradient of the posterior covariance of shape (q, q, q, d)
     """
     q, d, n = x_predict.shape[0], x_predict.shape[1], x_train.shape[0]
-    dkxX_dx = np.empty((q, n, d))
-    dkxx_dx = np.empty((q, q, d))
+    # Tensor for the gradients of (q, n) covariance matrix between x_predict and x_train with respect to
+    # x_predict (of shape (q, d))
+    dkxX_dx = np.zeros((d, q*q, n))
+    # Tensor for the gradients of full covariance matrix at points x_predict (of shape (q, q) with respect to
+    # x_predict (of shape (q, d))
+    dkxx_dx = np.zeros((d, q*q, q))
     for i in range(d):
-        dkxX_dx[:, :, i] = kern.dK_dX(x_predict, x_train, i)
-        dkxx_dx[:, :, i] = kern.dK_dX(x_predict, x_predict, i)
+        dkxX_dx[i, ::q + 1, :] = kern.dK_dX(x_predict, x_train, i)
+        dkxx_dx[i, ::q + 1, :] = kern.dK_dX(x_predict, x_predict, i)
+    dkxX_dx = dkxX_dx.reshape((d, q, q, n))
+    dkxx_dx = dkxx_dx.reshape((d, q, q, q))
+    dkxx_dx += dkxx_dx.transpose((0, 1, 3, 2))
+    dkxx_dx.reshape((d, q, -1))[:, :, ::q + 1] = 0.
+    
     K = kern.K(x_predict, x_train)
-
-    dsigma = np.zeros((q, q, q, d))
-    for i in range(q):
-        for j in range(d):
-            Ks = np.zeros((q, n))
-            Ks[i, :] = dkxX_dx[i, :, j]
-            dKss_dxi = np.zeros((q, q))
-            dKss_dxi[i, :] = dkxx_dx[i, :, j]
-            dKss_dxi[:, i] = dkxx_dx[i, :, j].T
-            dKss_dxi[i, i] = 0
-            dsigma[:, :, i, j] = dKss_dxi - Ks @ w_inv @ K.T - K @ w_inv @ Ks.T
-    return dsigma
+    dsigma = dkxx_dx - K @ w_inv @ dkxX_dx.transpose((0, 1, 3, 2)) - dkxX_dx @ w_inv @ K.T
+    return dsigma.transpose((2, 3, 1, 0))
 
 
 def dmean(x_predict: np.ndarray, x_train: np.ndarray, kern: GPy.kern, w_vec: np.ndarray) -> np.ndarray:
@@ -202,6 +214,34 @@ def dmean(x_predict: np.ndarray, x_train: np.ndarray, kern: GPy.kern, w_vec: np.
         for j in range(q):
             dmu[j, j, i] = (dkxX_dx[j, :, i][None, :] @ w_vec[:, None]).flatten()
     return dmu
+
+
+def dCov(x1: np.ndarray, x2: np.ndarray, x_train: np.ndarray, kern: GPy.kern, w_inv: np.ndarray) -> np.ndarray:
+    """
+    Compute the derivative of the posterior covariance matrix between prediction inputs x1 and x2
+    (of shape (q1, q2)) with respect to x1
+
+    :param x1: Prediction inputs of shape (q1, d)
+    :param x2: Prediction inputs of shape (q2, d)
+    :param x_train: Training inputs of shape (n, d)
+    :param kern: Covariance of the GP model
+    :param w_inv: Woodbury inverse of the posterior fit of the GP
+    :return: nd array of shape (q1, q2, q1, d) representing the gradient of the posterior covariance between x1 and x2,
+        where res[:, :, i, j] is the gradient of the covariance between outputs at x1 and x2 with respect to x1[i, j]
+    """
+    q1, q2, d, n = x1.shape[0], x2.shape[0], x1.shape[1], x_train.shape[0]
+    dkx1X_dx = np.zeros((d, q1*q1, n))
+    dkx1x2_dx = np.zeros((d, q1*q1, q2))
+    for i in range(d):
+        dkx1X_dx[i, ::q1 + 1, :] = kern.dK_dX(x1, x_train, i)
+        dkx1x2_dx[i, ::q1 + 1, :] = kern.dK_dX(x1, x2, i)
+    dkx1X_dx = dkx1X_dx.reshape((d, q1, q1, n))
+    dkx1x2_dx = dkx1x2_dx.reshape((d, q1, q1, q2))
+    
+    K_Xx2 = kern.K(x_train, x2)
+    dcov = dkx1x2_dx - dkx1X_dx @ w_inv @ K_Xx2
+    return dcov.transpose((2, 3, 1, 0))
+
 
 class GPyMultiOutputWrapper(IModel, IDifferentiable, ICalculateVarianceReduction, IEntropySearchModel):
     """
