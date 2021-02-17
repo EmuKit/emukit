@@ -32,15 +32,15 @@ def test_joint_prediction_gradients(gpy_model, test_data):
             mean_dx_numerical = (mean_perturbed - mean) / epsilon
             cov_dx_numerical = (cov_perturbed - cov) / epsilon
             # Check that numerical approx. similar to true gradient
-            assert pytest.approx(mean_dx_numerical, abs=1e-8, rel=1e-3) == mean_dx[:, :, i, j]
-            assert pytest.approx(cov_dx_numerical, abs=1e-8, rel=1e-3) == cov_dx[:, :, i, j]
+            assert pytest.approx(mean_dx_numerical.ravel(), abs=1e-8, rel=1e-2) == mean_dx[:, i, j]
+            assert pytest.approx(cov_dx_numerical, abs=1e-8, rel=1e-2) == cov_dx[:, :, i, j]
     
 
 def test_get_covariance_between_points_gradients(gpy_model, test_data, test_data2):
     epsilon = 1e-5
     cov = gpy_model.get_covariance_between_points(test_data, test_data2)
     # Get the gradients
-    cov_dx = gpy_model.get_covariance_between_points(test_data, test_data2)
+    cov_dx = gpy_model.get_covariance_between_points_gradients(test_data, test_data2)
 
     for i in range(test_data.shape[0]):  # Iterate over each test point
         for j in range(test_data.shape[1]):  # Iterate over each dimension
@@ -50,4 +50,4 @@ def test_get_covariance_between_points_gradients(gpy_model, test_data, test_data
             cov_perturbed = gpy_model.get_covariance_between_points(perturbed_input, test_data2)
             cov_dx_numerical = (cov_perturbed - cov) / epsilon
             # Check that numerical approx. similar to true gradient
-            assert pytest.approx(cov_dx_numerical, abs=1e-8, rel=1e-3) == cov_dx[:, :, i, j]
+            assert pytest.approx(cov_dx_numerical, abs=1e-8, rel=1e-2) == cov_dx[:, :, i, j]
