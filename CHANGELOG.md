@@ -1,6 +1,16 @@
 # Changelog
 All notable changes to Emukit will be documented in this file.
 
+## [0.4.8]
+- Added sobol initial design
+- BanditParameter
+- Boolean operations for stopping conditions
+- Preferential Bayesian optimization example
+- MUMBO acquisition function
+- Revised dependecies' versions requirements
+- Bug fixes
+- Doc fixes
+
 ## [0.4.7]
 - Added simple GP model for examples
 - Bayesian optimization with unknown constraints
