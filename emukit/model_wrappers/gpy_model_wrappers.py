@@ -137,7 +137,7 @@ class GPyModelWrapper(IModel, IDifferentiable, IJointlyDifferentiable, ICalculat
         unfixed_params = [param for param in self.model.flattened_parameters if not param.is_fixed]
         for param in unfixed_params:
             # Add jitter by multiplying with log-normal noise with mean 1 and standard deviation 0.01 
-            param *= np.random.lognormal(np.log(1. / np.sqrt(1.0001)), np.sqrt(np.log(1.0001)))
+            param *= np.random.lognormal(np.log(1. / np.sqrt(1.0001)), np.sqrt(np.log(1.0001)), size=param.size)
         hmc = GPy.inference.mcmc.HMC(self.model, stepsize=step_size)
         samples = hmc.sample(num_samples=n_burnin + n_samples * subsample_interval, hmc_iters=leapfrog_steps)
         hmc_samples = samples[n_burnin::subsample_interval]
