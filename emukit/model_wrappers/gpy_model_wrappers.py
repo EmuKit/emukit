@@ -134,9 +134,13 @@ class GPyModelWrapper(IModel, IDifferentiable, IJointlyDifferentiable, ICalculat
 
         """
         self.model.optimize(max_iters=self.n_restarts)
+        # Add jitter to all unfixed parameters. After optimizing the hyperparameters, the gradient of the
+        # posterior probability of the parameters wrt. the parameters will be close to 0.0, which is a poor
+        # initialization for HMC
         unfixed_params = [param for param in self.model.flattened_parameters if not param.is_fixed]
         for param in unfixed_params:
             # Add jitter by multiplying with log-normal noise with mean 1 and standard deviation 0.01 
+            # This ensures the sign of the parameter remains the same
             param *= np.random.lognormal(np.log(1. / np.sqrt(1.0001)), np.sqrt(np.log(1.0001)), size=param.size)
         hmc = GPy.inference.mcmc.HMC(self.model, stepsize=step_size)
         samples = hmc.sample(num_samples=n_burnin + n_samples * subsample_interval, hmc_iters=leapfrog_steps)
