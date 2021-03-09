@@ -37,11 +37,11 @@ class ExpectedImprovement(Acquisition):
         :param x: points where the acquisition is evaluated.
         """
 
-        mean, variance = self.model.predict(x)
+        mean, variance = self._get_model_predictions(x)
         standard_deviation = np.sqrt(variance)
         mean += self.jitter
 
-        y_minimum = np.min(self.model.Y, axis=0)
+        y_minimum = self._get_y_minimum()
         u, pdf, cdf = get_standard_normal_pdf_cdf(y_minimum, mean, standard_deviation)
         improvement = standard_deviation * (u * cdf + pdf)
 
@@ -54,10 +54,10 @@ class ExpectedImprovement(Acquisition):
         :param x: locations where the evaluation with gradients is done.
         """
 
-        mean, variance = self.model.predict(x)
+        mean, variance = self._get_model_predictions(x)
         standard_deviation = np.sqrt(variance)
 
-        y_minimum = np.min(self.model.Y, axis=0)
+        y_minimum = self._get_y_minimum()
 
         dmean_dx, dvariance_dx = self.model.get_prediction_gradients(x)
         dstandard_deviation_dx = dvariance_dx / (2 * standard_deviation)
@@ -74,6 +74,43 @@ class ExpectedImprovement(Acquisition):
     def has_gradients(self) -> bool:
         """Returns that this acquisition has gradients"""
         return isinstance(self.model, IDifferentiable)
+
+    def _get_model_predictions(self, x: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        """Get model predictions for the function values at given input locations."""
+        return self.model.predict(x)
+
+    def _get_y_minimum(self) -> np.ndarray:
+        """Return the minimum value in the samples observed so far."""
+        return np.min(self.model.Y, axis=0)
+
+
+class MeanPluginExpectedImprovement(ExpectedImprovement):
+    def __init__(self, model: IModelWithNoise, jitter: float=0.0)-> None:
+        """
+        This acquisition computes for a given input the expected improvement over the current best mean at one of the
+        observed in inputs.
+
+        This is a heuristic that allows Expected Improvement to deal with problems with noisy observations, where
+        the standard Expected Improvement might fail if the noise is too large.
+
+        For more information see:
+            "A benchmark of kriging-based infill criteria for noisy optimization" by Picheny et al. 
+        Note: the model type should be Union[IPredictsWithNoise, Intersection[IpredictsWithNoise, IDifferentiable]].
+            Support for Intersection types might be added to Python in the future (see PEP 483)
+
+        :param model: model that is used to compute the improvement.
+        :param jitter: parameter to encourage extra exploration.
+        """
+        super().__init__(model=model, jitter=jitter)
+
+    def _get_y_minimum(self):
+        """Return the smallest model mean prediction at the previously observed points."""
+        means_at_prev, _ = self.model.predict_noiseless(self.model.X)
+        return np.min(means_at_prev, axis=0)
+ 
+    def _get_model_predictions(self, x):
+        """Return the likelihood-free (i.e. without observation noise) prediction from the model."""
+        return self.model.predict_noiseless(x)
 
 
 def get_standard_normal_pdf_cdf(x: np.array, mean: np.array, standard_deviation: np.array) \
