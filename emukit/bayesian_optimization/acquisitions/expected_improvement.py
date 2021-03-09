@@ -9,7 +9,7 @@ import numpy as np
 
 import itertools
 
-from ...core.interfaces import IModel, IDifferentiable, IJointlyDifferentiable
+from ...core.interfaces import IModel, IModelWithNoise, IDifferentiable, IJointlyDifferentiable
 from ...core.acquisition import Acquisition
 
 
