@@ -205,6 +205,6 @@ def evaluate_model(model, x, fidelity):
     elif fidelity == 'multi-linear':
         x_extended = np.hstack([x, np.ones([x.shape[0], 1])])
         y = model.predict(x_extended)[0]
-    elif fidelity == 'multi-deep':
-        y = evalute_deep_multi_fidelity(model, x)
+    else:
+        raise ValueError('Unknown fidelity')
     return y
