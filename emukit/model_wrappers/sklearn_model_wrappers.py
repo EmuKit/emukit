@@ -1,9 +1,12 @@
+import numpy
+from typing import Tuple
+
 from emukit.core.interfaces.models import IModel
 from sklearn.gaussian_process import GaussianProcessRegressor
 
 class sklearnGPRWrapper(GaussianProcessRegressor, IModel):
 
-    def predict(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    def predict(self, X: numpy.ndarray) -> Tuple[numpy.ndarray, numpy.ndarray]:
         """
         Predict mean and variance values for given points
         :param X: array of shape (n_points x n_inputs) of points to run prediction for
@@ -13,7 +16,7 @@ class sklearnGPRWrapper(GaussianProcessRegressor, IModel):
         return super(sklearnGPRWrapper,self).predict(X, return_cov=True)
 
     
-    def set_data(self, X: np.ndarray, Y: np.ndarray) -> None:
+    def set_data(self, X: numpy.ndarray, Y: numpy.ndarray) -> None:
         """
         Sets training data in model
         :param X: new points
@@ -51,7 +54,7 @@ class sklearnGPRWrapper(GaussianProcessRegressor, IModel):
             # Additional runs are performed from log-uniform chosen initial
             # theta
             if self.n_restarts_optimizer > 0:
-                if not np.isfinite(self.kernel_.bounds).all():
+                if not numpy.isfinite(self.kernel_.bounds).all():
                     raise ValueError(
                         "Multiple optimizer restarts (n_restarts_optimizer>0) "
                         "requires that all bounds are finite.")
@@ -65,10 +68,10 @@ class sklearnGPRWrapper(GaussianProcessRegressor, IModel):
             # Select result from run with minimal (negative) log-marginal
             # likelihood
             lml_values = list(map(itemgetter(1), optima))
-            self.kernel_.theta = optima[np.argmin(lml_values)][0]
+            self.kernel_.theta = optima[numpy.argmin(lml_values)][0]
             self.kernel_._check_bounds_params()
 
-            self.log_marginal_likelihood_value_ = -np.min(lml_values)
+            self.log_marginal_likelihood_value_ = -numpy.min(lml_values)
         else:
             self.log_marginal_likelihood_value_ = \
                 self.log_marginal_likelihood(self.kernel_.theta,
