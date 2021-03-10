@@ -10,7 +10,7 @@ class sklearnGPRWrapper(GaussianProcessRegressor, IModel):
         :return: Tuple of mean and variance which are 2d arrays of shape (n_points x n_outputs)
         
         """
-        return super(sklearnGPWrapper,self).predict(X, return_cov=True)
+        return super(sklearnGPRWrapper,self).predict(X, return_cov=True)
 
     
     def set_data(self, X: np.ndarray, Y: np.ndarray) -> None:
