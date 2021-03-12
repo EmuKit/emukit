@@ -94,3 +94,14 @@ class IPriorHyperparameters:
         :param sample_hyperparameters: np.ndarray whose rows contain each hyper-parameters set.
         """
         raise NotImplementedError
+
+
+class IModelWithNoise:
+    def predict_noiseless(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        For given points X, predict mean and variance of the output without observation noise.
+
+        :param X: array of shape (n_points x n_inputs) of points to run prediction for
+        :return: Tuple of mean and variance which are 2d arrays of shape (n_points x n_outputs)
+        """
+        raise NotImplementedError
