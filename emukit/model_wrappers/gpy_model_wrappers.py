@@ -61,19 +61,6 @@ class GPyModelWrapper(IModel, IDifferentiable, IJointlyDifferentiable, ICalculat
         dvariance_dx = dSigma(X, self.model.X, self.model.kern, self.model.posterior.woodbury_inv)
         return dmean_dx, dvariance_dx
 
-    def get_covariance_between_points_gradients(self, X1: np.ndarray, X2: np.ndarray) -> np.ndarray:
-        """
-        Computes and returns model gradients of the covariance between outputs at points X1 and X2 with respect
-        to X1.
-
-        :param X1: points to compute gradients at, nd array of shape (q1, d)
-        :param X2: points for the covariance of which to compute the gradient, nd array of shape (q2, d)
-        :return: gradient of the covariance matrix of shape (q1, q2) between outputs at X1 and X2
-                 (return shape is (q1, q2, q1, d)).
-        """
-        dcov_dx1 = dCov(X1, X2, self.model.X, self.model.kern, self.model.posterior.woodbury_inv)
-        return dcov_dx1
-
     def set_data(self, X: np.ndarray, Y: np.ndarray) -> None:
         """
         Sets training data in model
@@ -119,6 +106,40 @@ class GPyModelWrapper(IModel, IDifferentiable, IJointlyDifferentiable, ICalculat
         :return: An array of shape n_points x 1 of posterior covariances between X1 and X2
         """
         return self.model.posterior_covariance_between_points(X1, X2)
+
+    def get_covariance_between_points_gradients(self, X1: np.ndarray, X2: np.ndarray) -> np.ndarray:
+        """
+        Compute the derivative of the posterior covariance matrix between prediction at inputs x1 and x2
+        with respect to x1.
+
+        :param x1: Prediction inputs of shape (q1, d)
+        :param x2: Prediction inputs of shape (q2, d)
+        :param x_train: Training inputs of shape (n_train, d)
+        :param kern: Covariance of the GP model
+        :param w_inv: Woodbury inverse of the posterior fit of the GP
+        :return: nd array of shape (q1, q2, d) representing the gradient of the posterior covariance between x1 and x2
+            with respect to x1. res[i, j, k] is the gradient of Cov(y1[i], y2[j]) with respect to x1[i, k]
+        """
+        # Get the relevent shapes
+        q1, q2, input_dim, n_train = X1.shape[0], X2.shape[0], X1.shape[1], self.model.X.shape[0]
+        # Instatiate an array to hold gradients of prior covariance between outputs at X1 and X_train
+        cov_X1_Xtrain_grad = np.zeros((input_dim, q1, n_train))
+        # Instatiate an array to hold gradients of prior covariance between outputs at X1 and X2
+        cov_X1_X2_grad = np.zeros((input_dim, q1, q2))
+        # Calculate the gradient wrt. X1 of these prior covariances. GPy API allows for doing so
+        # only one dimension at a time, hence need to iterate over all input dimensions
+        for i in range(input_dim):
+            # Calculate the gradient wrt. X1 of the prior covariance between X1 and X_train
+            cov_X1_Xtrain_grad[i, :, :] = self.model.kern.dK_dX(X1, self.model.X, i)
+            # Calculate the gradient wrt. X1 of the prior covariance between X1 and X2
+            cov_X1_X2_grad[i, :, :] = self.model.kern.dK_dX(X1, X2, i)
+        
+        # Get the prior covariance between outputs at x_train and X2
+        cov_Xtrain_X2 = self.model.kern.K(self.model.X, X2)
+        # Calculate the gradient of the posterior covariance between outputs at X1 and X2
+        cov_grad = cov_X1_X2_grad - cov_X1_Xtrain_grad @ self.model.posterior.woodbury_inv @ cov_Xtrain_X2
+        return cov_grad.transpose((1, 2, 0))
+
 
     @property
     def X(self) -> np.ndarray:
@@ -221,33 +242,6 @@ def dmean(x_predict: np.ndarray, x_train: np.ndarray, kern: GPy.kern, w_vec: np.
         for j in range(q):
             dmu[j, j, i] = (dkxX_dx[j, :, i][None, :] @ w_vec[:, None]).flatten()
     return dmu
-
-
-def dCov(x1: np.ndarray, x2: np.ndarray, x_train: np.ndarray, kern: GPy.kern, w_inv: np.ndarray) -> np.ndarray:
-    """
-    Compute the derivative of the posterior covariance matrix between prediction inputs x1 and x2
-    (of shape (q1, q2)) with respect to x1
-
-    :param x1: Prediction inputs of shape (q1, d)
-    :param x2: Prediction inputs of shape (q2, d)
-    :param x_train: Training inputs of shape (n, d)
-    :param kern: Covariance of the GP model
-    :param w_inv: Woodbury inverse of the posterior fit of the GP
-    :return: nd array of shape (q1, q2, q1, d) representing the gradient of the posterior covariance between x1 and x2,
-        where res[:, :, i, j] is the gradient of the covariance between outputs at x1 and x2 with respect to x1[i, j]
-    """
-    q1, q2, d, n = x1.shape[0], x2.shape[0], x1.shape[1], x_train.shape[0]
-    dkx1X_dx = np.zeros((d, q1*q1, n))
-    dkx1x2_dx = np.zeros((d, q1*q1, q2))
-    for i in range(d):
-        dkx1X_dx[i, ::q1 + 1, :] = kern.dK_dX(x1, x_train, i)
-        dkx1x2_dx[i, ::q1 + 1, :] = kern.dK_dX(x1, x2, i)
-    dkx1X_dx = dkx1X_dx.reshape((d, q1, q1, n))
-    dkx1x2_dx = dkx1x2_dx.reshape((d, q1, q1, q2))
-    
-    K_Xx2 = kern.K(x_train, x2)
-    dcov = dkx1x2_dx - dkx1X_dx @ w_inv @ K_Xx2
-    return dcov.transpose((2, 3, 1, 0))
 
 
 class GPyMultiOutputWrapper(IModel, IDifferentiable, ICalculateVarianceReduction, IEntropySearchModel):
