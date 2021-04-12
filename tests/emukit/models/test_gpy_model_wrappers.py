@@ -48,6 +48,6 @@ def test_get_covariance_between_points_gradients(gpy_model, test_data, test_data
             perturbed_input = test_data.copy()
             perturbed_input[i, j] += epsilon
             cov_perturbed = gpy_model.get_covariance_between_points(perturbed_input, test_data2)
-            cov_dx_numerical = (cov_perturbed - cov) / epsilon
+            cov_dx_numerical = (cov_perturbed[i] - cov[i]) / epsilon
             # Check that numerical approx. similar to true gradient
-            assert pytest.approx(cov_dx_numerical, abs=1e-8, rel=1e-2) == cov_dx[:, :, i, j]
+            assert pytest.approx(cov_dx_numerical, abs=1e-8, rel=1e-2) == cov_dx[i, :, j]
