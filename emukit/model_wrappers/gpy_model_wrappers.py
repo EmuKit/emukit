@@ -89,7 +89,7 @@ class GPyModelWrapper(
         """
         Computes the variance reduction at x_test, if a new point at x_train_new is acquired
         """
-        covariance = self.model.posterior_covariance_between_points(x_train_new, x_test)
+        covariance = self.model.posterior_covariance_between_points(x_train_new, x_test, include_likelihood=False)
         variance_prediction = self.model.predict(x_train_new)[1]
         return covariance**2 / variance_prediction
 
@@ -114,7 +114,7 @@ class GPyModelWrapper(
                    argument to the posterior covariance function.
         :return: An array of shape n_points x 1 of posterior covariances between X1 and X2
         """
-        return self.model.posterior_covariance_between_points(X1, X2)
+        return self.model.posterior_covariance_between_points(X1, X2, include_likelihood=False)
 
     @property
     def X(self) -> np.ndarray:
@@ -248,7 +248,7 @@ class GPyMultiOutputWrapper(IModel, IDifferentiable, ICalculateVarianceReduction
         """
         fidelities_train_new = x_train_new[:, -1]
         y_metadata = {'output_index': fidelities_train_new.astype(int)}
-        covariance = self.gpy_model.posterior_covariance_between_points(x_train_new, x_test)
+        covariance = self.gpy_model.posterior_covariance_between_points(x_train_new, x_test, include_likelihood=False)
         variance_prediction = self.gpy_model.predict(x_train_new, Y_metadata=y_metadata)[1]
         return covariance**2 / variance_prediction
 
@@ -326,7 +326,7 @@ class GPyMultiOutputWrapper(IModel, IDifferentiable, ICalculateVarianceReduction
                    argument to the posterior covariance function.
         :return: An array of shape n_points x 1 of posterior covariances between X1 and X2
         """
-        return self.gpy_model.posterior_covariance_between_points(X1, X2)
+        return self.gpy_model.posterior_covariance_between_points(X1, X2, include_likelihood=False)
 
     def generate_hyperparameters_samples(self, n_samples = 10, n_burnin = 5, subsample_interval  = 1,
                                          step_size = 1e-1, leapfrog_steps = 1) -> None:
