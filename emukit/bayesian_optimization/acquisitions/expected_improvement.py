@@ -16,7 +16,7 @@ from ...core.acquisition import Acquisition
 class ExpectedImprovement(Acquisition):
     def __init__(self, model: Union[IModel, IDifferentiable], jitter: float=0.0)-> None:
         """
-        This acquisition computes for a given input the improvement over the current best observed value in
+        For a given input, this acquisition computes the improvement over the current best observed value in
         expectation. For more information see:
 
         Efficient Global Optimization of Expensive Black-Box Functions
@@ -85,13 +85,15 @@ class ExpectedImprovement(Acquisition):
 
 
 class MeanPluginExpectedImprovement(ExpectedImprovement):
-    def __init__(self, model: IModelWithNoise, jitter: float=0.0)-> None:
+    def __init__(self, model: IModelWithNoise, jitter: float=0.0) -> None:
         """
-        This acquisition computes for a given input the expected improvement over the current best mean at one of the
-        observed in inputs.
+        A variant of expected improvement that accounts for observation noise.
+
+        For a given input, this acquisition computes the expected improvement over the *mean* at the
+        best point observed so far.
 
         This is a heuristic that allows Expected Improvement to deal with problems with noisy observations, where
-        the standard Expected Improvement might fail if the noise is too large.
+        the standard Expected Improvement might behave undesirably if the noise is too large.
 
         For more information see:
             "A benchmark of kriging-based infill criteria for noisy optimization" by Picheny et al. 
@@ -103,12 +105,12 @@ class MeanPluginExpectedImprovement(ExpectedImprovement):
         """
         super().__init__(model=model, jitter=jitter)
 
-    def _get_y_minimum(self):
+    def _get_y_minimum(self) -> np.ndarray:
         """Return the smallest model mean prediction at the previously observed points."""
         means_at_prev, _ = self.model.predict_noiseless(self.model.X)
         return np.min(means_at_prev, axis=0)
  
-    def _get_model_predictions(self, x):
+    def _get_model_predictions(self, x) -> Tuple[np.ndarray, np.ndarray]:
         """Return the likelihood-free (i.e. without observation noise) prediction from the model."""
         return self.model.predict_noiseless(x)
 

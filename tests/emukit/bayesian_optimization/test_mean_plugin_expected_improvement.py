@@ -1,47 +1,48 @@
-import GPy
 import numpy as np
 import pytest
 from emukit.bayesian_optimization.acquisitions.expected_improvement import (
     MeanPluginExpectedImprovement,
     ExpectedImprovement,
 )
+from emukit.core.interfaces import IModel, IModelWithNoise
 from unittest.mock import MagicMock
 from emukit.model_wrappers import GPyModelWrapper
 
 
-def noiseless_model(x, y):
-    gpy_model = GPy.models.GPRegression(x, y, GPy.kern.Matern52(x.shape[1]))
-    gpy_model.Gaussian_noise = 0
-    gpy_model.fix()
+class MockNoiselessModel(IModel):
+    """
+    A mock model with zero observation noise (predict() and predict_noiseless() will return the
+    same predictive distribution).
+    """
+    @staticmethod
+    def _mean_func(X):
+        return np.sin(X * 30 + X ** 2)
 
-    return GPyModelWrapper(gpy_model)
-
-
-def constant_model(x, y):
-    model = noiseless_model(x, y)
+    def _var_func(X):
+        return np.cos(X * 10) + 1.2
     
-    # Mock predict method
-    def predict_side_effect(x):
+    def predict(self, X):
+        return self._mean_func(X), self._var_func(X)
+
+    def predict_noiseless(self, X):
+        return self.predict(X)
+
+
+class MockConstantModel(IModel, IModelWithNoise):
+    """Model the predicts the same output distribution everywhere"""
+    def predict(self, X):
         # Return mean 1 and variance 8
         return np.ones([x.shape[0], 1]), 8 * np.ones([x.shape[0], 1])
-    def predict_noiseless_side_effect(x):
+    
+    def predict_noiseless(self, X):
         # Return mean 1 and variance 1
         return np.ones([x.shape[0], 1]), np.ones([x.shape[0], 1])
-
-    model.predict = MagicMock()
-    model.predict.side_effect = predict_side_effect
-    model.predict_noiseless = MagicMock()
-    model.predict_noiseless.side_effect = predict_noiseless_side_effect
-    return model
 
 
 def test_mean_plugin_ei_same_as_standard_on_noiseless():
     np.random.seed(42)
 
-    X = np.random.randn(10, 3)
-    Y = np.random.randn(10, 1)
-
-    model = noiseless_model(X, Y)
+    model = MockNoiselessModel()
 
     mean_plugin_ei = MeanPluginExpectedImprovement(model)
     standard_ei = ExpectedImprovement(model)
@@ -57,7 +58,7 @@ def test_mean_plugin_expected_improvement_returns_expected():
     X = np.random.randn(10, 3)
     Y = np.random.randn(10, 1)
 
-    model = constant_model(X, Y)
+    model = MockConstantModel(X, Y)
 
     mean_plugin_ei = MeanPluginExpectedImprovement(model)
 
