@@ -9,17 +9,40 @@ from unittest.mock import MagicMock
 from emukit.model_wrappers import GPyModelWrapper
 
 
-class MockNoiselessModel(IModel):
+class MockIModel(IModel):
+    def __init__(self, X, Y):
+        self._X = X
+        self._Y = Y
+    
+    @property
+    def X(self):
+        return self._X
+    
+    @property
+    def Y(self):
+        return self._Y
+        
+
+
+def deterministic_test_func(x: np.ndarray) -> np.ndarray:
+    return np.sin(x * 30 + x ** 2).sum(axis=-1, keepdims=True)
+
+
+class MockNoiselessModel(MockIModel, IModelWithNoise):
     """
     A mock model with zero observation noise (predict() and predict_noiseless() will return the
     same predictive distribution).
+
+    This model mocks predictions for the deterministic_test_func() (the mean prediction will
+    be the same as function output).
     """
     @staticmethod
     def _mean_func(X):
-        return np.sin(X * 30 + X ** 2)
+        return deterministic_test_func(X)
 
+    @staticmethod
     def _var_func(X):
-        return np.cos(X * 10) + 1.2
+        return (np.cos(X * 10) + 1.2).sum(axis=-1, keepdims=True)
     
     def predict(self, X):
         return self._mean_func(X), self._var_func(X)
@@ -28,21 +51,23 @@ class MockNoiselessModel(IModel):
         return self.predict(X)
 
 
-class MockConstantModel(IModel, IModelWithNoise):
+class MockConstantModel(MockIModel, IModelWithNoise):
     """Model the predicts the same output distribution everywhere"""
     def predict(self, X):
         # Return mean 1 and variance 8
-        return np.ones([x.shape[0], 1]), 8 * np.ones([x.shape[0], 1])
+        return np.ones([X.shape[0], 1]), 8 * np.ones([X.shape[0], 1])
     
     def predict_noiseless(self, X):
         # Return mean 1 and variance 1
-        return np.ones([x.shape[0], 1]), np.ones([x.shape[0], 1])
+        return np.ones([X.shape[0], 1]), np.ones([X.shape[0], 1])
 
 
 def test_mean_plugin_ei_same_as_standard_on_noiseless():
     np.random.seed(42)
+    X = np.random.randn(10, 3)
+    Y = deterministic_test_func(X)
 
-    model = MockNoiselessModel()
+    model = MockNoiselessModel(X, Y)
 
     mean_plugin_ei = MeanPluginExpectedImprovement(model)
     standard_ei = ExpectedImprovement(model)
