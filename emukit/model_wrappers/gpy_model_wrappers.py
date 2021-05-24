@@ -7,12 +7,14 @@ from typing import Tuple
 import numpy as np
 import GPy
 
-from ..core.interfaces import IModel, IDifferentiable, IJointlyDifferentiable, IPriorHyperparameters
+from ..core.interfaces import IModel, IDifferentiable, IJointlyDifferentiable, IPriorHyperparameters, IModelWithNoise
 from ..experimental_design.interfaces import ICalculateVarianceReduction
 from ..bayesian_optimization.interfaces import IEntropySearchModel
 
 
-class GPyModelWrapper(IModel, IDifferentiable, IJointlyDifferentiable, ICalculateVarianceReduction, IEntropySearchModel, IPriorHyperparameters):
+class GPyModelWrapper(
+    IModel, IDifferentiable, IJointlyDifferentiable, ICalculateVarianceReduction, IEntropySearchModel, IPriorHyperparameters, IModelWithNoise
+):
     """
     This is a thin wrapper around GPy models to allow users to plug GPy models into Emukit
     """
@@ -38,6 +40,13 @@ class GPyModelWrapper(IModel, IDifferentiable, IJointlyDifferentiable, ICalculat
                  mean and variance at each input location
         """
         return self.model.predict(X, full_cov=True)
+
+    def predict_noiseless(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        :param X: (n_points x n_dimensions) array containing locations at which to get predictions
+        :return: (mean, variance) Arrays of size n_points x 1 of the predictive distribution at each input location
+        """
+        return self.model.predict(X, include_likelihood=False)
 
     def get_prediction_gradients(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
