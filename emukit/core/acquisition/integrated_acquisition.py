@@ -24,6 +24,11 @@ class IntegratedHyperParameterAcquisition(Acquisition):
         self.model = model
         self.acquisition_generator = acquisition_generator
         self.n_samples = n_samples
+        self.n_burnin = n_burnin
+        self.subsample_interval = subsample_interval
+        self.step_size = step_size
+        self.leapfrog_steps = leapfrog_steps
+
         self.samples = self.model.generate_hyperparameters_samples(n_samples, n_burnin,
                                                                    subsample_interval, step_size, leapfrog_steps)
 
@@ -68,7 +73,9 @@ class IntegratedHyperParameterAcquisition(Acquisition):
         return acquisition_value / self.n_samples, d_acquisition_dx / self.n_samples
 
     def update_parameters(self):
-        self.samples = self.model.generate_hyperparameters_samples(self.n_samples)
+        self.samples = self.model.generate_hyperparameters_samples(self.n_samples, self.n_burnin,
+                                                                   self.subsample_interval,
+                                                                   self.step_size, self.leapfrog_steps)
 
     @property
     def has_gradients(self) -> bool:
