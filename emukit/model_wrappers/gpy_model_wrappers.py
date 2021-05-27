@@ -7,12 +7,14 @@ from typing import Tuple
 import numpy as np
 import GPy
 
-from ..core.interfaces import IModel, IDifferentiable, IJointlyDifferentiable, IPriorHyperparameters
+from ..core.interfaces import IModel, IDifferentiable, IJointlyDifferentiable, IPriorHyperparameters, IModelWithNoise
 from ..experimental_design.interfaces import ICalculateVarianceReduction
 from ..bayesian_optimization.interfaces import IEntropySearchModel
 
 
-class GPyModelWrapper(IModel, IDifferentiable, IJointlyDifferentiable, ICalculateVarianceReduction, IEntropySearchModel, IPriorHyperparameters):
+class GPyModelWrapper(
+    IModel, IDifferentiable, IJointlyDifferentiable, ICalculateVarianceReduction, IEntropySearchModel, IPriorHyperparameters, IModelWithNoise
+):
     """
     This is a thin wrapper around GPy models to allow users to plug GPy models into Emukit
     """
@@ -38,6 +40,13 @@ class GPyModelWrapper(IModel, IDifferentiable, IJointlyDifferentiable, ICalculat
                  mean and variance at each input location
         """
         return self.model.predict(X, full_cov=True)
+
+    def predict_noiseless(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        :param X: (n_points x n_dimensions) array containing locations at which to get predictions
+        :return: (mean, variance) Arrays of size n_points x 1 of the predictive distribution at each input location
+        """
+        return self.model.predict(X, include_likelihood=False)
 
     def get_prediction_gradients(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
@@ -99,11 +108,13 @@ class GPyModelWrapper(IModel, IDifferentiable, IJointlyDifferentiable, ICalculat
     def get_covariance_between_points(self, X1: np.ndarray, X2: np.ndarray) -> np.ndarray:
         """
         Calculate posterior covariance between two points
-        :param X1: An array of shape 1 x n_dimensions that contains a data single point. It is the first argument of the
+        :param X1: An array of shape n_points1 x n_dimensions. It is the first argument of the
                    posterior covariance function
-        :param X2: An array of shape n_points x n_dimensions that may contain multiple data points. This is the second
+        :param X2: An array of shape n_points2 x n_dimensions. This is the second
                    argument to the posterior covariance function.
-        :return: An array of shape n_points x 1 of posterior covariances between X1 and X2
+        :return: An array of shape n_points1 x n_points2 of posterior covariances between X1 and X2.
+            Namely, [i, j]-th entry of the returned array will represent the posterior covariance
+            between i-th point in X1 and j-th point in X2.
         """
         return self.model.posterior_covariance_between_points(X1, X2, include_likelihood=False)
 
