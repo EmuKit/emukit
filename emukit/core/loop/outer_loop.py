@@ -12,7 +12,7 @@ from .user_function_result import UserFunctionResult
 from .candidate_point_calculators import CandidatePointCalculator
 from .model_updaters import ModelUpdater
 from .user_function import UserFunction, UserFunctionWrapper
-from .stopping_conditions import StoppingCondition, FixedIterationsStoppingCondition
+from .stopping_conditions import StoppingCondition, FixedIterationsStoppingCondition, ConvergenceStoppingCondition
 
 
 import logging
@@ -54,18 +54,25 @@ class OuterLoop(object):
         self.loop_start_event = EventHandler()
         self.iteration_end_event = EventHandler()
 
-    def run_loop(self, user_function: Union[UserFunction, Callable], stopping_condition: Union[StoppingCondition, int],
-                 context: dict=None) -> None:
+    def run_loop(self, user_function: Union[UserFunction, Callable],
+                 stopping_condition: Union[StoppingCondition, int],
+                 context: dict = None) -> None:
         """
         :param user_function: The function that we are emulating
-        :param stopping_condition: If integer - a number of iterations to run, if object - a stopping condition object
-                                   that decides whether we should stop collecting more points
+        :param stopping_condition: If integer - a number of iterations to run, or an object - a stopping
+                        condition object that decides whether we should stop collecting more points.
+                        Note that stopping conditions can be logically combined (&, |)
+                        to represent complex stopping criteria.
         :param context: The context is used to force certain parameters of the inputs to the function of interest to
                         have a given value. It is a dictionary whose keys are the parameter names to fix and the values
                         are the values to fix the parameters to.
         """
-        if not (isinstance(stopping_condition, int) or isinstance(stopping_condition, StoppingCondition)):
-            raise ValueError("Expected stopping_condition to be an int or a StoppingCondition instance, "
+
+        is_int = isinstance(stopping_condition, int)
+        is_single_condition = isinstance(stopping_condition, StoppingCondition)
+
+        if not (is_int or is_single_condition):
+            raise ValueError("Expected stopping_condition to be an int or a StoppingCondition instance,"
                              "but received {}".format(type(stopping_condition)))
 
         if not isinstance(user_function, UserFunction):
@@ -96,15 +103,18 @@ class OuterLoop(object):
         for model_updater in self.model_updaters:
             model_updater.update(self.loop_state)
 
-    def get_next_points(self, results: List[UserFunctionResult]) -> np.ndarray:
+    def get_next_points(self, results: List[UserFunctionResult], context: dict={}) -> np.ndarray:
         """
         This method is used when the user doesn't want Emukit to evaluate the function of interest but rather just wants
         the input locations to evaluate the function at. This method calculates the new input locations.
 
         :param results: Function results since last loop step
+        :param context: A dictionary of fixed parameters, identical to the context used in
+                        self.run_loop()
         :return: Next batch of points to run
         """
         if results:
             self.loop_state.update(results)
             self._update_models()
-        return self.candidate_point_calculator.compute_next_points(self.loop_state)
+        new_x = self.candidate_point_calculator.compute_next_points(self.loop_state, context)
+        return new_x

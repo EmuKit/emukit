@@ -58,7 +58,7 @@ def test_local_penalization_gradients_with_multiple_points_in_batch():
     _check_grad(lp, TOL, x0)
 
 
-def test_local_penaliztion_at_batch_point():
+def test_local_penalization_at_batch_point():
     # Test edge case where evaluating local penalization at a point already in the batch.
     # This can lead to divide by zero errors if not done correctly.
 
@@ -78,6 +78,6 @@ class MockModel(IModel):
 
 
 def _check_grad(lp, tol, x0):
-    grad_error = check_grad(lambda x: lp.evaluate_with_gradients(x[None, :])[0],
+    grad_error = check_grad(lambda x: lp.evaluate_with_gradients(x[None, :])[0][0],
                             lambda x: lp.evaluate_with_gradients(x[None, :])[1], x0)
     assert np.all(grad_error < tol)

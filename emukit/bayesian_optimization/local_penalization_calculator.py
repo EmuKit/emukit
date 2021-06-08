@@ -30,6 +30,10 @@ class LocalPenalizationPointCalculator(CandidatePointCalculator):
         :param parameter_space: Parameter space describing input domain
         :param batch_size: Number of points to collect in each batch
         """
+        if not isinstance(model, IDifferentiable):
+            raise ValueError('Model must implement ' + str(IDifferentiable) +
+                             ' for use with Local Penalization batch method.')
+
         self.acquisition = acquisition
         self.acquisition_optimizer = acquisition_optimizer
         self.batch_size = batch_size

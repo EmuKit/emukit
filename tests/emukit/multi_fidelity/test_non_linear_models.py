@@ -166,7 +166,8 @@ class TestNonLinearModel:
         # wrap function so fidelity index doesn't change
         def wrap_func(x):
             x_full = np.concatenate([x[None, :], [[2]]], axis=1)
-            return non_linear_model.predict(x_full)[0]
+            mean, variance = non_linear_model.predict(x_full)
+            return mean[0]
 
         def wrap_gradients(x):
             x_full = np.concatenate([x[None, :], [[2]]], axis=1)
@@ -184,7 +185,8 @@ class TestNonLinearModel:
         # wrap function so fidelity index doesn't change
         def wrap_func(x):
             x_full = np.concatenate([x[None, :], [[2]]], axis=1)
-            return non_linear_model.predict(x_full)[1]
+            mean, variance = non_linear_model.predict(x_full)
+            return variance[0]
 
         def wrap_gradients(x):
             x_full = np.concatenate([x[None, :], [[2]]], axis=1)

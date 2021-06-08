@@ -1,6 +1,31 @@
 # Changelog
 All notable changes to Emukit will be documented in this file.
 
+## [0.4.8]
+- Added sobol initial design
+- BanditParameter
+- Boolean operations for stopping conditions
+- Preferential Bayesian optimization example
+- MUMBO acquisition function
+- Revised dependecies' versions requirements
+- Bug fixes
+- Doc fixes
+
+## [0.4.7]
+- Added simple GP model for examples
+- Bayesian optimization with unknown constraints
+- Removed dependency on libomp
+- Max value entropy search acquisition function
+- Multi point expected improvement acquisition function
+- Moved model free designs to core
+- Profet implementation
+- Added citation info
+- QRBF for uniform and Gaussian measures
+- uncertainty sampling acquisition for bq
+- Bayesian Monte Carlo
+- Bugfixes
+- Doc fixes
+
 ## [0.4.6]
 - Added support for inequality constraints
 - Fabolas as an example

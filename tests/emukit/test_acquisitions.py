@@ -7,7 +7,7 @@ from scipy.optimize import check_grad
 
 from bayesian_optimization.test_entropy_search import entropy_search_acquisition
 from emukit.bayesian_optimization.acquisitions import ExpectedImprovement, NegativeLowerConfidenceBound, EntropySearch
-from emukit.bayesian_optimization.acquisitions import MaxValueEntropySearch
+from emukit.bayesian_optimization.acquisitions import MaxValueEntropySearch, MUMBO
 from emukit.core.acquisition import IntegratedHyperParameterAcquisition
 from emukit.bayesian_optimization.acquisitions.entropy_search import MultiInformationSourceEntropySearch
 from emukit.bayesian_optimization.acquisitions.log_acquisition import LogAcquisition
@@ -40,6 +40,7 @@ acquisition_tests = [acquisition_test_tuple('negative_lower_confidence_bound_acq
                      acquisition_test_tuple('entropy_search_acquisition', False, np.nan),
                      acquisition_test_tuple('max_value_entropy_search_acquisition', False, np.nan),
                      acquisition_test_tuple('multi_source_entropy_search_acquisition', False, np.nan),
+                     acquisition_test_tuple('MUMBO_acquisition', False, np.nan),
                      acquisition_test_tuple('integrated_variance_acquisition', False, np.nan),
                      acquisition_test_tuple('integrated_expected_improvement_acquisition', True, default_grad_tol),
                      acquisition_test_tuple('integrated_probability_of_improvement_acquisition', False, np.nan),
@@ -130,6 +131,12 @@ def uncertainty_sampling_acquisition(vanilla_bq_model):
 def multi_source_entropy_search_acquisition(gpy_model):
     space = ParameterSpace([ContinuousParameter('x1', 0, 1), InformationSourceParameter(2)])
     return MultiInformationSourceEntropySearch(gpy_model, space, num_representer_points=10)
+
+@pytest.fixture
+@pytest.mark.parametrize('n_dims', [2])
+def MUMBO_acquisition(gpy_model):
+    space = ParameterSpace([ContinuousParameter('x1', 0, 1), InformationSourceParameter(2)])
+    return MUMBO(gpy_model, space, num_samples = 10, grid_size = 5000)
 
 
 # Helpers for creating parameterized fixtures

@@ -325,7 +325,8 @@ class NonLinearMultiFidelityModel(IModel, IDifferentiable):
         # Optimize all models for all fidelities but lowest fidelity
         for i in range(1, self.n_fidelities):
             # Set new X values because previous model has changed
-            previous_mean, _ = self.models[i - 1].predict(self.models[i].X)
+            is_ith_fidelity = self.X[:, self._fidelity_idx] == i
+            previous_mean, _ = self._predict_deterministic(self.X[is_ith_fidelity, :-1], i)
             augmented_input = np.concatenate([self.models[i].X[:, :-1], previous_mean], axis=1)
             self.models[i].set_X(augmented_input)
 

@@ -7,6 +7,16 @@ from typing import List, Tuple
 
 
 class Parameter(object):
+
+    def __init__(self, name: str):
+        self.name = name
+
+    def __str__(self):
+        return f"<Parameter: {self.name}>"
+
+    def __repr__(self):
+        return f"Parameter({self.name})"
+
     @property
     def dimension(self) -> int:
         """

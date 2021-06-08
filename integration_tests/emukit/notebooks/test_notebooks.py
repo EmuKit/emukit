@@ -1,6 +1,8 @@
 # These are notebooks that take too long to run so are not tested here
+# The parallel evel notebook is too flaky and often fails the builds for no reason
 excluded_notebooks = ['Emukit-tutorial-multi-fidelity-bayesian-optimization.ipynb',
-                      'Emukit-Categorical-with-Tensorflow.ipynb']
+                      'Emukit-tutorial-select-neural-net-hyperparameters.ipynb',
+                      'Emukit-tutorial-parallel-eval-of-obj-fun.ipynb']
 
 import pytest
 import os

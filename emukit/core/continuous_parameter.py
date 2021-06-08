@@ -19,9 +19,15 @@ class ContinuousParameter(Parameter):
         :param min_value: Minimum value the parameter is allowed to take
         :param max_value: Maximum value the parameter is allowed to take
         """
-        self.name = name
+        super().__init__(name)
         self.min = min_value
         self.max = max_value
+
+    def __str__(self):
+        return f"<ContinuousParameter: {self.name} {self.bounds}>"
+
+    def __repr__(self):
+        return f"ContinuousParameter({self.name}, {self.min}, {self.max})"
 
     def check_in_domain(self, x: Union[np.ndarray, float]) -> bool:
         """
