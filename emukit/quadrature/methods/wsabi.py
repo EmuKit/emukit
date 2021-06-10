@@ -3,14 +3,14 @@
 
 
 import numpy as np
+from typing import Optional
 
 from ..interfaces.base_gp import IBaseGaussianProcess
-from .bounded_sqrt_model import BoundedBQSqrtTransformLinearApproxBQModel
+from .bounded_bq_model import SquarerootTransformBQModel
 
 
-class WSABIL(BoundedBQSqrtTransformLinearApproxBQModel):
-    """
-     WSABI-L (Warped Sequential Active Bayesian Integration with linear approximation)
+class WSABIL(SquarerootTransformBQModel):
+    """WSABI-L (Warped Sequential Active Bayesian Integration with linear approximation).
 
     Gunter et al. 2014
     Sampling for Inference in Probabilistic Models with Fast Bayesian Quadrature
@@ -22,38 +22,38 @@ class WSABIL(BoundedBQSqrtTransformLinearApproxBQModel):
     The linear approximation is described in Gunter et al. in section 3.1, equations 9 and 10.
     """
 
-    def __init__(self, base_gp: IBaseGaussianProcess, X: np.ndarray, Y: np.ndarray, adapt_offset: bool=True):
+    def __init__(self, base_gp: IBaseGaussianProcess, X: np.ndarray, Y: np.ndarray, adapt_alpha: bool=True):
         """
         :param base_gp: a model derived from BaseGaussianProcess. Must use QuadratureRBFIsoGaussMeasure as kernel.
-        :param X: the initial locations of integrand evaluations
-        :param Y: the values of the integrand at Y
-        :param adapt_offset: If True, offset of transformation will be adapted according to 0.8 x min(Y) as in
-        Gunter et al.. If False the offset will be fixed to zero. Default is True.
-        the offset will bet set to zero.
+        :param X: the initial locations of integrand evaluations.
+        :param Y: the values of the integrand at Y.
+        :param adapt_alpha: If ``True``, the offset :math:`\alpha` will be adapted according to :math:`0.8 min(Y)` as
+               in Gunter et al., page 3, footnote. If ``False`` :math:`\alpha` will be fixed to a small value for
+               numerical stability. Default is ``True``.
         """
-        self.adapt_offset = adapt_offset
-        if adapt_offset:
-            bound = self._compute_offset(X, Y)
-        else:
-            bound = 0.
-        super(WSABIL, self).__init__(base_gp=base_gp, X=X, Y=Y, bound=bound, lower_bounded=True)
+        self._small_alpha = 1e-8  # only used if alpha is not adapted
+        alpha = self._compute_alpha(X, Y)
+        super(WSABIL, self).__init__(base_gp=base_gp, X=X, Y=Y, bound=alpha, lower_bounded=True)
+        self.adapt_offset = adapt_alpha
 
-    def _compute_offset(self, X: np.ndarray, Y: np.ndarray) -> float:
+    def _compute_alpha(self, X: np.ndarray, Y: np.ndarray) -> float:
         """
-        the value for the offset is given in Gunter et al. 2014 on page 3 in the footnote
+        The value for the offset is given in Gunter et al. 2014 on page 3 in the footnote.
+        Will be computed from the data Y, only of ``self.adapt_offset`` is ``True``. Otherwise the offset is small
+        number for numerical stability.
 
-        :param X: observation locations, shape (num_points, dim)
+        :param X: observation locations, shape (num_points, input_dim)
         :param Y: values of observations, shape (num_points, 1)
-        :return: the scalar offset
+        :return: the scalar offset.
         """
-        offset = 0.8 * min(Y)[0]
-        return offset
+        if self.adapt_offset:
+            return 0.8 * min(Y)[0]
+        return self._small_alpha
 
     def update_parameters(self, X: np.ndarray, Y: np.ndarray) -> None:
         """
-        computes offset and sets new offset.
+        Computes and sets the offset :math:`\alpha`.
         :param X: observation locations, shape (num_points, dim)
         :param Y: values of observations, shape (num_points, 1)
         """
-        if self.adapt_offset:
-            self.bound = self._compute_offset(X, Y)
+        self.warping.update_parameters(bound=self._compute_alpha(X, Y))

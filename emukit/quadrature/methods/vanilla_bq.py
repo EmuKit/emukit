@@ -8,6 +8,7 @@ from typing import Tuple
 from ...quadrature.interfaces.base_gp import IBaseGaussianProcess
 from ...core.interfaces.models import IDifferentiable
 from .warped_bq_model import WarpedBayesianQuadratureModel
+from .warpings import IdentityWarping
 
 
 class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel, IDifferentiable):
@@ -23,15 +24,7 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel, IDifferentiable):
         :param X: the initial locations of integrand evaluations
         :param Y: the values of the integrand at Y
         """
-        super(VanillaBayesianQuadrature, self).__init__(base_gp=base_gp, X=X, Y=Y)
-
-    def transform(self, Y: np.ndarray) -> np.ndarray:
-        """ Transform from base-GP to integrand """
-        return Y
-
-    def inverse_transform(self, Y: np.ndarray) -> np.ndarray:
-        """ Transform from integrand to base-GP """
-        return Y
+        super(VanillaBayesianQuadrature, self).__init__(base_gp=base_gp, warping=IdentityWarping(), X=X, Y=Y)
 
     def predict_base(self, X_pred: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
@@ -39,7 +32,7 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel, IDifferentiable):
 
         :param X_pred: Locations at which to predict
         :returns: predictive mean and variances of warped GP, and predictive mean and variances of base-GP in that order
-        all shapes (n_points, 1).
+                  all shapes (n_points, 1).
         """
         m, cov = self.base_gp.predict(X_pred)
         return m, cov, m, cov
@@ -51,7 +44,7 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel, IDifferentiable):
 
         :param X_pred: Locations at which to predict, shape (n_points, input_dim)
         :returns: predictive mean and covariance of warped GP, predictive mean and covariance of base-GP in that order.
-        mean shapes both (n_points, 1) and covariance shapes both (n_points, n_points)
+                  mean shapes both (n_points, 1) and covariance shapes both (n_points, n_points)
         """
         m, cov = self.base_gp.predict_with_full_covariance(X_pred)
         return m, cov, m, cov
