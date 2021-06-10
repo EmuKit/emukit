@@ -2,8 +2,8 @@
 
 [![Build Status](https://github.com/EmuKit/emukit/workflows/Tests/badge.svg)](https://github.com/EmuKit/emukit/actions?query=workflow%3ATests) |
 [![Documentation Status](https://readthedocs.org/projects/emukit/badge/?version=latest)](https://emukit.readthedocs.io/en/latest/?badge=latest) |
-[![Tests Coverage](https://codecov.io/gh/emukit/emukit/branch/master/graph/badge.svg)](https://codecov.io/gh/emukit/emukit) |
-[![GitHub License](https://img.shields.io/github/license/emukit/emukit.svg)](https://github.com/emukit/emukit/blob/master/LICENSE)
+[![Tests Coverage](https://codecov.io/gh/emukit/emukit/branch/main/graph/badge.svg)](https://codecov.io/gh/emukit/emukit) |
+[![GitHub License](https://img.shields.io/github/license/emukit/emukit.svg)](https://github.com/emukit/emukit/blob/main/LICENSE)
 
 [Website](https://emukit.github.io/) |
 [Documentation](https://emukit.readthedocs.io/) |
@@ -35,7 +35,7 @@ Emukit's primary dependencies are Numpy and GPy.
 See [requirements](requirements/requirements.txt).
 
 ## Getting started
-For examples see our [tutorial notebooks](http://nbviewer.jupyter.org/github/emukit/emukit/blob/master/notebooks/index.ipynb).
+For examples see our [tutorial notebooks](http://nbviewer.jupyter.org/github/emukit/emukit/blob/main/notebooks/index.ipynb).
 
 ## Documentation
 To learn more about Emukit, refer to our [documentation](https://emukit.readthedocs.io).

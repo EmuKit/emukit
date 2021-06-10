@@ -5,7 +5,7 @@ All about Emukit
    :maxdepth: 1
 
    installation
-   Tutorials (external link) <http://nbviewer.jupyter.org/github/amzn/emukit/blob/master/notebooks/index.ipynb>
+   Tutorials (external link) <http://nbviewer.jupyter.org/github/emukit/emukit/blob/main/notebooks/index.ipynb>
    usage
    vision
    emukit_structure
