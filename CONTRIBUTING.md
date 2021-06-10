@@ -42,7 +42,7 @@ So you've implemented a new method for uncertainty quantification and you want t
 
 1. Check existing open, and recently merged, pull requests to make sure someone else hasn't addressed the problem already.
 2. Open an issue to discuss any significant work - we would hate for your time to be wasted.
-3. Working against the latest source on the *master* branch.
+3. Working against the latest source on the *main* branch.
 
 To send us a pull request, please:
 
