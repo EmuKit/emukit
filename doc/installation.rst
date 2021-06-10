@@ -15,13 +15,13 @@ The simplest way to install emukit from sources is to run
 
 .. code-block:: bash
 
-    pip install git+https://github.com/amzn/Emukit.git
+    pip install git+https://github.com/emukit/emukit.git
 
 If you would like a bit more control, you can do it step by step: clone the repo, install dependencies, install emukit.
 
 .. code-block:: bash
 
-    git clone https://github.com/amzn/Emukit.git
+    git clone https://github.com/emukit/emukit.git
     cd Emukit
     pip install -r requirements/requirements.txt
     python setup.py develop
