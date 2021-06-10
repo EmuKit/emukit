@@ -58,9 +58,9 @@ class SquareRootWarping(Warping):
     def inverse_transform(self, Y: np.ndarray) -> np.ndarray:
         """ Transform from integrand to base-GP """
         if self.inverted:
-            return np.sqrt(np.absolute(2. * (self.offset - Y)))
+            return np.sqrt(np.clip(2. * (self.offset - Y), a_min=0., a_max=None))
         else:
-            return np.sqrt(np.absolute(2. * (Y - self.offset)))
+            return np.sqrt(np.clip(2. * (Y - self.offset), a_min=0., a_max=None))
 
     def update_parameters(self, offset: Optional[float]=None) -> None:
         """update the warping parameters"""
