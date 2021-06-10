@@ -40,7 +40,7 @@ class IdentityWarping(Warping):
 class SquareRootWarping(Warping):
     """The square root warping"""
 
-    def __init__(self, offset: float, inverted: bool=Optional[False]):
+    def __init__(self, offset: float, inverted: Optional[bool]=False):
         """
         :param offset: the offset of the warping
         :param inverted: inverts the warping if ``True``. Default is ``False``.
