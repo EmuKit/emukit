@@ -47,8 +47,8 @@ def test_vanilla_bq_shapes(vanilla_bq):
     assert isinstance(res[1], float)
 
     # transformations
-    assert vanilla_bq.warping.transform(Y).shape == Y.shape
-    assert vanilla_bq.warping.inverse_transform(Y).shape == Y.shape
+    assert vanilla_bq.transform(Y).shape == Y.shape
+    assert vanilla_bq.inverse_transform(Y).shape == Y.shape
 
     # predictions base
     res = vanilla_bq.predict_base(x)
@@ -82,6 +82,20 @@ def test_vanilla_bq_shapes(vanilla_bq):
     assert res[0].shape == (x.shape[0], x.shape[1])
     assert res[1].shape == (x.shape[0], x.shape[1])
 
+
+def test_vanilla_bq_transformations():
+    X = np.random.rand(5, 2)
+    Y = np.random.rand(5, 1)
+
+    mock_gp = mock.create_autospec(IBaseGaussianProcess)
+    method = VanillaBayesianQuadrature(base_gp=mock_gp, X=X, Y=Y)
+
+    # we can use equal comparison here because vanilla bq uses the identity transform. For non-trivial transforms
+    # with numerical errors use a closeness test instead.
+    assert_array_equal(method.inverse_transform(Y), Y)
+    assert_array_equal(method.transform(Y), Y)
+    assert_array_equal(method.inverse_transform(method.transform(Y)), Y)
+    assert_array_equal(method.transform(method.inverse_transform(Y)), Y)
 
 
 def test_vanilla_bq_model():

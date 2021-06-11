@@ -6,10 +6,10 @@ import numpy as np
 from typing import Optional
 
 from ..interfaces.base_gp import IBaseGaussianProcess
-from .bounded_bq_model import SquarerootTransformBQModel
+from .bounded_bq_model import BoundedBQModel
 
 
-class WSABIL(SquarerootTransformBQModel):
+class WSABIL(BoundedBQModel):
     """WSABI-L (Warped Sequential Active Bayesian Integration with linear approximation).
 
     Gunter et al. 2014
@@ -56,4 +56,4 @@ class WSABIL(SquarerootTransformBQModel):
         :param X: observation locations, shape (num_points, dim)
         :param Y: values of observations, shape (num_points, 1)
         """
-        self.warping.update_parameters(bound=self._compute_alpha(X, Y))
+        self._warping.update_parameters(bound=self._compute_alpha(X, Y))

@@ -12,7 +12,7 @@ from ..kernels.quadrature_rbf import QuadratureRBFIsoGaussMeasure
 from .warpings import SquareRootWarping
 
 
-class SquarerootTransformBQModel(WarpedBayesianQuadratureModel):
+class BoundedBQModel(WarpedBayesianQuadratureModel):
     """
     A warped Bayesian quadrature model which is upper bounded OR lower bounded by a constant.
 
@@ -40,20 +40,21 @@ class SquarerootTransformBQModel(WarpedBayesianQuadratureModel):
             raise ValueError(f"{self.__class__.__name__} can only be used with QuadratureRBFIsoGaussMeasure kernel. "
                              f"Instead {type(base_gp.kern)} is given.")
 
-        super(SquarerootTransformBQModel, self).__init__(base_gp=base_gp,
-                                                         warping=SquareRootWarping(offset=bound,
-                                                                                   inverted=not lower_bounded),
-                                                         X=X,
-                                                         Y=Y)
+        super(BoundedBQModel, self).__init__(base_gp=base_gp,
+                                             warping=SquareRootWarping(offset=bound,
+                                                                       inverted=not lower_bounded),
+                                             X=X,
+                                             Y=Y)
+
     @property
     def bound(self):
         """The bound :math:`\alpha` as defined in the model. The true bound of the integrand might be different."""
-        return self.warping.offset
+        return self._warping.offset
 
     @property
-    def lower_bounded(self):
+    def is_lower_bounded(self):
         """``True`` if the model is lower bounded, ``False`` if it is upper bounded."""
-        return not self.warping.inverted
+        return not self._warping.inverted
 
     def predict_base(self, X_pred: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """Computes predictive means and variances of the warped GP as well as the base GP
@@ -64,7 +65,7 @@ class SquarerootTransformBQModel(WarpedBayesianQuadratureModel):
         """
         mean_base, var_base = self.base_gp.predict(X_pred)
 
-        mean_approx = self.warping.transform(mean_base)
+        mean_approx = self.transform(mean_base)
         var_approx = var_base * (mean_base ** 2)
         return mean_approx, var_approx, mean_base, var_base
 
@@ -78,7 +79,7 @@ class SquarerootTransformBQModel(WarpedBayesianQuadratureModel):
         """
         mean_base, cov_base = self.base_gp.predict_with_full_covariance(X_pred)
 
-        mean_approx = self.warping.transform(mean_base)
+        mean_approx = self.transform(mean_base)
         cov_approx = np.outer(mean_base, mean_base) * cov_base
         cov_approx = self._symmetrize(cov_approx)  # for numerical stability
         return mean_approx, cov_approx, mean_base, cov_base
@@ -100,7 +101,7 @@ class SquarerootTransformBQModel(WarpedBayesianQuadratureModel):
         qK = self.base_gp.kern.qK(X_means_vec, scale_factor=1./np.sqrt(2)).reshape(N, N)
 
         # integral mean
-        if self.lower_bounded:
+        if self.is_lower_bounded:
             integral_mean = self.bound + 0.5 * np.sum(np.outer(weights, weights) * qK * K)
         else:
             integral_mean = self.bound - 0.5 * np.sum(np.outer(weights, weights) * qK * K)
