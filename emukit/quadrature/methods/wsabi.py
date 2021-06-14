@@ -37,7 +37,7 @@ class WSABIL(BoundedBQModel):
         self._small_alpha = 1e-8  # only used if alpha is not adapted
         alpha = self._compute_alpha(X, Y)
 
-        super(WSABIL, self).__init__(base_gp=base_gp, X=X, Y=Y, bound=alpha, lower_bounded=True)
+        super(WSABIL, self).__init__(base_gp=base_gp, X=X, Y=Y, bound=alpha, is_lower_bounded=True)
 
     def _compute_alpha(self, X: np.ndarray, Y: np.ndarray) -> float:
         """Compute the offset :math:`\alpha`.
@@ -56,4 +56,4 @@ class WSABIL(BoundedBQModel):
         :param X: observation locations, shape (num_points, dim)
         :param Y: values of observations, shape (num_points, 1)
         """
-        self._warping.update_parameters(bound=self._compute_alpha(X, Y))
+        self._warping.update_parameters(offset=self._compute_alpha(X, Y))
