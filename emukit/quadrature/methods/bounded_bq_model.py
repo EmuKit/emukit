@@ -92,32 +92,23 @@ class BoundedBQModel(WarpedBayesianQuadratureModel):
         X = self.X / np.sqrt(2)  # this is equivalent to scaling the lengthscale with sqrt(2)
         K = self.base_gp.kern.K(X, X)
         weights = self.base_gp.graminv_residual()
+        W = np.outer(weights, weights)
 
         # kernel mean but with scaled lengthscale (multiplicative factor of 1/sqrt(2))
         X_means_vec = 0.5 * (self.X.T[:, :, None] + self.X.T[:, None, :]).reshape(D, -1).T
         qK = self.base_gp.kern.qK(X_means_vec, scale_factor=1./np.sqrt(2)).reshape(N, N)
 
         # integral mean
+        integral_mean_second_term = 0.5 * np.sum(W * qK * K)
         if self.is_lower_bounded:
-            integral_mean = self.bound + 0.5 * np.sum(np.outer(weights, weights) * qK * K)
+            integral_mean = self.bound + integral_mean_second_term
         else:
-            integral_mean = self.bound - 0.5 * np.sum(np.outer(weights, weights) * qK * K)
+            integral_mean = self.bound - integral_mean_second_term
 
         # integral variance
-        # C1
-        factor_1 = self.base_gp.kern.variance
-
-        # C2
-        qK_weights = np.dot(qK, weights)  # 1 x N
-        # Todo: think about imposing a linear solver instead
-        lower_chol = self.base_gp.gram_chol()
-        gram_inv_qK_weights = lapack.dtrtrs(lower_chol.T, (lapack.dtrtrs(lower_chol, qK_weights.T, lower=1)[0]),
-                                            lower=0)[0]
-
-        second_term = np.dot(qK_weights, gram_inv_qK_weights)
-        # Todo: not done yet
-        integral_variance = second_term[0, 0]
-
+        # The intgeral variance is not neede for the WSABI loop, hence it is not implemented yet
+        # Will need to be implemented if the variance gets important.
+        integral_variance = None
         return float(integral_mean), integral_variance
 
     @staticmethod
