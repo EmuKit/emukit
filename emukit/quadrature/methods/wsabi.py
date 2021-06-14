@@ -5,54 +5,54 @@
 import numpy as np
 from typing import Optional
 
+import emukit.quadrature.kernels
 from ..interfaces.base_gp import IBaseGaussianProcess
 from .bounded_bq_model import BoundedBQModel
 
 
 class WSABIL(BoundedBQModel):
-    """WSABI-L (Warped Sequential Active Bayesian Integration with linear approximation).
+    """WSABI-L Warped Sequential Active Bayesian Integration with linear approximation [1].
 
-    Gunter et al. 2014
-    Sampling for Inference in Probabilistic Models with Fast Bayesian Quadrature
-    Advances in Neural Information Processing Systems (NeurIPS), 27, pp. 2789–2797.
+    WSABI-L must be used with the RBF kernel and the Gaussian integration measure. This means that the kernel of
+    :attr:`base_gp` must be of type :class:`emukit.quadrature.kernels.QuadratureRBFIsoGaussMeasure`.
 
-    WSABI must be used with the RBF kernel and the Gaussian integration measure. This means that the kernel of base_gp
-    must be of type QuadratureRBFIsoGaussMeasure.
+    The linear approximation is described in [1] in section 3.1, Eq (9) and (10).
 
-    The linear approximation is described in Gunter et al. in section 3.1, equations 9 and 10.
+    .. [1]  Gunter et al. 2014 *Sampling for Inference in Probabilistic Models with Fast Bayesian Quadrature*,
+       Advances in Neural Information Processing Systems (NeurIPS), 27, pp. 2789–2797.
+
     """
 
     def __init__(self, base_gp: IBaseGaussianProcess, X: np.ndarray, Y: np.ndarray, adapt_alpha: bool=True):
         """
-        :param base_gp: a model derived from BaseGaussianProcess. Must use QuadratureRBFIsoGaussMeasure as kernel.
-        :param X: the initial locations of integrand evaluations.
-        :param Y: the values of the integrand at Y.
+        :param base_gp: A model derived from :class:`emukit.quadrature.interfaces.IBaseGaussianProcess`.
+                        Must use :class:`emukit.quadrature.kernels.QuadratureRBFIsoGaussMeasure` as kernel.
+        :param X: The initial locations of integrand evaluations, shape (num_point, input_dim).
+        :param Y: The values of the integrand at X, shape (num_points, 1).
         :param adapt_alpha: If ``True``, the offset :math:`\alpha` will be adapted according to :math:`0.8 min(Y)` as
-               in Gunter et al., page 3, footnote. If ``False`` :math:`\alpha` will be fixed to a small value for
+               in Gunter et al. 2014, page 3, footnote. If ``False`` :math:`\alpha` will be fixed to a small value for
                numerical stability. Default is ``True``.
         """
+        self.adapt_alpha = adapt_alpha
         self._small_alpha = 1e-8  # only used if alpha is not adapted
         alpha = self._compute_alpha(X, Y)
+
         super(WSABIL, self).__init__(base_gp=base_gp, X=X, Y=Y, bound=alpha, lower_bounded=True)
-        self.adapt_offset = adapt_alpha
 
     def _compute_alpha(self, X: np.ndarray, Y: np.ndarray) -> float:
-        """
-        The value for the offset is given in Gunter et al. 2014 on page 3 in the footnote.
-        Will be computed from the data Y, only of ``self.adapt_offset`` is ``True``. Otherwise the offset is small
-        number for numerical stability.
+        """Compute the offset :math:`\alpha`.
 
         :param X: observation locations, shape (num_points, input_dim)
         :param Y: values of observations, shape (num_points, 1)
         :return: the scalar offset.
         """
-        if self.adapt_offset:
+        if self.adapt_alpha:
             return 0.8 * min(Y)[0]
         return self._small_alpha
 
     def update_parameters(self, X: np.ndarray, Y: np.ndarray) -> None:
-        """
-        Computes and sets the offset :math:`\alpha`.
+        """Compute and set the offset :math:`\alpha` in the warping.
+
         :param X: observation locations, shape (num_points, dim)
         :param Y: values of observations, shape (num_points, 1)
         """
