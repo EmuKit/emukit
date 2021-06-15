@@ -1,9 +1,6 @@
-# Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-# SPDX-License-Identifier: Apache-2.0
-
+"""The bounded Bayesian quadrature model is with square-root warping."""
 
 import numpy as np
-from scipy.linalg import lapack
 from typing import Tuple
 
 from ..interfaces.base_gp import IBaseGaussianProcess

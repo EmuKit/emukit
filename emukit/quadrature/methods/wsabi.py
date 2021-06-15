@@ -1,11 +1,8 @@
-# Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-# SPDX-License-Identifier: Apache-2.0
+"""WSABI model as in Gunter et al. 2014"""
 
 
 import numpy as np
-from typing import Optional
 
-import emukit.quadrature.kernels
 from ..interfaces.base_gp import IBaseGaussianProcess
 from .bounded_bq_model import BoundedBQModel
 
