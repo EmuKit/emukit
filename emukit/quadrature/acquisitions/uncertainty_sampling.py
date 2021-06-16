@@ -19,7 +19,7 @@ class UncertaintySampling(Acquisition):
     Gaussian process (GP) on the integrand.
     """
 
-    def __init__(self, model: Union[WarpedBayesianQuadratureModel, IDifferentiable], measure_power: float = None):
+    def __init__(self, model: Union[WarpedBayesianQuadratureModel, IDifferentiable], measure_power: float = 2):
         """
         :param model: A warped Bayesian quadrature model that has gradients.
         :param measure_power: The power of the measure. Default is 2. Only used if the measure is not the Lebesgue
@@ -27,8 +27,6 @@ class UncertaintySampling(Acquisition):
         """
         self.model = model
         self._measure_power = measure_power
-        if self._measure_power is None:
-            self._measure_power = 2.
 
     def has_gradients(self) -> bool:
         return True
@@ -75,7 +73,7 @@ class UncertaintySampling(Acquisition):
             gradient_weighted = (density * variance_gradient.T).T + (variance[:, 0] * density_gradient.T).T
             return variance_weighted, gradient_weighted
 
-        gradient_weighted = (density ** p * variance_gradient.T
-                             + p * (variance[:, 0] * density ** (p - 1)) * density_gradient.T).T
+        gradient_weighted = (density ** p * variance_gradient.T).T \
+                            + (p * (variance[:, 0] * density ** (p - 1)) * density_gradient.T).T
 
         return variance_weighted, gradient_weighted
