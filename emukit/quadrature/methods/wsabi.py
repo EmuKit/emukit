@@ -3,7 +3,6 @@
 
 import numpy as np
 
-import emukit.quadrature.methods.bounded_bq_model
 from ..interfaces.base_gp import IBaseGaussianProcess
 from .bounded_bq_model import BoundedBQModel
 

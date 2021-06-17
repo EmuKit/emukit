@@ -78,9 +78,9 @@ class SquareRootWarping(Warping):
         :return: transformed values, shape (num_points, 1)
         """
         if self.inverted:
-            return np.sqrt(np.clip(2. * (self.offset - Y), a_min=0., a_max=None))
+            return np.sqrt(2. * (self.offset - Y))
         else:
-            return np.sqrt(np.clip(2. * (Y - self.offset), a_min=0., a_max=None))
+            return np.sqrt(2. * (Y - self.offset))
 
     def update_parameters(self, offset: Optional[float]=None) -> None:
         """Update the :attr:`self.offset` if parameter is given.

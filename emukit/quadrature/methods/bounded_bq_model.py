@@ -122,7 +122,7 @@ class BoundedBQModel(WarpedBayesianQuadratureModel):
         mean_base, var_base = self.base_gp.predict(X)
 
         d_mean_dx = (self.base_gp.kern.dK_dx1(X, self.X) @ self.base_gp.graminv_residual())[:, :, 0].T
-        d_mean_dx = mean_base * d_mean_dx
+        d_mean_dx = mean_base * d_mean_dx  # broadcasting  (num_points, 1) and (num_points, num_dim)
 
         # gradient of variance
         dKdiag_dx = self.base_gp.kern.dKdiag_dx(X)
@@ -130,11 +130,11 @@ class BoundedBQModel(WarpedBayesianQuadratureModel):
         graminv_KXx = self.base_gp.solve_linear(self.base_gp.kern.K(self.base_gp.X, X))
         d_var_dx_base = dKdiag_dx - 2. * (dKxX_dx1 * np.transpose(graminv_KXx)).sum(axis=2, keepdims=False)
 
-        d_var_dx = d_var_dx_base * mean_base ** 2 + 2 * var_base * mean_base * d_mean_dx
+        d_var_dx = mean_base ** 2 * d_var_dx_base.T + (2 * var_base * mean_base) * d_mean_dx  # broadcasting
 
         if self.is_lower_bounded:
             return -d_mean_dx, d_var_dx
-        return d_mean_dx, d_var_dx.T
+        return d_mean_dx, d_var_dx
 
     def update_parameters(self, X: np.ndarray, Y: np.ndarray) -> None:
         """Update parameters.
