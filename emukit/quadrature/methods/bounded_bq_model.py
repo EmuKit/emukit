@@ -12,21 +12,23 @@ from .warpings import SquareRootWarping
 class BoundedBQModel(WarpedBayesianQuadratureModel):
     """A warped Bayesian quadrature model that is upper bounded OR lower bounded by a constant.
 
-    The integrand :math:`f(x)` is modeled as :math:`f(x) = f_* + 0.5 g(x)^2` for lower bounded functions, or
+    The integrand :math:`f(x)` is modeled as :math:`f(x) = f_* + 0.5 g(x)^2` for lower bounded functions, or as
     :math:`f(x) = f^* - 0.5 g(x)^2` for upper bounded functions. The constants :math:`f_*` and :math:`f^*` are the
     lower and upper bound respectively, and :math:`g` is a Gaussian process (GP).
 
-    The process :math:`f` induced by the Gaussian process :math:`g` is non-Gaussian. It is again approximated by a
-    Gaussian process :math:`\\hat{f}` by linearizing :math:`f` around the mean of :math:`g`. The approximate GP
-    :math:`\\hat{f}` is what is used by the predict-methods, and thus by the :meth:`integrate` method.
+    The process :math:`f` induced by the Gaussian process :math:`g` is non-Gaussian. In order to obtain an analytic
+    estimator for the integral value, the process :math:`f` is approximated by another Gaussian process
+    :math:`\\hat{f}` by linearizing :math:`f` around the mean of :math:`g`. The approximate GP
+    :math:`\\hat{f}` is implemented in the the predict-methods in this class, and it is also used by :meth:`integrate`.
     """
     def __init__(self, base_gp: IBaseGaussianProcess, X: np.ndarray, Y: np.ndarray, bound: float,
                  is_lower_bounded: bool):
         """
-        :param base_gp: The BaseGaussianProcess that models :math:`g`. Must use QuadratureRBFIsoGaussMeasure as kernel.
+        :param base_gp: The Gaussian process :math:`g`. Must use
+               :class:`emukit.quadrature.kernels.QuadratureRBFIsoGaussMeasure` as kernel.
         :param X: The initial locations of integrand evaluations, shape (num_point, input_dim).
         :param Y: The values of the integrand at X, shape (num_points, 1).
-        :param bound: the lower or upper bound :math:`\alpha`.
+        :param bound: The lower or upper bound :math:`\alpha`.
         :param is_lower_bounded: ``True``, if function is lower bounded. ``False`` if function is upper bounded.
         """
         # The integrate method is specific to QuadratureRBFIsoGaussMeasure, predict methods are only specific to
@@ -55,8 +57,8 @@ class BoundedBQModel(WarpedBayesianQuadratureModel):
         """Compute the predictive mean and variance of the warped GP as well as the base GP.
 
         :param X_pred: Locations at which to predict, shape (num_points, input_dim).
-        :returns: Predictive mean and variances of warped GP, and predictive mean and variances of base-GP in that
-                  order, all shapes (num_points, 1).
+        :returns: Predictive mean and variances of warped GP :math:`\\hat{f}`, and predictive mean and variances
+                  of base-GP :math:`g` in that order, all shapes (num_points, 1).
         """
         mean_base, var_base = self.base_gp.predict(X_pred)
 
@@ -69,8 +71,9 @@ class BoundedBQModel(WarpedBayesianQuadratureModel):
         """Compute predictive mean and covariance of the warped GP as well as the base GP.
 
         :param X_pred: Locations at which to predict, shape (num_points, input_dim)
-        :returns: Predictive mean and covariance of warped GP, predictive mean and covariance of base-GP in that order.
-                  Mean shapes both (num_points, 1) and covariance shapes both (num_points, num_points)
+        :returns: Predictive mean and covariance of warped GP :math:`\\hat{f}`, predictive mean and covariance of
+                  base-GP :math:`g` in that order. Mean shapes both (num_points, 1) and covariance shapes both
+                  (num_points, num_points)
         """
         mean_base, cov_base = self.base_gp.predict_with_full_covariance(X_pred)
 
@@ -82,7 +85,7 @@ class BoundedBQModel(WarpedBayesianQuadratureModel):
     def integrate(self) -> Tuple[float, float]:
         """Compute the normal distribution of the integral value, in particular its mean estimator and variance.
 
-        :returns: mean estimator of integral and its variance.
+        :returns: Mean estimator of integral and its variance. Currently, the variance returns None.
         """
         N, D = self.X.shape
 
@@ -104,22 +107,21 @@ class BoundedBQModel(WarpedBayesianQuadratureModel):
             integral_mean = self.bound - integral_mean_second_term
 
         # integral variance
-        # The intgeral variance is not neede for the WSABI loop, hence it is not implemented yet
-        # Will need to be implemented if the variance gets important.
+        # The integral variance is not needed for the WSABI loop as WSABI uses uncertainty sampling.
+        # For completeness, the integral variance will need to be implemented at a later point.
         integral_variance = None
         return float(integral_mean), integral_variance
 
     def get_prediction_gradients(self, X: np.ndarray) -> Tuple:
-        """Compute model gradients of mean and variance at given points
+        """Compute model gradients of predictive mean and variance at given points.
 
-        :param X: points to compute gradients at, shape (num_points, dim)
-        :returns: Tuple of gradients of mean and variance, shapes of both (num_points, dim)
+        :param X: Points to compute gradients at, shape (num_points, input_dim)
+        :returns: Tuple of gradients of mean and variance, shapes of both (num_points, input_dim)
         """
         # gradient of mean
         mean_base, var_base = self.base_gp.predict(X)
 
         d_mean_dx = (self.base_gp.kern.dK_dx1(X, self.X) @ self.base_gp.graminv_residual())[:, :, 0].T
-        # Todo: broadcasting?
         d_mean_dx = mean_base * d_mean_dx
 
         # gradient of variance
@@ -137,8 +139,8 @@ class BoundedBQModel(WarpedBayesianQuadratureModel):
     def update_parameters(self, X: np.ndarray, Y: np.ndarray) -> None:
         """Update parameters.
 
-        :param X: observation locations, shape (num_points, dim)
-        :param Y: values of observations, shape (num_points, 1)
+        :param X: Observation locations, shape (num_points, input_dim)
+        :param Y: Values of observations, shape (num_points, 1)
         """
         pass
 

@@ -14,15 +14,15 @@ class WSABILLoop(OuterLoop):
                  acquisition_optimizer: AcquisitionOptimizerBase = None):
         """The loop for WSABI-L.
 
-        :param model: The WSABI-L model
+        :param model: The WSABI-L model.
         :param model_updater: Defines how and when the quadrature model is updated if new data arrives.
                               Defaults to updating hyper-parameters every iteration.
         :param acquisition_optimizer: Optimizer selecting next evaluation points by maximizing acquisition.
                                       Gradient based optimizer is used if None. Defaults to None.
         """
 
-        # WSABI-L is used with uncertainty sampling
-        acquisition = UncertaintySampling(model)
+        # WSABI-L is used with uncertainty sampling.
+        acquisition = UncertaintySampling(model, measure_power=1)
 
         if model_updater is None:
             model_updater = FixedIntervalUpdater(model, 1)
