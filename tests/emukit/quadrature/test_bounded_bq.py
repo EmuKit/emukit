@@ -166,18 +166,26 @@ def test_bounded_bq_transformations(bounded_bq):
     assert_allclose(model.inverse_transform(Y2), Y1)
 
 
-#def test_vanilla_bq_integrate(vanilla_bq):
-#    # to check the integral, we check if it lies in some confidence interval.
-#    # these intervals were computed as follows: the mean vanilla_bq.predict (first argument) was integrated by
-#    # simple random sampling with 1e6 samples, and the variance (second argument) with 5*1e3 samples. This was done 100
-#    # times. The intervals show mean\pm 3 std of the 100 integrals obtained by sampling. There might be a very small
-#    # chance the true integrals lies outside the specified intervals.
-#    interval_mean = [10.020723475428762, 10.09043533562786]
-#    interval_var = [41.97715934990283, 46.23549367612568]
+def test_bounded_bq_lower_integrate(bounded_bq_lower):
+    # to check the integral, we check if it lies in some confidence interval.
+    # these intervals were computed as follows: the mean bounded_bq_lower.predict (first argument) was integrated by
+    # simple random sampling with 1e6 samples. Samples were obtained by sampling from the integration measure.
+    # The intervals reported are mean\pm 3 std of the 100 integrals obtained by sampling. There might be a very small
+    # chance that the true integrals lies outside the specified intervals.
+    model, _ = bounded_bq_lower
+    interval_mean = [0.6812122058594842, 0.6835927100095945]
+    integral_value, integral_variance = model.integrate()
+    assert interval_mean[0] < integral_value < interval_mean[1]
+    # variance not tested as it is not implemented yet
 
-#    integral_value, integral_variance = vanilla_bq.integrate()
-#    assert interval_mean[0] < integral_value < interval_mean[1]
-#    assert interval_var[0] < integral_variance < interval_var[1]
+
+def test_bounded_bq_upper_integrate(bounded_bq_upper):
+    # see test_bounded_bq_lower_integrate function on how the interval was obtained
+    model, _ = bounded_bq_upper
+    interval_mean = [2.9160404441753704, 2.92034136962288]
+    integral_value, integral_variance = model.integrate()
+    assert interval_mean[0] < integral_value < interval_mean[1]
+    # variance not tested as it is not implemented yet
 
 
 @pytest.mark.parametrize('bounded_bq', models_test_list + wsabi_test_list)
