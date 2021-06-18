@@ -20,8 +20,10 @@ if __name__ == "__main__":
     np.random.seed(0)
 
     # choose model here:
-    #METHOD = 'Bounded BQ lower'
-    METHOD = 'Bounded BQ upper'
+    # METHOD = 'Bounded BQ lower'
+    # METHOD = 'Bounded BQ upper'
+    # METHOD = 'WSABI-l adapt'
+    METHOD = 'WSABI-l fixed'
 
     # the GPy model
     X = np.array([[-1, 1], [0, 0], [-2, 0.1]])
@@ -47,6 +49,12 @@ if __name__ == "__main__":
         model = BoundedBayesianQuadratureModel(base_gp=base_gp, X=X, Y=Y,
                                                bound=bound,
                                                is_lower_bounded=False)
+    elif METHOD == 'WSABI-l adapt':
+        model = WSABIL(base_gp=base_gp, X=base_gp.X, Y=base_gp.Y, adapt_alpha=True)
+
+    elif METHOD == 'WSABI-l fixed':
+        model = WSABIL(base_gp=base_gp, X=base_gp.X, Y=base_gp.Y, adapt_alpha=False)
+
     else:
         raise ValueError
 
