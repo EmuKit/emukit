@@ -3,65 +3,53 @@
 
 
 import numpy as np
-from scipy.linalg import lapack
 from typing import Tuple
 
 from ...quadrature.interfaces.base_gp import IBaseGaussianProcess
 from ...core.interfaces.models import IDifferentiable
 from .warped_bq_model import WarpedBayesianQuadratureModel
+from .warpings import IdentityWarping
 
 
 class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel, IDifferentiable):
-    """
-    Vanilla Bayesian quadrature.
+    """Vanilla Bayesian quadrature.
 
     Vanilla Bayesian quadrature uses a Gaussian process as surrogate for the integrand.
     """
 
     def __init__(self, base_gp: IBaseGaussianProcess, X: np.ndarray, Y: np.ndarray):
         """
-        :param base_gp: a model derived from BaseGaussianProcess
-        :param X: the initial locations of integrand evaluations
-        :param Y: the values of the integrand at Y
+        :param base_gp: A model derived from :class:`emukit.quadrature.interfaces.IBaseGaussianProcess`
+        :param X: The initial locations of integrand evaluations, shape (num_points, input_dim).
+        :param Y: The values of the integrand at X, shape (num_points, 1).
         """
-        super(VanillaBayesianQuadrature, self).__init__(base_gp=base_gp, X=X, Y=Y)
-
-    def transform(self, Y: np.ndarray) -> np.ndarray:
-        """ Transform from base-GP to integrand """
-        return Y
-
-    def inverse_transform(self, Y: np.ndarray) -> np.ndarray:
-        """ Transform from integrand to base-GP """
-        return Y
+        super(VanillaBayesianQuadrature, self).__init__(base_gp=base_gp, warping=IdentityWarping(), X=X, Y=Y)
 
     def predict_base(self, X_pred: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-        """
-        Computes predictive means and variances of the warped GP as well as the base GP
+        """Compute predictive means and variances of the warped GP as well as the base GP.
 
-        :param X_pred: Locations at which to predict
-        :returns: predictive mean and variances of warped GP, and predictive mean and variances of base-GP in that order
-        all shapes (n_points, 1).
+        :param X_pred: Locations at which to predict, shape (num_points, input_dim).
+        :returns: Predictive mean and variances of warped GP, and predictive mean and variances of base-GP in that order
+                  all shapes (num_points, 1).
         """
         m, cov = self.base_gp.predict(X_pred)
         return m, cov, m, cov
 
     def predict_base_with_full_covariance(self, X_pred: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray,
                                                                              np.ndarray]:
-        """
-        Computes predictive means and covariance of the warped GP as well as the base GP
+        """Compute predictive means and covariance of the warped GP as well as the base GP.
 
-        :param X_pred: Locations at which to predict, shape (n_points, input_dim)
-        :returns: predictive mean and covariance of warped GP, predictive mean and covariance of base-GP in that order.
-        mean shapes both (n_points, 1) and covariance shapes both (n_points, n_points)
+        :param X_pred: Locations at which to predict, shape (num_points, input_dim)
+        :returns: Predictive mean and covariance of warped GP, predictive mean and covariance of base-GP in that order.
+                  mean shapes both (num_points, 1) and covariance shapes both (num_points, num_points)
         """
         m, cov = self.base_gp.predict_with_full_covariance(X_pred)
         return m, cov, m, cov
 
     def integrate(self) -> Tuple[float, float]:
-        """
-        Computes an estimator of the integral as well as its variance.
+        """Compute an estimator of the integral as well as its variance.
 
-        :returns: estimator of integral and its variance
+        :returns: Estimator of integral and its variance.
         """
         kernel_mean_X = self.base_gp.kern.qK(self.X)
         integral_mean = np.dot(kernel_mean_X, self.base_gp.graminv_residual())[0, 0]
@@ -69,11 +57,10 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel, IDifferentiable):
         return integral_mean, integral_var
 
     def get_prediction_gradients(self, X: np.ndarray) -> Tuple:
-        """
-        Computes and returns model gradients of mean and variance at given points
+        """Compute predictive gradients of mean and variance at given points.
 
-        :param X: points to compute gradients at, shape (num_points, dim)
-        :returns: Tuple of gradients of mean and variance, shapes of both (num_points, dim)
+        :param X: Points to compute gradients at, shape (num_points, input_dim).
+        :returns: Tuple of gradients of mean and variance, shapes of both (num_points, input_dim).
         """
         # gradient of mean
         d_mean_dx = (self.base_gp.kern.dK_dx1(X, self.X) @ self.base_gp.graminv_residual())[:, :, 0].T
@@ -85,3 +72,11 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel, IDifferentiable):
         d_var_dx = dKdiag_dx - 2. * (dKxX_dx1 * np.transpose(graminv_KXx)).sum(axis=2, keepdims=False)
 
         return d_mean_dx, d_var_dx.T
+
+    def update_parameters(self, X: np.ndarray, Y: np.ndarray) -> None:
+        """Update parameters of the model that are not being optimized. Use pass if no parameters need to be updated.
+
+        :param X: Observation locations, shape (num_points, input_dim)
+        :param Y: Integrand observations at X, shape (num_points, 1)
+        """
+        pass

@@ -9,6 +9,7 @@ from ...core.interfaces.models import IModel
 from ...quadrature.interfaces.base_gp import IBaseGaussianProcess
 from ...quadrature.kernels.bounds import BoxBounds
 from ...quadrature.kernels.integration_measures import IntegrationMeasure
+from .warpings import Warping
 
 
 class WarpedBayesianQuadratureModel(IModel):
@@ -24,12 +25,14 @@ class WarpedBayesianQuadratureModel(IModel):
     - no approximation if there is no warping (Vanilla BQ)
     - ...
     """
-    def __init__(self, base_gp: IBaseGaussianProcess, X: np.ndarray, Y: np.ndarray):
+    def __init__(self, base_gp: IBaseGaussianProcess, warping: Warping, X: np.ndarray, Y: np.ndarray):
         """
         :param base_gp: the underlying GP model
+        :param warping: The warping.
         :param X: the initial locations of integrand evaluations
         :param Y: the values of the integrand at Y
         """
+        self._warping = warping
         self.base_gp = base_gp
         # this is to ensure that the base_gp get the correct transform
         self.set_data(X, Y)
@@ -40,7 +43,7 @@ class WarpedBayesianQuadratureModel(IModel):
 
     @property
     def Y(self) -> np.ndarray:
-        return self.transform(self.base_gp.Y)
+        return self._warping.transform(self.base_gp.Y)
 
     @property
     def integral_bounds(self) -> Union[None, BoxBounds]:
@@ -57,16 +60,12 @@ class WarpedBayesianQuadratureModel(IModel):
         return self.base_gp.kern.measure
 
     def transform(self, Y: np.ndarray) -> np.ndarray:
-        """
-        Transform from base-GP to integrand.
-        """
-        raise NotImplemented
+        """ Transform from base-GP to integrand """
+        return self._warping.transform(Y)
 
     def inverse_transform(self, Y: np.ndarray) -> np.ndarray:
-        """
-        Transform from integrand to base-GP.
-        """
-        raise NotImplemented
+        """ Transform from integrand to base-GP """
+        return self._warping.inverse_transform(Y)
 
     def predict_base(self, X_pred: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
@@ -113,7 +112,17 @@ class WarpedBayesianQuadratureModel(IModel):
         :param X: observed locations
         :param Y: observed integrand values
         """
-        self.base_gp.set_data(X, self.inverse_transform(Y))
+        self.update_parameters(X, Y)
+        self.base_gp.set_data(X, self._warping.inverse_transform(Y))
+
+    def update_parameters(self, X: np.ndarray, Y: np.ndarray) -> None:
+        """
+        Update parameters of the model that are not being optimized. Use pass if no parameters need to be updated.
+
+        :param X: observation locations, shape (num_points, dim)
+        :param Y: values of observations, shape (num_points, 1)
+        """
+        raise NotImplementedError
 
     def optimize(self) -> None:
         """Optimizes the hyperparameters of the base GP"""
