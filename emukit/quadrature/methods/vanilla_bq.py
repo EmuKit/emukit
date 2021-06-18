@@ -19,7 +19,7 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel, IDifferentiable):
 
     def __init__(self, base_gp: IBaseGaussianProcess, X: np.ndarray, Y: np.ndarray):
         """
-        :param base_gp: A model derived from :class:`emukit.quadrature.interfaces.IBaseGaussianProcess`
+        :param base_gp: The underlying Gaussian process model.
         :param X: The initial locations of integrand evaluations, shape (num_points, input_dim).
         :param Y: The values of the integrand at X, shape (num_points, 1).
         """
