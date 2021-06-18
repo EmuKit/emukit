@@ -9,7 +9,7 @@ from ..kernels.quadrature_rbf import QuadratureRBFIsoGaussMeasure
 from .warpings import SquareRootWarping
 
 
-class BoundedBQModel(WarpedBayesianQuadratureModel):
+class BoundedBayesianQuadratureModel(WarpedBayesianQuadratureModel):
     """A warped Bayesian quadrature model that is upper bounded OR lower bounded by a constant.
 
     The integrand :math:`f(x)` is modeled as :math:`f(x) = f_* + 0.5 g(x)^2` for lower bounded functions, or as
@@ -37,11 +37,11 @@ class BoundedBQModel(WarpedBayesianQuadratureModel):
             raise ValueError(f"{self.__class__.__name__} can only be used with QuadratureRBFIsoGaussMeasure kernel. "
                              f"Instead {type(base_gp.kern)} is given.")
 
-        super(BoundedBQModel, self).__init__(base_gp=base_gp,
-                                             warping=SquareRootWarping(offset=bound,
+        super(BoundedBayesianQuadratureModel, self).__init__(base_gp=base_gp,
+                                                             warping=SquareRootWarping(offset=bound,
                                                                        inverted=not is_lower_bounded),
-                                             X=X,
-                                             Y=Y)
+                                                             X=X,
+                                                             Y=Y)
 
     @property
     def bound(self):

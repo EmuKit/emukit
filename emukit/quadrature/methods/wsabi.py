@@ -4,10 +4,10 @@
 import numpy as np
 
 from ..interfaces.base_gp import IBaseGaussianProcess
-from .bounded_bq_model import BoundedBQModel
+from . import BoundedBayesianQuadratureModel
 
 
-class WSABIL(BoundedBQModel):
+class WSABIL(BoundedBayesianQuadratureModel):
     """WSABI-L Warped Sequential Active Bayesian Integration with linear approximation [1].
 
     WSABI-L must be used with the RBF kernel and the Gaussian integration measure. This means that the kernel of

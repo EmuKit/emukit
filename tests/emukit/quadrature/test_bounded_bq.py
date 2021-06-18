@@ -5,8 +5,7 @@ from numpy.testing import assert_allclose
 from math import isclose
 from pytest_lazyfixture import lazy_fixture
 
-from emukit.quadrature.methods.bounded_bq_model import BoundedBQModel
-from emukit.quadrature.methods import WSABIL
+from emukit.quadrature.methods import BoundedBayesianQuadratureModel, WSABIL
 from emukit.quadrature.kernels import QuadratureRBFLebesgueMeasure, QuadratureRBFIsoGaussMeasure
 from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure
 from emukit.model_wrappers.gpy_quadrature_wrappers import RBFGPy, BaseGaussianProcessGPy
@@ -16,42 +15,37 @@ ABS_TOL = 1e-4
 
 
 @pytest.fixture
-def base_gp_wrong_kernel():
+def gpy_model():
     X = np.array([[-1, 1], [0, 0], [-2, 0.1]])
     Y = np.array([[1], [2], [3]])
-    D = X.shape[1]
-    integral_bounds = [(-1, 2), (-3, 3)]
-
-    gpy_model = GPy.models.GPRegression(X=X, Y=Y, kernel=GPy.kern.RBF(input_dim=D))
-    qrbf = QuadratureRBFLebesgueMeasure(RBFGPy(gpy_model.kern), integral_bounds=integral_bounds)
-    model = BaseGaussianProcessGPy(kern=qrbf, gpy_model=gpy_model)
-    return model
+    return GPy.models.GPRegression(X=X, Y=Y, kernel=GPy.kern.RBF(input_dim=X.shape[1]))
 
 
 @pytest.fixture
-def base_gp():
-    X = np.array([[-1, 1], [0, 0], [-2, 0.1]])
-    Y = np.array([[1], [2], [3]])
-    D = X.shape[1]
-    measure = IsotropicGaussianMeasure(mean=np.array([0.1, 1.8]), variance=0.8)
+def base_gp_wrong_kernel(gpy_model):
+    integral_bounds = [(-1, 2), (-3, 3)]
+    qrbf = QuadratureRBFLebesgueMeasure(RBFGPy(gpy_model.kern), integral_bounds=integral_bounds)
+    return BaseGaussianProcessGPy(kern=qrbf, gpy_model=gpy_model)
 
-    gpy_model = GPy.models.GPRegression(X=X, Y=Y, kernel=GPy.kern.RBF(input_dim=D))
+
+@pytest.fixture
+def base_gp(gpy_model):
+    measure = IsotropicGaussianMeasure(mean=np.array([0.1, 1.8]), variance=0.8)
     qrbf = QuadratureRBFIsoGaussMeasure(RBFGPy(gpy_model.kern), measure=measure)
-    model = BaseGaussianProcessGPy(kern=qrbf, gpy_model=gpy_model)
-    return model
+    return BaseGaussianProcessGPy(kern=qrbf, gpy_model=gpy_model)
 
 
 @pytest.fixture
 def bounded_bq_lower(base_gp):
-    bound = np.min(base_gp.Y) - 0.5  # make sure bound is 0.5 below the Y values
-    bounded_bq = BoundedBQModel(base_gp=base_gp, X=base_gp.X, Y=base_gp.Y, bound=bound, is_lower_bounded=True)
+    bound = np.min(base_gp.Y) - 0.5  # make sure bound is lower than the Y values
+    bounded_bq = BoundedBayesianQuadratureModel(base_gp=base_gp, X=base_gp.X, Y=base_gp.Y, bound=bound, is_lower_bounded=True)
     return bounded_bq, bound
 
 
 @pytest.fixture
 def bounded_bq_upper(base_gp):
-    bound = np.max(base_gp.Y) + 0.5  # make sure bound is 0.5 above the Y values
-    bounded_bq = BoundedBQModel(base_gp=base_gp, X=base_gp.X, Y=base_gp.Y, bound=bound, is_lower_bounded=False)
+    bound = np.max(base_gp.Y) + 0.5  # make sure bound is larger than the Y values
+    bounded_bq = BoundedBayesianQuadratureModel(base_gp=base_gp, X=base_gp.X, Y=base_gp.Y, bound=bound, is_lower_bounded=False)
     return bounded_bq, bound
 
 
@@ -71,6 +65,40 @@ models_test_list = [lazy_fixture("bounded_bq_lower"), lazy_fixture("bounded_bq_u
 wsabi_test_list = [lazy_fixture("wsabil_adapt"), lazy_fixture("wsabil_fixed")]
 
 
+# === tests specific to bounded BQ
+@pytest.mark.parametrize('bounded_bq', models_test_list)
+def test_bounded_bq_correct_bound(bounded_bq):
+    model, bound = bounded_bq
+    assert model.bound == bound
+
+
+def test_bounded_bq_raises_exception(base_gp_wrong_kernel):
+    # wrong kernel embedding
+    with pytest.raises(ValueError):
+        BoundedBayesianQuadratureModel(base_gp=base_gp_wrong_kernel, X=base_gp_wrong_kernel.X, Y=base_gp_wrong_kernel.Y,
+                                       bound=np.min(base_gp_wrong_kernel.Y) - 0.5, is_lower_bounded=True)
+
+
+# === tests specific to WSABI
+def test_wsabi_alpha_adaptation(wsabil_adapt, wsabil_fixed):
+    X_new = np.array([[1.1, 1.2], [-1, 1], [0, 0], [-2, 0.1]])
+    Y_new = np.array([[0.8], [1], [2], [3]])  # lowest value is 0.8
+
+    # check if alpha is adapted correctly
+    model, _ = wsabil_adapt
+    model.set_data(X_new, Y_new)
+
+    assert model.adapt_alpha
+    assert isclose(model.bound, 0.64)  # 0.8 * min(Y_new)
+
+    # check if alpha stays fixed
+    model, _ = wsabil_fixed
+    old_alpha = model.bound
+    assert not model.adapt_alpha
+    assert model.bound == old_alpha
+
+
+# === tests shared by bounded BQ and WSABI
 @pytest.mark.parametrize('bounded_bq', models_test_list + wsabi_test_list)
 def test_bounded_bq_shapes(bounded_bq):
     model, _ = bounded_bq
@@ -126,7 +154,7 @@ def test_bounded_bq_shapes(bounded_bq):
 def test_bounded_bq_transformations(bounded_bq):
     model, _ = bounded_bq
 
-    # check if warping and inverse warping are correct yield identity.
+    # check if warping and inverse warping correctly yield identity.
     Y = np.array([[1], [2], [3]])
     assert_allclose(model.inverse_transform(model.transform(Y)), Y)
     assert_allclose(model.transform(model.inverse_transform(Y)), Y)
@@ -137,18 +165,6 @@ def test_bounded_bq_transformations(bounded_bq):
     assert_allclose(model.transform(Y1), Y2)
     assert_allclose(model.inverse_transform(Y2), Y1)
 
-
-@pytest.mark.parametrize('bounded_bq', models_test_list)
-def test_bounded_bq_correct_bound(bounded_bq):
-    model, bound = bounded_bq
-    assert model.bound == bound
-
-
-def test_bounded_bq_raises_exception(base_gp_wrong_kernel):
-    # wrong kernel embedding
-    with pytest.raises(ValueError):
-        BoundedBQModel(base_gp=base_gp_wrong_kernel, X=base_gp_wrong_kernel.X, Y=base_gp_wrong_kernel.Y,
-                       bound=np.min(base_gp_wrong_kernel.Y) - 0.5, is_lower_bounded=True)
 
 #def test_vanilla_bq_integrate(vanilla_bq):
 #    # to check the integral, we check if it lies in some confidence interval.

@@ -4,4 +4,5 @@
 
 from .warped_bq_model import WarpedBayesianQuadratureModel  # noqa: F401
 from .vanilla_bq import VanillaBayesianQuadrature  # noqa: F401
+from .bounded_bq_model import BoundedBayesianQuadratureModel  # noqa: F401
 from .wsabi import WSABIL  # noqa: F401
