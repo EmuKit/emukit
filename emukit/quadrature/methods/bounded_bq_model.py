@@ -118,22 +118,28 @@ class BoundedBQModel(WarpedBayesianQuadratureModel):
         :param X: Points to compute gradients at, shape (num_points, input_dim)
         :returns: Tuple of gradients of mean and variance, shapes of both (num_points, input_dim)
         """
-        # gradient of mean
+        # prediction of base model
         mean_base, var_base = self.base_gp.predict(X)
 
-        d_mean_dx = (self.base_gp.kern.dK_dx1(X, self.X) @ self.base_gp.graminv_residual())[:, :, 0].T
-        d_mean_dx = mean_base * d_mean_dx  # broadcasting  (num_points, 1) and (num_points, num_dim)
+        # gradient of mean of base model
+        d_mean_dx_base = (self.base_gp.kern.dK_dx1(X, self.X) @ self.base_gp.graminv_residual())[:, :, 0].T
 
-        # gradient of variance
+        # gradient of variance of base model
         dKdiag_dx = self.base_gp.kern.dKdiag_dx(X)
         dKxX_dx1 = self.base_gp.kern.dK_dx1(X, self.X)
         graminv_KXx = self.base_gp.solve_linear(self.base_gp.kern.K(self.base_gp.X, X))
         d_var_dx_base = dKdiag_dx - 2. * (dKxX_dx1 * np.transpose(graminv_KXx)).sum(axis=2, keepdims=False)
 
-        d_var_dx = mean_base ** 2 * d_var_dx_base.T + (2 * var_base * mean_base) * d_mean_dx  # broadcasting
+        # gradient of mean
+        d_mean_dx = (self.base_gp.kern.dK_dx1(X, self.X) @ self.base_gp.graminv_residual())[:, :, 0].T
+        d_mean_dx = mean_base * d_mean_dx  # broadcasting  (num_points, 1) and (num_points, num_dim)
 
-        if self.is_lower_bounded:
-            return -d_mean_dx, d_var_dx
+        # gradient of variance
+        d_var_dx = (mean_base ** 2) * d_var_dx_base.T + (2 * var_base * mean_base) * d_mean_dx_base  # broadcasting
+
+        if not self.is_lower_bounded:
+            d_mean_dx *= -1.
+
         return d_mean_dx, d_var_dx
 
     def update_parameters(self, X: np.ndarray, Y: np.ndarray) -> None:

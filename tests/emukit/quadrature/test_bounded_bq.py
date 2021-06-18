@@ -6,6 +6,7 @@ from math import isclose
 from pytest_lazyfixture import lazy_fixture
 
 from emukit.quadrature.methods.bounded_bq_model import BoundedBQModel
+from emukit.quadrature.methods import WSABIL
 from emukit.quadrature.kernels import QuadratureRBFLebesgueMeasure, QuadratureRBFIsoGaussMeasure
 from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure
 from emukit.model_wrappers.gpy_quadrature_wrappers import RBFGPy, BaseGaussianProcessGPy
@@ -54,10 +55,23 @@ def bounded_bq_upper(base_gp):
     return bounded_bq, bound
 
 
+@pytest.fixture
+def wsabil_adapt(base_gp):
+    wsabil = WSABIL(base_gp=base_gp, X=base_gp.X, Y=base_gp.Y, adapt_alpha=True)
+    return wsabil, None
+
+
+@pytest.fixture
+def wsabil_fixed(base_gp):
+    wsabil = WSABIL(base_gp=base_gp, X=base_gp.X, Y=base_gp.Y, adapt_alpha=False)
+    return wsabil, None
+
+
 models_test_list = [lazy_fixture("bounded_bq_lower"), lazy_fixture("bounded_bq_upper")]
+wsabi_test_list = [lazy_fixture("wsabil_adapt"), lazy_fixture("wsabil_fixed")]
 
 
-@pytest.mark.parametrize('bounded_bq', models_test_list)
+@pytest.mark.parametrize('bounded_bq', models_test_list + wsabi_test_list)
 def test_bounded_bq_shapes(bounded_bq):
     model, _ = bounded_bq
 
@@ -108,13 +122,7 @@ def test_bounded_bq_shapes(bounded_bq):
     assert res[1].shape == (x.shape[0], x.shape[1])
 
 
-@pytest.mark.parametrize('bounded_bq', models_test_list)
-def test_bounded_bq_correct_bound(bounded_bq):
-    model, bound = bounded_bq
-    assert model.bound == bound
-
-
-@pytest.mark.parametrize('bounded_bq', models_test_list)
+@pytest.mark.parametrize('bounded_bq', models_test_list + wsabi_test_list)
 def test_bounded_bq_transformations(bounded_bq):
     model, _ = bounded_bq
 
@@ -128,6 +136,12 @@ def test_bounded_bq_transformations(bounded_bq):
     Y1 = model.base_gp.Y
     assert_allclose(model.transform(Y1), Y2)
     assert_allclose(model.inverse_transform(Y2), Y1)
+
+
+@pytest.mark.parametrize('bounded_bq', models_test_list)
+def test_bounded_bq_correct_bound(bounded_bq):
+    model, bound = bounded_bq
+    assert model.bound == bound
 
 
 def test_bounded_bq_raises_exception(base_gp_wrong_kernel):
@@ -150,7 +164,7 @@ def test_bounded_bq_raises_exception(base_gp_wrong_kernel):
 #    assert interval_var[0] < integral_variance < interval_var[1]
 
 
-@pytest.mark.parametrize('bounded_bq', models_test_list)
+@pytest.mark.parametrize('bounded_bq', models_test_list + wsabi_test_list)
 def test_bounded_bq_gradients(bounded_bq):
     model, _ = bounded_bq
     D = model.X.shape[1]
