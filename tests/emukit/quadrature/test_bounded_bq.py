@@ -101,6 +101,16 @@ def test_bounded_bq_upper_integrate(bounded_bq_upper):
     # variance not tested as it is not implemented yet
 
 
+def test_bounded_bq_correct_bounded_flag(bounded_bq_upper, bounded_bq_lower):
+    model, bound = bounded_bq_lower
+    assert model.is_lower_bounded
+    assert not model._warping.is_inverted
+
+    model, bound = bounded_bq_upper
+    assert not model.is_lower_bounded
+    assert model._warping.is_inverted
+
+
 # === tests specific to WSABI
 def test_wsabi_alpha_adaptation(wsabil_adapt, wsabil_fixed):
     X_new = np.array([[1.1, 1.2], [-1, 1], [0, 0], [-2, 0.1]])

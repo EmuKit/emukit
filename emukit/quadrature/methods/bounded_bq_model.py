@@ -38,8 +38,9 @@ class BoundedBayesianQuadratureModel(WarpedBayesianQuadratureModel):
                              f"Instead {type(base_gp.kern)} is given.")
 
         super(BoundedBayesianQuadratureModel, self).__init__(base_gp=base_gp,
-                                                             warping=SquareRootWarping(offset=bound,
-                                                                       inverted=not is_lower_bounded),
+                                                             warping=SquareRootWarping(
+                                                                 offset=bound, is_inverted=not is_lower_bounded
+                                                             ),
                                                              X=X,
                                                              Y=Y)
 
@@ -51,7 +52,7 @@ class BoundedBayesianQuadratureModel(WarpedBayesianQuadratureModel):
     @property
     def is_lower_bounded(self):
         """``True`` if the model is lower bounded, ``False`` if it is upper bounded."""
-        return not self._warping.inverted
+        return not self._warping.is_inverted
 
     def predict_base(self, X_pred: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """Compute the predictive mean and variance of the warped GP as well as the base GP.
