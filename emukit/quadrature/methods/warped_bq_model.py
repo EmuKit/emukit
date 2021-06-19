@@ -28,8 +28,8 @@ class WarpedBayesianQuadratureModel(IModel):
         """
         :param base_gp: The underlying Gaussian process model.
         :param warping: The warping of the underlying Gaussian process model.
-        :param X: The initial locations of integrand evaluations, shape (num_points, input_dim).
-        :param Y: The values of the integrand at X, shape (num_points, 1).
+        :param X: The initial locations of integrand evaluations, shape (n_points, input_dim).
+        :param Y: The values of the integrand at X, shape (n_points, 1).
         """
         self._warping = warping
         self.base_gp = base_gp
@@ -70,9 +70,9 @@ class WarpedBayesianQuadratureModel(IModel):
     def predict_base(self, X_pred: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """Compute predictive means and variances of the warped GP as well as the base GP.
 
-        :param X_pred: Locations at which to predict, shape (num_points, input_dim).
+        :param X_pred: Locations at which to predict, shape (n_points, input_dim).
         :returns: Predictive mean and variances of warped GP, and predictive mean and variances of base-GP in that order
-                  all shapes (num_points, 1).
+                  all shapes (n_points, 1).
         """
         raise NotImplemented
 
@@ -80,9 +80,9 @@ class WarpedBayesianQuadratureModel(IModel):
                                                                              np.ndarray]:
         """Compute predictive means and covariance of the warped GP as well as the base GP.
 
-        :param X_pred: Locations at which to predict, shape (num_points, input_dim)
+        :param X_pred: Locations at which to predict, shape (n_points, input_dim)
         :returns: Predictive mean and covariance of warped GP, predictive mean and covariance of base-GP in that order.
-                  mean shapes both (num_points, 1) and covariance shapes both (num_points, num_points)
+                  mean shapes both (n_points, 1) and covariance shapes both (n_points, n_points)
         """
         raise NotImplemented
 
@@ -108,8 +108,8 @@ class WarpedBayesianQuadratureModel(IModel):
         First, the model parameters that are not being optimized are updated, as they may depend on the new data,
         then new data is set in the model.
 
-        :param X: Observation locations, shape (num_points, input_dim)
-        :param Y: Integrand observations at X, shape (num_points, 1)
+        :param X: Observation locations, shape (n_points, input_dim)
+        :param Y: Integrand observations at X, shape (n_points, 1)
         """
         self.update_parameters(X, Y)
         self.base_gp.set_data(X, self._warping.inverse_transform(Y))
@@ -117,8 +117,8 @@ class WarpedBayesianQuadratureModel(IModel):
     def update_parameters(self, X: np.ndarray, Y: np.ndarray) -> None:
         """Update parameters of the model that are not being optimized. Use pass if no parameters need to be updated.
 
-        :param X: Observation locations, shape (num_points, input_dim)
-        :param Y: Integrand observations at X, shape (num_points, 1)
+        :param X: Observation locations, shape (n_points, input_dim)
+        :param Y: Integrand observations at X, shape (n_points, 1)
         """
         raise NotImplementedError
 
