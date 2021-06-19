@@ -25,7 +25,7 @@ def squarerroot_warping():
 @pytest.fixture
 def inverted_squarerroot_warping():
     offset = 1.
-    return SquareRootWarping(offset=offset, inverted=True)
+    return SquareRootWarping(offset=offset, is_inverted=True)
 
 
 warpings_tuple = namedtuple('WarpingTest', ['name'])
