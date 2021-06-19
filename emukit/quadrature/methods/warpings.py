@@ -54,7 +54,7 @@ class SquareRootWarping(Warping):
         :param is_inverted: Inverts the warping if ``True``. Default is ``False``.
         """
         self.offset = offset
-        self.inverted = is_inverted
+        self.is_inverted = is_inverted
 
     def transform(self, Y: np.ndarray) -> np.ndarray:
         """Transform from base-GP to integrand.
@@ -62,7 +62,7 @@ class SquareRootWarping(Warping):
         :param Y: Function values of latent function, shape (n_points, 1).
         :return: Transformed values, shape (n_points, 1).
         """
-        if self.inverted:
+        if self.is_inverted:
             return self.offset - 0.5 * (Y * Y)
         else:
             return self.offset + 0.5 * (Y * Y)
@@ -73,7 +73,7 @@ class SquareRootWarping(Warping):
         :param Y: Function values of integrand, shape (n_points, 1).
         :return: Transformed values, shape (n_points, 1).
         """
-        if self.inverted:
+        if self.is_inverted:
             return np.sqrt(2. * (self.offset - Y))
         else:
             return np.sqrt(2. * (Y - self.offset))
