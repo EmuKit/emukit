@@ -62,3 +62,8 @@ def test_squarerroot_warping_update_parameters(squarerroot_warping, inverted_squ
 
     inverted_squarerroot_warping.update_parameters(offset=new_offset)
     assert inverted_squarerroot_warping.offset == new_offset
+
+
+def test_squarerroot_warping_inverted_flag(squarerroot_warping, inverted_squarerroot_warping):
+    assert not squarerroot_warping.is_inverted
+    assert inverted_squarerroot_warping.is_inverted
