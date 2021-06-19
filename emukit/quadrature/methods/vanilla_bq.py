@@ -72,11 +72,3 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel, IDifferentiable):
         d_var_dx = dKdiag_dx - 2. * (dKxX_dx1 * np.transpose(graminv_KXx)).sum(axis=2, keepdims=False)
 
         return d_mean_dx, d_var_dx.T
-
-    def update_parameters(self, X: np.ndarray, Y: np.ndarray) -> None:
-        """Update parameters of the model that are not being optimized. Use pass if no parameters need to be updated.
-
-        :param X: Observation locations, shape (n_points, input_dim).
-        :param Y: Integrand observations at X, shape (n_points, 1).
-        """
-        pass
