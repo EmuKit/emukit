@@ -53,24 +53,20 @@ class CategoricalParameter(Parameter):
     def dimension(self) -> int:
         return self.encodings.shape[1]
 
-    def check_in_domain(self, x: np.ndarray) -> bool:
+    def check_in_domain(self, x: str) -> bool:
         """
         Verifies that given values lie within the parameter's domain
 
-        :param x: 2d numpy array with shape (points, encoding) of points to check
+        :param x: a string representing the category
         :return: A boolean value which indicates whether all points lie in the domain
         """
-        if x.ndim != 2 or x.shape[1] != self.dimension:
-            raise ValueError("Expected x shape (points, {}), actual is {}"
-                             .format(self.dimension, x.shape))
+        if not isinstance(x, str):
+            raise ValueError("x should be a string representing the category")
 
-        for i, param in enumerate(self._cont_params):
-            # First check if this particular parameter is in domain
-            param_in_domain = param.check_in_domain(x[:, i])
-            if not param_in_domain:
-                return False
-
-        return True
+        if x in self.encoding.categories:
+            return True
+        else:
+            return False
 
     def sample_uniform(self, point_count: int) -> np.ndarray:
         """

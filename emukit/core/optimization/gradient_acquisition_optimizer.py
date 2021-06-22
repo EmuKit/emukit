@@ -20,11 +20,13 @@ class GradientAcquisitionOptimizer(AcquisitionOptimizerBase):
     """ Optimizes the acquisition function using a quasi-Newton method (L-BFGS).
     Can be used for continuous acquisition functions.
     """
-    def __init__(self, space: ParameterSpace) -> None:
+    def __init__(self, space: ParameterSpace, num_samples=1000, num_anchor=5) -> None:
         """
         :param space: The parameter space spanning the search problem.
         """
         super().__init__(space)
+        self.num_samples = num_samples
+        self.num_anchor = num_anchor
 
     def _optimize(self, acquisition: Acquisition, context_manager: ContextManager) -> Tuple[np.ndarray, np.ndarray]:
         """
@@ -52,10 +54,10 @@ class GradientAcquisitionOptimizer(AcquisitionOptimizerBase):
             f_df = None
 
         optimizer = self._get_optimizer(context_manager)
-        anchor_points_generator = ObjectiveAnchorPointsGenerator(self.space, acquisition)
+        anchor_points_generator = ObjectiveAnchorPointsGenerator(self.space, acquisition, num_samples=self.num_samples)
 
         # Select the anchor points (with context)
-        anchor_points = anchor_points_generator.get(num_anchor=1, context_manager=context_manager)
+        anchor_points = anchor_points_generator.get(num_anchor=self.num_anchor, context_manager=context_manager)
 
         _log.info("Starting gradient-based optimization of acquisition function {}".format(type(acquisition)))
         optimized_points = []

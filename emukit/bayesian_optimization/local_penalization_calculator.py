@@ -1,8 +1,9 @@
 import numpy as np
 import scipy.optimize
+from typing import Optional
 
 from ..core import ParameterSpace
-from ..core.acquisition import Acquisition
+from ..core.acquisition import Acquisition, IntegratedHyperParameterAcquisition
 from ..core.interfaces import IDifferentiable
 from ..core.loop import CandidatePointCalculator, LoopState
 from ..bayesian_optimization.acquisitions.local_penalization import LocalPenalization
@@ -21,7 +22,8 @@ class LocalPenalizationPointCalculator(CandidatePointCalculator):
     """
 
     def __init__(self, acquisition: Acquisition, acquisition_optimizer: AcquisitionOptimizerBase,
-                 model: IDifferentiable, parameter_space: ParameterSpace, batch_size: int):
+                 model: IDifferentiable, parameter_space: ParameterSpace, batch_size: int, 
+                 fixed_lipschitz_constant: Optional[float] = None, fixed_minimum: Optional[float] = None):
         """
         :param acquisition: Base acquisition function to use without any penalization applied, this acquisition should
                             output positive values only.
@@ -29,6 +31,8 @@ class LocalPenalizationPointCalculator(CandidatePointCalculator):
         :param model: Model object, used to compute the parameters of the local penalization
         :param parameter_space: Parameter space describing input domain
         :param batch_size: Number of points to collect in each batch
+        :param fixed_lipschitz_constant: User-specified Lipschitz constant, which controls influence of local penalization
+        :param fixed_minimum: User-specified minimum output, which specifies origin of penalization cones
         """
         if not isinstance(model, IDifferentiable):
             raise ValueError('Model must implement ' + str(IDifferentiable) +
@@ -39,8 +43,10 @@ class LocalPenalizationPointCalculator(CandidatePointCalculator):
         self.batch_size = batch_size
         self.model = model
         self.parameter_space = parameter_space
+        self.fixed_lipschitz_constant = fixed_lipschitz_constant
+        self.fixed_minimum = fixed_minimum
 
-    def compute_next_points(self, loop_state: LoopState, context: dict=None) -> np.ndarray:
+    def compute_next_points(self, loop_state: LoopState, context: dict = None) -> np.ndarray:
         """
         Computes a batch of points using local penalization.
 
@@ -51,21 +57,29 @@ class LocalPenalizationPointCalculator(CandidatePointCalculator):
         self.acquisition.update_parameters()
 
         # Initialize local penalization acquisition
-        local_penalization_acquisition = LocalPenalization(self.model)
+        local_penalization_acquisition = IntegratedHyperParameterAcquisition(self.model, LocalPenalization)
 
         # Everything done in log space so addition here is same as multiplying acquisition with local penalization
         # function.
         acquisition = self.acquisition + local_penalization_acquisition
 
         x_batch = []
-        for i in range(self.batch_size):
+        y_batch = []
+        for _ in range(self.batch_size):
             # Collect point
-            x_next, _ = self.acquisition_optimizer.optimize(acquisition, context)
+            x_next, y_next = self.acquisition_optimizer.optimize(acquisition, context)
             x_batch.append(x_next)
+            y_batch.append(y_next)
 
             # Update local penalization acquisition with x_next
-            f_min = np.min(self.model.Y)
-            lipschitz_constant = _estimate_lipschitz_constant(self.parameter_space, self.model)
+            if self.fixed_minimum is None:
+                f_min = np.min(np.append(self.model.Y, np.array(y_batch)))
+            else:
+                f_min = self.fixed_minimum
+            if self.fixed_lipschitz_constant is None:
+                lipschitz_constant = _estimate_lipschitz_constant(self.parameter_space, self.model)
+            else:
+                lipschitz_constant = self.fixed_lipschitz_constant
             local_penalization_acquisition.update_batches(np.concatenate(x_batch, axis=0), lipschitz_constant, f_min)
         return np.concatenate(x_batch, axis=0)
 
