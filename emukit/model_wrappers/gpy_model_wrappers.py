@@ -329,7 +329,7 @@ class GPyMultiOutputWrapper(IModel, IDifferentiable, ICalculateVarianceReduction
                    argument to the posterior covariance function.
         :return: An array of shape n_points x 1 of posterior covariances between X1 and X2
         """
-        return self.gpy_model.posterior_covariance_between_points(X1, X2, include_lik)
+        return self.gpy_model.posterior_covariance_between_points(X1, X2, include_likelihood=False)
 
     def generate_hyperparameters_samples(self, n_samples = 10, n_burnin = 5, subsample_interval = 1,
                                          step_size = 1e-1, leapfrog_steps = 1) -> None:
