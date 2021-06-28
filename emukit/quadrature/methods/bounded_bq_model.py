@@ -142,20 +142,3 @@ class BoundedBayesianQuadratureModel(WarpedBayesianQuadratureModel):
             d_mean_dx *= -1.
 
         return d_mean_dx, d_var_dx
-
-    def update_parameters(self, X: np.ndarray, Y: np.ndarray) -> None:
-        """Update parameters.
-
-        :param X: Observation locations, shape (num_points, input_dim)
-        :param Y: Values of observations, shape (num_points, 1)
-        """
-        pass
-
-    @staticmethod
-    def _symmetrize(A: np.ndarray) -> np.ndarray:
-        """Symmetrize a matrix.
-
-        :param A: A square matrix, shape (N, N)
-        :return: The symmetrized matrix 0.5 (A + A').
-        """
-        return 0.5 * (A + A.T)

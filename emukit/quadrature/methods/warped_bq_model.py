@@ -111,17 +111,19 @@ class WarpedBayesianQuadratureModel(IModel):
         :param X: Observation locations, shape (n_points, input_dim)
         :param Y: Integrand observations at X, shape (n_points, 1)
         """
-        self.update_parameters(X, Y)
+        self._warping.update_parameters(**self.compute_warping_params(X, Y))
         self.base_gp.set_data(X, self._warping.inverse_transform(Y))
 
-    def update_parameters(self, X: np.ndarray, Y: np.ndarray) -> None:
-        """Update parameters of the model that are not being optimized. Override this method on case parameters
-        are data dependent.
+    def compute_warping_params(self, X: np.ndarray, Y: np.ndarray) -> dict:
+        """Compute parameters of the warping that are dependent on data, and that are not being optimized.
+        Override this method on case parameters are data dependent.
 
         :param X: Observation locations, shape (n_points, input_dim)
         :param Y: Integrand observations at X, shape (n_points, 1)
+
+        :returns : Dictionary containing new warping parameters. Names of parameters are the keys.
         """
-        pass
+        return {}
 
     def optimize(self) -> None:
         """Optimizes the hyperparameters of the base GP"""
@@ -133,3 +135,12 @@ class WarpedBayesianQuadratureModel(IModel):
         :returns: Estimator of integral and its variance.
         """
         raise NotImplemented
+
+    @staticmethod
+    def _symmetrize(A: np.ndarray) -> np.ndarray:
+        """Symmetrize a matrix.
+
+        :param A: A square matrix, shape (N, N)
+        :return: The symmetrized matrix 0.5 (A + A').
+        """
+        return 0.5 * (A + A.T)

@@ -22,8 +22,9 @@ class Warping:
         raise NotImplemented
 
     def update_parameters(self, **kwargs) -> None:
-        """Update the warping parameters."""
-        pass
+        """Update the warping parameters. The kwargs contain the parameter names as keys with the new values.
+        An empty dictionary will not update any parameters."""
+        self.__dict__.update(kwargs)
 
 
 class IdentityWarping(Warping):
@@ -77,11 +78,3 @@ class SquareRootWarping(Warping):
             return np.sqrt(2. * (self.offset - Y))
         else:
             return np.sqrt(2. * (Y - self.offset))
-
-    def update_parameters(self, offset: Optional[float]=None) -> None:
-        """Update the :attr:`self.offset` if parameter is given.
-
-        :param offset: The new value of :attr:`self.offset`.
-        """
-        if offset is not None:
-            self.offset = offset

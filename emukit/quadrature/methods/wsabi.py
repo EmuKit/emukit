@@ -54,10 +54,13 @@ class WSABIL(BoundedBayesianQuadratureModel):
             return 0.8 * min(Y)[0]
         return self._small_alpha
 
-    def update_parameters(self, X: np.ndarray, Y: np.ndarray) -> None:
-        """Compute and set the offset :math:`\alpha` in the warping.
+    def compute_warping_params(self, X: np.ndarray, Y: np.ndarray) -> dict:
+        """CCompute parameters of the warping that are dependent on data, and that are not being optimized.
 
-        :param X: observation locations, shape (num_points, input_dim)
-        :param Y: values of observations, shape (num_points, 1)
+        :param X: Observation locations, shape (n_points, input_dim)
+        :param Y: Integrand observations at X, shape (n_points, 1)
+
+        :returns : Dictionary containing new warping parameters. Names of parameters are the keys.
         """
-        self._warping.update_parameters(offset=self._compute_alpha(X, Y))
+        new_offset = self._compute_alpha(X, Y)
+        return {"offset": new_offset}
