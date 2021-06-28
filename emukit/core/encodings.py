@@ -68,7 +68,7 @@ class Encoding(object):
         idx = (np.linalg.norm(self.encodings - x_row, axis=1)).argmin()
         return self.encodings[idx].copy()
 
-    def get_category(self, encoding: Union[List, np.ndarray]) -> str:
+    def get_category(self, encoding: Union[List, np.ndarray], raise_error = True) -> str:
         """
         Gets the category corresponding to the encoding.
 
@@ -78,7 +78,10 @@ class Encoding(object):
 
         indices = np.where(np.all(self.encodings == np.array(encoding), axis=1))
         if len(indices) == 0 or indices[0].size == 0:
-            raise ValueError("Given encoding {} does not correspond to any category".format(encoding))
+            if raise_error:
+                raise ValueError("Given encoding {} does not correspond to any category".format(encoding))
+            else:
+                return "Not identified category"
 
         category_idx = indices[0][0]
         return self.categories[category_idx]
@@ -99,7 +102,7 @@ class Encoding(object):
 
 
 class OneHotEncoding(Encoding):
-    def __init__(self, categories: List):
+    def __init__(self, categories: Union[List, np.ndarray]):
         """
         Initializes an instance of OneHotEncoding class
         and generates one hot encodings for given categories.
@@ -116,7 +119,7 @@ class OneHotEncoding(Encoding):
             e[i] = 1
             encodings.append(e)
 
-        super(OneHotEncoding, self).__init__(categories, encodings)
+        super(OneHotEncoding, self).__init__(list(categories), encodings)
 
     def round_row(self, x_row):
         """

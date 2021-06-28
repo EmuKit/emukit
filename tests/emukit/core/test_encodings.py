@@ -18,7 +18,7 @@ def test_one_hot_encoding(categories):
     assert encoding.get_encoding('three') == [0, 0, 1]
 
     with pytest.raises(ValueError):
-        encoding.get_category([1, 1, 0])
+        encoding.get_category([1, 1, 0], raise_error = True)
 
     with pytest.raises(ValueError):
         encoding.get_encoding("four")
