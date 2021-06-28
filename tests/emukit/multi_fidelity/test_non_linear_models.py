@@ -171,7 +171,7 @@ class TestNonLinearModel:
 
         def wrap_gradients(x):
             x_full = np.concatenate([x[None, :], [[2]]], axis=1)
-            return non_linear_model.get_prediction_gradients(x_full)[0]
+            return non_linear_model.get_prediction_gradients(x_full)[0].flatten()
         assert np.all(check_grad(wrap_func, wrap_gradients, x0) < 1e-6)
 
     def test_non_linear_model_variance_gradient(self, non_linear_model):
@@ -190,7 +190,7 @@ class TestNonLinearModel:
 
         def wrap_gradients(x):
             x_full = np.concatenate([x[None, :], [[2]]], axis=1)
-            return non_linear_model.get_prediction_gradients(x_full)[1]
+            return non_linear_model.get_prediction_gradients(x_full)[1].flatten()
 
         assert np.all(check_grad(wrap_func, wrap_gradients, x0) < 1e-6)
 
