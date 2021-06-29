@@ -22,7 +22,7 @@ class LocalPenalizationPointCalculator(CandidatePointCalculator):
     """
 
     def __init__(self, acquisition: Acquisition, acquisition_optimizer: AcquisitionOptimizerBase,
-                 model: IDifferentiable, parameter_space: ParameterSpace, batch_size: int, 
+                 model: IDifferentiable, parameter_space: ParameterSpace, batch_size: int,
                  fixed_lipschitz_constant: Optional[float] = None, fixed_minimum: Optional[float] = None):
         """
         :param acquisition: Base acquisition function to use without any penalization applied, this acquisition should
@@ -46,7 +46,7 @@ class LocalPenalizationPointCalculator(CandidatePointCalculator):
         self.fixed_lipschitz_constant = fixed_lipschitz_constant
         self.fixed_minimum = fixed_minimum
 
-    def compute_next_points(self, loop_state: LoopState, context: dict = None) -> np.ndarray:
+    def compute_next_points(self, loop_state: LoopState, context: dict=None) -> np.ndarray:
         """
         Computes a batch of points using local penalization.
 
@@ -76,6 +76,7 @@ class LocalPenalizationPointCalculator(CandidatePointCalculator):
                 f_min = np.min(np.append(self.model.Y, np.array(y_batch)))
             else:
                 f_min = self.fixed_minimum
+
             if self.fixed_lipschitz_constant is None:
                 lipschitz_constant = _estimate_lipschitz_constant(self.parameter_space, self.model)
             else:
