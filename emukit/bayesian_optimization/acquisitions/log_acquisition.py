@@ -17,10 +17,6 @@ class LogAcquisition(Acquisition):
         """
         self.acquisition = acquisition
 
-    @property
-    def samples(self):
-        return self.acquisition.samples
-
     def evaluate(self, x: np.ndarray) -> np.ndarray:
         """
         :param x: Input location
