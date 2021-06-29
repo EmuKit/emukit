@@ -1,6 +1,7 @@
 from typing import Union, Callable, Tuple
 
 import numpy as np
+import GPy
 
 from emukit.core.acquisition import Acquisition
 from emukit.core.interfaces import IModel, IPriorHyperparameters
@@ -33,10 +34,6 @@ class IntegratedHyperParameterAcquisition(Acquisition):
 
         acquisition = self.acquisition_generator(model)
         self._has_gradients = acquisition.has_gradients
-
-    @property
-    def samples(self):
-        return self.model.samples
 
     def evaluate(self, x: np.ndarray) -> np.ndarray:
         """
@@ -76,9 +73,30 @@ class IntegratedHyperParameterAcquisition(Acquisition):
         return acquisition_value / self.n_samples, d_acquisition_dx / self.n_samples
 
     def update_parameters(self):
-        self.model.generate_hyperparameters_samples(self.n_samples, self.n_burnin,
-                                                    self.subsample_interval,
-                                                    self.step_size, self.leapfrog_steps)
+        """
+        Generates the samples from the hyper-parameters, and sets self.samples to that.
+        :param n_samples: Number of generated samples.
+        :param n_burnin: Number of initial samples not used.
+        :param subsample_interval: Interval of subsampling from HMC samples.
+        :param step_size: Size of the gradient steps in the HMC sampler.
+        :param leapfrog_steps: Number of gradient steps before each Metropolis Hasting step.
+        """
+        gpy_model = getattr(self.model, "model", None)
+        if not isinstance(gpy_model, GPy.core.Model):
+            return
+        gpy_model.optimize(max_iters=self.model.n_restarts)
+        # Add jitter to all unfixed parameters. After optimizing the hyperparameters, the gradient of the
+        # posterior probability of the parameters wrt. the parameters will be close to 0.0, which is a poor
+        # initialization for HMC
+        unfixed_params = [param for param in gpy_model.flattened_parameters if not param.is_fixed]
+        for param in unfixed_params:
+            # Add jitter by multiplying with log-normal noise with mean 1 and standard deviation 0.01 
+            # This ensures the sign of the parameter remains the same
+            param *= np.random.lognormal(np.log(1. / np.sqrt(1.0001)), np.sqrt(np.log(1.0001)), size=param.size)
+        hmc = GPy.inference.mcmc.HMC(gpy_model, stepsize=self.step_size)
+        samples = hmc.sample(num_samples=self.n_burnin + self.n_samples * self.subsample_interval, hmc_iters=self.leapfrog_steps)
+        # A numpy array whose rows are samples of the hyper-parameters.
+        self.samples = samples[self.n_burnin::self.subsample_interval]
 
     @property
     def has_gradients(self) -> bool:
