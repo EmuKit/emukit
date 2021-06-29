@@ -20,7 +20,7 @@ class GradientAcquisitionOptimizer(AcquisitionOptimizerBase):
     """ Optimizes the acquisition function using a quasi-Newton method (L-BFGS).
     Can be used for continuous acquisition functions.
     """
-    def __init__(self, space: ParameterSpace, num_samples=1000, num_anchor=5) -> None:
+    def __init__(self, space: ParameterSpace, num_samples=1000, num_anchor=1) -> None:
         """
         :param space: The parameter space spanning the search problem.
         """
