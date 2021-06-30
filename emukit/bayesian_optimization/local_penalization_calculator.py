@@ -1,3 +1,4 @@
+from emukit.core.interfaces.models import IPriorHyperparameters
 import numpy as np
 import scipy.optimize
 from typing import Optional
@@ -57,7 +58,10 @@ class LocalPenalizationPointCalculator(CandidatePointCalculator):
         self.acquisition.update_parameters()
 
         # Initialize local penalization acquisition
-        local_penalization_acquisition = IntegratedHyperParameterAcquisition(self.model, LocalPenalization)
+        if isinstance(self.model, IPriorHyperparameters):
+            local_penalization_acquisition = IntegratedHyperParameterAcquisition(self.model, LocalPenalization)
+        else:
+            local_penalization_acquisition = LocalPenalization(self.model)
 
         # Everything done in log space so addition here is same as multiplying acquisition with local penalization
         # function.
