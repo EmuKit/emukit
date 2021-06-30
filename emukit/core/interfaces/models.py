@@ -74,9 +74,9 @@ class IJointlyDifferentiable:
 
 class IPriorHyperparameters:
     def generate_hyperparameters_samples(self, n_samples: int, n_burnin: int,
-                                         subsample_interval: int, step_size: float, leapfrog_steps: int) -> None:
+                                         subsample_interval: int, step_size: float, leapfrog_steps: int) -> np.ndarray:
         """
-        Generates the samples from the hyper-parameters of the model, and sets self.samples to that
+        Generates the samples from the hyper-parameters of the model, and returns them.
 
         :param n_samples: Number of hyper-parameter samples
         :param n_burnin: Number of initial samples not used.

@@ -25,7 +25,6 @@ class GPyModelWrapper(
         """
         self.model = gpy_model
         self.n_restarts = n_restarts
-        self.samples: Optional[np.narray] = None
 
     def predict(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
@@ -132,6 +131,31 @@ class GPyModelWrapper(
         :return: An array of shape n_points x 1 containing training outputs
         """
         return self.model.Y
+
+    def generate_hyperparameters_samples(self, n_samples=20, n_burnin=100, subsample_interval=10,
+                                         step_size=1e-1, leapfrog_steps=20) -> np.ndarray:
+        """
+        Generates the samples from the hyper-parameters and returns them.
+        :param n_samples: Number of generated samples.
+        :param n_burnin: Number of initial samples not used.
+        :param subsample_interval: Interval of subsampling from HMC samples.
+        :param step_size: Size of the gradient steps in the HMC sampler.
+        :param leapfrog_steps: Number of gradient steps before each Metropolis Hasting step.
+        :return: A numpy array whose rows are samples of the hyper-parameters.
+
+        """
+        self.model.optimize(max_iters=self.n_restarts)
+        # Add jitter to all unfixed parameters. After optimizing the hyperparameters, the gradient of the
+        # posterior probability of the parameters wrt. the parameters will be close to 0.0, which is a poor
+        # initialization for HMC
+        unfixed_params = [param for param in self.model.flattened_parameters if not param.is_fixed]
+        for param in unfixed_params:
+            # Add jitter by multiplying with log-normal noise with mean 1 and standard deviation 0.01 
+            # This ensures the sign of the parameter remains the same
+            param *= np.random.lognormal(np.log(1. / np.sqrt(1.0001)), np.sqrt(np.log(1.0001)), size=param.size)
+        hmc = GPy.inference.mcmc.HMC(self.model, stepsize=step_size)
+        samples = hmc.sample(num_samples=n_burnin + n_samples * subsample_interval, hmc_iters=leapfrog_steps)
+        return samples[n_burnin::subsample_interval]
 
     def fix_model_hyperparameters(self, sample_hyperparameters: np.ndarray) -> None:
         """
@@ -307,9 +331,9 @@ class GPyMultiOutputWrapper(IModel, IDifferentiable, ICalculateVarianceReduction
         return self.gpy_model.posterior_covariance_between_points(X1, X2, include_likelihood=False)
 
     def generate_hyperparameters_samples(self, n_samples = 10, n_burnin = 5, subsample_interval = 1,
-                                         step_size = 1e-1, leapfrog_steps = 1) -> None:
+                                         step_size = 1e-1, leapfrog_steps = 1) -> np.ndarray:
         """
-        Generates the samples from the hyper-parameters, and sets self.samples to that (a numpy array whose rows are
+        Generates the samples from the hyper-parameters, and returns them (a numpy array whose rows are
         samples of the hyper-parameters).
         :param n_samples: Number of generated samples.
         :param n_burnin: Number of initial samples not used.
@@ -321,7 +345,7 @@ class GPyMultiOutputWrapper(IModel, IDifferentiable, ICalculateVarianceReduction
         self.gpy_model.param_array[:] = self.gpy_model.param_array * (1.+np.random.randn(self.gpy_model.param_array.size)*0.01)
         hmc = GPy.inference.mcmc.HMC(self.gpy_model, stepsize = step_size)
         samples = hmc.sample(num_samples = n_burnin + n_samples * subsample_interval, hmc_iters = leapfrog_steps)
-        self.samples = samples[n_burnin::subsample_interval]
+        return samples[n_burnin::subsample_interval]
 
     def fix_model_hyperparameters(self, sample_hyperparameters: np.ndarray) -> None:
         """
