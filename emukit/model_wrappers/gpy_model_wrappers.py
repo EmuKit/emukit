@@ -107,11 +107,11 @@ class GPyModelWrapper(
 
     def get_covariance_between_points(self, X1: np.ndarray, X2: np.ndarray) -> np.ndarray:
         """
-        Calculate posterior covariance between two points
-        :param X1: An array of shape n_points1 x n_dimensions that contains a data single point. It is the first argument of the
-                   posterior covariance function
-        :param X2: An array of shape n_points2 x n_dimensions that may contain multiple data points. This is the second
-                   argument to the posterior covariance function.
+        Calculate posterior covariance between two sets of points.
+        :param X1: An array of shape n_points1 x n_dimensions. This is the first argument of the
+                   posterior covariance function.
+        :param X2: An array of shape n_points2 x n_dimensions. This is the second argument of the
+                   posterior covariance function.
         :return: An array of shape n_points1 x n_points2 of posterior covariances between X1 and X2.
             Namely, [i, j]-th entry of the returned array will represent the posterior covariance
             between i-th point in X1 and j-th point in X2.
