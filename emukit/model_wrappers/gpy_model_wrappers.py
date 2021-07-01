@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import Tuple
+from typing import Tuple, Optional
 
 import numpy as np
 import GPy
@@ -33,6 +33,13 @@ class GPyModelWrapper(
         """
         return self.model.predict(X)
 
+    def predict_noiseless(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        :param X: (n_points x n_dimensions) array containing locations at which to get predictions
+        :return: (mean, variance) Arrays of size n_points x 1 of the predictive distribution at each input location
+        """
+        return self.model.predict(X, include_likelihood=False)
+
     def predict_with_full_covariance(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
         :param X: (n_points x n_dimensions) array containing locations at which to get predictions
@@ -40,13 +47,6 @@ class GPyModelWrapper(
                  mean and variance at each input location
         """
         return self.model.predict(X, full_cov=True)
-
-    def predict_noiseless(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-        """
-        :param X: (n_points x n_dimensions) array containing locations at which to get predictions
-        :return: (mean, variance) Arrays of size n_points x 1 of the predictive distribution at each input location
-        """
-        return self.model.predict(X, include_likelihood=False)
 
     def get_prediction_gradients(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
@@ -79,11 +79,11 @@ class GPyModelWrapper(
         """
         self.model.set_XY(X, Y)
 
-    def optimize(self):
+    def optimize(self, verbose=False):
         """
         Optimizes model hyper-parameters
         """
-        self.model.optimize_restarts(self.n_restarts, robust=True)
+        self.model.optimize_restarts(self.n_restarts, verbose=verbose, robust=True)
 
     def calculate_variance_reduction(self, x_train_new: np.ndarray, x_test: np.ndarray) -> np.ndarray:
         """
@@ -107,11 +107,11 @@ class GPyModelWrapper(
 
     def get_covariance_between_points(self, X1: np.ndarray, X2: np.ndarray) -> np.ndarray:
         """
-        Calculate posterior covariance between two points
-        :param X1: An array of shape n_points1 x n_dimensions. It is the first argument of the
-                   posterior covariance function
-        :param X2: An array of shape n_points2 x n_dimensions. This is the second
-                   argument to the posterior covariance function.
+        Calculate posterior covariance between two sets of points.
+        :param X1: An array of shape n_points1 x n_dimensions. This is the first argument of the
+                   posterior covariance function.
+        :param X2: An array of shape n_points2 x n_dimensions. This is the second argument of the
+                   posterior covariance function.
         :return: An array of shape n_points1 x n_points2 of posterior covariances between X1 and X2.
             Namely, [i, j]-th entry of the returned array will represent the posterior covariance
             between i-th point in X1 and j-th point in X2.
@@ -133,11 +133,11 @@ class GPyModelWrapper(
         return self.model.Y
 
     def generate_hyperparameters_samples(self, n_samples=20, n_burnin=100, subsample_interval=10,
-                                         step_size=1e-1, leapfrog_steps=20) -> None:
+                                         step_size=1e-1, leapfrog_steps=20) -> np.ndarray:
         """
-        Generates the samples from the hyper-parameters
+        Generates the samples from the hyper-parameters and returns them.
         :param n_samples: Number of generated samples.
-        :param n_burning: Number of initial samples not used.
+        :param n_burnin: Number of initial samples not used.
         :param subsample_interval: Interval of subsampling from HMC samples.
         :param step_size: Size of the gradient steps in the HMC sampler.
         :param leapfrog_steps: Number of gradient steps before each Metropolis Hasting step.
@@ -155,9 +155,7 @@ class GPyModelWrapper(
             param *= np.random.lognormal(np.log(1. / np.sqrt(1.0001)), np.sqrt(np.log(1.0001)), size=param.size)
         hmc = GPy.inference.mcmc.HMC(self.model, stepsize=step_size)
         samples = hmc.sample(num_samples=n_burnin + n_samples * subsample_interval, hmc_iters=leapfrog_steps)
-        hmc_samples = samples[n_burnin::subsample_interval]
-
-        return hmc_samples
+        return samples[n_burnin::subsample_interval]
 
     def fix_model_hyperparameters(self, sample_hyperparameters: np.ndarray) -> None:
         """
@@ -206,10 +204,10 @@ def dmean(x_predict: np.ndarray, x_train: np.ndarray, kern: GPy.kern, w_vec: np.
     """
     Compute the derivative of the posterior mean with respect to prediction input
 
-    :param x: Prediction inputs of shape (q, d)
-    :param X: Training inputs of shape (n, d)
+    :param x_predict: Prediction inputs of shape (q, d)
+    :param x_train: Training inputs of shape (n, d)
     :param kern: Covariance of the GP model
-    :param w_inv: Woodbury vector of the posterior fit of the GP
+    :param w_vec: Woodbury vector of the posterior fit of the GP
     :return: Gradient of the posterior mean of shape (q, q, d)
     """
     q, d, n = x_predict.shape[0], x_predict.shape[1], x_train.shape[0]
@@ -220,6 +218,7 @@ def dmean(x_predict: np.ndarray, x_train: np.ndarray, kern: GPy.kern, w_vec: np.
         for j in range(q):
             dmu[j, j, i] = (dkxX_dx[j, :, i][None, :] @ w_vec[:, None]).flatten()
     return dmu
+
 
 class GPyMultiOutputWrapper(IModel, IDifferentiable, ICalculateVarianceReduction, IEntropySearchModel):
     """
@@ -239,6 +238,7 @@ class GPyMultiOutputWrapper(IModel, IDifferentiable, ICalculateVarianceReduction
         self.n_optimization_restarts = n_optimization_restarts
         self.n_outputs = n_outputs
         self.verbose_optimization = verbose_optimization
+        self.samples: Optional[np.ndarray] = None
 
     def calculate_variance_reduction(self, x_train_new: np.ndarray, x_test: np.ndarray) -> np.ndarray:
         """
@@ -330,24 +330,22 @@ class GPyMultiOutputWrapper(IModel, IDifferentiable, ICalculateVarianceReduction
         """
         return self.gpy_model.posterior_covariance_between_points(X1, X2, include_likelihood=False)
 
-    def generate_hyperparameters_samples(self, n_samples = 10, n_burnin = 5, subsample_interval  = 1,
-                                         step_size = 1e-1, leapfrog_steps = 1) -> None:
+    def generate_hyperparameters_samples(self, n_samples = 10, n_burnin = 5, subsample_interval = 1,
+                                         step_size = 1e-1, leapfrog_steps = 1) -> np.ndarray:
         """
-        Generates the samples from the hyper-parameters
+        Generates the samples from the hyper-parameters, and returns them (a numpy array whose rows are
+        samples of the hyper-parameters).
         :param n_samples: Number of generated samples.
-        :param n_burning: Number of initial samples not used.
+        :param n_burnin: Number of initial samples not used.
         :param subsample_interval: Interval of subsampling from HMC samples.
         :param step_size: Size of the gradient steps in the HMC sampler.
         :param leapfrog_steps: Number of gradient steps before each Metropolis Hasting step.
-        :return: A numpy array whose rows are samples of the hyper-parameters.
-
         """
         self.gpy_model.optimize(max_iters=self.n_optimization_restarts)
         self.gpy_model.param_array[:] = self.gpy_model.param_array * (1.+np.random.randn(self.gpy_model.param_array.size)*0.01)
         hmc = GPy.inference.mcmc.HMC(self.gpy_model, stepsize = step_size)
         samples = hmc.sample(num_samples = n_burnin + n_samples * subsample_interval, hmc_iters = leapfrog_steps)
-        hmc_samples = samples[n_burnin::subsample_interval]
-        return hmc_samples
+        return samples[n_burnin::subsample_interval]
 
     def fix_model_hyperparameters(self, sample_hyperparameters: np.ndarray) -> None:
         """
