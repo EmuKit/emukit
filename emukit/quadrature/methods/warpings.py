@@ -1,29 +1,33 @@
+import abc
 import numpy as np
 from typing import Optional
 
 
-class Warping:
+class Warping(abc.ABC):
     """The warping for warped Bayesian quadrature."""
 
+    @abc.abstractmethod
     def transform(self, Y: np.ndarray) -> np.ndarray:
         """Transform from base-GP to integrand.
 
         :param Y: Function values of latent function, shape (n_points, 1).
         :return: Transformed values, shape (n_points, 1).
         """
-        raise NotImplemented
+        pass
 
+    @abc.abstractmethod
     def inverse_transform(self, Y: np.ndarray) -> np.ndarray:
         """Transform from integrand to base-GP.
 
         :param Y: Function values of integrand, shape (n_points, 1).
         :return: Transformed values, shape (n_points, 1).
         """
-        raise NotImplemented
-
-    def update_parameters(self, **kwargs) -> None:
-        """Update the warping parameters."""
         pass
+
+    def update_parameters(self, **new_parameters) -> None:
+        """Update the warping parameters. The keyword arguments ``new_parameters`` contain the parameter names as
+        keys with the new values. An empty dictionary will not update any parameters."""
+        self.__dict__.update(new_parameters)
 
 
 class IdentityWarping(Warping):
@@ -77,11 +81,3 @@ class SquareRootWarping(Warping):
             return np.sqrt(2. * (self.offset - Y))
         else:
             return np.sqrt(2. * (Y - self.offset))
-
-    def update_parameters(self, offset: Optional[float]=None) -> None:
-        """Update the :attr:`self.offset` if parameter is given.
-
-        :param offset: The new value of :attr:`self.offset`.
-        """
-        if offset is not None:
-            self.offset = offset
