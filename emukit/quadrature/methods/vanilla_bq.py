@@ -55,10 +55,10 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel):
         integral_var = self.base_gp.kern.qKq() - (kernel_mean_X @ self.base_gp.solve_linear(kernel_mean_X.T))[0, 0]
         return integral_mean, integral_var
 
-    def get_prediction_gradients(self, x: np.ndarray) -> Tuple:
+    def get_prediction_gradients(self, X: np.ndarray) -> Tuple:
         """Compute predictive gradients of mean and variance at given points.
 
-        :param x: Points to compute gradients at, shape (n_points, input_dim).
+        :param X: Points to compute gradients at, shape (n_points, input_dim).
         :returns: Tuple of gradients of mean and variance, shapes of both (n_points, input_dim).
         """
-        return self.base_gp.get_prediction_gradients(x)
+        return self.base_gp.get_prediction_gradients(X)
