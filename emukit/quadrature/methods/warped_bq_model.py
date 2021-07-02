@@ -5,14 +5,14 @@
 import numpy as np
 from typing import Tuple, Union
 
-from ...core.interfaces.models import IModel
+from ...core.interfaces.models import IModel, IDifferentiable
 from ...quadrature.interfaces.base_gp import IBaseGaussianProcess
 from ...quadrature.kernels.bounds import BoxBounds
 from ...quadrature.kernels.integration_measures import IntegrationMeasure
 from .warpings import Warping
 
 
-class WarpedBayesianQuadratureModel(IModel):
+class WarpedBayesianQuadratureModel(IModel, IDifferentiable):
     """The general class for Bayesian quadrature (BQ) with a warped Gaussian process.
 
     Inference is performed with the warped GP, but the integral is computed on a Gaussian approximation.
@@ -120,7 +120,6 @@ class WarpedBayesianQuadratureModel(IModel):
 
         :param X: Observation locations, shape (n_points, input_dim)
         :param Y: Integrand observations at X, shape (n_points, 1)
-
         :returns : Dictionary containing new warping parameters. Names of parameters are the keys.
         """
         return {}

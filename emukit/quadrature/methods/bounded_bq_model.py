@@ -119,17 +119,9 @@ class BoundedBayesianQuadratureModel(WarpedBayesianQuadratureModel):
         :param X: Points to compute gradients at, shape (num_points, input_dim)
         :returns: Tuple of gradients of mean and variance, shapes of both (num_points, input_dim)
         """
-        # prediction of base model
+        # predictions and gradients of base model
         mean_base, var_base = self.base_gp.predict(X)
-
-        # gradient of mean of base model
-        d_mean_dx_base = (self.base_gp.kern.dK_dx1(X, self.X) @ self.base_gp.graminv_residual())[:, :, 0].T
-
-        # gradient of variance of base model
-        dKdiag_dx = self.base_gp.kern.dKdiag_dx(X)
-        dKxX_dx1 = self.base_gp.kern.dK_dx1(X, self.X)
-        graminv_KXx = self.base_gp.solve_linear(self.base_gp.kern.K(self.base_gp.X, X))
-        d_var_dx_base = dKdiag_dx - 2. * (dKxX_dx1 * np.transpose(graminv_KXx)).sum(axis=2, keepdims=False)
+        d_mean_dx_base, d_var_dx_base = self.base_gp.get_prediction_gradients(X)
 
         # gradient of mean
         d_mean_dx = (self.base_gp.kern.dK_dx1(X, self.X) @ self.base_gp.graminv_residual())[:, :, 0].T

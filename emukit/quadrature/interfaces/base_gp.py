@@ -5,16 +5,17 @@
 import numpy as np
 from typing import Tuple
 
-from ...core.interfaces import IModel
+from ...core.interfaces import IModel, IDifferentiable
 from ..kernels.quadrature_kernels import QuadratureKernel
 
 
-class IBaseGaussianProcess(IModel):
-    """
-    Interface for the quadrature base-GP model
-    An instance of this can be passed as 'base_gp' to an ApproximateWarpedGPSurrogate object.
+class IBaseGaussianProcess(IModel, IDifferentiable):
+    """Interface for the quadrature base-GP model
 
-    If this GP is initialized with data, use the raw evaluations Y of the integrand and not transformed values.
+    An instance of this can be passed as 'base_gp' to an
+    :class:`emukit.quadrature.methods.warped_bq_model.WarpedBayesianQuadratureModel` instance.
+
+    If this GP is initialized with data, use the raw evaluations Y of the integrand and not the transformed values.
     """
 
     def __init__(self, kern: QuadratureKernel) -> None:
@@ -67,3 +68,20 @@ class IBaseGaussianProcess(IModel):
         :return: the inverse Gram matrix multiplied with the mean-corrected data with shape: (number of datapoints, 1)
         """
         raise NotImplementedError
+
+    def get_prediction_gradients(self, X: np.ndarray) -> Tuple:
+        """Compute predictive gradients of mean and variance at given points.
+
+        :param X: Points to compute gradients at, shape (n_points, input_dim).
+        :returns: Tuple of gradients of mean and variance, shapes of both (n_points, input_dim).
+        """
+        # gradient of mean
+        d_mean_dx = (self.kern.dK_dx1(X, self.X) @ self.graminv_residual())[:, :, 0].T
+
+        # gradient of variance
+        dKdiag_dx = self.kern.dKdiag_dx(X)
+        dKxX_dx1 = self.kern.dK_dx1(X, self.X)
+        graminv_KXx = self.solve_linear(self.kern.K(self.X, X))
+        d_var_dx = dKdiag_dx - 2. * (dKxX_dx1 * np.transpose(graminv_KXx)).sum(axis=2, keepdims=False)
+
+        return d_mean_dx, d_var_dx.T

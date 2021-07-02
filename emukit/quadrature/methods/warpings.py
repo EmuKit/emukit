@@ -1,30 +1,33 @@
+import abc
 import numpy as np
 from typing import Optional
 
 
-class Warping:
+class Warping(abc.ABC):
     """The warping for warped Bayesian quadrature."""
 
+    @abc.abstractmethod
     def transform(self, Y: np.ndarray) -> np.ndarray:
         """Transform from base-GP to integrand.
 
         :param Y: Function values of latent function, shape (n_points, 1).
         :return: Transformed values, shape (n_points, 1).
         """
-        raise NotImplemented
+        pass
 
+    @abc.abstractmethod
     def inverse_transform(self, Y: np.ndarray) -> np.ndarray:
         """Transform from integrand to base-GP.
 
         :param Y: Function values of integrand, shape (n_points, 1).
         :return: Transformed values, shape (n_points, 1).
         """
-        raise NotImplemented
+        pass
 
-    def update_parameters(self, **kwargs) -> None:
-        """Update the warping parameters. The kwargs contain the parameter names as keys with the new values.
-        An empty dictionary will not update any parameters."""
-        self.__dict__.update(kwargs)
+    def update_parameters(self, **new_parameters) -> None:
+        """Update the warping parameters. The keyword arguments ``new_parameters`` contain the parameter names as
+        keys with the new values. An empty dictionary will not update any parameters."""
+        self.__dict__.update(new_parameters)
 
 
 class IdentityWarping(Warping):

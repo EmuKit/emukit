@@ -6,12 +6,11 @@ import numpy as np
 from typing import Tuple
 
 from ...quadrature.interfaces.base_gp import IBaseGaussianProcess
-from ...core.interfaces.models import IDifferentiable
 from .warped_bq_model import WarpedBayesianQuadratureModel
 from .warpings import IdentityWarping
 
 
-class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel, IDifferentiable):
+class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel):
     """Vanilla Bayesian quadrature.
 
     Vanilla Bayesian quadrature uses a Gaussian process as surrogate for the integrand.
@@ -56,19 +55,10 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel, IDifferentiable):
         integral_var = self.base_gp.kern.qKq() - (kernel_mean_X @ self.base_gp.solve_linear(kernel_mean_X.T))[0, 0]
         return integral_mean, integral_var
 
-    def get_prediction_gradients(self, X: np.ndarray) -> Tuple:
+    def get_prediction_gradients(self, x: np.ndarray) -> Tuple:
         """Compute predictive gradients of mean and variance at given points.
 
-        :param X: Points to compute gradients at, shape (n_points, input_dim).
+        :param x: Points to compute gradients at, shape (n_points, input_dim).
         :returns: Tuple of gradients of mean and variance, shapes of both (n_points, input_dim).
         """
-        # gradient of mean
-        d_mean_dx = (self.base_gp.kern.dK_dx1(X, self.X) @ self.base_gp.graminv_residual())[:, :, 0].T
-
-        # gradient of variance
-        dKdiag_dx = self.base_gp.kern.dKdiag_dx(X)
-        dKxX_dx1 = self.base_gp.kern.dK_dx1(X, self.X)
-        graminv_KXx = self.base_gp.solve_linear(self.base_gp.kern.K(self.base_gp.X, X))
-        d_var_dx = dKdiag_dx - 2. * (dKxX_dx1 * np.transpose(graminv_KXx)).sum(axis=2, keepdims=False)
-
-        return d_mean_dx, d_var_dx.T
+        return self.base_gp.get_prediction_gradients(x)
