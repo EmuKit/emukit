@@ -128,7 +128,7 @@ class BoundedBayesianQuadratureModel(WarpedBayesianQuadratureModel):
         d_mean_dx = mean_base * d_mean_dx  # broadcasting  (num_points, 1) and (num_points, num_dim)
 
         # gradient of variance
-        d_var_dx = (mean_base ** 2) * d_var_dx_base.T + (2 * var_base * mean_base) * d_mean_dx_base  # broadcasting
+        d_var_dx = (mean_base ** 2) * d_var_dx_base + (2 * var_base * mean_base) * d_mean_dx_base  # broadcasting
 
         if not self.is_lower_bounded:
             d_mean_dx *= -1.
