@@ -11,8 +11,7 @@ from .integration_measures import IntegrationMeasure
 
 
 class QuadratureKernel:
-    """
-    Abstract class for covariance function of a Gaussian process than can be integrated
+    """Abstract class for covariance function of a Gaussian process that can be integrated.
 
     Note that each specific implementation of this class must go with a specific standard kernel as input which
     inherits from IStandardKernel. This is because we both want the QuadratureKernel to be backend agnostic
@@ -134,4 +133,14 @@ class QuadratureKernel:
         :param x1: N points at which to evaluate, shape = (n_points N, N, input_dim)
         :return: the gradient with shape (N, input_dim)
         """
+        raise NotImplementedError
+
+
+
+class QuadratureKernelBoundedBQ:
+    """The methods required for the quadrature kernel used by
+    :class:`emukit.quadrature.methods.bounded_bq_model.BoundedBayesianQuadratureModel` in addition to the standard
+    :class:`QuadratureKernel`."""
+
+    def qK_squared(self, X: np.ndarray) -> np.ndarray:
         raise NotImplementedError
