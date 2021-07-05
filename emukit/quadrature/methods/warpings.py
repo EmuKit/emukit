@@ -13,7 +13,7 @@ class Warping(abc.ABC):
         :param Y: Function values of latent function, shape (n_points, 1).
         :return: Transformed values, shape (n_points, 1).
         """
-        pass
+        raise NotImplementedError
 
     @abc.abstractmethod
     def inverse_transform(self, Y: np.ndarray) -> np.ndarray:
@@ -22,7 +22,7 @@ class Warping(abc.ABC):
         :param Y: Function values of integrand, shape (n_points, 1).
         :return: Transformed values, shape (n_points, 1).
         """
-        pass
+        raise NotImplementedError
 
     def update_parameters(self, **new_parameters) -> None:
         """Update the warping parameters. The keyword arguments ``new_parameters`` contain the parameter names as
