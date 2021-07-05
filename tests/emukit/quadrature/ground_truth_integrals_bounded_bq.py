@@ -7,10 +7,10 @@ from typing import List, Tuple
 from emukit.model_wrappers.gpy_quadrature_wrappers import RBFGPy, BaseGaussianProcessGPy
 from emukit.quadrature.kernels.quadrature_rbf import QuadratureRBFIsoGaussMeasure
 from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure
-from emukit.quadrature.methods import BoundedBayesianQuadratureModel, WSABIL
+from emukit.quadrature.methods import BoundedBayesianQuadrature, WSABIL
 
 
-def integral_mean_from_measure_samples(num_samples: int, model: BoundedBayesianQuadratureModel):
+def integral_mean_from_measure_samples(num_samples: int, model: BoundedBayesianQuadrature):
     samples = model.measure.get_samples(num_samples=num_samples)
     mean_at_samples, _ = model.predict(samples)
     return np.mean(mean_at_samples)
@@ -41,14 +41,14 @@ if __name__ == "__main__":
     # the emukit bounded BQ model
     if METHOD == 'Bounded BQ lower':
         bound = np.min(base_gp.Y) - 0.5
-        model = BoundedBayesianQuadratureModel(base_gp=base_gp, X=X, Y=Y,
-                                               bound=bound,
-                                               is_lower_bounded=True)
+        model = BoundedBayesianQuadrature(base_gp=base_gp, X=X, Y=Y,
+                                          bound=bound,
+                                          is_lower_bounded=True)
     elif METHOD == 'Bounded BQ upper':
         bound = np.max(base_gp.Y) + 0.5
-        model = BoundedBayesianQuadratureModel(base_gp=base_gp, X=X, Y=Y,
-                                               bound=bound,
-                                               is_lower_bounded=False)
+        model = BoundedBayesianQuadrature(base_gp=base_gp, X=X, Y=Y,
+                                          bound=bound,
+                                          is_lower_bounded=False)
     elif METHOD == 'WSABI-l adapt':
         model = WSABIL(base_gp=base_gp, X=base_gp.X, Y=base_gp.Y, adapt_alpha=True)
 

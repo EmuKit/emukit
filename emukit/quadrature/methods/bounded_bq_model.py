@@ -9,7 +9,7 @@ from ..kernels.quadrature_rbf import QuadratureRBFIsoGaussMeasure
 from .warpings import SquareRootWarping
 
 
-class BoundedBayesianQuadratureModel(WarpedBayesianQuadratureModel):
+class BoundedBayesianQuadrature(WarpedBayesianQuadratureModel):
     """A warped Bayesian quadrature model that is upper bounded OR lower bounded by a constant.
 
     The integrand :math:`f(x)` is modeled as :math:`f(x) = f_* + 0.5 g(x)^2` for lower bounded functions, or as
@@ -37,12 +37,12 @@ class BoundedBayesianQuadratureModel(WarpedBayesianQuadratureModel):
             raise ValueError(f"{self.__class__.__name__} can only be used with QuadratureRBFIsoGaussMeasure kernel. "
                              f"Instead {type(base_gp.kern)} is given.")
 
-        super(BoundedBayesianQuadratureModel, self).__init__(base_gp=base_gp,
-                                                             warping=SquareRootWarping(
+        super(BoundedBayesianQuadrature, self).__init__(base_gp=base_gp,
+                                                        warping=SquareRootWarping(
                                                                  offset=bound, is_inverted=not is_lower_bounded
                                                              ),
-                                                             X=X,
-                                                             Y=Y)
+                                                        X=X,
+                                                        Y=Y)
 
     @property
     def bound(self):
@@ -110,8 +110,16 @@ class BoundedBayesianQuadratureModel(WarpedBayesianQuadratureModel):
         # integral variance
         # The integral variance is not needed for the WSABI loop as WSABI uses uncertainty sampling.
         # For completeness, the integral variance will need to be implemented at a later point.
-        integral_variance = None
-        return float(integral_mean), integral_variance
+
+        # first term
+        variance_first_term = (W * self.base_gp.kern.qK_cubed).sum()  # Hadamard product
+
+        # second term
+        qKK = self.base_gp.kern.qK_squared(X)
+        variance_second_term = (weights.T @ qKK) @ (self.solve_linear(qKK.T) @ weights)
+
+        integral_variance = variance_first_term - variance_second_term
+        return float(integral_mean), float(integral_variance)
 
     def get_prediction_gradients(self, X: np.ndarray) -> Tuple:
         """Compute model gradients of predictive mean and variance at given points.
