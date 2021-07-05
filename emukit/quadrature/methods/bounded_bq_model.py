@@ -80,7 +80,7 @@ class BoundedBayesianQuadratureModel(WarpedBayesianQuadratureModel):
 
         mean_approx = self.transform(mean_base)
         cov_approx = np.outer(mean_base, mean_base) * cov_base
-        cov_approx = self._symmetrize(cov_approx)  # for numerical stability
+        cov_approx = self.symmetrize_matrix(cov_approx)  # for numerical stability
         return mean_approx, cov_approx, mean_base, cov_base
 
     def integrate(self) -> Tuple[float, float]:

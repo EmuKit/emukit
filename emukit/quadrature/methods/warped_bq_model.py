@@ -136,10 +136,12 @@ class WarpedBayesianQuadratureModel(IModel, IDifferentiable):
         raise NotImplemented
 
     @staticmethod
-    def _symmetrize(A: np.ndarray) -> np.ndarray:
+    def symmetrize_matrix(A: np.ndarray) -> np.ndarray:
         """Symmetrize a matrix.
 
+        The symmetrized matrix is defined as 0.5 (A + A').
+
         :param A: A square matrix, shape (N, N)
-        :return: The symmetrized matrix 0.5 (A + A').
+        :return: The symmetrized matrix.
         """
         return 0.5 * (A + A.T)
