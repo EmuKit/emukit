@@ -74,7 +74,7 @@ class WarpedBayesianQuadratureModel(IModel, IDifferentiable):
         :returns: Predictive mean and variances of warped GP, and predictive mean and variances of base-GP in that order
                   all shapes (n_points, 1).
         """
-        raise NotImplemented
+        raise NotImplementedError
 
     def predict_base_with_full_covariance(self, X_pred: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray,
                                                                              np.ndarray]:
@@ -84,7 +84,7 @@ class WarpedBayesianQuadratureModel(IModel, IDifferentiable):
         :returns: Predictive mean and covariance of warped GP, predictive mean and covariance of base-GP in that order.
                   mean shapes both (n_points, 1) and covariance shapes both (n_points, n_points)
         """
-        raise NotImplemented
+        raise NotImplementedError
 
     def predict_with_full_covariance(self, X_pred: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """Compute predictive means and covariance of warped GP.
@@ -133,4 +133,4 @@ class WarpedBayesianQuadratureModel(IModel, IDifferentiable):
 
         :returns: Estimator of integral and its variance.
         """
-        raise NotImplemented
+        raise NotImplementedError
