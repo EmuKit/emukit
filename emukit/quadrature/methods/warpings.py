@@ -27,8 +27,8 @@ class Warping(abc.ABC):
     def update_parameters(self, **new_parameters) -> None:
         """Update the warping parameters. The keyword arguments ``new_parameters`` contain the parameter names as
         keys with the new values. An empty dictionary will not update any parameters."""
-        for key, value in new_parameters.items():
-            setattr(self, key, value)
+        for parameter, new_value in new_parameters.items():
+            setattr(self, parameter, new_value)
 
 
 class IdentityWarping(Warping):

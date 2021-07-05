@@ -133,15 +133,15 @@ class WarpedBayesianQuadratureModel(IModel, IDifferentiable):
 
         :returns: Estimator of integral and its variance.
         """
-        raise NotImplemented
+        raise NotImplementedError
 
     @staticmethod
     def symmetrize_matrix(A: np.ndarray) -> np.ndarray:
         """Symmetrize a matrix.
 
-        The symmetrized matrix is defined as 0.5 (A + A').
+        The symmetrized matrix is computed as 0.5 (A + A.T).
 
         :param A: A square matrix, shape (N, N)
-        :return: The symmetrized matrix.
+        :return: The symmetrized matrix, shape (N, N).
         """
         return 0.5 * (A + A.T)
