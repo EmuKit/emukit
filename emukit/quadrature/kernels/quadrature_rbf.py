@@ -6,7 +6,7 @@ import numpy as np
 from scipy.special import erf
 from typing import List, Tuple, Optional
 
-from .quadrature_kernels import QuadratureKernel, QuadratureKernelBoundedBQ
+from .quadrature_kernels import QuadratureKernel
 from ...quadrature.interfaces.standard_kernels import IRBF
 from ...quadrature.kernels.integration_measures import IntegrationMeasure, IsotropicGaussianMeasure, UniformMeasure
 from ...quadrature.kernels.bounds import BoxBounds
@@ -171,7 +171,7 @@ class QuadratureRBFLebesgueMeasure(QuadratureRBF):
         return self.qK(x2) * fraction
 
 
-class QuadratureRBFIsoGaussMeasure(QuadratureRBF, QuadratureKernelBoundedBQ):
+class QuadratureRBFIsoGaussMeasure(QuadratureRBF):
     """
     Augments an RBF kernel with integrability
 
@@ -221,29 +221,6 @@ class QuadratureRBFIsoGaussMeasure(QuadratureRBF, QuadratureKernelBoundedBQ):
         qK_x = self.qK(x2)
         factor = 1. / (self.lengthscale ** 2 + self.measure.variance)
         return - (qK_x * factor) * (x2 - self.measure.mean).T
-
-
-    def qK_squared(self, X: np.ndarray) -> np.ndarray:
-        """Product of two kernel functions with first argument integrated out.
-
-         Integral: :math:`\\int k_X(x) k_X(x)^{T} p(x) dx`.
-
-        :param X: locations X, shape (n_points, input_dim).
-        :return: The integrals evaluated at X, shape (n_points, n_points).
-        """
-        # Todo: implement this
-        pass
-
-    def qK_cubed(self, X: np.ndarray) -> np.ndarray:
-        """Product of three kernel functions with first argument, second and both arguments integrated out.
-
-         Integral: :math:`\\int k_X(x) k(x, x') k_X(x')^{T} p(x)p(x')dxdx'`.
-
-        :param X: locations X, shape (n_points, input_dim).
-        :return: The integrals evaluated at X, shape (n_points, n_points).
-        """
-        # Todo: implement this
-        pass
 
 
 class QuadratureRBFUniformMeasure(QuadratureRBF):

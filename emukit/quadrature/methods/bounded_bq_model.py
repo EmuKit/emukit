@@ -110,16 +110,8 @@ class BoundedBayesianQuadrature(WarpedBayesianQuadratureModel):
         # integral variance
         # The integral variance is not needed for the WSABI loop as WSABI uses uncertainty sampling.
         # For completeness, the integral variance will need to be implemented at a later point.
-
-        # first term
-        variance_first_term = (W * self.base_gp.kern.qK_cubed).sum()  # Hadamard product
-
-        # second term
-        qKK = self.base_gp.kern.qK_squared(X)
-        variance_second_term = (weights.T @ qKK) @ (self.solve_linear(qKK.T) @ weights)
-
-        integral_variance = variance_first_term - variance_second_term
-        return float(integral_mean), float(integral_variance)
+        integral_variance = None
+        return float(integral_mean), integral_variance
 
     def get_prediction_gradients(self, X: np.ndarray) -> Tuple:
         """Compute model gradients of predictive mean and variance at given points.

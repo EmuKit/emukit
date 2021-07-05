@@ -134,29 +134,3 @@ class QuadratureKernel:
         :return: the gradient with shape (N, input_dim)
         """
         raise NotImplementedError
-
-
-class QuadratureKernelBoundedBQ:
-    """The methods required for the quadrature kernel used by
-    :class:`emukit.quadrature.methods.bounded_bq_model.BoundedBayesianQuadratureModel` in addition to the standard
-    :class:`QuadratureKernel`."""
-
-    def qK_squared(self, X: np.ndarray) -> np.ndarray:
-        """Product of two kernel functions with first argument integrated out.
-
-         Integral: :math:`\\int k_X(x) k_X(x)^{T} p(x) dx`.
-
-        :param X: locations X, shape (n_points, input_dim).
-        :return: The integrals evaluated at X, shape (n_points, n_points).
-        """
-        raise NotImplementedError
-
-    def qK_cubed(self, X: np.ndarray) -> np.ndarray:
-        """Product of three kernel functions with first argument, second and both arguments integrated out.
-
-         Integral: :math:`\\int k_X(x) k(x, x') k_X(x')^{T} p(x)p(x')dxdx'`.
-
-        :param X: locations X, shape (n_points, input_dim).
-        :return: The integrals evaluated at X, shape (n_points, n_points).
-        """
-        raise NotImplementedError
