@@ -32,13 +32,13 @@ def test_context_manager_expand_vector(space, context):
 @pytest.fixture
 def catg_space():
     return ParameterSpace([ContinuousParameter('x1', 0, 15), 
-                           CategoricalParameter('x2', OneHotEncoding([0, 1, 2, 3])),
+                           CategoricalParameter('x2', OneHotEncoding(['A', 'B', 'C', 'D'])),
                            CategoricalParameter('x3', OneHotEncoding([1, 2, 3, 4, 5])),
                            ContinuousParameter('x4', -2, 3)]) 
 
 @pytest.fixture
 def catg_context():
-    return {'x2': 0, 'x3': 3}
+    return {'x2': 'A', 'x3': 3}
 
 def test_context_manager_catg_expand_vector(catg_space, catg_context):
     context_manager = ContextManager(catg_space, catg_context)
@@ -48,3 +48,7 @@ def test_context_manager_catg_expand_vector(catg_space, catg_context):
     assert x_expanded.shape == (2, context_manager.space.dimensionality)
     assert np.array_equal(x_expanded, np.array([[4., 1, 0, 0, 0, 0, 0, 1, 0, 0, -1.],[3, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0.]]))
     
+def test_context_manager_incorrect_category(catg_space):
+    erroneous_context = {'x2': 0, 'x3': 3}
+    with pytest.raises(ValueError):
+        context_manager = ContextManager(catg_space, erroneous_context)

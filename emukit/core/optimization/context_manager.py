@@ -30,16 +30,18 @@ class ContextManager:
         # Find indices of context and non context variables
         self.context_idxs = []
         self.context_values = []
-        for name in context.keys():
+        for context_name, context_value in context.items():
             # Find indices of variable in the input domain
-            self.context_idxs += self.space.find_parameter_index_in_model(name)
+            self.context_idxs += self.space.find_parameter_index_in_model(context_name)
 
             # Find encoded values of context variable
-            param = self.space.get_parameter_by_name(name)
+            param = self.space.get_parameter_by_name(context_name)
             if hasattr(param, 'encoding'):
-                self.context_values.extend(param.encoding.get_encoding(context[name]))
+                if context_value not in param.encoding.categories:
+                    raise ValueError(f'Context value {context_value} not found in encoding for {context_name}')
+                self.context_values.extend(param.encoding.get_encoding(context_value))
             else:
-                self.context_values.append(context[name])
+                self.context_values.append(context_value)
 
         all_idxs = list(range(space.dimensionality))
         self.non_context_idxs = [idx for idx in all_idxs if idx not in self.context_idxs]
