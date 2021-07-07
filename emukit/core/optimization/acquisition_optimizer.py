@@ -32,10 +32,11 @@ class AcquisitionOptimizerBase(abc.ABC):
 
             # Log warning if context parameter is out of domain
             param = self.space.get_parameter_by_name(context_name)
-            if param.check_in_domain(context_value) is False:
-                _log.warning(context_name + ' with value ' + str(context_value), ' is out of the domain')
-            else:
+            in_domain = context_value in param.encoding.categories if hasattr(param, 'encoding') else param.check_in_domain(context_value)
+            if in_domain:
                 _log.info('Parameter ' + context_name + ' fixed to ' + str(context_value))
+            else:
+                _log.warning(context_name + ' with value ' + str(context_value), ' is out of the domain')
 
     @abc.abstractmethod
     def _optimize(self, acquisition: Acquisition, context_manager: ContextManager) -> Tuple[np.ndarray, np.ndarray]:
