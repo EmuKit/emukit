@@ -2,16 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import abc
-import logging
-from typing import Any, Dict, Optional, Tuple
+from typing import Optional, Tuple
 
 import numpy as np
 
 from .. import ParameterSpace
 from ..acquisition import Acquisition
 from .context_manager import Context, ContextManager
-
-_log = logging.getLogger(__name__)
 
 
 class AcquisitionOptimizerBase(abc.ABC):
