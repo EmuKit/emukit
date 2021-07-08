@@ -3,7 +3,7 @@
 
 import abc
 import logging
-from typing import Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 import numpy as np
 
@@ -23,20 +23,6 @@ class AcquisitionOptimizerBase(abc.ABC):
         :param space: Parameter space containing entire input domain including any context variables
         """
         self.space = space
-
-    def _validate_context_parameters(self, context: Dict[str, any]):
-        for context_name, context_value in context.items():
-            # Check parameter exists in space
-            if context_name not in self.space.parameter_names:
-                raise ValueError(context_name + ' appears as variable in context but not in the parameter space.')
-
-            # Log warning if context parameter is out of domain
-            param = self.space.get_parameter_by_name(context_name)
-            if not hasattr(param, 'encoding'):
-                if param.check_in_domain(context_value):
-                    _log.info(f'Parameter {context_name} fixed to {context_value}')
-                else:
-                    _log.warning(f'{context_name} with value {context_value} is out of the domain')
 
     @abc.abstractmethod
     def _optimize(self, acquisition: Acquisition, context_manager: ContextManager) -> Tuple[np.ndarray, np.ndarray]:
@@ -60,8 +46,6 @@ class AcquisitionOptimizerBase(abc.ABC):
         """
         if context is None:
             context = dict()
-        else:
-            self._validate_context_parameters(context)
         context_manager = ContextManager(self.space, context)
         max_x, max_value = self._optimize(acquisition, context_manager)
 
