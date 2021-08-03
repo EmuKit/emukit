@@ -58,8 +58,11 @@ class LocalPenalizationPointCalculator(CandidatePointCalculator):
         self.acquisition.update_parameters()
 
         # Initialize local penalization acquisition
+        import logging
         if isinstance(self.model, IPriorHyperparameters):
+            logging.info("local_penalization_calculator.py:63: creating IntegratedHyperParameterAcquisition instance")
             local_penalization_acquisition = IntegratedHyperParameterAcquisition(self.model, LocalPenalization)
+            logging.info(f"local_penalization_calculator.py:65: created  IntegratedHyperParameterAcquisition instance {local_penalization_acquisition}")
         else:
             local_penalization_acquisition = LocalPenalization(self.model)
 
@@ -69,9 +72,10 @@ class LocalPenalizationPointCalculator(CandidatePointCalculator):
 
         x_batch = []
         y_batch = []
-        for _ in range(self.batch_size):
+        for i in range(self.batch_size):
             # Collect point
             x_next, y_next = self.acquisition_optimizer.optimize(acquisition, context)
+            logging.info(f"Iteration {i+1} of {self.batch_size}: x_next = {x_next}, y_next = {y_next}")
             x_batch.append(x_next)
             y_batch.append(y_next)
 
@@ -85,8 +89,17 @@ class LocalPenalizationPointCalculator(CandidatePointCalculator):
                 lipschitz_constant = _estimate_lipschitz_constant(self.parameter_space, self.model)
             else:
                 lipschitz_constant = self.fixed_lipschitz_constant
+            log_evaluations("Before", 92, local_penalization_acquisition, x_batch)
             local_penalization_acquisition.update_batches(np.concatenate(x_batch, axis=0), lipschitz_constant, f_min)
+            log_evaluations("After ", 94, local_penalization_acquisition, x_batch)
         return np.concatenate(x_batch, axis=0)
+
+
+def log_evaluations(when, line_no, lpa, x_batch):
+    import logging
+    msg1 = f"LPA.py:{line_no}: {when} update_batches: "
+    msg2 = " ".join([f"{float(lpa.evaluate(x)):7.4f}" for x in x_batch])
+    logging.info(msg1 + msg2)
 
 
 def _estimate_lipschitz_constant(space: ParameterSpace, model: IDifferentiable):
