@@ -89,17 +89,8 @@ class LocalPenalizationPointCalculator(CandidatePointCalculator):
                 lipschitz_constant = _estimate_lipschitz_constant(self.parameter_space, self.model)
             else:
                 lipschitz_constant = self.fixed_lipschitz_constant
-            log_evaluations("Before", 92, local_penalization_acquisition, x_batch)
             local_penalization_acquisition.update_batches(np.concatenate(x_batch, axis=0), lipschitz_constant, f_min)
-            log_evaluations("After ", 94, local_penalization_acquisition, x_batch)
         return np.concatenate(x_batch, axis=0)
-
-
-def log_evaluations(when, line_no, lpa, x_batch):
-    import logging
-    msg1 = f"LPA.py:{line_no}: {when} update_batches: "
-    msg2 = " ".join([f"{float(lpa.evaluate(x)):7.4f}" for x in x_batch])
-    logging.info(msg1 + msg2)
 
 
 def _estimate_lipschitz_constant(space: ParameterSpace, model: IDifferentiable):
