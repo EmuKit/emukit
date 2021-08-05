@@ -58,11 +58,8 @@ class LocalPenalizationPointCalculator(CandidatePointCalculator):
         self.acquisition.update_parameters()
 
         # Initialize local penalization acquisition
-        import logging
         if isinstance(self.model, IPriorHyperparameters):
-            logging.info("local_penalization_calculator.py:63: creating IntegratedHyperParameterAcquisition instance")
             local_penalization_acquisition = IntegratedHyperParameterAcquisition(self.model, LocalPenalization)
-            logging.info(f"local_penalization_calculator.py:65: created  IntegratedHyperParameterAcquisition instance {local_penalization_acquisition}")
         else:
             local_penalization_acquisition = LocalPenalization(self.model)
 
@@ -72,10 +69,9 @@ class LocalPenalizationPointCalculator(CandidatePointCalculator):
 
         x_batch = []
         y_batch = []
-        for i in range(self.batch_size):
+        for _ in range(self.batch_size):
             # Collect point
             x_next, y_next = self.acquisition_optimizer.optimize(acquisition, context)
-            logging.info(f"Iteration {i+1} of {self.batch_size}: x_next = {x_next}, y_next = {y_next}")
             x_batch.append(x_next)
             y_batch.append(y_next)
 
