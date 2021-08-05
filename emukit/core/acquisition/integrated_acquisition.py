@@ -28,7 +28,7 @@ class IntegratedHyperParameterAcquisition(Acquisition):
         self.subsample_interval = subsample_interval
         self.step_size = step_size
         self.leapfrog_steps = leapfrog_steps
-        self.update_batches_args = None
+        self._update_batches_args = None
         self.update_parameters()
 
         acquisition = self.acquisition_generator(model)
@@ -43,7 +43,7 @@ class IntegratedHyperParameterAcquisition(Acquisition):
         acquisition_value = 0
         for sample in self.samples:
             self.model.fix_model_hyperparameters(sample)
-            acquisition = self.generate_and_possibly_update_batches()
+            acquisition = self.generate_acquisition_with_batch_update()
             acquisition_value += acquisition.evaluate(x)
 
         return acquisition_value / self.n_samples
@@ -64,7 +64,7 @@ class IntegratedHyperParameterAcquisition(Acquisition):
 
         for sample in self.samples:
             self.model.fix_model_hyperparameters(sample)
-            acquisition = self.generate_and_possibly_update_batches()
+            acquisition = self.generate_acquisition_with_batch_update()
             improvement_sample, d_improvement_dx_sample = acquisition.evaluate_with_gradients(x)
             acquisition_value += improvement_sample
             d_acquisition_dx += d_improvement_dx_sample
@@ -82,18 +82,14 @@ class IntegratedHyperParameterAcquisition(Acquisition):
         return self._has_gradients
 
     def update_batches(self, x_batch, lipschitz_constant, f_min):
-        self.update_batches_args = (x_batch, lipschitz_constant, f_min)
-        import logging
-        logging.info(f"integrated_acquisition.py:87: self.update_batches_args set, self is {self}")
-        #acquisition = self.acquisition_generator(self.model)
-        #acquisition.update_batches(x_batch, lipschitz_constant, f_min)
+        """
+        We don't have a fixed acquisition object to call update_batches on, so instead, we store the
+        args we will need for that call, and apply them when needed in generate_acquisition_with_batch_update.
+        """
+        self._update_batches_args = (x_batch, lipschitz_constant, f_min)
 
-    def generate_and_possibly_update_batches(self):
+    def generate_acquisition_with_batch_update(self):
         acquisition = self.acquisition_generator(self.model)
-        #import logging
-        if self.update_batches_args is not None:
-            #logging.info(f"integrated_acquisition.py:95: self.update_batches_args is NOT None, self is {self}")
-            acquisition.update_batches(*self.update_batches_args)
-        #else:
-            #logging.info(f"integrated_acquisition.py:98: self.update_batches_args is None, self is {self}")
+        if self._update_batches_args is not None:
+            acquisition.update_batches(*self._update_batches_args)
         return acquisition
