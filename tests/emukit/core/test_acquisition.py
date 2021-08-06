@@ -1,6 +1,7 @@
 import mock
 import numpy as np
 import pytest
+from emukit.bayesian_optimization.acquisitions.local_penalization import LocalPenalization
 
 from emukit.core.acquisition import Acquisition, IntegratedHyperParameterAcquisition
 from emukit.core.interfaces import IPriorHyperparameters
@@ -97,3 +98,21 @@ def test_integrated_acquisition_gradients():
     mock_acquisition.has_gradients = True
     acq = IntegratedHyperParameterAcquisition(mock_model, mock_acquisition_generator)
     assert acq.has_gradients == True
+
+
+def test_integrated_acquisition_update_batches():
+    """
+    Check that when IntegratedHyperParameterAcquisition.update_batches is called, the
+    same arguments are passed to the update_batches method of the Acquisition object(s)
+    returned by its acquisition generator when IntegratedHyperParameterAcquisition.evaluate
+    is called.
+    """
+    mock_model = mock.create_autospec(IPriorHyperparameters)
+    mock_acquisition = mock.create_autospec(LocalPenalization)
+    mock_acquisition_generator = lambda x: mock_acquisition
+    acq = IntegratedHyperParameterAcquisition(mock_model, mock_acquisition_generator)
+    acq.update_batches([], 1.0, 0.5)
+    acq.samples = [None]
+    acq.n_samples = 1
+    acq.evaluate(np.zeros(1))
+    mock_acquisition.update_batches.assert_called_with([], 1.0, 0.5)
