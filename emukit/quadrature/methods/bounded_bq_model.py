@@ -113,7 +113,7 @@ class BoundedBayesianQuadrature(WarpedBayesianQuadratureModel):
         integral_variance = None
         return float(integral_mean), integral_variance
 
-    def get_prediction_gradients(self, X: np.ndarray) -> Tuple:
+    def get_prediction_gradients(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """Compute model gradients of predictive mean and variance at given points.
 
         :param X: Points to compute gradients at, shape (num_points, input_dim)
