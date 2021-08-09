@@ -1,7 +1,7 @@
 """The bounded Bayesian quadrature model is with square-root warping."""
 
 import numpy as np
-from typing import Tuple
+from typing import Tuple, Optional
 
 from ..interfaces.base_gp import IBaseGaussianProcess
 from .warped_bq_model import WarpedBayesianQuadratureModel
@@ -21,16 +21,28 @@ class BoundedBayesianQuadrature(WarpedBayesianQuadratureModel):
     :math:`\\hat{f}` by linearizing :math:`f` around the mean of :math:`g`. The approximate GP
     :math:`\\hat{f}` is implemented in the predict methods in this class, and it is also used by :math:`integrate`.
     """
-    def __init__(self, base_gp: IBaseGaussianProcess, X: np.ndarray, Y: np.ndarray, bound: float,
-                 is_lower_bounded: bool):
+    def __init__(self, base_gp: IBaseGaussianProcess, X: np.ndarray, Y: np.ndarray,
+                 lower_bound: Optional[float]=None, upper_bound: Optional[float]=None):
         """
         :param base_gp: The Gaussian process :math:`g`. Must use
                :class:`emukit.quadrature.kernels.QuadratureRBFIsoGaussMeasure` as kernel.
         :param X: The initial locations of integrand evaluations, shape (num_point, input_dim).
         :param Y: The values of the integrand at X, shape (num_points, 1).
-        :param bound: The lower or upper bound :math:`\alpha`.
-        :param is_lower_bounded: ``True``, if function is lower bounded. ``False`` if function is upper bounded.
+        :param lower_bound: The lower bound :math:`f_*` if the function is lower bounded.
+        :param upper_bound: The upper bound :math:`f^*` if the function is lower bounded.
         """
+        if lower_bound is None and upper_bound is None:
+            raise ValueError("Either a lower or an upper bound needs to be given. Currently neither is given.")
+        if lower_bound is not None and upper_bound is not None:
+            raise ValueError("Either a lower or an upper bound needs to be given. Currently both are given.")
+
+        bound = lower_bound
+        is_lower_bounded = True
+
+        if lower_bound is None:
+            bound = upper_bound
+            is_lower_bounded = False
+
         # The integrate method is specific to QuadratureRBFIsoGaussMeasure, predict methods are only specific to
         # the approximation method used (Taylor expansion of the GP in this case).
         if not isinstance(base_gp.kern, QuadratureRBFIsoGaussMeasure):
@@ -80,7 +92,7 @@ class BoundedBayesianQuadrature(WarpedBayesianQuadratureModel):
 
         mean_approx = self.transform(mean_base)
         cov_approx = np.outer(mean_base, mean_base) * cov_base
-        cov_approx = self.symmetrize_matrix(cov_approx)  # for numerical stability
+        cov_approx = self.symmetrize_matrix(cov_approx)  # force symmetry for numerical stability
         return mean_approx, cov_approx, mean_base, cov_base
 
     def integrate(self) -> Tuple[float, float]:
@@ -88,20 +100,20 @@ class BoundedBayesianQuadrature(WarpedBayesianQuadratureModel):
 
         :returns: Mean estimator of integral and its variance. Currently, the variance returns None.
         """
-        N, D = self.X.shape
+        n_points, n_imput_dim = self.X.shape
 
         # weights and kernel
         X = self.X / np.sqrt(2)  # this is equivalent to scaling the lengthscale with sqrt(2)
         K = self.base_gp.kern.K(X, X)
         weights = self.base_gp.graminv_residual()
-        W = np.outer(weights, weights)
+        Weights_outer = np.outer(weights, weights)
 
         # kernel mean but with scaled lengthscale (multiplicative factor of 1/sqrt(2))
-        X_means_vec = 0.5 * (self.X.T[:, :, None] + self.X.T[:, None, :]).reshape(D, -1).T
-        qK = self.base_gp.kern.qK(X_means_vec, scale_factor=1./np.sqrt(2)).reshape(N, N)
+        X_means_vec = 0.5 * (self.X.T[:, :, None] + self.X.T[:, None, :]).reshape(n_imput_dim, -1).T
+        qK = self.base_gp.kern.qK(X_means_vec, scale_factor=1./np.sqrt(2)).reshape(n_points, n_points)
 
         # integral mean
-        integral_mean_second_term = 0.5 * np.sum(W * qK * K)
+        integral_mean_second_term = 0.5 * np.sum(Weights_outer * qK * K)
         if self.is_lower_bounded:
             integral_mean = self.bound + integral_mean_second_term
         else:

@@ -38,14 +38,14 @@ def base_gp(gpy_model):
 @pytest.fixture
 def bounded_bq_lower(base_gp):
     bound = np.min(base_gp.Y) - 0.5  # make sure bound is lower than the Y values
-    bounded_bq = BoundedBayesianQuadrature(base_gp=base_gp, X=base_gp.X, Y=base_gp.Y, bound=bound, is_lower_bounded=True)
+    bounded_bq = BoundedBayesianQuadrature(base_gp=base_gp, X=base_gp.X, Y=base_gp.Y, lower_bound=bound)
     return bounded_bq, bound
 
 
 @pytest.fixture
 def bounded_bq_upper(base_gp):
     bound = np.max(base_gp.Y) + 0.5  # make sure bound is larger than the Y values
-    bounded_bq = BoundedBayesianQuadrature(base_gp=base_gp, X=base_gp.X, Y=base_gp.Y, bound=bound, is_lower_bounded=False)
+    bounded_bq = BoundedBayesianQuadrature(base_gp=base_gp, X=base_gp.X, Y=base_gp.Y, upper_bound=bound)
     return bounded_bq, bound
 
 
@@ -76,7 +76,17 @@ def test_bounded_bq_raises_exception(base_gp_wrong_kernel):
     # wrong kernel embedding
     with pytest.raises(ValueError):
         BoundedBayesianQuadrature(base_gp=base_gp_wrong_kernel, X=base_gp_wrong_kernel.X, Y=base_gp_wrong_kernel.Y,
-                                  bound=np.min(base_gp_wrong_kernel.Y) - 0.5, is_lower_bounded=True)
+                                  lower_bound=np.min(base_gp_wrong_kernel.Y) - 0.5)
+
+    # both upper and lower bound are given
+    with pytest.raises(ValueError):
+        BoundedBayesianQuadrature(base_gp=base_gp_wrong_kernel, X=base_gp_wrong_kernel.X, Y=base_gp_wrong_kernel.Y,
+                                  lower_bound=np.min(base_gp_wrong_kernel.Y) - 0.5,
+                                  upper_bound=np.min(base_gp_wrong_kernel.Y) - 0.5)
+
+    # no bound is given
+    with pytest.raises(ValueError):
+        BoundedBayesianQuadrature(base_gp=base_gp_wrong_kernel, X=base_gp_wrong_kernel.X, Y=base_gp_wrong_kernel.Y)
 
 
 def test_bounded_bq_lower_integrate(bounded_bq_lower):

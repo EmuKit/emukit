@@ -41,7 +41,7 @@ class WSABIL(BoundedBayesianQuadrature):
         self._small_alpha = 1e-8  # only used if alpha is not adapted
         alpha = self._compute_alpha(X, Y)
 
-        super(WSABIL, self).__init__(base_gp=base_gp, X=X, Y=Y, bound=alpha, is_lower_bounded=True)
+        super(WSABIL, self).__init__(base_gp=base_gp, X=X, Y=Y, lower_bound=alpha)
 
     def _compute_alpha(self, X: np.ndarray, Y: np.ndarray) -> float:
         """Compute the offset :math:`\alpha`.
