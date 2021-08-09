@@ -19,7 +19,7 @@ class BoundedBayesianQuadrature(WarpedBayesianQuadratureModel):
     The process :math:`f` induced by the Gaussian process :math:`g` is non-Gaussian. In order to obtain an analytic
     estimator for the integral value, the process :math:`f` is approximated by another Gaussian process
     :math:`\\hat{f}` by linearizing :math:`f` around the mean of :math:`g`. The approximate GP
-    :math:`\\hat{f}` is implemented in the the predict-methods in this class, and it is also used by :meth:`integrate`.
+    :math:`\\hat{f}` is implemented in the predict methods in this class, and it is also used by :math:`integrate`.
     """
     def __init__(self, base_gp: IBaseGaussianProcess, X: np.ndarray, Y: np.ndarray, bound: float,
                  is_lower_bounded: bool):
