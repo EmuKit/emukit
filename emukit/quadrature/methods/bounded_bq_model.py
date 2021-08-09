@@ -28,7 +28,7 @@ class BoundedBayesianQuadrature(WarpedBayesianQuadratureModel):
                :class:`emukit.quadrature.kernels.QuadratureRBFIsoGaussMeasure` as kernel.
         :param X: The initial locations of integrand evaluations, shape (num_point, input_dim).
         :param Y: The values of the integrand at X, shape (num_points, 1).
-        :param lower_bound: The lower bound :math:`f_*` if the function is lower bounded.
+        :param lower_bound: The lower bound  :math:`f_*` if the function is lower bounded.
         :param upper_bound: The upper bound :math:`f^*` if the function is lower bounded.
         """
         if lower_bound is None and upper_bound is None:
@@ -58,7 +58,7 @@ class BoundedBayesianQuadrature(WarpedBayesianQuadratureModel):
 
     @property
     def bound(self):
-        """The bound :math:`\alpha` as defined in the model. The true bound of the integrand might be different."""
+        """The bound :math:`f^*` or :math:`f_*` as defined in the model."""
         return self._warping.offset
 
     @property
@@ -142,6 +142,7 @@ class BoundedBayesianQuadrature(WarpedBayesianQuadratureModel):
         # gradient of variance
         d_var_dx = (mean_base ** 2) * d_var_dx_base + (2 * var_base * mean_base) * d_mean_dx_base  # broadcasting
 
+        # the gradient of the mean of the lower bounded model is the negative gradient of the upper bounded model.
         if not self.is_lower_bounded:
             d_mean_dx *= -1.
 
