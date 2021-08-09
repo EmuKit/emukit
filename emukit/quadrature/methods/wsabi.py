@@ -55,7 +55,7 @@ class WSABIL(BoundedBayesianQuadrature):
         return self._small_alpha
 
     def compute_warping_params(self, X: np.ndarray, Y: np.ndarray) -> dict:
-        """CCompute parameters of the warping that are dependent on data, and that are not being optimized.
+        """Compute parameters of the warping that are dependent on data, and that are not being optimized.
 
         :param X: Observation locations, shape (n_points, input_dim)
         :param Y: Integrand observations at X, shape (n_points, 1)
