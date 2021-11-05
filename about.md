@@ -85,6 +85,6 @@ We expect this section to grow in the future. So far, we have integrated in the 
 
 <h3> Get started!</h3>
 
-If you want to start using Emukit just have a look at the different examples in the landing page ([tutorials])(http://nbviewer.jupyter.org/github/amzn/emukit/blob/master/notebooks/index.ipynb).
+If you want to start using Emukit just have a look at the different examples in the landing page or have a look at the [tutorials](http://nbviewer.jupyter.org/github/amzn/emukit/blob/master/notebooks/index.ipynb).
 
 
