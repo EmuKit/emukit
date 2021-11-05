@@ -37,22 +37,22 @@ In a nutshell, decision making methods implemented in Emukit are represented in 
 
 The main three component of methods implemented in Emukit are:
 
-* *Models*: probabilistic representation of the process/simulator that the user is working with. Although multi-fidelity models are offered in Emukit, there is normally a modelling framework that is used to create the model. Examples are Bayesian neural networks, Gaussian process or random forest. 
+* *Models*: probabilistic representation of the process/simulator that the user is working with. Although multi-fidelity models are offered in Emukit, there is normally a modelling framework that is used to create the model. Examples are Bayesian neural networks, Gaussian processes or random forests. 
 
-* *Methods*: low-level techniques that are aimed to understanding, quantifying or using uncertainty that the model provides. Examples are Bayesian optimization or experimental design.
+* *Methods*: low-level techniques that are aimed at understanding, quantifying or using uncertainty that the model provides. Examples are Bayesian optimization or experimental design.
 
-* *Tasks*: high level questions that the owners of the target process/simulator are interested on. Examples are understanding the propagation of uncertainty in a simulator, explain a complex system behavior or calibrate a simulator.
+* *Tasks*: high level questions that the owners of the target process/simulator are interested in. Examples are: understanding the propagation of uncertainty in a simulator, explaining a complex system behavior or calibrating a simulator.
 
 <h3> Build your model, run your method, solve your task </h3>
 
 
 The typical workflow that we envision for a user interested in using Emukit is:
-1. Figure out which questions/tasks are important for in regard to their process/simulation.
+1. Figure out which questions/tasks are important in regard to their process/simulation.
 2. Understand which emulation techniques are needed to accomplish the chosen task.
-3. Build an emulator of the process. That can be a very involved step, that may include a lot of fine tuning and validation.
+3. Build an emulator of the process. This can be a very involved step, that may include a lot of fine tuning and validation.
 4. Feed the emulator to the chosen technique and use it to answer the question/complete the task. 
 
-The following workflow summarizes this steps and the techniques currently implemented in Emukit.
+The following workflow summarizes these steps and the techniques currently implemented in Emukit.
 
 <div align="center"><img width="660" src="../images//model_method_task.jpeg" />       </div>
 
@@ -63,19 +63,19 @@ The following workflow summarizes this steps and the techniques currently implem
 
 Generally speaking, Emukit does not provide modelling capabilities, instead expecting users to bring their own models. Because of the variety of modelling frameworks out there, Emukit does not mandate or make any assumptions about a particular modelling technique or a library. Instead it suggests to implement a subset of defined model interfaces required to use a particular method. Nevertheless, there are a few model-related functionalities in Emukit:
 * **Example models**, which give users something to play with to explore Emukit.
-* **Model wrappers**, which are designed to help adapting models in particular modelling frameworks to Emukit interfaces.
+* **Model wrappers**, which are designed to help adapt models in particular modelling frameworks to Emukit interfaces.
 * **Multi-fidelity** models, implemented based on `GPy <https://github.com/SheffieldML/GPy>`.
 
 <h5> Run your method </h5>
 
-This is the component and focus of Emukit. Emukit defines a general sctructure of a decision making method, called ``OuterLoop``, and then offers implementations of few such methods: Bayesian optimization, sensitivity analysis, Bayesian quadrature and experimental design. All methods in Emukit are model-agnostic and defining new APIs to accommodate other frameworks is easy.
+This is the component and focus of Emukit. Emukit defines a general structure of a decision making method, called ``OuterLoop``, and then offers implementations of several such methods: Bayesian optimization, sensitivity analysis, Bayesian quadrature and experimental design. All methods in Emukit are model-agnostic and defining new APIs to accommodate other frameworks is easy.
  
  The main features currently available in Emukit are:
 
-* **Bayesian optimization:** optimise physical experiments and tune parameters of machine learning algorithms;
+* **Bayesian optimization:** optimize physical experiments and tune parameters of machine learning algorithms;
 * **Experimental design/Active learning:** design the most informative experiments and perform active learning with machine learning models;
-* **Sensitivity analysis:** analyse the influence of inputs on the outputs of a given system;
-* **Bayesian quadrature:** efficiently compute the integrals of functions that are expensive to evaluate.
+* **Sensitivity analysis:** analyze the influence of inputs on the outputs of a given system;
+* **Bayesian quadrature:** efficiently compute the integrals of functions that are expensive to evaluate;
 * **Benchmarking:** a benchmarking tool with some functionalities is available for some of the methods.
  
 <h5> Solve your task </h5>
@@ -85,6 +85,6 @@ We expect this section to grow in the future. So far, we have integrated in the 
 
 <h3> Get started!</h3>
 
-If you want to start using Emukit just have a look to the different examples in the landing page of have a look to the [tutorials](http://nbviewer.jupyter.org/github/amzn/emukit/blob/master/notebooks/index.ipynb).
+If you want to start using Emukit just have a look at the different examples in the landing page ([tutorials])(http://nbviewer.jupyter.org/github/amzn/emukit/blob/master/notebooks/index.ipynb).
 
 
