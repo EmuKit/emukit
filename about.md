@@ -15,7 +15,7 @@ pipeline ensures that constrained resources are used effectively.
 Some features of Emukit are:
 
 - *Emukit separates models from decisions*. Methods like Bayesian optimization, Bandits, Experimental design (active learning) or Bayesian quadrature 
-can be jointly analyzed as Markov decision processes in some believe space. Emukit allows you to build such believe space and use it 
+can be jointly analyzed as Markov decision processes in some belief space. Emukit allows you to build such a belief space and use it 
 in several decision scenarios. 
 
 - *Emukit is agnostic to the underlying modelling framework.* This means you can use any tool of your choice in the Python ecosystem to 
@@ -76,11 +76,11 @@ This is the component and focus of Emukit. Emukit defines a general sctructure o
 * **Experimental design/Active learning:** design the most informative experiments and perform active learning with machine learning models;
 * **Sensitivity analysis:** analyse the influence of inputs on the outputs of a given system;
 * **Bayesian quadrature:** efficiently compute the integrals of functions that are expensive to evaluate.
-* **Benchmarking:** a bechmaking tool with some functionalities is available for some of the methods.
+* **Benchmarking:** a benchmarking tool with some functionalities is available for some of the methods.
  
 <h5> Solve your task </h5>
 We expect this section to grow in the future. So far, we have integrated in the core part of the library 
- a simple benchmarking tool to compare differetn Bayesian optimization methods. You can check [this](https://github.com/amzn/emukit/tree/master/emukit/examples) folder for more examples.
+ a simple benchmarking tool to compare different Bayesian optimization methods. You can check [this](https://github.com/amzn/emukit/tree/master/emukit/examples) folder for more examples.
 
 
 <h3> Get started!</h3>
