@@ -1,6 +1,15 @@
 # Changelog
 All notable changes to Emukit will be documented in this file.
 
+## [0.4.9]
+- Update to newest version of GPy, which shall fix installation issues
+- Mean Plug-in Expected Improvement
+- Square root warping for BQ and WSABI
+- Improved validation of categorical variables
+- Updates and fixes of Local Penalization acquisition function
+- bug fixes
+- doc fixes
+
 ## [0.4.8]
 - Added sobol initial design
 - BanditParameter

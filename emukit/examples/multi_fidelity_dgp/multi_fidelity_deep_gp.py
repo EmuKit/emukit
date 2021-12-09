@@ -5,8 +5,8 @@ Deep Gaussian Processes for Multi-fidelity Modeling (Kurt Cutajar, Mark Pullin, 
 The class intended for public consumption is MultiFidelityDeepGP, which is an emukit model class.
 
 This file requires the following packages:
-- tensorflow
-- gpflow
+- tensorflow 1.x
+- gpflow 1.x
 - doubly_stochastic_dgp https://github.com/ICL-SML/Doubly-Stochastic-DGP/tree/master/doubly_stochastic_dgp
 """
 import logging

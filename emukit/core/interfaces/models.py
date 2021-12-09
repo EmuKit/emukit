@@ -76,14 +76,13 @@ class IPriorHyperparameters:
     def generate_hyperparameters_samples(self, n_samples: int, n_burnin: int,
                                          subsample_interval: int, step_size: float, leapfrog_steps: int) -> np.ndarray:
         """
-        Generates the samples from the hyper-parameters of the model.
+        Generates the samples from the hyper-parameters of the model, and returns them.
 
         :param n_samples: Number of hyper-parameter samples
         :param n_burnin: Number of initial samples not used.
         :param subsample_interval: Interval of subsampling from HMC samples.
         :param step_size: Size of the gradient steps in the HMC sampler.
         :param leapfrog_steps: Number of gradient steps before each Metropolis Hasting step.
-        :return: numpy array whose rows are samples from the hyper-parameters of the model.
         """
         raise NotImplementedError
 
@@ -92,5 +91,16 @@ class IPriorHyperparameters:
         Fixes the model hyper-parameters to certain values (which can be taken from samples).
 
         :param sample_hyperparameters: np.ndarray whose rows contain each hyper-parameters set.
+        """
+        raise NotImplementedError
+
+
+class IModelWithNoise:
+    def predict_noiseless(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        For given points X, predict mean and variance of the output without observation noise.
+
+        :param X: array of shape (n_points x n_inputs) of points to run prediction for
+        :return: Tuple of mean and variance which are 2d arrays of shape (n_points x n_outputs)
         """
         raise NotImplementedError

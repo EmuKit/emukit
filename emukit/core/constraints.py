@@ -45,12 +45,12 @@ class InequalityConstraint(IConstraint):
 
 class LinearInequalityConstraint(InequalityConstraint):
     """
-    Constraint of the form lower_bound < Ax < upper_bound where the matrix A is called "constraint_matrix"
+    Constraint of the form lower_bound <= Ax <= upper_bound where the matrix A is called "constraint_matrix"
     """
     def __init__(self, constraint_matrix: np.ndarray, lower_bound: np.ndarray=None, upper_bound: np.ndarray=None):
         """
 
-        :param constraint_matrix: (n_constraint, n_x_dims) matrix in b_lower < Ax < b_upper
+        :param constraint_matrix: (n_constraint, n_x_dims) matrix in b_lower <= Ax <= b_upper
         :param lower_bound: Lower bound vector of size (n_constraint,). Can be -np.inf for one sided constraint
         :param upper_bound: Upper bound vector of size (n_constraint,). Can be np.inf for one sided constraint
         """
@@ -81,12 +81,12 @@ class LinearInequalityConstraint(InequalityConstraint):
 
 class NonlinearInequalityConstraint(InequalityConstraint):
     """
-    Constraint of the form lower_bound < g(x) < upper_bound
+    Constraint of the form lower_bound <= g(x) <= upper_bound
     """
     def __init__(self, constraint_function: Callable, lower_bound: np.ndarray, upper_bound: np.ndarray,
                  jacobian_fun: Optional[Callable]=None):
         """
-        :param constraint_function: function defining constraint in b_lower < fun(x) < b_upper.
+        :param constraint_function: function defining constraint in b_lower <= fun(x) <= b_upper.
                                     Has signature f(x) -> array, shape(m,) where x is 1d and m is the number of constraints
         :param lower_bound: Lower bound vector of size (n_constraint,). Can be -np.inf for one sided constraint
         :param upper_bound: Upper bound vector of size (n_constraint,). Can be np.inf for one sided constraint
