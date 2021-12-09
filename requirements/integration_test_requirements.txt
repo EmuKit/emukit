@@ -1,4 +1,4 @@
-# For random forest model
+# For random forest and GPR models
 scikit-learn
 # For BNN model
 pybnn==0.0.5
