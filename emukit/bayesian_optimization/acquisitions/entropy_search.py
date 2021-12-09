@@ -190,7 +190,7 @@ class EntropySearch(Acquisition):
 
         new_entropy = np.mean(H_p)
         entropy_change = new_entropy - self.p_min_entropy
-        return np.array([[entropy_change]])
+        return entropy_change.reshape(-1, 1)
 
     def _innovations(self, x: np.ndarray) -> tuple:
         """
