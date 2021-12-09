@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 from sklearn.gaussian_process import GaussianProcessRegressor
 
-from emukit.model_wrappers.sklearn_model_wrappers import SklearnGPRWrapper
+from emukit.model_wrappers.sklearn_model_wrapper import SklearnGPRWrapper
 
 
 @pytest.fixture
