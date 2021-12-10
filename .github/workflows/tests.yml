@@ -38,10 +38,10 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Unit tests
       run: |
-        python -m pytest
+        python -m pytest tests
     - name: Integration tests
       run: |
-        pytest -c /dev/null integration_tests
+        python -m pytest integration_tests
 
   os_versions:
 
@@ -67,4 +67,4 @@ jobs:
         pip install .
     - name: Unit tests
       run: |
-        python -m pytest
+        python -m pytest tests
