@@ -5,6 +5,9 @@
 from typing import List, Union, Callable
 
 import numpy as np
+import tqdm
+from tqdm import tqdm
+import time
 
 from ..event_handler import EventHandler
 from .loop_state import LoopState
@@ -12,10 +15,10 @@ from .user_function_result import UserFunctionResult
 from .candidate_point_calculators import CandidatePointCalculator
 from .model_updaters import ModelUpdater
 from .user_function import UserFunction, UserFunctionWrapper
-from .stopping_conditions import StoppingCondition, FixedIterationsStoppingCondition, ConvergenceStoppingCondition
-
+from .stopping_conditions import StoppingCondition, FixedIterationsStoppingCondition
 
 import logging
+
 _log = logging.getLogger(__name__)
 
 
@@ -33,6 +36,7 @@ class OuterLoop(object):
          - ``loop_start_event`` called at the start of the `run_loop` method
          - ``iteration_end_event`` called at the end of each iteration
     """
+
     def __init__(self, candidate_point_calculator: CandidatePointCalculator,
                  model_updaters: Union[ModelUpdater, List[ModelUpdater]], loop_state: LoopState = None) -> None:
         """
@@ -54,29 +58,28 @@ class OuterLoop(object):
         self.loop_start_event = EventHandler()
         self.iteration_end_event = EventHandler()
 
-    def run_loop(self, user_function: Union[UserFunction, Callable],
-                 stopping_condition: Union[StoppingCondition, int],
+    def run_loop(self, user_function: Union[UserFunction, Callable], stopping_condition: Union[StoppingCondition, int],
                  context: dict = None) -> None:
         """
         :param user_function: The function that we are emulating
-        :param stopping_condition: If integer - a number of iterations to run, or an object - a stopping
-                        condition object that decides whether we should stop collecting more points.
-                        Note that stopping conditions can be logically combined (&, |)
-                        to represent complex stopping criteria.
+        :param stopping_condition: If integer - a number of iterations to run, if object - a stopping condition object
+                                   that decides whether we should stop collecting more points
         :param context: The context is used to force certain parameters of the inputs to the function of interest to
                         have a given value. It is a dictionary whose keys are the parameter names to fix and the values
                         are the values to fix the parameters to.
         """
-
-        is_int = isinstance(stopping_condition, int)
-        is_single_condition = isinstance(stopping_condition, StoppingCondition)
-
-        if not (is_int or is_single_condition):
-            raise ValueError("Expected stopping_condition to be an int or a StoppingCondition instance,"
+        if not (isinstance(stopping_condition, int) or isinstance(stopping_condition, StoppingCondition)):
+            raise ValueError("Expected stopping_condition to be an int or a StoppingCondition instance, "
                              "but received {}".format(type(stopping_condition)))
 
         if not isinstance(user_function, UserFunction):
             user_function = UserFunctionWrapper(user_function)
+
+        pbar = tqdm(total=stopping_condition)
+
+        sample_time = 0
+        update_time = 0
+        compute_next_point_time = 0
 
         if isinstance(stopping_condition, int):
             stopping_condition = FixedIterationsStoppingCondition(stopping_condition + self.loop_state.iteration)
@@ -87,34 +90,46 @@ class OuterLoop(object):
 
         while not stopping_condition.should_stop(self.loop_state):
             _log.info("Iteration {}".format(self.loop_state.iteration))
-
+            update_start = time.time()
             self._update_models()
+            update_end = time.time()
+            update_time += (update_end - update_start)
+            compute_next_point_start = time.time()
             new_x = self.candidate_point_calculator.compute_next_points(self.loop_state, context)
+            compute_next_point_end = time.time()
+            compute_next_point_time += (compute_next_point_end - compute_next_point_start)
             _log.debug("Next suggested point(s): {}".format(new_x))
+            sample_start = time.time()
             results = user_function.evaluate(new_x)
+            sample_end = time.time()
+            sample_time += (sample_end - sample_start)
             _log.debug("User function returned: {}".format(results))
             self.loop_state.update(results)
             self.iteration_end_event(self, self.loop_state)
 
+            pbar.update(1)
+
         self._update_models()
         _log.info("Finished outer loop")
+
+        pbar.close()
+        print("Sampling time (s): ", sample_time)
+        print("Updating time (s): ", update_time)
+        print("Computing next point time (s): ", compute_next_point_time)
 
     def _update_models(self):
         for model_updater in self.model_updaters:
             model_updater.update(self.loop_state)
 
-    def get_next_points(self, results: List[UserFunctionResult], context: dict={}) -> np.ndarray:
+    def get_next_points(self, results: List[UserFunctionResult]) -> np.ndarray:
         """
         This method is used when the user doesn't want Emukit to evaluate the function of interest but rather just wants
         the input locations to evaluate the function at. This method calculates the new input locations.
 
         :param results: Function results since last loop step
-        :param context: A dictionary of fixed parameters, identical to the context used in
-                        self.run_loop()
         :return: Next batch of points to run
         """
         if results:
             self.loop_state.update(results)
             self._update_models()
-        new_x = self.candidate_point_calculator.compute_next_points(self.loop_state, context)
-        return new_x
+        return self.candidate_point_calculator.compute_next_points(self.loop_state)
