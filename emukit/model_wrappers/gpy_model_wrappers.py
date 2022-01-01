@@ -7,13 +7,21 @@ from typing import Tuple, Optional
 import numpy as np
 import GPy
 
-from ..core.interfaces import IModel, IDifferentiable, IJointlyDifferentiable, IPriorHyperparameters, IModelWithNoise
+from ..core.interfaces import (
+    IModel,
+    IDifferentiable,
+    IJointlyDifferentiable,
+    IPriorHyperparameters,
+    IModelWithNoise,
+    ICrossCovarianceDifferentiable,
+)
 from ..experimental_design.interfaces import ICalculateVarianceReduction
 from ..bayesian_optimization.interfaces import IEntropySearchModel
 
 
 class GPyModelWrapper(
-    IModel, IDifferentiable, IJointlyDifferentiable, ICalculateVarianceReduction, IEntropySearchModel, IPriorHyperparameters, IModelWithNoise
+    IModel, IDifferentiable, IJointlyDifferentiable, ICrossCovarianceDifferentiable, ICalculateVarianceReduction,
+    IEntropySearchModel, IPriorHyperparameters, IModelWithNoise,
 ):
     """
     This is a thin wrapper around GPy models to allow users to plug GPy models into Emukit
