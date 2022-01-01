@@ -209,7 +209,8 @@ def dSigma(x_predict: np.ndarray, x_train: np.ndarray, kern: GPy.kern, w_inv: np
     :param x_train: Training inputs of shape (n, d)
     :param kern: Covariance of the GP model
     :param w_inv: Woodbury inverse of the posterior fit of the GP
-    :return: Gradient of the posterior covariance of shape (q, q, q, d)
+    :return: Gradient of the posterior covariance of shape (q, q, q, d). Here, res[i, j, k, l] is the derivative
+        of the [i, j]-th entry of the posterior covariance matrix with respect to x_predict[k, l]
     """
     q, d, n = x_predict.shape[0], x_predict.shape[1], x_train.shape[0]
     # Tensor for the gradients of (q, n) cross-covariance matrix between x_predict and x_train with respect to
@@ -219,9 +220,12 @@ def dSigma(x_predict: np.ndarray, x_train: np.ndarray, kern: GPy.kern, w_inv: np
     # x_predict (of shape (q, d))
     d_cov_xpredict_dx = np.zeros((d, q*q, q))
     for i in range(d):
-        # Fill d_cross_cov_xpredict_xtrain_dx such that entry [i, j] is the derivative of the cross-covariance
-        # between x_predict and x_train (of shape (q, d)) with respect to scalar x_predict[j, i]
+        # Fill d_cross_cov_xpredict_xtrain_dx such that after reshaping to (d, q, q, n), entry [i, j] is 
+        # the derivative of the cross-covariance between x_predict and x_train (of shape (q, n)) with respect 
+        # to scalar x_predict[j, i]
         d_cross_cov_xpredict_xtrain_dx[i, ::q + 1, :] = kern.dK_dX(x_predict, x_train, i)
+        # Fill d_cov_xpredict_dx such that after reshaping to (d, q, q, q), entry [i, j] is the derivative 
+        # of the prior covariance at x_predict (of shape (q, q)) with respect to the scalar x_predict[j, i]
         d_cov_xpredict_dx[i, ::q + 1, :] = kern.dK_dX(x_predict, x_predict, i)
     d_cross_cov_xpredict_xtrain_dx = d_cross_cov_xpredict_xtrain_dx.reshape((d, q, q, n))
     d_cov_xpredict_dx = d_cov_xpredict_dx.reshape((d, q, q, q))
@@ -229,7 +233,11 @@ def dSigma(x_predict: np.ndarray, x_train: np.ndarray, kern: GPy.kern, w_inv: np
     d_cov_xpredict_dx.reshape((d, q, -1))[:, :, ::q + 1] = 0.
     
     K = kern.K(x_predict, x_train)
-    dsigma = d_cov_xpredict_dx - K @ w_inv @ d_cross_cov_xpredict_xtrain_dx.transpose((0, 1, 3, 2)) - d_cross_cov_xpredict_xtrain_dx @ w_inv @ K.T
+    dsigma = (
+        d_cov_xpredict_dx
+        - K @ w_inv @ d_cross_cov_xpredict_xtrain_dx.transpose((0, 1, 3, 2))
+        - d_cross_cov_xpredict_xtrain_dx @ w_inv @ K.T
+    )
     return dsigma.transpose((2, 3, 1, 0))
 
 
@@ -244,12 +252,14 @@ def dmean(x_predict: np.ndarray, x_train: np.ndarray, kern: GPy.kern, w_vec: np.
     :return: Gradient of the posterior mean of shape (q, q, d)
     """
     q, d, n = x_predict.shape[0], x_predict.shape[1], x_train.shape[0]
-    dkxX_dx = np.empty((q, n, d))
+    # Tensor with derivative of the (prior) cross-covariance between x_predict and x_train with respect
+    # to x_predict
+    d_cross_cov_xpredict_xtrain_dx = np.empty((q, n, d))
     dmu = np.zeros((q, q, d))
     for i in range(d):
-        dkxX_dx[:, :, i] = kern.dK_dX(x_predict, x_train, i)
+        d_cross_cov_xpredict_xtrain_dx[:, :, i] = kern.dK_dX(x_predict, x_train, i)
         for j in range(q):
-            dmu[j, j, i] = (dkxX_dx[j, :, i][None, :] @ w_vec[:, None]).flatten()
+            dmu[j, j, i] = (d_cross_cov_xpredict_xtrain_dx[j, :, i][None, :] @ w_vec[:, None]).flatten()
     return dmu
 
 
