@@ -141,7 +141,7 @@ class GPyModelWrapper(
         q1, q2, input_dim, n_train = X1.shape[0], X2.shape[0], X1.shape[1], self.model.X.shape[0]
         # Instatiate an array to hold gradients of prior covariance between outputs at X1 and X_train
         cov_X1_Xtrain_grad = np.zeros((input_dim, q1, n_train))
-        # Instatiate an array to hold gradients of prior covariance between outputs at X1 and X2
+        # Instantiate an array to hold gradients of prior covariance between outputs at X1 and X2
         cov_X1_X2_grad = np.zeros((input_dim, q1, q2))
         # Calculate the gradient wrt. X1 of these prior covariances. GPy API allows for doing so
         # only one dimension at a time, hence need to iterate over all input dimensions
