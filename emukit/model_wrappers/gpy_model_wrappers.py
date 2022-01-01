@@ -123,15 +123,13 @@ class GPyModelWrapper(
         Compute the derivative of the posterior covariance matrix between prediction at inputs x1 and x2
         with respect to x1.
 
-        :param x1: Prediction inputs of shape (q1, d)
-        :param x2: Prediction inputs of shape (q2, d)
-        :param x_train: Training inputs of shape (n_train, d)
-        :param kern: Covariance of the GP model
-        :param w_inv: Woodbury inverse of the posterior fit of the GP
-        :return: nd array of shape (q1, q2, d) representing the gradient of the posterior covariance between x1 and x2
-            with respect to x1. res[i, j, k] is the gradient of Cov(y1[i], y2[j]) with respect to x1[i, k]
+        :param X1: Prediction inputs of shape (q1, d)
+        :param X2: Prediction inputs of shape (q2, d)
+        :return: nd array of shape (q1, q2, d) representing the gradient of the posterior covariance 
+            between x1 and x2 with respect to x1. res[i, j, k] is the gradient of Cov(y1[i], y2[j])
+            with respect to x1[i, k]
         """
-        # Get the relevent shapes
+        # Get the relevant shapes
         q1, q2, input_dim, n_train = X1.shape[0], X2.shape[0], X1.shape[1], self.model.X.shape[0]
         # Instatiate an array to hold gradients of prior covariance between outputs at X1 and X_train
         cov_X1_Xtrain_grad = np.zeros((input_dim, q1, n_train))
