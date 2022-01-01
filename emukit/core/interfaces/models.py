@@ -72,6 +72,35 @@ class IJointlyDifferentiable:
         raise NotImplementedError
 
 
+class ICrossCovarianceDifferentiable:
+    def get_covariance_between_points(self, X1: np.ndarray, X2: np.ndarray) -> np.ndarray:
+        """
+        Calculate posterior covariance between two sets of points.
+
+        :param X1: An array of shape n_points1 x n_dimensions. This is the first argument of the
+                   posterior covariance function.
+        :param X2: An array of shape n_points2 x n_dimensions. This is the second argument of the
+                   posterior covariance function.
+        :return: An array of shape n_points1 x n_points2 of posterior covariances between X1 and X2.
+            Namely, [i, j]-th entry of the returned array will represent the posterior covariance
+            between i-th point in X1 and j-th point in X2.
+        """
+        raise NotImplementedError
+
+    def get_covariance_between_points_gradients(self, X1: np.ndarray, X2: np.ndarray) -> np.ndarray:
+        """
+        Compute the derivative of the posterior covariance matrix between prediction at inputs x1 and x2
+        with respect to x1.
+
+        :param X1: Prediction inputs of shape (q1, d)
+        :param X2: Prediction inputs of shape (q2, d)
+        :return: nd array of shape (q1, q2, d) representing the gradient of the posterior covariance
+            between x1 and x2 with respect to x1. res[i, j, k] is the gradient of Cov(y1[i], y2[j])
+            with respect to x1[i, k]
+        """
+        raise NotImplementedError
+
+
 class IPriorHyperparameters:
     def generate_hyperparameters_samples(self, n_samples: int, n_burnin: int,
                                          subsample_interval: int, step_size: float, leapfrog_steps: int) -> np.ndarray:

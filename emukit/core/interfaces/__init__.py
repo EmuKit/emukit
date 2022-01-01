@@ -8,4 +8,5 @@ from .models import (
     IPriorHyperparameters,  # noqa: F401
     IJointlyDifferentiable,  # noqa: F401
     IModelWithNoise,  # noqa: F401
+    ICrossCovarianceDifferentiable,  # noqa: F401
 )
