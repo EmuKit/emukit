@@ -5,7 +5,6 @@ import pytest
 import pytest_lazyfixture
 from scipy.optimize import check_grad
 
-from bayesian_optimization.test_entropy_search import entropy_search_acquisition
 from emukit.bayesian_optimization.acquisitions import ExpectedImprovement, NegativeLowerConfidenceBound, EntropySearch
 from emukit.bayesian_optimization.acquisitions import MaxValueEntropySearch, MUMBO
 from emukit.core.acquisition import IntegratedHyperParameterAcquisition
@@ -18,6 +17,7 @@ from emukit.bayesian_optimization.acquisitions import ProbabilityOfImprovement
 from emukit.bayesian_optimization.acquisitions import ProbabilityOfFeasibility
 from emukit.experimental_design.acquisitions import ModelVariance, IntegratedVarianceReduction
 from emukit.model_wrappers.gpy_quadrature_wrappers import create_emukit_model_from_gpy_model
+from emukit.samplers import AffineInvariantEnsembleSampler
 from emukit.quadrature.acquisitions import SquaredCorrelation, MutualInformation, UncertaintySampling
 from emukit.quadrature.methods import VanillaBayesianQuadrature
 
@@ -97,6 +97,12 @@ def probability_of_improvement_acquisition(gpy_model):
 
 
 @pytest.fixture
+def entropy_search_acquisition(gpy_model, continuous_space):
+    sampler = AffineInvariantEnsembleSampler(continuous_space)
+    return EntropySearch(gpy_model, continuous_space, sampler, num_representer_points=10)
+
+
+@pytest.fixture
 def max_value_entropy_search_acquisition(gpy_model, continuous_space):
     return MaxValueEntropySearch(gpy_model, continuous_space, num_samples=2, grid_size=100)
 
@@ -132,6 +138,7 @@ def multi_source_entropy_search_acquisition(gpy_model):
     space = ParameterSpace([ContinuousParameter('x1', 0, 1), InformationSourceParameter(2)])
     return MultiInformationSourceEntropySearch(gpy_model, space, num_representer_points=10)
 
+
 @pytest.fixture
 @pytest.mark.parametrize('n_dims', [2])
 def MUMBO_acquisition(gpy_model):
@@ -158,6 +165,10 @@ def create_gradient_acquisition_fixtures():
 # Tests
 @pytest.mark.parametrize('acquisition', create_acquisition_fixture_parameters())
 def test_acquisition_evaluate_shape(acquisition, n_dims):
+    x = np.random.rand(1, n_dims)
+    acquisition_value = acquisition.evaluate(x)
+    assert acquisition_value.shape == (1, 1)
+
     x = np.random.rand(10, n_dims)
     acquisition_value = acquisition.evaluate(x)
     assert acquisition_value.shape == (10, 1)
@@ -179,7 +190,11 @@ def test_acquisition_gradient_computation(acquisition, n_dims, tol):
 @pytest.mark.parametrize(('acquisition', 'tol'), create_gradient_acquisition_fixtures())
 def test_acquisition_gradient_shapes(acquisition, n_dims, tol):
     rng = np.random.RandomState(43)
-    x_test = rng.rand(10, n_dims)
 
+    x_test = rng.rand(1, n_dims)
+    gradients = acquisition.evaluate_with_gradients(x_test)[1]
+    assert gradients.shape == (1, n_dims)
+
+    x_test = rng.rand(10, n_dims)
     gradients = acquisition.evaluate_with_gradients(x_test)[1]
     assert gradients.shape == (10, n_dims)

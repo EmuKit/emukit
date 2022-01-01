@@ -98,7 +98,7 @@ class BanditParameter(Parameter):
                 x = x.ravel()
             elif x.ndim == 2 and x.shape[1] > 1:
                 result = np.array([self.check_in_domain(xx) for xx in x])
-                return result
+                return result.any()
             elif x.ndim > 1:
                 raise ValueError("Expected x shape (n,) or (n, 1), actual is {}".format(x.shape))
             if x.shape[0] != self.domain.shape[1]:

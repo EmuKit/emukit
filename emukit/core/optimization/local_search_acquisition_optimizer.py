@@ -89,7 +89,7 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
             elif isinstance(parameter, DiscreteParameter):
                 # Find current position in domain while being robust to numerical precision problems
                 current_index = np.argmin(np.abs(
-                    np.subtract(parameter.domain, np.asscalar(features))))
+                    np.subtract(parameter.domain, features.item())))
                 this_neighbours = []
                 if current_index > 0:
                     this_neighbours.append([parameter.domain[current_index - 1]])
@@ -99,7 +99,7 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
             elif isinstance(parameter, ContinuousParameter):
                 samples, param_range = [], parameter.max - parameter.min
                 while len(samples) < self.num_continuous:
-                    sample = np.random.normal(np.asscalar(features), self.std_dev * param_range, (1, 1))
+                    sample = np.random.normal(features.item(), self.std_dev * param_range, (1, 1))
                     if parameter.min <= sample <= parameter.max:
                         samples.append(sample)
                 neighbours.append(np.vstack(samples))
@@ -143,7 +143,7 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
             acquisition_values = acquisition.evaluate(neighbours_with_context)
             max_index = np.argmax(acquisition_values)
             max_neighbour = neighbours[max_index]
-            max_value = np.asscalar(acquisition_values[max_index])
+            max_value = acquisition_values[max_index].item()
             if max_value < incumbent_value:
                 _log.debug("End after {} steps at maximum of acquisition={:.4f} at {}"
                            .format(step, incumbent_value, str(x)))

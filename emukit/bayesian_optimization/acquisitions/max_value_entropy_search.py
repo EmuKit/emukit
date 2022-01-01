@@ -161,7 +161,7 @@ class MUMBO(MaxValueEntropySearch):
         information about the objective function
         See this paper for more details:
         Moss et al.
-        MUMBO: MUlti-task Max-value Bayesian Optimsiation
+        MUMBO: MUlti-task Max-value Bayesian Optimisation
         ECML 2020
 
         :param model: GP model to compute the distribution of the minimum dubbed pmin.
@@ -169,7 +169,7 @@ class MUMBO(MaxValueEntropySearch):
         :param target_information_source_index: The index of the information source we want to minimise
         :param num_samples: integer determining how many samples to draw of the minimum (does not need to be large)
         :param grid_size: number of random locations in grid used to fit the gumbel distribution and approximately generate
-        the samples of the minimum (recommend scaling with problem dimension, i.e. 10000*d)
+                          the samples of the minimum (recommend scaling with problem dimension, i.e. 10000*d)
         """
 
         if not isinstance(model, IEntropySearchModel):

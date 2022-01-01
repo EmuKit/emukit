@@ -11,8 +11,7 @@ from .integration_measures import IntegrationMeasure
 
 
 class QuadratureKernel:
-    """
-    Abstract class for covariance function of a Gaussian process than can be integrated
+    """Abstract class for covariance function of a Gaussian process that can be integrated.
 
     Note that each specific implementation of this class must go with a specific standard kernel as input which
     inherits from IStandardKernel. This is because we both want the QuadratureKernel to be backend agnostic

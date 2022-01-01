@@ -76,14 +76,13 @@ class IPriorHyperparameters:
     def generate_hyperparameters_samples(self, n_samples: int, n_burnin: int,
                                          subsample_interval: int, step_size: float, leapfrog_steps: int) -> np.ndarray:
         """
-        Generates the samples from the hyper-parameters of the model.
+        Generates the samples from the hyper-parameters of the model, and returns them.
 
         :param n_samples: Number of hyper-parameter samples
         :param n_burnin: Number of initial samples not used.
         :param subsample_interval: Interval of subsampling from HMC samples.
         :param step_size: Size of the gradient steps in the HMC sampler.
         :param leapfrog_steps: Number of gradient steps before each Metropolis Hasting step.
-        :return: numpy array whose rows are samples from the hyper-parameters of the model.
         """
         raise NotImplementedError
 
