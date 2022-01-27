@@ -4,11 +4,11 @@ excluded_notebooks = ['Emukit-tutorial-multi-fidelity-bayesian-optimization.ipyn
                       'Emukit-tutorial-select-neural-net-hyperparameters.ipynb',
                       'Emukit-tutorial-parallel-eval-of-obj-fun.ipynb']
 
-import pytest
 import os
 
-from nbconvert.preprocessors import ExecutePreprocessor
 import nbformat
+import pytest
+from nbconvert.preprocessors import ExecutePreprocessor
 
 notebook_directory = './notebooks/'
 

@@ -1,20 +1,18 @@
-from .. import util
-from .. import ComparisonGP, ComparisonGPEmukitWrapper
-from .acquisition_function import AcquisitionFunction
+import collections
+import math
+import time
+from typing import Callable, Dict, List, Tuple
 
 import GPy
+import matplotlib.pyplot as plt
 import numpy as np
 import numpy.linalg as la
 import scipy as sp
-import collections
-import time
-from scipy.stats import norm, mvn, multivariate_normal
-from GPy.util.univariate_Gaussian import std_norm_pdf, std_norm_cdf, derivLogCdfNormal, logCdfNormal, cdfNormal
-import matplotlib.pyplot as plt
-import math
-import time
+from GPy.util.univariate_Gaussian import cdfNormal, derivLogCdfNormal, logCdfNormal, std_norm_cdf, std_norm_pdf
+from scipy.stats import multivariate_normal, mvn, norm
 
-from typing import Tuple, List, Callable, Dict
+from .. import ComparisonGP, ComparisonGPEmukitWrapper, util
+from .acquisition_function import AcquisitionFunction
 
 
 def dK_dX(self, X: np.ndarray, X2: np.ndarray, dimX: int):

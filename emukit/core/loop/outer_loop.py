@@ -2,20 +2,19 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import List, Union, Callable
+import logging
+from typing import Callable, List, Union
 
 import numpy as np
 
 from ..event_handler import EventHandler
-from .loop_state import LoopState
-from .user_function_result import UserFunctionResult
 from .candidate_point_calculators import CandidatePointCalculator
+from .loop_state import LoopState
 from .model_updaters import ModelUpdater
+from .stopping_conditions import ConvergenceStoppingCondition, FixedIterationsStoppingCondition, StoppingCondition
 from .user_function import UserFunction, UserFunctionWrapper
-from .stopping_conditions import StoppingCondition, FixedIterationsStoppingCondition, ConvergenceStoppingCondition
+from .user_function_result import UserFunctionResult
 
-
-import logging
 _log = logging.getLogger(__name__)
 
 

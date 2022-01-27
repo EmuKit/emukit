@@ -13,6 +13,7 @@ import logging
 from typing import List, Tuple
 
 import numpy as np
+from doubly_stochastic_dgp.utils import BroadcastingLikelihood
 from gpflow import ParamList, autoflow, params_as_tensors, settings
 from gpflow.actions import Action, Loop
 from gpflow.kernels import RBF, Linear, White
@@ -21,8 +22,6 @@ from gpflow.mean_functions import Zero
 from gpflow.models.model import Model
 from gpflow.params import DataHolder, Minibatch
 from gpflow.training import AdamOptimizer
-
-from doubly_stochastic_dgp.utils import BroadcastingLikelihood
 
 from ...core.interfaces import IModel
 from ...multi_fidelity.convert_lists_to_array import convert_x_list_to_array, convert_y_list_to_array

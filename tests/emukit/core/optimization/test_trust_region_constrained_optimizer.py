@@ -1,10 +1,9 @@
+import numpy as np
 import pytest
 
-import numpy as np
-
-from emukit.core import ParameterSpace, ContinuousParameter
-from emukit.core.optimization.optimizer import OptTrustRegionConstrained, apply_optimizer
+from emukit.core import ContinuousParameter, ParameterSpace
 from emukit.core.constraints import LinearInequalityConstraint, NonlinearInequalityConstraint
+from emukit.core.optimization.optimizer import OptTrustRegionConstrained, apply_optimizer
 
 
 @pytest.fixture

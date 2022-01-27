@@ -1,6 +1,6 @@
-from pbbo import *
-import GPy
 import evalset.test_funcs
+import GPy
+from pbbo import *
 
 # Select one of the following as the inference method: MCMCComparisonGP, EPComparisonGP, VIComparisonGPMF, VIComparisonGPFR
 # We demonstrate here with the EP inference: 

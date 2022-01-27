@@ -2,14 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import numpy as np
-import GPy
-from typing import List, Tuple, Optional
+from typing import List, Optional, Tuple
 
-from emukit.quadrature.methods.vanilla_bq import VanillaBayesianQuadrature
-from emukit.quadrature.loop import VanillaBayesianQuadratureLoop
-from emukit.quadrature.kernels.integration_measures import IntegrationMeasure
+import GPy
+import numpy as np
+
 from emukit.model_wrappers.gpy_quadrature_wrappers import create_emukit_model_from_gpy_model
+from emukit.quadrature.kernels.integration_measures import IntegrationMeasure
+from emukit.quadrature.loop import VanillaBayesianQuadratureLoop
+from emukit.quadrature.methods.vanilla_bq import VanillaBayesianQuadrature
 
 
 def create_vanilla_bq_loop_with_rbf_kernel(X: np.ndarray, Y: np.ndarray,

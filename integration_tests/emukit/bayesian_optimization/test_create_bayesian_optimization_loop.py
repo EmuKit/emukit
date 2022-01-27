@@ -1,8 +1,8 @@
 import numpy as np
 
-from emukit.test_functions.forrester import forrester_function
-from emukit.examples.gp_bayesian_optimization.optimization_loops import create_bayesian_optimization_loop
 from emukit.examples.gp_bayesian_optimization.enums import AcquisitionType, ModelType
+from emukit.examples.gp_bayesian_optimization.optimization_loops import create_bayesian_optimization_loop
+from emukit.test_functions.forrester import forrester_function
 
 
 def test_loop_state():

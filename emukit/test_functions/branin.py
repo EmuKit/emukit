@@ -4,7 +4,7 @@
 
 import numpy as np
 
-from emukit.core import ParameterSpace, ContinuousParameter
+from emukit.core import ContinuousParameter, ParameterSpace
 
 
 def branin_function():

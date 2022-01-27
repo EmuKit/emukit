@@ -1,12 +1,14 @@
 from typing import Tuple
 
 import numpy as np
+
 try:
     from sklearn.gaussian_process import GaussianProcessRegressor
 except ImportError:
     ImportError('scikit-learn needs to be installed in order to use SklearnGPRWrapper')
 
 from emukit.core.interfaces.models import IModel
+
 
 class SklearnGPRWrapper(IModel):
 

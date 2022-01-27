@@ -2,8 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from emukit.test_functions.quadrature.baselines import univariate_approximate_ground_truth_integral
-from emukit.test_functions.quadrature.baselines import bivariate_approximate_ground_truth_integral
+from emukit.test_functions.quadrature.baselines import (
+    bivariate_approximate_ground_truth_integral,
+    univariate_approximate_ground_truth_integral,
+)
 
 
 def test_univariate_approximate_ground_truth_integral_shape():

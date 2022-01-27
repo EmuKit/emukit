@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import numpy as np
 from typing import List, Tuple
+
+import numpy as np
 
 
 class Parameter(object):

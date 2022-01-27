@@ -1,8 +1,8 @@
 import numpy as np
 
+from emukit.benchmarking.loop_benchmarking.random_search import RandomSearch
 from emukit.core.loop import UserFunctionWrapper
 from emukit.test_functions import branin_function
-from emukit.benchmarking.loop_benchmarking.random_search import RandomSearch
 
 
 def test_random_search():

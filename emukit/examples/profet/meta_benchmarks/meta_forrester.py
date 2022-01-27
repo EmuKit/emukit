@@ -1,8 +1,8 @@
 import pickle
-import numpy as np
-
 from functools import partial
 from typing import Tuple
+
+import numpy as np
 
 try:
     import torch

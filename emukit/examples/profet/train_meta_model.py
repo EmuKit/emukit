@@ -1,13 +1,13 @@
 import argparse
+import functools
 import json
 import os
 import pickle
-from copy import deepcopy
-import numpy as np
 import tarfile
-import functools
-
+from copy import deepcopy
 from urllib.request import urlretrieve
+
+import numpy as np
 
 try:
     import torch

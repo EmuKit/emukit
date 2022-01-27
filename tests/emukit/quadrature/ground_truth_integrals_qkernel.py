@@ -4,13 +4,18 @@
 
 # Use this script for ground truth integrals of the quadrature kernels.
 
-import numpy as np
-import GPy
 from typing import List, Tuple
 
+import GPy
+import numpy as np
+
 from emukit.model_wrappers.gpy_quadrature_wrappers import RBFGPy
+from emukit.quadrature.kernels import (
+    QuadratureRBFIsoGaussMeasure,
+    QuadratureRBFLebesgueMeasure,
+    QuadratureRBFUniformMeasure,
+)
 from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure, UniformMeasure
-from emukit.quadrature.kernels import QuadratureRBFLebesgueMeasure, QuadratureRBFIsoGaussMeasure, QuadratureRBFUniformMeasure
 
 
 def _sample_uniform(num_samples: int, bounds: List[Tuple[float, float]]):

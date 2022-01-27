@@ -4,7 +4,7 @@ import numpy as np
 from emukit.bayesian_optimization.acquisitions import ExpectedImprovement
 from emukit.bayesian_optimization.loops import UnknownConstraintBayesianOptimizationLoop
 from emukit.core import ContinuousParameter, ParameterSpace
-from emukit.core.loop import UserFunctionWrapper, FixedIterationsStoppingCondition
+from emukit.core.loop import FixedIterationsStoppingCondition, UserFunctionWrapper
 from emukit.model_wrappers import GPyModelWrapper
 
 

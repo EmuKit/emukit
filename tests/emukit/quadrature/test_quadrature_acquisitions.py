@@ -2,17 +2,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import numpy as np
-import pytest
-import GPy
 from math import isclose
 
-from emukit.model_wrappers.gpy_quadrature_wrappers import RBFGPy, BaseGaussianProcessGPy
-from emukit.quadrature.methods import VanillaBayesianQuadrature
-from emukit.quadrature.kernels.quadrature_rbf import QuadratureRBFIsoGaussMeasure, QuadratureRBFLebesgueMeasure
-from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure
-from emukit.quadrature.acquisitions import MutualInformation, IntegralVarianceReduction, UncertaintySampling
+import GPy
+import numpy as np
+import pytest
 
+from emukit.model_wrappers.gpy_quadrature_wrappers import BaseGaussianProcessGPy, RBFGPy
+from emukit.quadrature.acquisitions import IntegralVarianceReduction, MutualInformation, UncertaintySampling
+from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure
+from emukit.quadrature.kernels.quadrature_rbf import QuadratureRBFIsoGaussMeasure, QuadratureRBFLebesgueMeasure
+from emukit.quadrature.methods import VanillaBayesianQuadrature
 
 REL_TOL = 1e-5
 ABS_TOL = 1e-4

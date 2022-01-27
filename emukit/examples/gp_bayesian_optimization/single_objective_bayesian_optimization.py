@@ -3,15 +3,19 @@
 
 
 from enum import Enum
+
 import numpy as np
-
-from GPy.models import GPRegression
 from GPy.kern import Matern52
+from GPy.models import GPRegression
 
-from ...core.parameter_space import ParameterSpace
-from ...core.loop import FixedIterationsStoppingCondition, UserFunction
-from ...bayesian_optimization.acquisitions import ExpectedImprovement, NegativeLowerConfidenceBound, ProbabilityOfImprovement
+from ...bayesian_optimization.acquisitions import (
+    ExpectedImprovement,
+    NegativeLowerConfidenceBound,
+    ProbabilityOfImprovement,
+)
 from ...bayesian_optimization.loops import BayesianOptimizationLoop
+from ...core.loop import FixedIterationsStoppingCondition, UserFunction
+from ...core.parameter_space import ParameterSpace
 from ...model_wrappers.gpy_model_wrappers import GPyModelWrapper
 from .enums import AcquisitionType
 

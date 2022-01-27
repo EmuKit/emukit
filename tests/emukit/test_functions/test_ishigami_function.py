@@ -1,4 +1,5 @@
 import numpy as np
+
 from emukit.test_functions.sensitivity import Ishigami
 
 

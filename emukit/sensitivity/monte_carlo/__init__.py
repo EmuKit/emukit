@@ -2,4 +2,4 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from .monte_carlo_sensitivity import MonteCarloSensitivity, ModelFreeMonteCarloSensitivity  # noqa: F401
+from .monte_carlo_sensitivity import ModelFreeMonteCarloSensitivity, MonteCarloSensitivity  # noqa: F401

@@ -2,14 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import Tuple, Optional
+from typing import Optional, Tuple
 
-import numpy as np
 import GPy
+import numpy as np
 
-from ..core.interfaces import IModel, IDifferentiable, IJointlyDifferentiable, IPriorHyperparameters, IModelWithNoise
-from ..experimental_design.interfaces import ICalculateVarianceReduction
 from ..bayesian_optimization.interfaces import IEntropySearchModel
+from ..core.interfaces import IDifferentiable, IJointlyDifferentiable, IModel, IModelWithNoise, IPriorHyperparameters
+from ..experimental_design.interfaces import ICalculateVarianceReduction
 
 
 class GPyModelWrapper(

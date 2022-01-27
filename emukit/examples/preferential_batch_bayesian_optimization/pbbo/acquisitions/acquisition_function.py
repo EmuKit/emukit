@@ -1,14 +1,15 @@
-from typing import Tuple, Dict, Callable, Optional
+from typing import Callable, Dict, Optional, Tuple
+
 import numpy as np
+
 import emukit
-
-
-from .. import ComparisonGP, ComparisonGPEmukitWrapper
+from emukit.core import ParameterSpace
 from emukit.core.acquisition import Acquisition
 from emukit.core.interfaces import IModel
-from emukit.core.optimization import GradientAcquisitionOptimizer
-from emukit.core import ParameterSpace
-from emukit.core.optimization import  ContextManager
+from emukit.core.optimization import ContextManager, GradientAcquisitionOptimizer
+
+from .. import ComparisonGP, ComparisonGPEmukitWrapper
+
 
 class AcquisitionFunction():
     """

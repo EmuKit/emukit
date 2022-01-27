@@ -2,15 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+import itertools
 from typing import Tuple, Union
 
-import scipy.stats
 import numpy as np
+import scipy.stats
 
-import itertools
-
-from ...core.interfaces import IModel, IModelWithNoise, IDifferentiable, IJointlyDifferentiable
 from ...core.acquisition import Acquisition
+from ...core.interfaces import IDifferentiable, IJointlyDifferentiable, IModel, IModelWithNoise
 
 
 class ExpectedImprovement(Acquisition):

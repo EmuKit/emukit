@@ -5,8 +5,16 @@ import pytest
 
 from emukit.core import ContinuousParameter, ParameterSpace
 from emukit.core.interfaces import IModel
-from emukit.core.loop import (OuterLoop, ModelUpdater, StoppingCondition, CandidatePointCalculator, UserFunctionResult,
-                              UserFunction, SequentialPointCalculator, FixedIntervalUpdater)
+from emukit.core.loop import (
+    CandidatePointCalculator,
+    FixedIntervalUpdater,
+    ModelUpdater,
+    OuterLoop,
+    SequentialPointCalculator,
+    StoppingCondition,
+    UserFunction,
+    UserFunctionResult,
+)
 from emukit.core.loop.loop_state import create_loop_state
 from emukit.core.optimization import GradientAcquisitionOptimizer
 from emukit.experimental_design.acquisitions import ModelVariance

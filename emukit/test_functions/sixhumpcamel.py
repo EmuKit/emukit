@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from emukit.core import ParameterSpace, ContinuousParameter
+from emukit.core import ContinuousParameter, ParameterSpace
 
 
 def sixhumpcamel_function():

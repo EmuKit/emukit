@@ -14,7 +14,9 @@ from ...multi_fidelity.convert_lists_to_array import convert_xy_lists_to_arrays
 from ...multi_fidelity.kernels import LinearMultiFidelityKernel
 from ...multi_fidelity.models import GPyLinearMultiFidelityModel
 from ...multi_fidelity.models.non_linear_multi_fidelity_model import (
-    NonLinearMultiFidelityModel, make_non_linear_kernels)
+    NonLinearMultiFidelityModel,
+    make_non_linear_kernels,
+)
 
 _log = logging.getLogger(__name__)
 

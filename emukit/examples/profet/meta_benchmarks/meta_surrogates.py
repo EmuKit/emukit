@@ -1,5 +1,5 @@
-import torch
 import numpy as np
+import torch
 
 
 def objective_function(config, model_objective, model_cost,

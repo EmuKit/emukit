@@ -6,12 +6,12 @@ import abc
 
 import numpy as np
 
-from .loop_state import LoopState
 from ..acquisition import Acquisition
 from ..interfaces import IModel
 from ..optimization.acquisition_optimizer import AcquisitionOptimizerBase
 from ..optimization.context_manager import ContextManager
 from ..parameter_space import ParameterSpace
+from .loop_state import LoopState
 
 
 class CandidatePointCalculator(abc.ABC):

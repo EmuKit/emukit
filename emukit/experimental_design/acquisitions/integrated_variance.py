@@ -7,10 +7,9 @@ Contains integrated variance acquisition
 """
 import numpy as np
 
+from ...core import ParameterSpace
 from ...core.acquisition import Acquisition
 from ...core.initial_designs import RandomDesign
-from ...core import ParameterSpace
-
 from ..interfaces import ICalculateVarianceReduction
 
 

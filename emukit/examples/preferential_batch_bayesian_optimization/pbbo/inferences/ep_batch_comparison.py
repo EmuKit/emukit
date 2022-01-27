@@ -1,23 +1,19 @@
-import numpy as np
 import time
-from scipy.integrate import quad, dblquad
-from scipy.stats import norm, multivariate_normal
-from scipy.special import logsumexp
-from scipy.linalg import sqrtm, inv, svd
-import scipy.linalg as la
+from typing import Callable, Dict, List, Tuple
 
 import GPy
 import nearestPD
-
-from GPy.inference.latent_function_inference.expectation_propagation import posteriorParams #, gaussianApproximation
+import numpy as np
+import scipy.linalg as la
+from GPy.inference.latent_function_inference.expectation_propagation import posteriorParams  # , gaussianApproximation
 from GPy.inference.latent_function_inference.posterior import PosteriorEP as Posterior
-
-from GPy.util.linalg import  dtrtrs, dpotrs, tdot, symmetrify, jitchol, pdinv
-
-from typing import Tuple, List, Callable, Dict
+from GPy.util.linalg import dpotrs, dtrtrs, jitchol, pdinv, symmetrify, tdot
+from scipy.integrate import dblquad, quad
+from scipy.linalg import inv, sqrtm, svd
+from scipy.special import logsumexp
+from scipy.stats import multivariate_normal, norm
 
 from .. import util
-
 
 # Some helper functions: 
 npdf = lambda x, m, v: 1./np.sqrt(2*np.pi*v)*np.exp(-(x-m)**2/(2*v))

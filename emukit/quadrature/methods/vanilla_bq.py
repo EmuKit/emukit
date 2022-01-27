@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import numpy as np
 from typing import Tuple
+
+import numpy as np
 
 from ...quadrature.interfaces.base_gp import IBaseGaussianProcess
 from .warped_bq_model import WarpedBayesianQuadratureModel

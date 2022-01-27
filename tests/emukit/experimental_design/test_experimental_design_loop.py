@@ -2,12 +2,11 @@ import GPy
 import numpy as np
 from numpy.testing import assert_array_equal
 
-from emukit.experimental_design.acquisitions import ModelVariance
-from emukit.experimental_design import ExperimentalDesignLoop
-from emukit.core.parameter_space import ParameterSpace
 from emukit.core.continuous_parameter import ContinuousParameter
-from emukit.core.loop import UserFunctionWrapper, FixedIterationsStoppingCondition
-
+from emukit.core.loop import FixedIterationsStoppingCondition, UserFunctionWrapper
+from emukit.core.parameter_space import ParameterSpace
+from emukit.experimental_design import ExperimentalDesignLoop
+from emukit.experimental_design.acquisitions import ModelVariance
 from emukit.model_wrappers import GPyModelWrapper
 
 

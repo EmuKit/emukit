@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+from typing import List, Tuple
+
 import numpy as np
-from typing import Tuple, List
 
 from ...core.continuous_parameter import ContinuousParameter
 

@@ -5,22 +5,25 @@ import pytest
 import pytest_lazyfixture
 from scipy.optimize import check_grad
 
-from emukit.bayesian_optimization.acquisitions import ExpectedImprovement, NegativeLowerConfidenceBound, EntropySearch
-from emukit.bayesian_optimization.acquisitions import MaxValueEntropySearch, MUMBO
-from emukit.core.acquisition import IntegratedHyperParameterAcquisition
+from emukit.bayesian_optimization.acquisitions import (
+    MUMBO,
+    EntropySearch,
+    ExpectedImprovement,
+    MaxValueEntropySearch,
+    NegativeLowerConfidenceBound,
+    ProbabilityOfFeasibility,
+    ProbabilityOfImprovement,
+)
 from emukit.bayesian_optimization.acquisitions.entropy_search import MultiInformationSourceEntropySearch
 from emukit.bayesian_optimization.acquisitions.log_acquisition import LogAcquisition
-from emukit.core import ParameterSpace, ContinuousParameter, InformationSourceParameter
+from emukit.core import ContinuousParameter, InformationSourceParameter, ParameterSpace
+from emukit.core.acquisition import IntegratedHyperParameterAcquisition
 from emukit.core.acquisition.acquisition_per_cost import CostAcquisition
-
-from emukit.bayesian_optimization.acquisitions import ProbabilityOfImprovement
-from emukit.bayesian_optimization.acquisitions import ProbabilityOfFeasibility
-from emukit.experimental_design.acquisitions import ModelVariance, IntegratedVarianceReduction
+from emukit.experimental_design.acquisitions import IntegratedVarianceReduction, ModelVariance
 from emukit.model_wrappers.gpy_quadrature_wrappers import create_emukit_model_from_gpy_model
-from emukit.samplers import AffineInvariantEnsembleSampler
-from emukit.quadrature.acquisitions import SquaredCorrelation, MutualInformation, UncertaintySampling
+from emukit.quadrature.acquisitions import MutualInformation, SquaredCorrelation, UncertaintySampling
 from emukit.quadrature.methods import VanillaBayesianQuadrature
-
+from emukit.samplers import AffineInvariantEnsembleSampler
 
 # This is the step sized used by scipy.optimize.check_grad to calculate the numerical gradient
 gradient_check_step_size = 1e-8

@@ -4,11 +4,11 @@
 
 from typing import Tuple, Union
 
-import scipy.stats
 import numpy as np
+import scipy.stats
 
-from ...core.interfaces import IModel, IDifferentiable
 from ...core.acquisition import Acquisition
+from ...core.interfaces import IDifferentiable, IModel
 
 
 class ProbabilityOfFeasibility(Acquisition):

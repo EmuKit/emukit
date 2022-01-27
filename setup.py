@@ -12,8 +12,9 @@
 #   permissions and limitations under the License.
 # ==============================================================================
 
-from setuptools import setup, find_packages
 import sys
+
+from setuptools import find_packages, setup
 
 from emukit.__version__ import __version__
 

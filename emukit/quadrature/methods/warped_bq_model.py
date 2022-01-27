@@ -2,10 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import numpy as np
 from typing import Tuple, Union
 
-from ...core.interfaces.models import IModel, IDifferentiable
+import numpy as np
+
+from ...core.interfaces.models import IDifferentiable, IModel
 from ...quadrature.interfaces.base_gp import IBaseGaussianProcess
 from ...quadrature.kernels.bounds import BoxBounds
 from ...quadrature.kernels.integration_measures import IntegrationMeasure

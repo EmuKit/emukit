@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import numpy as np
 from typing import List, Union
+
+import numpy as np
 
 
 class Encoding(object):

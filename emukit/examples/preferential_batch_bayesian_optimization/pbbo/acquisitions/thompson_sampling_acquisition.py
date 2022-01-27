@@ -1,16 +1,17 @@
-from .. import util
-from .. import ComparisonGP, ComparisonGPEmukitWrapper
-from .acquisition_function import AcquisitionFunction
+import collections
+import time
+from typing import Callable, Dict, List, Tuple
+
 import GPy
 import numpy as np
 import numpy.linalg as la
 import scipy as sp
-import collections
-import time
-from scipy.stats import norm, mvn, multivariate_normal
-from GPy.util.univariate_Gaussian import std_norm_pdf, std_norm_cdf, derivLogCdfNormal, logCdfNormal, cdfNormal
+from GPy.util.univariate_Gaussian import cdfNormal, derivLogCdfNormal, logCdfNormal, std_norm_cdf, std_norm_pdf
+from scipy.stats import multivariate_normal, mvn, norm
 
-from typing import Callable, List, Tuple, Dict
+from .. import ComparisonGP, ComparisonGPEmukitWrapper, util
+from .acquisition_function import AcquisitionFunction
+
 
 class SequentialThompsonSampler():
     """

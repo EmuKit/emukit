@@ -1,13 +1,14 @@
-import numpy as np
-import scipy.optimize
 from typing import Optional
 
+import numpy as np
+import scipy.optimize
+
+from ..bayesian_optimization.acquisitions.local_penalization import LocalPenalization
 from ..core import ParameterSpace
 from ..core.acquisition import Acquisition, IntegratedHyperParameterAcquisition
 from ..core.interfaces import IDifferentiable
 from ..core.interfaces.models import IPriorHyperparameters
 from ..core.loop import CandidatePointCalculator, LoopState
-from ..bayesian_optimization.acquisitions.local_penalization import LocalPenalization
 from ..core.optimization import AcquisitionOptimizerBase
 
 N_SAMPLES = 500  # Number of samples to use when estimating Lipschitz constant

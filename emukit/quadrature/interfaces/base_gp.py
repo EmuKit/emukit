@@ -2,10 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import numpy as np
 from typing import Tuple
 
-from ...core.interfaces import IModel, IDifferentiable
+import numpy as np
+
+from ...core.interfaces import IDifferentiable, IModel
 from ..kernels.quadrature_kernels import QuadratureKernel
 
 

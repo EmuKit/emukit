@@ -1,12 +1,11 @@
+import GPy
+import numpy as np
 import pytest
 
-import numpy as np
-import GPy
-
 import emukit.multi_fidelity
+import emukit.test_functions.forrester
 from emukit.model_wrappers.gpy_model_wrappers import GPyMultiOutputWrapper
 from emukit.multi_fidelity.models import GPyLinearMultiFidelityModel
-import emukit.test_functions.forrester
 
 
 class TestModels:

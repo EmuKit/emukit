@@ -1,13 +1,14 @@
 # Use this script for ground truth integrals of the Bounded BQ Gaussian process.
 
-import numpy as np
-import GPy
 from typing import List, Tuple
 
-from emukit.model_wrappers.gpy_quadrature_wrappers import RBFGPy, BaseGaussianProcessGPy
-from emukit.quadrature.kernels.quadrature_rbf import QuadratureRBFIsoGaussMeasure
+import GPy
+import numpy as np
+
+from emukit.model_wrappers.gpy_quadrature_wrappers import BaseGaussianProcessGPy, RBFGPy
 from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure
-from emukit.quadrature.methods import BoundedBayesianQuadrature, WSABIL
+from emukit.quadrature.kernels.quadrature_rbf import QuadratureRBFIsoGaussMeasure
+from emukit.quadrature.methods import WSABIL, BoundedBayesianQuadrature
 
 
 def integral_mean_from_measure_samples(num_samples: int, model: BoundedBayesianQuadrature):

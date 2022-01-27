@@ -1,14 +1,15 @@
-import GPy
-import pytest
-import numpy as np
-from numpy.testing import assert_allclose
 from math import isclose
+
+import GPy
+import numpy as np
+import pytest
+from numpy.testing import assert_allclose
 from pytest_lazyfixture import lazy_fixture
 
-from emukit.quadrature.methods import BoundedBayesianQuadrature, WSABIL
-from emukit.quadrature.kernels import QuadratureRBFLebesgueMeasure, QuadratureRBFIsoGaussMeasure
+from emukit.model_wrappers.gpy_quadrature_wrappers import BaseGaussianProcessGPy, RBFGPy
+from emukit.quadrature.kernels import QuadratureRBFIsoGaussMeasure, QuadratureRBFLebesgueMeasure
 from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure
-from emukit.model_wrappers.gpy_quadrature_wrappers import RBFGPy, BaseGaussianProcessGPy
+from emukit.quadrature.methods import WSABIL, BoundedBayesianQuadrature
 
 REL_TOL = 1e-5
 ABS_TOL = 1e-4

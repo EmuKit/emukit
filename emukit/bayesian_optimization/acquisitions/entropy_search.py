@@ -2,20 +2,19 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import Union, Callable
+from typing import Callable, Union
 
-import scipy
 import numpy as np
+import scipy
 
 from ...core import InformationSourceParameter
 from ...core.acquisition import Acquisition
 from ...core.interfaces import IModel
 from ...core.parameter_space import ParameterSpace
 from ...samplers import AffineInvariantEnsembleSampler, McmcSampler
-
+from .. import epmgp
 from ..acquisitions import ExpectedImprovement
 from ..interfaces import IEntropySearchModel
-from .. import epmgp
 
 
 class EntropySearch(Acquisition):

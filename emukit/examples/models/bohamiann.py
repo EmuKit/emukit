@@ -3,7 +3,7 @@
 
 import numpy as np
 
-from ...core.interfaces.models import IModel, IDifferentiable
+from ...core.interfaces.models import IDifferentiable, IModel
 
 try:
     from pybnn import bohamiann

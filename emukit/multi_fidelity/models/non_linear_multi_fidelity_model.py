@@ -11,13 +11,13 @@ Nonlinear information fusion algorithms for data-efficient multi-fidelity modell
 P. Perdikaris, M. Raissi, A. Damianou, N. D. Lawrence and G. E. Karniadakis (2017)
 http://web.mit.edu/parisp/www/assets/20160751.full.pdf
 """
-from typing import Tuple, List, Type
+from typing import List, Tuple, Type
 
-import numpy as np
 import GPy
+import numpy as np
 
-from ...core.interfaces import IModel, IDifferentiable
-from ..convert_lists_to_array import convert_y_list_to_array, convert_x_list_to_array
+from ...core.interfaces import IDifferentiable, IModel
+from ..convert_lists_to_array import convert_x_list_to_array, convert_y_list_to_array
 
 
 def make_non_linear_kernels(base_kernel_class: Type[GPy.kern.Kern],

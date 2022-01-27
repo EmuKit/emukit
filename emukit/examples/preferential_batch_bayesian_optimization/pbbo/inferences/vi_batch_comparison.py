@@ -1,22 +1,17 @@
 
-import numpy as np
-import scipy as sp
-from scipy.integrate import quad, dblquad
-
-from scipy.stats import norm, multivariate_normal
-from scipy.special import logsumexp
-from scipy.linalg import sqrtm, inv
+from typing import Callable, Dict, List, Tuple
 
 import GPy
-
-
-from GPy.util.linalg import dtrtrs, dpotrs, pdinv, tdot, jitchol
-from GPy.util.univariate_Gaussian import std_norm_pdf, std_norm_cdf, derivLogCdfNormal, logCdfNormal, cdfNormal
+import numpy as np
+import scipy as sp
 from GPy.inference.latent_function_inference.posterior import Posterior
-from scipy.linalg import block_diag
 from GPy.util import choleskies
-
-from typing import Callable, List, Tuple, Dict
+from GPy.util.linalg import dpotrs, dtrtrs, jitchol, pdinv, tdot
+from GPy.util.univariate_Gaussian import cdfNormal, derivLogCdfNormal, logCdfNormal, std_norm_cdf, std_norm_pdf
+from scipy.integrate import dblquad, quad
+from scipy.linalg import block_diag, inv, sqrtm
+from scipy.special import logsumexp
+from scipy.stats import multivariate_normal, norm
 
 from ..util import adam
 

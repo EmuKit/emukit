@@ -9,8 +9,7 @@ from ...core.acquisition import Acquisition, acquisition_per_expected_cost
 from ...core.interfaces import IModel
 from ...core.loop import FixedIntervalUpdater, OuterLoop, SequentialPointCalculator
 from ...core.loop.loop_state import create_loop_state
-from ...core.optimization import AcquisitionOptimizerBase
-from ...core.optimization import GradientAcquisitionOptimizer
+from ...core.optimization import AcquisitionOptimizerBase, GradientAcquisitionOptimizer
 from ...core.parameter_space import ParameterSpace
 
 

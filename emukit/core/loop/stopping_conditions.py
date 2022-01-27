@@ -3,12 +3,13 @@
 
 
 import abc
-import numpy as np
+import logging
 import math
+
+import numpy as np
 
 from . import LoopState
 
-import logging
 _log = logging.getLogger(__name__)
 
 

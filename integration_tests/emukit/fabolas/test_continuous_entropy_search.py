@@ -1,7 +1,6 @@
 import numpy as np
 
-
-from emukit.core import ParameterSpace, ContinuousParameter
+from emukit.core import ContinuousParameter, ParameterSpace
 from emukit.examples.fabolas import FabolasModel
 from emukit.examples.fabolas.continuous_fidelity_entropy_search import ContinuousFidelityEntropySearch
 

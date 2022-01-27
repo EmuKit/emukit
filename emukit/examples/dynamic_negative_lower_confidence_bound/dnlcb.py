@@ -1,7 +1,10 @@
-from emukit.bayesian_optimization.acquisitions import NegativeLowerConfidenceBound
-from emukit.core.interfaces import IModel, IDifferentiable
-import numpy as np
 from typing import Union
+
+import numpy as np
+
+from emukit.bayesian_optimization.acquisitions import NegativeLowerConfidenceBound
+from emukit.core.interfaces import IDifferentiable, IModel
+
 
 class DynamicNegativeLowerConfidenceBound(NegativeLowerConfidenceBound):
 

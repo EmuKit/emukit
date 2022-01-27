@@ -5,7 +5,6 @@
 import numpy as np
 from scipy import special
 
-
 # some variables
 sq2 = np.sqrt(2)
 eps = np.finfo(np.float32).eps

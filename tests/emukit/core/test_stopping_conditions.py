@@ -1,10 +1,12 @@
-import numpy as np
 import mock
+import numpy as np
 
-from emukit.core.loop import (ConvergenceStoppingCondition,
-                              FixedIterationsStoppingCondition,
-                              LoopState,
-                              StoppingCondition)
+from emukit.core.loop import (
+    ConvergenceStoppingCondition,
+    FixedIterationsStoppingCondition,
+    LoopState,
+    StoppingCondition,
+)
 
 
 class DummyStoppingCondition(StoppingCondition):

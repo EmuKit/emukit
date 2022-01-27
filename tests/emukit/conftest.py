@@ -6,7 +6,7 @@ import GPy
 import numpy as np
 import pytest
 
-from emukit.core import ContinuousParameter, ParameterSpace, OneHotEncoding
+from emukit.core import ContinuousParameter, OneHotEncoding, ParameterSpace
 from emukit.model_wrappers import GPyModelWrapper
 
 

@@ -2,15 +2,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import Union, Tuple, List, Any, Optional
+from typing import Any, List, Optional, Tuple, Union
 
 import numpy as np
 
-from .parameter import Parameter
-from .continuous_parameter import ContinuousParameter
 from .categorical_parameter import CategoricalParameter
+from .continuous_parameter import ContinuousParameter
 from .discrete_parameter import DiscreteParameter
 from .encodings import OneHotEncoding
+from .parameter import Parameter
+
 
 class BanditParameter(Parameter):
     """

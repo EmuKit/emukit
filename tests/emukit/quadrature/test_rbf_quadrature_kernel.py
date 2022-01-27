@@ -2,12 +2,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import numpy as np
 import GPy
+import numpy as np
 import pytest
 
 from emukit.model_wrappers.gpy_quadrature_wrappers import RBFGPy
-from emukit.quadrature.kernels import QuadratureRBFLebesgueMeasure, QuadratureRBFIsoGaussMeasure, QuadratureRBFUniformMeasure
+from emukit.quadrature.kernels import (
+    QuadratureRBFIsoGaussMeasure,
+    QuadratureRBFLebesgueMeasure,
+    QuadratureRBFUniformMeasure,
+)
 from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure, UniformMeasure
 
 

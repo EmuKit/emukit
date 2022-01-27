@@ -1,12 +1,12 @@
 """The WSABI-L loop"""
 
 
+from ...core.loop import FixedIntervalUpdater, ModelUpdater, OuterLoop, SequentialPointCalculator
 from ...core.loop.loop_state import create_loop_state
-from ...core.loop import OuterLoop, SequentialPointCalculator, FixedIntervalUpdater, ModelUpdater
 from ...core.optimization import AcquisitionOptimizerBase, GradientAcquisitionOptimizer
 from ...core.parameter_space import ParameterSpace
-from ..methods import WSABIL
 from ..acquisitions import UncertaintySampling
+from ..methods import WSABIL
 
 
 class WSABILLoop(OuterLoop):

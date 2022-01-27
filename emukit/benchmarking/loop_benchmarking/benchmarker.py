@@ -1,12 +1,13 @@
 import logging
-import numpy as np
 from functools import partial
 from typing import Callable, List, Tuple, Union
 
+import numpy as np
+
 from ...core import ParameterSpace
-from ...core.loop import LoopState, UserFunction, UserFunctionWrapper
 from ...core.initial_designs import RandomDesign
 from ...core.initial_designs.base import ModelFreeDesignBase
+from ...core.loop import LoopState, UserFunction, UserFunctionWrapper
 from .benchmark_result import BenchmarkResult
 from .metrics import Metric
 

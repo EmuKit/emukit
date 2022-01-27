@@ -1,6 +1,6 @@
 import numpy as np
 
-from emukit.core import ParameterSpace, ContinuousParameter, InformationSourceParameter
+from emukit.core import ContinuousParameter, InformationSourceParameter, ParameterSpace
 from emukit.core.loop.user_function import MultiSourceFunctionWrapper
 
 

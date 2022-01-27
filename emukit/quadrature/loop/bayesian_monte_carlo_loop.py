@@ -2,11 +2,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+from ...core.loop import FixedIntervalUpdater, ModelUpdater, OuterLoop
 from ...core.loop.loop_state import create_loop_state
-from ...core.loop import OuterLoop, FixedIntervalUpdater, ModelUpdater
 from ...core.parameter_space import ParameterSpace
-from ..methods import WarpedBayesianQuadratureModel
 from ..loop.quadrature_point_calculators import BayesianMonteCarloPointCalculator
+from ..methods import WarpedBayesianQuadratureModel
 
 
 class BayesianMonteCarlo(OuterLoop):

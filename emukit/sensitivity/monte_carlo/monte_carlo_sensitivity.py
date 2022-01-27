@@ -2,12 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+from typing import Callable, Tuple
+
 import numpy as np
-from typing import Tuple, Callable
 
 from ...core import ParameterSpace
-from ...core.loop import UserFunctionWrapper
 from ...core.interfaces.models import IModel
+from ...core.loop import UserFunctionWrapper
 
 
 class ModelFreeMonteCarloSensitivity(object):

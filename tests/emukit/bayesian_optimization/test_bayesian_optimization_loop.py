@@ -1,16 +1,14 @@
 import GPy
-import numpy as np
 import mock
+import numpy as np
 import pytest
 
-from emukit.bayesian_optimization.loops import BayesianOptimizationLoop
 from emukit.bayesian_optimization.acquisitions import ExpectedImprovement
-from emukit.core.interfaces import IModel
-from emukit.core.parameter_space import ParameterSpace
+from emukit.bayesian_optimization.loops import BayesianOptimizationLoop
 from emukit.core.continuous_parameter import ContinuousParameter
-
-from emukit.core.loop import UserFunctionWrapper, FixedIterationsStoppingCondition
-
+from emukit.core.interfaces import IModel
+from emukit.core.loop import FixedIterationsStoppingCondition, UserFunctionWrapper
+from emukit.core.parameter_space import ParameterSpace
 from emukit.model_wrappers.gpy_model_wrappers import GPyModelWrapper
 
 

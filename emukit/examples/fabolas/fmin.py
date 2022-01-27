@@ -1,9 +1,9 @@
 import numpy as np
 
-from emukit.core.loop import FixedIterationsStoppingCondition, UserFunctionWrapper, LoopState
+from emukit.core.initial_designs.latin_design import LatinDesign
+from emukit.core.loop import FixedIterationsStoppingCondition, LoopState, UserFunctionWrapper
 from emukit.core.parameter_space import ParameterSpace
 from emukit.examples.fabolas import FabolasLoop
-from emukit.core.initial_designs.latin_design import LatinDesign
 
 
 def fmin_fabolas(func, space: ParameterSpace, s_min: float, s_max: float, n_iters: int,

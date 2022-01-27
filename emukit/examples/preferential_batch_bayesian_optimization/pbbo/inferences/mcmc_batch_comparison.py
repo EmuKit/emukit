@@ -1,25 +1,17 @@
-import numpy as np
-import scipy.linalg as la
-import os
-
-import matplotlib.pyplot as plt
-
-
 import itertools
-
-import GPy
-
-from copy import deepcopy
-
-from importlib import reload
-
-from GPy.inference.latent_function_inference.posterior import Posterior
-from GPy.util.linalg import tdot, dpotrs, pdinv, jitchol, dpotri
-import stan_utility
 import os
 import sys
+from copy import deepcopy
+from importlib import reload
+from typing import Callable, Dict, List, Tuple
 
-from typing import Tuple, List, Callable, Dict
+import GPy
+import matplotlib.pyplot as plt
+import numpy as np
+import scipy.linalg as la
+import stan_utility
+from GPy.inference.latent_function_inference.posterior import Posterior
+from GPy.util.linalg import dpotri, dpotrs, jitchol, pdinv, tdot
 
 # IF RUNNING ON CLUSTER AND RESTRICTED TO USE ONLY ONE CORE, UNCOMMENT THIS
 # set environmental variable STAN_NUM_THREADS

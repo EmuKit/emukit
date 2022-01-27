@@ -4,11 +4,11 @@
 
 import numpy as np
 
-from ...core.parameter_space import ParameterSpace
-from ...core.loop.loop_state import LoopState
 from ...core.loop.candidate_point_calculators import CandidatePointCalculator
-from ..methods.warped_bq_model import WarpedBayesianQuadratureModel
+from ...core.loop.loop_state import LoopState
 from ...core.optimization.context_manager import ContextManager
+from ...core.parameter_space import ParameterSpace
+from ..methods.warped_bq_model import WarpedBayesianQuadratureModel
 
 
 class BayesianMonteCarloPointCalculator(CandidatePointCalculator):
