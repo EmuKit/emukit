@@ -2,16 +2,22 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import logging
-from typing import Sequence, List, Tuple, Optional
+from typing import List, Optional, Sequence, Tuple
 
 import numpy as np
 
+from .. import (
+    CategoricalParameter,
+    ContinuousParameter,
+    DiscreteParameter,
+    OneHotEncoding,
+    OrdinalEncoding,
+    Parameter,
+    ParameterSpace,
+)
+from ..acquisition import Acquisition
 from .acquisition_optimizer import AcquisitionOptimizerBase
 from .context_manager import ContextManager
-from .. import CategoricalParameter, ContinuousParameter, DiscreteParameter
-from .. import OneHotEncoding, OrdinalEncoding
-from .. import Parameter, ParameterSpace
-from ..acquisition import Acquisition
 
 _log = logging.getLogger(__name__)
 

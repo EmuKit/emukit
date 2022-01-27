@@ -1,12 +1,12 @@
 import GPy
 import numpy as np
 
+from emukit.core.initial_designs import RandomDesign
 from emukit.core.loop import FixedIntervalUpdater, OuterLoop
 from emukit.core.loop.candidate_point_calculators import GreedyBatchPointCalculator
 from emukit.core.loop.loop_state import LoopState
 from emukit.core.optimization import GradientAcquisitionOptimizer
 from emukit.core.optimization.multi_source_acquisition_optimizer import MultiSourceAcquisitionOptimizer
-from emukit.core.initial_designs import RandomDesign
 from emukit.experimental_design.acquisitions import ModelVariance
 from emukit.model_wrappers import GPyModelWrapper
 from emukit.test_functions import multi_fidelity_forrester_function

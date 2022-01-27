@@ -2,14 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import Tuple, Optional
+from typing import Optional, Tuple
 
 import numpy as np
 
 from .. import InformationSourceParameter, ParameterSpace
 from ..acquisition import Acquisition
 from .acquisition_optimizer import AcquisitionOptimizerBase
-from .context_manager import ContextManager, Context
+from .context_manager import Context, ContextManager
 
 
 class MultiSourceAcquisitionOptimizer(AcquisitionOptimizerBase):

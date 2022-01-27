@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+from typing import List, Optional, Tuple
+
 import numpy as np
-from typing import List, Tuple, Optional
 
 from ...quadrature.interfaces.standard_kernels import IStandardKernel
 from .bounds import BoxBounds

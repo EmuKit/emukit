@@ -1,12 +1,11 @@
 import GPy
-import numpy as np
-
 import mock
+import numpy as np
 import pytest
 
 from emukit.bayesian_optimization.acquisitions import ExpectedImprovement
 from emukit.bayesian_optimization.local_penalization_calculator import LocalPenalizationPointCalculator
-from emukit.core import ParameterSpace, ContinuousParameter
+from emukit.core import ContinuousParameter, ParameterSpace
 from emukit.core.interfaces import IModel
 from emukit.core.loop.loop_state import create_loop_state
 from emukit.core.optimization import GradientAcquisitionOptimizer

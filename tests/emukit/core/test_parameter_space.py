@@ -1,11 +1,18 @@
 from unittest import mock
 
-import pytest
 import numpy as np
+import pytest
 from numpy.testing import assert_array_equal
 
-from emukit.core import ContinuousParameter, ParameterSpace, InformationSourceParameter, DiscreteParameter, \
-    CategoricalParameter, OneHotEncoding, BanditParameter
+from emukit.core import (
+    BanditParameter,
+    CategoricalParameter,
+    ContinuousParameter,
+    DiscreteParameter,
+    InformationSourceParameter,
+    OneHotEncoding,
+    ParameterSpace,
+)
 
 
 @pytest.fixture

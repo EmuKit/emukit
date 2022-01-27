@@ -2,21 +2,21 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import Union, Callable
+from typing import Callable, Union
 
-import scipy
 import numpy as np
-from scipy.stats import norm
-from scipy.optimize import bisect
+import scipy
 from scipy.integrate import simps
+from scipy.optimize import bisect
+from scipy.stats import norm
 
 from ...core import InformationSourceParameter
 from ...core.acquisition import Acquisition
+from ...core.initial_designs import RandomDesign
 from ...core.interfaces import IModel
 from ...core.parameter_space import ParameterSpace
-from ...core.initial_designs import RandomDesign
-
 from ..interfaces import IEntropySearchModel
+
 
 class MaxValueEntropySearch(Acquisition):
     def __init__(self, model: Union[IModel, IEntropySearchModel], space: ParameterSpace,

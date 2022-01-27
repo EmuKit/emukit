@@ -1,8 +1,7 @@
+import numpy as np
 import pytest
 
-import numpy as np
-
-from emukit.core import ParameterSpace, ContinuousParameter
+from emukit.core import ContinuousParameter, ParameterSpace
 from emukit.core.optimization import ContextManager
 from emukit.core.optimization.optimizer import OptLbfgs, apply_optimizer
 

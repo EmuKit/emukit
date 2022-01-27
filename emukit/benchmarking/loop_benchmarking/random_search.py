@@ -3,11 +3,11 @@
 
 import numpy as np
 
-from ...core.loop.outer_loop import OuterLoop
 from ...core.loop.candidate_point_calculators import RandomSampling
 from ...core.loop.loop_state import create_loop_state
-from ...core.parameter_space import ParameterSpace
 from ...core.loop.model_updaters import NoopModelUpdater
+from ...core.loop.outer_loop import OuterLoop
+from ...core.parameter_space import ParameterSpace
 
 
 class RandomSearch(OuterLoop):

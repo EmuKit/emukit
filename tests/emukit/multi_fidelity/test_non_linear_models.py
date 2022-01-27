@@ -1,7 +1,6 @@
-import pytest
-
-import numpy as np
 import GPy
+import numpy as np
+import pytest
 from scipy.optimize import check_grad
 
 import emukit.multi_fidelity.models

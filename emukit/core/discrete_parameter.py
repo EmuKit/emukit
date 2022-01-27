@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import Iterable, Union, Tuple, List
+from typing import Iterable, List, Tuple, Union
 
 import numpy as np
 

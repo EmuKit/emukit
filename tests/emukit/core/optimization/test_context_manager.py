@@ -1,9 +1,9 @@
 import numpy as np
 import pytest
 
-from emukit.core import ContinuousParameter, CategoricalParameter, ParameterSpace
-from emukit.core import OneHotEncoding
+from emukit.core import CategoricalParameter, ContinuousParameter, OneHotEncoding, ParameterSpace
 from emukit.core.optimization import ContextManager
+
 
 @pytest.fixture
 def space():

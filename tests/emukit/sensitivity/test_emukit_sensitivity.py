@@ -4,8 +4,7 @@ import pytest
 
 from emukit.core import ContinuousParameter, ParameterSpace
 from emukit.core.interfaces import IModel
-from emukit.sensitivity.monte_carlo import (ModelFreeMonteCarloSensitivity,
-                                            MonteCarloSensitivity)
+from emukit.sensitivity.monte_carlo import ModelFreeMonteCarloSensitivity, MonteCarloSensitivity
 
 
 @pytest.fixture

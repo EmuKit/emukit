@@ -1,21 +1,24 @@
-import numpy as np
+import logging
+import math
+from functools import partial
+from typing import Dict, Tuple
 
-from emukit.core import ParameterSpace, ContinuousParameter
-from emukit.core.optimization import GradientAcquisitionOptimizer
-from emukit.bayesian_optimization.loops import BayesianOptimizationLoop
-
+import evalset.test_funcs
 import GPy
 import numpy as np
-import math
-import logging
-import emukit
-import evalset.test_funcs
-from typing import Dict, Tuple
-from functools import partial
 
-from . import util
-from . import ComparisonGP, ComparisonGPEmukitWrapper
-from .acquisitions import AcquisitionFunction, EmukitAcquisitionFunctionWrapper, ThompsonSampling, SequentialGradientAcquisitionOptimizer 
+import emukit
+from emukit.bayesian_optimization.loops import BayesianOptimizationLoop
+from emukit.core import ContinuousParameter, ParameterSpace
+from emukit.core.optimization import GradientAcquisitionOptimizer
+
+from . import ComparisonGP, ComparisonGPEmukitWrapper, util
+from .acquisitions import (
+    AcquisitionFunction,
+    EmukitAcquisitionFunctionWrapper,
+    SequentialGradientAcquisitionOptimizer,
+    ThompsonSampling,
+)
 
 
 def create_bayesian_optimization_loop(gpy_model: ComparisonGP, lims: np.array, batch_size: int,

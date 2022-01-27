@@ -2,9 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import Tuple, List
+from typing import List, Tuple
+
 import numpy as np
-from scipy.integrate import quad, dblquad
+from scipy.integrate import dblquad, quad
 
 
 def univariate_approximate_ground_truth_integral(func, integral_bounds: Tuple[float, float]):

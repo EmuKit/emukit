@@ -2,7 +2,8 @@ import GPy
 import numpy as np
 
 from emukit.bayesian_optimization.loops.cost_sensitive_bayesian_optimization_loop import (
-    CostSensitiveBayesianOptimizationLoop)
+    CostSensitiveBayesianOptimizationLoop,
+)
 from emukit.core import ContinuousParameter, ParameterSpace
 from emukit.core.loop.user_function import UserFunctionWrapper
 from emukit.model_wrappers import GPyModelWrapper

@@ -4,11 +4,12 @@
 
 # Use this script for ground truth integrals of the vanilla BQ Gaussian process.
 
-import numpy as np
-import GPy
 from typing import List, Tuple
 
-from emukit.model_wrappers.gpy_quadrature_wrappers import RBFGPy, BaseGaussianProcessGPy
+import GPy
+import numpy as np
+
+from emukit.model_wrappers.gpy_quadrature_wrappers import BaseGaussianProcessGPy, RBFGPy
 from emukit.quadrature.kernels.quadrature_rbf import QuadratureRBFLebesgueMeasure
 from emukit.quadrature.methods import VanillaBayesianQuadrature
 

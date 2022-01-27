@@ -2,16 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import numpy as np
 import GPy
+import numpy as np
 import pytest
-
-from emukit.quadrature.methods.vanilla_bq import VanillaBayesianQuadrature
-from emukit.quadrature.loop.vanilla_bq_loop import VanillaBayesianQuadratureLoop
-from emukit.core.loop.user_function import UserFunctionWrapper
-from emukit.model_wrappers.gpy_quadrature_wrappers import QuadratureRBFLebesgueMeasure, RBFGPy, BaseGaussianProcessGPy
-
 from numpy.testing import assert_array_equal
+
+from emukit.core.loop.user_function import UserFunctionWrapper
+from emukit.model_wrappers.gpy_quadrature_wrappers import BaseGaussianProcessGPy, QuadratureRBFLebesgueMeasure, RBFGPy
+from emukit.quadrature.loop.vanilla_bq_loop import VanillaBayesianQuadratureLoop
+from emukit.quadrature.methods.vanilla_bq import VanillaBayesianQuadrature
 
 
 def func(x):

@@ -2,9 +2,16 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from .base_models import SIR, SEIR
-from .sir_gillespie import SIRGillespie
-from .seir_gillespie import SEIRGillespie
-from .gillespie_analysis import MeanMaxInfectionGillespie, GammaPrior, UniformPrior
-from .gillespie_analysis import height_of_peak_weighted, time_of_peak_weighted, height_of_peak, time_of_peak
+from .base_models import SEIR, SIR
+from .gillespie_analysis import (
+    GammaPrior,
+    MeanMaxInfectionGillespie,
+    UniformPrior,
+    height_of_peak,
+    height_of_peak_weighted,
+    time_of_peak,
+    time_of_peak_weighted,
+)
 from .gillespie_base import GillespieBase
+from .seir_gillespie import SEIRGillespie
+from .sir_gillespie import SIRGillespie

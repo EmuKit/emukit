@@ -2,8 +2,8 @@ from typing import Tuple
 
 import numpy as np
 
-from ...core.loop.user_function import MultiSourceFunctionWrapper
 from ...core import ContinuousParameter, InformationSourceParameter, ParameterSpace
+from ...core.loop.user_function import MultiSourceFunctionWrapper
 
 
 def multi_fidelity_park_function() -> Tuple[MultiSourceFunctionWrapper, ParameterSpace]:

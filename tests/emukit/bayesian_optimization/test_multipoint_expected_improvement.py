@@ -1,5 +1,5 @@
-import numpy as np
 import GPy
+import numpy as np
 from scipy.optimize import check_grad
 
 from emukit.bayesian_optimization.acquisitions import MultipointExpectedImprovement

@@ -10,14 +10,13 @@ in experimental design.
 """
 
 import abc
+import logging
 from typing import Callable, List
 
 import numpy as np
 
 from .user_function_result import UserFunctionResult
 
-
-import logging
 _log = logging.getLogger(__name__)
 
 

@@ -2,8 +2,8 @@ from typing import Tuple
 
 import numpy as np
 
+from ...core import ContinuousParameter, InformationSourceParameter, ParameterSpace
 from ...core.loop.user_function import MultiSourceFunctionWrapper
-from ...core import ParameterSpace, ContinuousParameter, InformationSourceParameter
 
 
 def multi_fidelity_hartmann_3d() -> Tuple[MultiSourceFunctionWrapper, ParameterSpace]:

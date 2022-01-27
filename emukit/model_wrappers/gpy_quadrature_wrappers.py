@@ -2,16 +2,21 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import numpy as np
-from typing import Tuple, List, Optional
+from typing import List, Optional, Tuple
+
 import GPy
+import numpy as np
 from scipy.linalg import lapack
 
-from emukit.quadrature.interfaces.standard_kernels import IRBF
 from emukit.quadrature.interfaces import IBaseGaussianProcess
-from emukit.quadrature.kernels.quadrature_kernels import QuadratureKernel
-from emukit.quadrature.kernels.quadrature_rbf import QuadratureRBFIsoGaussMeasure, QuadratureRBFLebesgueMeasure, QuadratureRBFUniformMeasure
+from emukit.quadrature.interfaces.standard_kernels import IRBF
 from emukit.quadrature.kernels.integration_measures import IntegrationMeasure, IsotropicGaussianMeasure, UniformMeasure
+from emukit.quadrature.kernels.quadrature_kernels import QuadratureKernel
+from emukit.quadrature.kernels.quadrature_rbf import (
+    QuadratureRBFIsoGaussMeasure,
+    QuadratureRBFLebesgueMeasure,
+    QuadratureRBFUniformMeasure,
+)
 
 
 class BaseGaussianProcessGPy(IBaseGaussianProcess):

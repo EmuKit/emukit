@@ -1,11 +1,13 @@
+from unittest.mock import MagicMock
+
 import numpy as np
 import pytest
+
 from emukit.bayesian_optimization.acquisitions.expected_improvement import (
-    MeanPluginExpectedImprovement,
     ExpectedImprovement,
+    MeanPluginExpectedImprovement,
 )
 from emukit.core.interfaces import IModel, IModelWithNoise
-from unittest.mock import MagicMock
 from emukit.model_wrappers import GPyModelWrapper
 
 

@@ -6,10 +6,10 @@ from typing import Tuple
 
 import numpy as np
 
-from .acquisition_optimizer import AcquisitionOptimizerBase
-from .context_manager import ContextManager
 from .. import ParameterSpace
 from ..acquisition import Acquisition
+from .acquisition_optimizer import AcquisitionOptimizerBase
+from .context_manager import ContextManager
 
 _log = logging.getLogger(__name__)
 

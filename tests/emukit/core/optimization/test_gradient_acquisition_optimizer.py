@@ -1,9 +1,8 @@
-import pytest
 import numpy as np
+import pytest
 from numpy.testing import assert_array_equal
 
-from emukit.core import ContinuousParameter, CategoricalParameter, OneHotEncoding
-from emukit.core import ParameterSpace
+from emukit.core import CategoricalParameter, ContinuousParameter, OneHotEncoding, ParameterSpace
 from emukit.core.optimization import GradientAcquisitionOptimizer
 
 

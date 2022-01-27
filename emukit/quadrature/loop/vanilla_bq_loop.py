@@ -2,13 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+from ...core.acquisition import Acquisition
+from ...core.loop import FixedIntervalUpdater, ModelUpdater, OuterLoop, SequentialPointCalculator
 from ...core.loop.loop_state import create_loop_state
-from ...core.loop import OuterLoop, SequentialPointCalculator, FixedIntervalUpdater, ModelUpdater
 from ...core.optimization import AcquisitionOptimizerBase, GradientAcquisitionOptimizer
 from ...core.parameter_space import ParameterSpace
-from ...core.acquisition import Acquisition
-from ..methods import VanillaBayesianQuadrature
 from ..acquisitions import IntegralVarianceReduction
+from ..methods import VanillaBayesianQuadrature
 
 
 class VanillaBayesianQuadratureLoop(OuterLoop):

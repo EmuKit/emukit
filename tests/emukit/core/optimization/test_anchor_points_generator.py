@@ -1,6 +1,6 @@
 import mock
-import pytest
 import numpy as np
+import pytest
 
 from emukit.core import ParameterSpace
 from emukit.core.acquisition import Acquisition

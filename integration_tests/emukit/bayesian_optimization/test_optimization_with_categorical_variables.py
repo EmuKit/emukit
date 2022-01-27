@@ -1,10 +1,9 @@
 import GPy
 import numpy as np
 
-from emukit.core import ParameterSpace, ContinuousParameter, CategoricalParameter, OneHotEncoding
-
 from emukit.bayesian_optimization.acquisitions import ExpectedImprovement
 from emukit.bayesian_optimization.loops import BayesianOptimizationLoop
+from emukit.core import CategoricalParameter, ContinuousParameter, OneHotEncoding, ParameterSpace
 from emukit.model_wrappers import GPyModelWrapper
 
 

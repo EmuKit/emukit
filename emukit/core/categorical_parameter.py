@@ -2,12 +2,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import numpy as np
 from typing import List, Tuple
 
+import numpy as np
+
+from .continuous_parameter import ContinuousParameter
 from .encodings import Encoding
 from .parameter import Parameter
-from .continuous_parameter import ContinuousParameter
 
 
 class CategoricalParameter(Parameter):

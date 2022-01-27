@@ -1,8 +1,8 @@
-import pytest
 import numpy as np
+import pytest
 from numpy.testing import assert_array_equal
 
-from emukit.core.loop import UserFunctionWrapper, UserFunctionResult
+from emukit.core.loop import UserFunctionResult, UserFunctionWrapper
 from emukit.core.loop.user_function import MultiSourceFunctionWrapper
 
 

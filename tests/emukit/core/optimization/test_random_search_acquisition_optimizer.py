@@ -1,10 +1,7 @@
 import numpy as np
 from numpy.testing import assert_array_equal
 
-from emukit.core import CategoricalParameter
-from emukit.core import InformationSourceParameter
-from emukit.core import OrdinalEncoding
-from emukit.core import ParameterSpace
+from emukit.core import CategoricalParameter, InformationSourceParameter, OrdinalEncoding, ParameterSpace
 from emukit.core.optimization import RandomSearchAcquisitionOptimizer
 
 

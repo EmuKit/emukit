@@ -2,14 +2,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+from typing import List, Optional, Tuple
+
 import numpy as np
 from scipy.special import erf
-from typing import List, Tuple, Optional
 
-from .quadrature_kernels import QuadratureKernel
 from ...quadrature.interfaces.standard_kernels import IRBF
-from ...quadrature.kernels.integration_measures import IntegrationMeasure, IsotropicGaussianMeasure, UniformMeasure
 from ...quadrature.kernels.bounds import BoxBounds
+from ...quadrature.kernels.integration_measures import IntegrationMeasure, IsotropicGaussianMeasure, UniformMeasure
+from .quadrature_kernels import QuadratureKernel
 
 
 class QuadratureRBF(QuadratureKernel):

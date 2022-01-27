@@ -3,13 +3,12 @@
 
 
 import abc
+import logging
 from typing import Callable
 
-from . import LoopState
 from ..interfaces import IModel
+from . import LoopState
 
-
-import logging
 _log = logging.getLogger(__name__)
 
 

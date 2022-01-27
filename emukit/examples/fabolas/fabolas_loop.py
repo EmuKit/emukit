@@ -1,10 +1,10 @@
 import numpy as np
 
-from emukit.bayesian_optimization.loops.cost_sensitive_bayesian_optimization_loop import \
-    CostSensitiveBayesianOptimizationLoop
-from emukit.core import ParameterSpace, ContinuousParameter
-from emukit.core.acquisition import IntegratedHyperParameterAcquisition
-from emukit.core.acquisition import acquisition_per_expected_cost
+from emukit.bayesian_optimization.loops.cost_sensitive_bayesian_optimization_loop import (
+    CostSensitiveBayesianOptimizationLoop,
+)
+from emukit.core import ContinuousParameter, ParameterSpace
+from emukit.core.acquisition import IntegratedHyperParameterAcquisition, acquisition_per_expected_cost
 from emukit.core.loop import FixedIntervalUpdater, SequentialPointCalculator
 from emukit.core.loop.loop_state import create_loop_state
 from emukit.core.optimization import RandomSearchAcquisitionOptimizer

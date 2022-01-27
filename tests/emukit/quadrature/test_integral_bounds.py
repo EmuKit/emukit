@@ -4,9 +4,9 @@
 
 import numpy as np
 import pytest
+from numpy.testing import assert_array_equal
 
 from emukit.quadrature.kernels.bounds import BoxBounds
-from numpy.testing import assert_array_equal
 
 
 @pytest.fixture

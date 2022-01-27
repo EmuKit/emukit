@@ -3,8 +3,8 @@
 
 import numpy as np
 
-from .base import ModelFreeDesignBase
 from .. import ParameterSpace
+from .base import ModelFreeDesignBase
 
 
 class RandomDesign(ModelFreeDesignBase):

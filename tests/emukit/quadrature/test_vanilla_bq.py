@@ -2,21 +2,21 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import numpy as np
-from numpy.testing import assert_array_equal
 from math import isclose
-import mock
-import GPy
-import pytest
 
+import GPy
+import mock
+import numpy as np
+import pytest
+from numpy.testing import assert_array_equal
+
+from emukit.core.continuous_parameter import ContinuousParameter
+from emukit.model_wrappers.gpy_quadrature_wrappers import BaseGaussianProcessGPy, RBFGPy
 from emukit.quadrature.interfaces.base_gp import IBaseGaussianProcess
-from emukit.quadrature.methods.vanilla_bq import VanillaBayesianQuadrature
+from emukit.quadrature.kernels import QuadratureRBFLebesgueMeasure
 from emukit.quadrature.kernels.bounds import BoxBounds
 from emukit.quadrature.kernels.quadrature_kernels import QuadratureKernel
-from emukit.quadrature.kernels import QuadratureRBFLebesgueMeasure
-from emukit.core.continuous_parameter import ContinuousParameter
-from emukit.model_wrappers.gpy_quadrature_wrappers import RBFGPy, BaseGaussianProcessGPy
-
+from emukit.quadrature.methods.vanilla_bq import VanillaBayesianQuadrature
 
 REL_TOL = 1e-5
 ABS_TOL = 1e-4

@@ -1,11 +1,12 @@
 """The bounded Bayesian quadrature model is with square-root warping."""
 
+from typing import Optional, Tuple
+
 import numpy as np
-from typing import Tuple, Optional
 
 from ..interfaces.base_gp import IBaseGaussianProcess
-from .warped_bq_model import WarpedBayesianQuadratureModel
 from ..kernels.quadrature_rbf import QuadratureRBFIsoGaussMeasure
+from .warped_bq_model import WarpedBayesianQuadratureModel
 from .warpings import SquareRootWarping
 
 

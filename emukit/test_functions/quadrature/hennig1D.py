@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import Tuple, List
+from typing import List, Tuple
+
 import numpy as np
 
 from emukit.core.loop.user_function import UserFunctionWrapper

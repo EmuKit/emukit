@@ -7,9 +7,8 @@ For more details look see th original Fabolas paper.
 To run this example you need to install the new_benchmarks branch of HPOlib2:
     https://github.com/automl/HPOlib2/tree/new_benchmarks
 """
-from emukit.core import ParameterSpace, ContinuousParameter
+from emukit.core import ContinuousParameter, ParameterSpace
 from emukit.examples.fabolas import fmin_fabolas
-
 
 try:
     from hpolib.benchmarks.surrogates.svm import SurrogateSVM

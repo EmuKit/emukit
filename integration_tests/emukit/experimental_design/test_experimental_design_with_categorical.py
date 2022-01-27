@@ -1,10 +1,9 @@
 import GPy
 import numpy as np
 
-from emukit.core import ParameterSpace, ContinuousParameter, CategoricalParameter, OneHotEncoding
-
-from emukit.experimental_design.experimental_design_loop import ExperimentalDesignLoop
+from emukit.core import CategoricalParameter, ContinuousParameter, OneHotEncoding, ParameterSpace
 from emukit.core.initial_designs.latin_design import LatinDesign
+from emukit.experimental_design.experimental_design_loop import ExperimentalDesignLoop
 from emukit.model_wrappers import GPyModelWrapper
 
 

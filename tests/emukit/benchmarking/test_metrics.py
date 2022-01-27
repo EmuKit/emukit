@@ -1,7 +1,12 @@
 import mock
 import numpy as np
 
-from emukit.benchmarking.loop_benchmarking.metrics import MeanSquaredErrorMetric, MinimumObservedValueMetric, TimeMetric, CumulativeCostMetric
+from emukit.benchmarking.loop_benchmarking.metrics import (
+    CumulativeCostMetric,
+    MeanSquaredErrorMetric,
+    MinimumObservedValueMetric,
+    TimeMetric,
+)
 from emukit.core.interfaces import IModel
 from emukit.core.loop import LoopState, ModelUpdater, OuterLoop
 from emukit.core.loop.loop_state import create_loop_state

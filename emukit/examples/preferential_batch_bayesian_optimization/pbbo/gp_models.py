@@ -1,34 +1,27 @@
-import numpy as np
+import itertools
+import os
+import traceback
+from copy import deepcopy
+from typing import Callable, Dict, List, Tuple
 
 import GPy
-import itertools
-
-from GPy.likelihoods import Gaussian
-from GPy.core.parameterization.param import Param
-from GPy.util import choleskies
-
-from GPy.util.linalg import dtrtrs, dpotrs, pdinv, tdot, jitchol
-
+import numpy as np
 import paramz
-import os
-import emukit
-
-import traceback
-
-from copy import deepcopy
-
-from typing import Tuple, List, Callable, Dict
-
-from .inferences import vi_batch_comparison as vi
-from .inferences import ep_batch_comparison as ep
 import stan_utility
-from .inferences import StanPosterior
-from . import util
+from GPy.core.parameterization.param import Param
+from GPy.likelihoods import Gaussian
+from GPy.util import choleskies
+from GPy.util.linalg import dpotrs, dtrtrs, jitchol, pdinv, tdot
+
+import emukit
 from emukit.core.interfaces import IModel
-import os
+
+from . import util
+from .inferences import StanPosterior
+from .inferences import ep_batch_comparison as ep
+from .inferences import vi_batch_comparison as vi
 
 
-        
 class ComparisonGP(GPy.core.Model):
     """
     A class for all common methods needed for the different ComparisonGP wrappers

@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import numpy as np
 from typing import Tuple
+
+import numpy as np
 from scipy.stats import gamma
 
 from .sir_gillespie import SIRGillespie

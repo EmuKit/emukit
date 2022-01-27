@@ -1,7 +1,9 @@
+import logging
+from typing import Callable, Dict, List, Tuple
+
 import numpy as np
 from numpy import linalg as la
-import logging
-from typing import Callable, List, Tuple, Dict
+
 
 def random_sample(bounds: np.ndarray, k: int) -> np.ndarray:
     """

@@ -3,13 +3,14 @@
 
 
 import numpy as np
+
 try:
     import pyDOE
 except ImportError:
     raise ImportError('pyDOE needs to be installed in order to use latin design')
 
-from .base import ModelFreeDesignBase
 from .. import ParameterSpace
+from .base import ModelFreeDesignBase
 
 
 class LatinDesign(ModelFreeDesignBase):

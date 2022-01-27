@@ -1,12 +1,7 @@
 import numpy as np
 import pytest
 
-from emukit.core import (
-    BanditParameter,
-    ContinuousParameter,
-    DiscreteParameter,
-    InformationSourceParameter,
-)
+from emukit.core import BanditParameter, ContinuousParameter, DiscreteParameter, InformationSourceParameter
 
 
 def test_bandit_parameter():

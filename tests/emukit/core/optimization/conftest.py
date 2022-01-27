@@ -1,7 +1,7 @@
-from emukit.core.acquisition import Acquisition
-
-import pytest
 import numpy as np
+import pytest
+
+from emukit.core.acquisition import Acquisition
 
 
 @pytest.fixture(scope="module")

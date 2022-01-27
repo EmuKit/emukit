@@ -4,10 +4,14 @@ import numpy as np
 from emukit.core import ContinuousParameter, ParameterSpace
 from emukit.core.acquisition import Acquisition
 from emukit.core.interfaces import IModel
-from emukit.core.loop import (FixedIntervalUpdater,
-                              FixedIterationsStoppingCondition, LoopState,
-                              RandomSampling, SequentialPointCalculator,
-                              UserFunctionWrapper)
+from emukit.core.loop import (
+    FixedIntervalUpdater,
+    FixedIterationsStoppingCondition,
+    LoopState,
+    RandomSampling,
+    SequentialPointCalculator,
+    UserFunctionWrapper,
+)
 from emukit.core.optimization import GradientAcquisitionOptimizer
 
 

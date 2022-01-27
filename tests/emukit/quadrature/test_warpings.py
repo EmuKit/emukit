@@ -1,7 +1,8 @@
-import numpy as np
-from numpy.testing import assert_allclose
 from collections import namedtuple
+
+import numpy as np
 import pytest
+from numpy.testing import assert_allclose
 from pytest_lazyfixture import lazy_fixture
 
 from emukit.quadrature.methods.warpings import IdentityWarping, SquareRootWarping

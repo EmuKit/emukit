@@ -1,8 +1,8 @@
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+from IPython.display import display
 from JSAnimation.IPython_display import display_animation
 from matplotlib import animation
-from IPython.display import display
 from pylab import cm
 
 N_STEPS_MAX = 500

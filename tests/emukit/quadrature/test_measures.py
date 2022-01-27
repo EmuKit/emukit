@@ -2,12 +2,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import numpy as np
-import pytest
 from math import isclose
 
-from emukit.quadrature.kernels.integration_measures import UniformMeasure, IsotropicGaussianMeasure
+import numpy as np
+import pytest
 
+from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure, UniformMeasure
 
 REL_TOL = 1e-5
 ABS_TOL = 1e-4

@@ -1,15 +1,14 @@
-import numpy as np
 import GPy
+import numpy as np
 import pytest
+from numpy.testing import assert_array_equal
 from pytest_lazyfixture import lazy_fixture
 
-from emukit.quadrature.methods import WSABIL
-from emukit.quadrature.loop.wsabil_loop import WSABILLoop
-from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure
 from emukit.core.loop.user_function import UserFunctionWrapper
-from emukit.model_wrappers.gpy_quadrature_wrappers import QuadratureRBFIsoGaussMeasure, RBFGPy, BaseGaussianProcessGPy
-
-from numpy.testing import assert_array_equal
+from emukit.model_wrappers.gpy_quadrature_wrappers import BaseGaussianProcessGPy, QuadratureRBFIsoGaussMeasure, RBFGPy
+from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure
+from emukit.quadrature.loop.wsabil_loop import WSABILLoop
+from emukit.quadrature.methods import WSABIL
 
 
 def func(x):
