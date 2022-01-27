@@ -1,7 +1,7 @@
 import numpy as np
 
-from emukit.core.continuous_parameter import ContinuousParameter
 from emukit.core.loop import UserFunctionResult
+from emukit.core.continuous_parameter import ContinuousParameter
 from emukit.examples.gp_bayesian_optimization.unknown_constraint_bayesian_optimization import (
     UnknownConstraintGPBayesianOptimization,
 )
