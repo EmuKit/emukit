@@ -97,6 +97,13 @@ pip install -r requirements/test_requirements.txt
 pip install -r requirements/integration_test_requirements.txt
 ```
 
+### Formatting
+Emukit uses black and isort to format code. There is also a build action that checks code is properly formatted. Thus it is recommended to run these commands locally before creating a pull request:
+```
+isort .
+black .
+```
+
 ### Generating docs
 Documentation contributions are much appreciated! If you see something incorrect or poorly explained, feel free to fix it and send the update!
 
