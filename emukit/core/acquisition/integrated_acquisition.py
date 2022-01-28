@@ -10,8 +10,17 @@ class IntegratedHyperParameterAcquisition(Acquisition):
     """
     This acquisition class provides functionality for integrating any acquisition function over model hyper-parameters
     """
-    def __init__(self, model: Union[IModel, IPriorHyperparameters], acquisition_generator: Callable, n_samples: int=10,
-                 n_burnin: int=100, subsample_interval: int=10, step_size: float=1e-1, leapfrog_steps: int=20):
+
+    def __init__(
+        self,
+        model: Union[IModel, IPriorHyperparameters],
+        acquisition_generator: Callable,
+        n_samples: int = 10,
+        n_burnin: int = 100,
+        subsample_interval: int = 10,
+        step_size: float = 1e-1,
+        leapfrog_steps: int = 20,
+    ):
         """
         :param model: An emukit model that implements IPriorHyperparameters
         :param acquisition_generator: Function that returns acquisition object when given the model as the only argument
@@ -72,9 +81,9 @@ class IntegratedHyperParameterAcquisition(Acquisition):
         return acquisition_value / self.n_samples, d_acquisition_dx / self.n_samples
 
     def update_parameters(self):
-        self.samples = self.model.generate_hyperparameters_samples(self.n_samples, self.n_burnin,
-                                                                   self.subsample_interval,
-                                                                   self.step_size, self.leapfrog_steps)
+        self.samples = self.model.generate_hyperparameters_samples(
+            self.n_samples, self.n_burnin, self.subsample_interval, self.step_size, self.leapfrog_steps
+        )
 
     @property
     def has_gradients(self) -> bool:

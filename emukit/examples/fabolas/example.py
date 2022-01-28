@@ -13,8 +13,7 @@ from emukit.examples.fabolas import fmin_fabolas
 try:
     from hpolib.benchmarks.surrogates.svm import SurrogateSVM
 except ImportError:
-    raise ImportError(
-        'HPOLib is not installed. Please install it from: https://github.com/automl/HPOlib2/tree/master')
+    raise ImportError("HPOLib is not installed. Please install it from: https://github.com/automl/HPOlib2/tree/master")
 
 svm = SurrogateSVM()
 
@@ -29,7 +28,7 @@ s_max = 50000
 
 
 def wrapper(x, s):
-    res = svm.objective_function(x, dataset_fraction=s/s_max)
+    res = svm.objective_function(x, dataset_fraction=s / s_max)
     return res["function_value"], res["cost"]
 
 

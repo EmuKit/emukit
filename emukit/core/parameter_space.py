@@ -15,7 +15,7 @@ class ParameterSpace(object):
     Represents parameter space for a given problem.
     """
 
-    def __init__(self, parameters: List, constraints: Optional[List[IConstraint]]=None):
+    def __init__(self, parameters: List, constraints: Optional[List[IConstraint]] = None):
         """
         Creates a new instance of a parameter space.
 
@@ -32,12 +32,12 @@ class ParameterSpace(object):
         # Check no more than one InformationSource parameter
         source_parameter = [param for param in self.parameters if isinstance(param, InformationSourceParameter)]
         if len(source_parameter) > 1:
-            raise ValueError('More than one source parameter found')
+            raise ValueError("More than one source parameter found")
 
         # Check uniqueness of parameter names
         names = self.parameter_names
         if not len(names) == len(set(names)):
-            raise ValueError('Parameter names are not unique')
+            raise ValueError("Parameter names are not unique")
 
     def find_parameter_index_in_model(self, parameter_name: str) -> List[int]:
         """
@@ -52,7 +52,7 @@ class ParameterSpace(object):
                 return list(range(i_start, i_start + param.dimension))
             else:
                 i_start += param.dimension
-        raise ValueError('Parameter {} not found'.format(parameter_name))
+        raise ValueError("Parameter {} not found".format(parameter_name))
 
     @property
     def dimensionality(self):
@@ -85,7 +85,7 @@ class ParameterSpace(object):
         for param in self.parameters:
             if param.name == name:
                 return param
-        raise ValueError('Parameter with name ' + name + ' not found.')
+        raise ValueError("Parameter with name " + name + " not found.")
 
     def get_bounds(self) -> List[Tuple]:
         """
@@ -111,7 +111,7 @@ class ParameterSpace(object):
         x_rounded = []
         current_idx = 0
         for param in self.parameters:
-            param_columns = x[:, current_idx:(current_idx + param.dimension)]
+            param_columns = x[:, current_idx : (current_idx + param.dimension)]
             x_rounded.append(param.round(param_columns))
             current_idx += param.dimension
 
@@ -126,17 +126,19 @@ class ParameterSpace(object):
         """
         len_encoding = sum(len(param.model_parameters) for param in self.parameters)
         if x.shape[1] != len_encoding:
-            raise ValueError('x should have number of columns equal to the sum'
-                             'of all parameter encodings, expected {} actual {}'
-                             .format(x.shape[1], len_encoding))
+            raise ValueError(
+                "x should have number of columns equal to the sum"
+                "of all parameter encodings, expected {} actual {}".format(x.shape[1], len_encoding)
+            )
 
         in_domain = np.ones(x.shape[0], dtype=bool)
         encoding_index = 0
         for param in self._parameters:
             # First check if this particular parameter is in domain
             param_in_domain = [
-                param.check_in_domain(x[[point_ix], encoding_index:(encoding_index + param.dimension)])
-                for point_ix in range(x.shape[0])]
+                param.check_in_domain(x[[point_ix], encoding_index : (encoding_index + param.dimension)])
+                for point_ix in range(x.shape[0])
+            ]
             # Set in_domain to be False if this parameter or any previous parameter is out of domain
             in_domain = np.all([in_domain, param_in_domain], axis=0)
             encoding_index += param.dimension

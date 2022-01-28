@@ -30,18 +30,22 @@ from ...multi_fidelity.convert_lists_to_array import convert_x_list_to_array, co
 try:
     import tensorflow as tf
 except ImportError:
-    raise ImportError('tensorflow is not installed. Please installed version 1.8 by running pip install tensorflow==1.8')
+    raise ImportError(
+        "tensorflow is not installed. Please installed version 1.8 by running pip install tensorflow==1.8"
+    )
 
 try:
     from doubly_stochastic_dgp.layers import SVGP_Layer
 except ImportError:
-    raise ImportError('doubly_stochastic_dgp is not installed. '
-                      'Please run pip install git+https://github.com/ICL-SML/Doubly-Stochastic-DGP.git')
+    raise ImportError(
+        "doubly_stochastic_dgp is not installed. "
+        "Please run pip install git+https://github.com/ICL-SML/Doubly-Stochastic-DGP.git"
+    )
 
 try:
     import gpflow
 except ImportError:
-    raise ImportError('gpflow is not installed. Please run pip install gpflow==1.1.1')
+    raise ImportError("gpflow is not installed. Please run pip install gpflow==1.1.1")
 
 
 float_type = settings.float_type
@@ -102,14 +106,14 @@ class DGP_Base(Model):
 
         if minibatch_size:
             for i, (x, y) in enumerate(zip(X, Y)):
-                setattr(self, 'num_data' + str(i), x.shape[0])
-                setattr(self, 'X' + str(i), Minibatch(x, minibatch_size, seed=0))
-                setattr(self, 'Y' + str(i), Minibatch(y, minibatch_size, seed=0))
+                setattr(self, "num_data" + str(i), x.shape[0])
+                setattr(self, "X" + str(i), Minibatch(x, minibatch_size, seed=0))
+                setattr(self, "Y" + str(i), Minibatch(y, minibatch_size, seed=0))
         else:
             for i, (x, y) in enumerate(zip(X, Y)):
-                setattr(self, 'num_data' + str(i), x.shape[0])
-                setattr(self, 'X' + str(i), DataHolder(x))
-                setattr(self, 'Y' + str(i), DataHolder(y))
+                setattr(self, "num_data" + str(i), x.shape[0])
+                setattr(self, "X" + str(i), DataHolder(x))
+                setattr(self, "Y" + str(i), DataHolder(y))
 
         self.num_layers = len(layers)
         self.layers = ParamList(layers)
@@ -132,18 +136,24 @@ class DGP_Base(Model):
         Fs, Fmeans, Fvars = [], [], []
 
         F = sX
-        zs = zs or [None, ] * len(self.layers)
+        zs = (
+            zs
+            or [
+                None,
+            ]
+            * len(self.layers)
+        )
 
         for i, (layer, z) in enumerate(zip(self.layers, zs)):
             if i == 0:
                 F, Fmean, Fvar = layer.sample_from_conditional(F, z=z, full_cov=full_cov)
             else:
-                '''
+                """
 
-                KC - At all layers 1..L, the input to the next layer is original input augmented with 
+                KC - At all layers 1..L, the input to the next layer is original input augmented with
                 the realisation of the function at the previous layer at that input.
 
-                '''
+                """
                 F_aug = tf.concat([sX, F], 2)
                 F, Fmean, Fvar = layer.sample_from_conditional(F_aug, z=z, full_cov=full_cov)
 
@@ -181,8 +191,7 @@ class DGP_Base(Model):
         :param variance: likelihood variance
         :return:
         """
-        return -0.5 * np.log(2 * np.pi) - 0.5 * tf.log(variance) \
-               - 0.5 * (tf.square(Y - Fmu) + Fvar) / variance
+        return -0.5 * np.log(2 * np.pi) - 0.5 * tf.log(variance) - 0.5 * (tf.square(Y - Fmu) + Fvar) / variance
 
     def E_log_p_Y(self, X_f, Y_f, fidelity=None):
         """
@@ -203,7 +212,7 @@ class DGP_Base(Model):
             var_exp = self.likelihood.variational_expectations(Fmean, Fvar, Y_f)  # S, N, D
         else:
             """
-            KC - The Gaussian likelihood of the observations at the intermediate layers is computed using the noise 
+            KC - The Gaussian likelihood of the observations at the intermediate layers is computed using the noise
             parameter pertaining to the White noise kernel.
 
             This assumes that a White kernel should be added to all layers except for the last!
@@ -211,10 +220,9 @@ class DGP_Base(Model):
             """
             variance = self.layers[fidelity].kern.kernels[-1].variance
 
-            f = lambda vars_SND, vars_ND, vars_N: self._likelihood_at_fidelity(vars_SND[0],
-                                                                               vars_SND[1],
-                                                                               vars_ND[0],
-                                                                               vars_N)
+            f = lambda vars_SND, vars_ND, vars_N: self._likelihood_at_fidelity(
+                vars_SND[0], vars_SND[1], vars_ND[0], vars_N
+            )
 
             var_exp = f([Fmean, Fvar], [tf.expand_dims(Y_f, 0)], variance)
 
@@ -226,20 +234,20 @@ class DGP_Base(Model):
         ELBO calculation
         :return: MC estimate of lower bound
         """
-        L = 0.
-        KL = 0.
+        L = 0.0
+        KL = 0.0
         for fidelity in range(self.num_layers):
 
             if (self._train_upto_fidelity != -1) and (fidelity > self._train_upto_fidelity):
                 continue
 
-            X_l = getattr(self, 'X' + str(fidelity))
-            Y_l = getattr(self, 'Y' + str(fidelity))
+            X_l = getattr(self, "X" + str(fidelity))
+            Y_l = getattr(self, "Y" + str(fidelity))
 
-            n_data = getattr(self, 'num_data' + str(fidelity))
-            scale = tf.cast(n_data, float_type)/tf.cast(tf.shape(X_l)[0], float_type)
+            n_data = getattr(self, "num_data" + str(fidelity))
+            scale = tf.cast(n_data, float_type) / tf.cast(tf.shape(X_l)[0], float_type)
 
-            L += (tf.reduce_sum(self.E_log_p_Y(X_l, Y_l, fidelity)) * scale)
+            L += tf.reduce_sum(self.E_log_p_Y(X_l, Y_l, fidelity)) * scale
             KL += tf.reduce_sum(self.layers[fidelity].KL())
 
         self.L = L
@@ -292,15 +300,15 @@ class DGP_Base(Model):
         Din = X[0].shape[1]
         Dout = Y[0].shape[1]
 
-        kernels = [RBF(Din, active_dims=list(range(Din)), variance=1., lengthscales=1, ARD=True)]
+        kernels = [RBF(Din, active_dims=list(range(Din)), variance=1.0, lengthscales=1, ARD=True)]
         for l in range(1, n_fidelities):
             D = Din + Dout
             D_range = list(range(D))
             k_corr = RBF(Din, active_dims=D_range[:Din], lengthscales=1, variance=1.0, ARD=True)
-            k_prev = RBF(Dout, active_dims=D_range[Din:], variance=1., lengthscales=1.0)
-            k_in = RBF(Din, active_dims=D_range[:Din], variance=1., lengthscales=1, ARD=True)
+            k_prev = RBF(Dout, active_dims=D_range[Din:], variance=1.0, lengthscales=1.0)
+            k_in = RBF(Din, active_dims=D_range[:Din], variance=1.0, lengthscales=1, ARD=True)
             if add_linear:
-                k_l = k_corr * (k_prev + Linear(Dout, active_dims=D_range[Din:], variance=1.)) + k_in
+                k_l = k_corr * (k_prev + Linear(Dout, active_dims=D_range[Din:], variance=1.0)) + k_in
             else:
                 k_l = k_corr * k_prev + k_in
             kernels.append(k_l)
@@ -318,10 +326,10 @@ class DGP_Base(Model):
 
         num_data = 0
         for i in range(len(X)):
-            _log.info('\nData at Fidelity {}'.format(i + 1))
-            _log.info('X - {}'.format(X[i].shape))
-            _log.info('Y - {}'.format(Y[i].shape))
-            _log.info('Z - {}'.format(Z[i].shape))
+            _log.info("\nData at Fidelity {}".format(i + 1))
+            _log.info("X - {}".format(X[i].shape))
+            _log.info("Y - {}".format(Y[i].shape))
+            _log.info("Z - {}".format(Z[i].shape))
             num_data += X[i].shape[0]
 
         layers = init_layers_mf(Y, Z, kernels, num_outputs=Dout)
@@ -340,7 +348,7 @@ class DGP_Base(Model):
             layer.q_sqrt.trainable = False
         self.layers[-1].q_sqrt = self.layers[-1].q_sqrt.value * self.Y_list[-1].var() * 0.01
         self.layers[-1].q_sqrt.trainable = False
-        self.likelihood.likelihood.variance = self.Y_list[-1].var() * .01
+        self.likelihood.likelihood.variance = self.Y_list[-1].var() * 0.01
         self.likelihood.likelihood.variance.trainable = False
 
         # Run with covariance fixed
@@ -363,7 +371,7 @@ class DGP_Base(Model):
 
     def run_adam(self, lr, iterations):
         adam = AdamOptimizer(lr).make_optimize_action(self)
-        actions = [adam, PrintAction(self, 'MF-DGP with Adam')]
+        actions = [adam, PrintAction(self, "MF-DGP with Adam")]
         loop = Loop(actions, stop=iterations)()
         self.anchor(self.enquire_session())
 
@@ -380,8 +388,8 @@ class PrintAction(Action):
     def run(self, ctx):
         if ctx.iteration % 2000 == 0:
             objective = ctx.session.run(self.model.objective)
-            _log.info('ELBO {:.4f};  KL {:.4f}'.format(ctx.session.run(self.model.L), ctx.session.run(self.model.KL)))
-            _log.info('{}: iteration {} objective {:.4f}'.format(self.text, ctx.iteration, objective))
+            _log.info("ELBO {:.4f};  KL {:.4f}".format(ctx.session.run(self.model.L), ctx.session.run(self.model.KL)))
+            _log.info("{}: iteration {} objective {:.4f}".format(self.text, ctx.iteration, objective))
 
 
 class MultiFidelityDeepGP(IModel):
@@ -401,7 +409,7 @@ class MultiFidelityDeepGP(IModel):
             self.Z = Z
 
         self.model = self._get_model(X, Y, self.Z)
-        self.name = 'mfdgp'
+        self.name = "mfdgp"
         self.n_fidelities = len(X)
         self.n_iter = n_iter
         self.fix_inducing = fix_inducing
@@ -432,7 +440,7 @@ class MultiFidelityDeepGP(IModel):
         """
 
         if self.multi_step_training:
-            _log.info('\n--- Optimization: {} ---\n'.format(self.name))
+            _log.info("\n--- Optimization: {} ---\n".format(self.name))
             self.model.layers[0].q_mu = self._Y[0]
             for i, layer in enumerate(self.model.layers[1:-1]):
                 layer.q_mu = self._Y[i][::2]

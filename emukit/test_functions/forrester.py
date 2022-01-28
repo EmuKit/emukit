@@ -26,10 +26,13 @@ def multi_fidelity_forrester_function(high_fidelity_noise_std_deviation=0, low_f
                                              Defaults to zero.
     :return: Tuple of user function object and parameter space object
     """
-    parameter_space = ParameterSpace([ContinuousParameter('x', 0, 1), InformationSourceParameter(2)])
-    user_function = MultiSourceFunctionWrapper([
-        lambda x: forrester_low(x, low_fidelity_noise_std_deviation),
-        lambda x: forrester(x, high_fidelity_noise_std_deviation)])
+    parameter_space = ParameterSpace([ContinuousParameter("x", 0, 1), InformationSourceParameter(2)])
+    user_function = MultiSourceFunctionWrapper(
+        [
+            lambda x: forrester_low(x, low_fidelity_noise_std_deviation),
+            lambda x: forrester(x, high_fidelity_noise_std_deviation),
+        ]
+    )
     return user_function, parameter_space
 
 
@@ -43,9 +46,11 @@ def forrester_function(noise_standard_deviation=0):
     :param noise_standard_deviation: Standard deviation of normally distributed observation noise
     :return: Tuple of function and parameter space object
     """
+
     def forrester_fcn(x):
         return forrester(x, sd=noise_standard_deviation)
-    return forrester_fcn, ParameterSpace([ContinuousParameter('x', 0, 1)])
+
+    return forrester_fcn, ParameterSpace([ContinuousParameter("x", 0, 1)])
 
 
 def forrester(x, sd=0):

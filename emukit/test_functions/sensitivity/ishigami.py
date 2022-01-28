@@ -37,13 +37,18 @@ class Ishigami(object):
         self.variance_x123 = 0
 
         # Main effects
-        self.main_effects = {'x1': self.variance_x1 / self.variance_total, 'x2': self.variance_x2 / self.variance_total,
-                             'x3': self.variance_x3 / self.variance_total}
+        self.main_effects = {
+            "x1": self.variance_x1 / self.variance_total,
+            "x2": self.variance_x2 / self.variance_total,
+            "x3": self.variance_x3 / self.variance_total,
+        }
 
         # Total effects
-        self.total_effects = {'x1': (self.variance_x1 + self.variance_x13) / self.variance_total,
-                              'x2': self.variance_x2 / self.variance_total,
-                              'x3': (self.variance_x3 + self.variance_x13) / self.variance_total}
+        self.total_effects = {
+            "x1": (self.variance_x1 + self.variance_x13) / self.variance_total,
+            "x2": self.variance_x2 / self.variance_total,
+            "x3": (self.variance_x3 + self.variance_x13) / self.variance_total,
+        }
 
     def fidelity1(self, x: np.ndarray) -> np.ndarray:
         """
@@ -76,7 +81,7 @@ class Ishigami(object):
 
         :param x: (n_points x 3) numpy array containing inputs to function
         """
-        return np.sin(x[:, 0]) + .95 * self.a * np.sin(x[:, 1]) ** 2 + self.b * x[:, 2] ** 4 * (np.sin(x[:, 0]))
+        return np.sin(x[:, 0]) + 0.95 * self.a * np.sin(x[:, 1]) ** 2 + self.b * x[:, 2] ** 4 * (np.sin(x[:, 0]))
 
     def fidelity4(self, x: np.ndarray) -> np.ndarray:
         """
@@ -87,7 +92,7 @@ class Ishigami(object):
 
         :param x: (n_points x 3) numpy array containing inputs to function
         """
-        return np.sin(x[:, 0]) + .6 * self.a * np.sin(x[:, 1]) ** 2 + 9 * self.b * x[:, 2] ** 4 * (np.sin(x[:, 0]))
+        return np.sin(x[:, 0]) + 0.6 * self.a * np.sin(x[:, 1]) ** 2 + 9 * self.b * x[:, 2] ** 4 * (np.sin(x[:, 0]))
 
     def f0(self) -> float:
         """

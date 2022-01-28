@@ -21,13 +21,13 @@ def test_fixed_iteration_stopping_condition():
     loop_state_mock = mock.create_autospec(LoopState)
 
     loop_state_mock.iteration = 0
-    assert(stopping_condition.should_stop(loop_state_mock) is False)
+    assert stopping_condition.should_stop(loop_state_mock) is False
 
     loop_state_mock.iteration = n_iterations - 1
-    assert(stopping_condition.should_stop(loop_state_mock) is False)
+    assert stopping_condition.should_stop(loop_state_mock) is False
 
     loop_state_mock.iteration = n_iterations
-    assert(stopping_condition.should_stop(loop_state_mock) is True)
+    assert stopping_condition.should_stop(loop_state_mock) is True
 
 
 def test_convergence_stopping_condition():
@@ -37,19 +37,19 @@ def test_convergence_stopping_condition():
     loop_state_mock = mock.create_autospec(LoopState)
     loop_state_mock.iteration = 1
     loop_state_mock.X = np.array([[0]])
-    assert(stopping_condition.should_stop(loop_state_mock) is False)
+    assert stopping_condition.should_stop(loop_state_mock) is False
 
     # check if we stop when we should not
     loop_state_mock = mock.create_autospec(LoopState)
     loop_state_mock.iteration = 5
     loop_state_mock.X = np.array([[0], [10], [20], [30], [40]])
-    assert(stopping_condition.should_stop(loop_state_mock) is False)
+    assert stopping_condition.should_stop(loop_state_mock) is False
 
     # check if we stop when we should
     loop_state_mock = mock.create_autospec(LoopState)
     loop_state_mock.iteration = 5
     loop_state_mock.X.return_value(np.array([[0], [1], [2], [3], [3.01]]))
-    assert(stopping_condition.should_stop(loop_state_mock) is True)
+    assert stopping_condition.should_stop(loop_state_mock) is True
 
 
 def test_operations_with_conditions():
@@ -62,25 +62,25 @@ def test_operations_with_conditions():
 
     left_condition.should_stop = mock.MagicMock(return_value=True)
     right_condition.should_stop = mock.MagicMock(return_value=True)
-    assert(or_condition.should_stop(mock_loop_state) is True)
-    assert(and_condition.should_stop(mock_loop_state) is True)
+    assert or_condition.should_stop(mock_loop_state) is True
+    assert and_condition.should_stop(mock_loop_state) is True
 
     left_condition.should_stop = mock.MagicMock(return_value=True)
     right_condition.should_stop = mock.MagicMock(return_value=False)
-    assert(or_condition.should_stop(mock_loop_state) is True)
-    assert(and_condition.should_stop(mock_loop_state) is False)
+    assert or_condition.should_stop(mock_loop_state) is True
+    assert and_condition.should_stop(mock_loop_state) is False
 
     left_condition.should_stop = mock.MagicMock(return_value=False)
     right_condition.should_stop = mock.MagicMock(return_value=True)
-    assert(or_condition.should_stop(mock_loop_state) is True)
-    assert(and_condition.should_stop(mock_loop_state) is False)
+    assert or_condition.should_stop(mock_loop_state) is True
+    assert and_condition.should_stop(mock_loop_state) is False
 
     left_condition.should_stop = mock.MagicMock(return_value=False)
     right_condition.should_stop = mock.MagicMock(return_value=False)
-    assert(or_condition.should_stop(mock_loop_state) is False)
-    assert(and_condition.should_stop(mock_loop_state) is False)
+    assert or_condition.should_stop(mock_loop_state) is False
+    assert and_condition.should_stop(mock_loop_state) is False
 
     complex_combination = (left_condition | right_condition) & left_condition
     left_condition.should_stop = mock.MagicMock(return_value=False)
     right_condition.should_stop = mock.MagicMock(return_value=True)
-    assert(complex_combination.should_stop(mock_loop_state) is False)
+    assert complex_combination.should_stop(mock_loop_state) is False

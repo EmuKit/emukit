@@ -11,7 +11,7 @@ def simple_square_acquisition():
             pass
 
         def evaluate(self, x):
-            y = - x[:, 0]**2 + np.sum(x[:, 1:], axis=1) + 1
+            y = -x[:, 0] ** 2 + np.sum(x[:, 1:], axis=1) + 1
             return np.atleast_2d(y).T
 
         @property

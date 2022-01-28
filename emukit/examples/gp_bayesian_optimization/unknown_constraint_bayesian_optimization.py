@@ -24,11 +24,19 @@ class OptimizerType(Enum):
 
 
 class UnknownConstraintGPBayesianOptimization(UnknownConstraintBayesianOptimizationLoop):
-    def __init__(self, variables_list: list, X: np.array, Y: np.array, Yc: np.array, noiseless: bool = False,
-                 acquisition_type: AcquisitionType = AcquisitionType.EI, normalize_Y: bool = True,
-                 acquisition_optimizer_type: OptimizerType = OptimizerType.LBFGS,
-                 batch_size: int = 1,
-                 model_update_interval: int = int(1)) -> None:
+    def __init__(
+        self,
+        variables_list: list,
+        X: np.array,
+        Y: np.array,
+        Yc: np.array,
+        noiseless: bool = False,
+        acquisition_type: AcquisitionType = AcquisitionType.EI,
+        normalize_Y: bool = True,
+        acquisition_optimizer_type: OptimizerType = OptimizerType.LBFGS,
+        batch_size: int = 1,
+        model_update_interval: int = int(1),
+    ) -> None:
 
         """
         Class to run Bayesian optimization with unknown contraints with GPyRegression model.
@@ -73,12 +81,17 @@ class UnknownConstraintGPBayesianOptimization(UnknownConstraintBayesianOptimizat
         # 3. Select the acquisition function
         self._acquisition_chooser()
 
-        super().__init__(model_objective=self.model_objective, model_constraint=self.model_constraint, space=self.space,
-                         acquisition=self.acquisition, batch_size=self.batch_size)
+        super().__init__(
+            model_objective=self.model_objective,
+            model_constraint=self.model_constraint,
+            space=self.space,
+            acquisition=self.acquisition,
+            batch_size=self.batch_size,
+        )
 
     def _model_chooser(self):
-        """ Initialize the model used for the objective function """
-        kernel = Matern52(len(self.variables_list), variance=1., ARD=False)
+        """Initialize the model used for the objective function"""
+        kernel = Matern52(len(self.variables_list), variance=1.0, ARD=False)
         gpmodel = GPRegression(self.X, self.Y, kernel)
         gpmodel.optimize()
         self.model_objective = GPyModelWrapper(gpmodel)
@@ -87,8 +100,8 @@ class UnknownConstraintGPBayesianOptimization(UnknownConstraintBayesianOptimizat
         self.model_objective = GPyModelWrapper(gpmodel)
 
     def _model_chooser_constraint(self):
-        """ Initialize the model used for the constraint """
-        kernel = Matern52(len(self.variables_list), variance=1., ARD=False)
+        """Initialize the model used for the constraint"""
+        kernel = Matern52(len(self.variables_list), variance=1.0, ARD=False)
         gpmodel = GPRegression(self.X, self.Yc, kernel)
         gpmodel.optimize()
         self.model_constraint = GPyModelWrapper(gpmodel)
@@ -97,7 +110,7 @@ class UnknownConstraintGPBayesianOptimization(UnknownConstraintBayesianOptimizat
         self.model_constraint = GPyModelWrapper(gpmodel)
 
     def _acquisition_chooser(self):
-        """ Select the acquisition function used in the optimization """
+        """Select the acquisition function used in the optimization"""
         if self.acquisition_type is AcquisitionType.EI:
             self.acquisition = ExpectedImprovement(self.model_objective)
         elif self.acquisition_type is AcquisitionType.PI:
@@ -106,5 +119,5 @@ class UnknownConstraintGPBayesianOptimization(UnknownConstraintBayesianOptimizat
             self.acquisition = NegativeLowerConfidenceBound(self.model_objective)
 
     def suggest_new_locations(self):
-        """ Returns one or a batch of locations without evaluating the objective """
+        """Returns one or a batch of locations without evaluating the objective"""
         return self.candidate_point_calculator.compute_next_points(self.loop_state)[0].X

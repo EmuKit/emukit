@@ -12,15 +12,15 @@ class TestNonLinearModel:
     def x_init(self):
         x_init = np.zeros((15, 3))
         for i in range(3):
-            x_init[i * 5:(i + 1) * 5, :2] = np.random.randn(5, 2)
-            x_init[i * 5:(i + 1) * 5, 2] = i
+            x_init[i * 5 : (i + 1) * 5, :2] = np.random.randn(5, 2)
+            x_init[i * 5 : (i + 1) * 5, 2] = i
         return x_init
 
     @pytest.fixture()
     def y_init(self):
         y_init = np.zeros((15, 1))
         for i in range(3):
-            y_init[i * 5:(i + 1) * 5, :] = np.random.randn(5, 1)
+            y_init[i * 5 : (i + 1) * 5, :] = np.random.randn(5, 1)
         return y_init
 
     @pytest.fixture()
@@ -50,11 +50,9 @@ class TestNonLinearModel:
         X_init = np.random.rand(5, 3)
         Y_init = np.random.rand(5, 3)
         with pytest.raises(TypeError):
-            emukit.multi_fidelity.models.NonLinearMultiFidelityModel([X_init], [Y_init], base_kernel,
-                                                                     n_samples=70)
+            emukit.multi_fidelity.models.NonLinearMultiFidelityModel([X_init], [Y_init], base_kernel, n_samples=70)
         with pytest.raises(TypeError):
-            emukit.multi_fidelity.models.NonLinearMultiFidelityModel([X_init], Y_init, base_kernel,
-                                                                     n_samples=70)
+            emukit.multi_fidelity.models.NonLinearMultiFidelityModel([X_init], Y_init, base_kernel, n_samples=70)
 
     def test_get_fmin(self, non_linear_model):
         """
@@ -76,12 +74,12 @@ class TestNonLinearModel:
 
         x = np.zeros((15, 3))
         for i in range(3):
-            x[i * 5:(i + 1) * 5, :2] = np.random.randn(5, 2)
-            x[i * 5:(i + 1) * 5, 2] = i
+            x[i * 5 : (i + 1) * 5, :2] = np.random.randn(5, 2)
+            x[i * 5 : (i + 1) * 5, 2] = i
 
         y = np.zeros((15, 1))
         for i in range(3):
-            y[i * 5:(i + 1) * 5, :] = np.random.randn(5, 1)
+            y[i * 5 : (i + 1) * 5, :] = np.random.randn(5, 1)
 
         non_linear_model.set_data(x, y)
 
@@ -136,22 +134,26 @@ class TestNonLinearModel:
         assert dvar_dx.shape == (2, 2)
 
     @pytest.mark.parametrize(
-        "fidelity_idx,func_idx,grad_idx", [
-            pytest.param(2, 0, 1, id='mean_gradient_highest_fidelity'),
-            pytest.param(2, 2, 3, id='var_gradient_highest_fidelity'),
-            pytest.param(1, 0, 1, id='mean_gradient_middle_fidelity'),
-            pytest.param(1, 2, 3, id='var_gradient_middle_fidelity'),
-            pytest.param(0, 0, 1, id='mean_gradient_lowest_fidelity'),
-            pytest.param(0, 2, 3, id='var_gradient_lowest_fidelity')
-        ])
+        "fidelity_idx,func_idx,grad_idx",
+        [
+            pytest.param(2, 0, 1, id="mean_gradient_highest_fidelity"),
+            pytest.param(2, 2, 3, id="var_gradient_highest_fidelity"),
+            pytest.param(1, 0, 1, id="mean_gradient_middle_fidelity"),
+            pytest.param(1, 2, 3, id="var_gradient_middle_fidelity"),
+            pytest.param(0, 0, 1, id="mean_gradient_lowest_fidelity"),
+            pytest.param(0, 2, 3, id="var_gradient_lowest_fidelity"),
+        ],
+    )
     def test_non_linear_sample_fidelities_gradient(self, non_linear_model, fidelity_idx, func_idx, grad_idx):
         np.random.seed(1234)
         x0 = np.random.rand(2)
 
-        func = lambda x: np.sum(non_linear_model._predict_samples_with_gradients(x[None, :], fidelity_idx)[func_idx],
-                                axis=0)
-        grad = lambda x: np.sum(non_linear_model._predict_samples_with_gradients(x[None, :], fidelity_idx)[grad_idx],
-                                axis=0)
+        func = lambda x: np.sum(
+            non_linear_model._predict_samples_with_gradients(x[None, :], fidelity_idx)[func_idx], axis=0
+        )
+        grad = lambda x: np.sum(
+            non_linear_model._predict_samples_with_gradients(x[None, :], fidelity_idx)[grad_idx], axis=0
+        )
         assert check_grad(func, grad, x0) < 1e-6
 
     def test_non_linear_model_mean_gradient(self, non_linear_model):
@@ -171,6 +173,7 @@ class TestNonLinearModel:
         def wrap_gradients(x):
             x_full = np.concatenate([x[None, :], [[2]]], axis=1)
             return non_linear_model.get_prediction_gradients(x_full)[0]
+
         assert np.all(check_grad(wrap_func, wrap_gradients, x0) < 1e-6)
 
     def test_non_linear_model_variance_gradient(self, non_linear_model):

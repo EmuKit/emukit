@@ -22,8 +22,9 @@ class Optimizer(object):
         """
         self.bounds = bounds
 
-    def optimize(self, x0: np.ndarray, f: Callable=None, df: Callable=None, f_df: Callable=None) \
-            -> Tuple[np.ndarray, np.ndarray]:
+    def optimize(
+        self, x0: np.ndarray, f: Callable = None, df: Callable = None, f_df: Callable = None
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """
         :param x0: initial point for a local optimizer.
         :param f: function to optimize.
@@ -43,8 +44,9 @@ class OptLbfgs(Optimizer):
         super(OptLbfgs, self).__init__(bounds)
         self.max_iterations = max_iterations
 
-    def optimize(self, x0: np.ndarray, f: Callable=None, df: Callable=None, f_df: Callable=None) \
-            -> Tuple[np.ndarray, np.ndarray]:
+    def optimize(
+        self, x0: np.ndarray, f: Callable = None, df: Callable = None, f_df: Callable = None
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """
         :param x0: initial point for a local optimizer.
         :param f: function to optimize.
@@ -53,18 +55,22 @@ class OptLbfgs(Optimizer):
         :return: Location of optimum and value at optimum
         """
 
-        if f_df is None and df is not None: f_df = lambda x: (float(f(x)), df(x))
+        if f_df is None and df is not None:
+            f_df = lambda x: (float(f(x)), df(x))
         if f_df is not None:
+
             def _f_df(x):
                 return f(x), f_df(x)[1][0]
 
         if f_df is None and df is None:
-            res = scipy.optimize.fmin_l_bfgs_b(f, x0=x0, bounds=self.bounds, approx_grad=True, maxiter=self.max_iterations)
+            res = scipy.optimize.fmin_l_bfgs_b(
+                f, x0=x0, bounds=self.bounds, approx_grad=True, maxiter=self.max_iterations
+            )
         else:
             res = scipy.optimize.fmin_l_bfgs_b(_f_df, x0=x0, bounds=self.bounds, maxiter=self.max_iterations)
 
         # We check here if the the optimizer moved. It it didn't we report x0 and f(x0) as scipy can return NaNs
-        if res[2]['task'] == b'ABNORMAL_TERMINATION_IN_LNSRCH':
+        if res[2]["task"] == b"ABNORMAL_TERMINATION_IN_LNSRCH":
             result_x = np.atleast_2d(x0)
             result_fx = np.atleast_2d(f(x0))
         else:
@@ -74,8 +80,15 @@ class OptLbfgs(Optimizer):
         return result_x, result_fx
 
 
-def apply_optimizer(optimizer: Optimizer, x0: np.ndarray, space: ParameterSpace, f: Callable=None, df: Callable=None,
-                    f_df: Callable=None, context_manager: ContextManager=None) -> Tuple[np.ndarray, np.ndarray]:
+def apply_optimizer(
+    optimizer: Optimizer,
+    x0: np.ndarray,
+    space: ParameterSpace,
+    f: Callable = None,
+    df: Callable = None,
+    f_df: Callable = None,
+    context_manager: ContextManager = None,
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     Optimizes f using the optimizer supplied, deals with potential context variables.
 
@@ -128,9 +141,14 @@ def apply_optimizer(optimizer: Optimizer, x0: np.ndarray, space: ParameterSpace,
 
 
 class OptimizationWithContext(object):
-
-    def __init__(self, x0: np.ndarray, f: Callable, df: Callable=None, f_df: Callable=None,
-                 context_manager: ContextManager = None):
+    def __init__(
+        self,
+        x0: np.ndarray,
+        f: Callable,
+        df: Callable = None,
+        f_df: Callable = None,
+        context_manager: ContextManager = None,
+    ):
         """
         Constructor of an objective function that takes as input a vector x of the non context variables
         and returns a value in which the context variables have been fixed.
@@ -199,7 +217,7 @@ class OptTrustRegionConstrained(Optimizer):
     Wrapper for Trust-Region Constrained algorithm that can deal with non-linear constraints
     """
 
-    def __init__(self, bounds: List[Tuple], constraints: List[IConstraint], max_iterations: int=1000):
+    def __init__(self, bounds: List[Tuple], constraints: List[IConstraint], max_iterations: int = 1000):
         """
         :param bounds: List of tuples containing (lower_bound, upper_bound) for each parameter
         :param constraints: List of constraints, can contain a mix of linear and non-linear constraints
@@ -209,8 +227,9 @@ class OptTrustRegionConstrained(Optimizer):
         self.max_iterations = max_iterations
         self.constraints = _get_scipy_constraints(constraints)
 
-    def optimize(self, x0: np.ndarray, f: Callable=None, df: Callable=None, f_df: Callable=None) \
-            -> Tuple[np.ndarray, np.ndarray]:
+    def optimize(
+        self, x0: np.ndarray, f: Callable = None, df: Callable = None, f_df: Callable = None
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """
         Run Trust region constrained optimization algorithm
 
@@ -222,7 +241,7 @@ class OptTrustRegionConstrained(Optimizer):
         """
 
         if (f is None) and (f_df is None):
-            raise ValueError('Neither f nor f_df are supplied - you must supply an objective function')
+            raise ValueError("Neither f nor f_df are supplied - you must supply an objective function")
 
         # If f not supplied, make lambda that returns objective only from f_df
         if f is None:
@@ -238,14 +257,30 @@ class OptTrustRegionConstrained(Optimizer):
             # Gradient not supplied
             df_1d = None
 
-        options = {'maxiter': self.max_iterations}
+        options = {"maxiter": self.max_iterations}
 
         if df_1d is None:
-            res = scipy.optimize.minimize(f, x0=x0[0, :], method='trust-constr', bounds=self.bounds, jac='2-point',
-                                          options=options, constraints=self.constraints, hess=scipy.optimize.BFGS())
+            res = scipy.optimize.minimize(
+                f,
+                x0=x0[0, :],
+                method="trust-constr",
+                bounds=self.bounds,
+                jac="2-point",
+                options=options,
+                constraints=self.constraints,
+                hess=scipy.optimize.BFGS(),
+            )
         else:
-            res = scipy.optimize.minimize(f, x0=x0[0, :], method='trust-constr', bounds=self.bounds, jac=df_1d,
-                                          options=options, constraints=self.constraints, hess=scipy.optimize.BFGS())
+            res = scipy.optimize.minimize(
+                f,
+                x0=x0[0, :],
+                method="trust-constr",
+                bounds=self.bounds,
+                jac=df_1d,
+                options=options,
+                constraints=self.constraints,
+                hess=scipy.optimize.BFGS(),
+            )
 
         result_x = np.atleast_2d(res.x)
         result_fx = np.atleast_2d(res.fun)
@@ -265,18 +300,22 @@ def _get_scipy_constraints(constraint_list: List[IConstraint]) -> List:
         if isinstance(constraint, NonlinearInequalityConstraint):
             if constraint.jacobian_fun is None:
                 # No jacobian supplied -> tell scipy to use finite difference method
-                jacobian = '2-point'
+                jacobian = "2-point"
             else:
                 # Jacobian is supplied -> tell scipy to use it
                 jacobian = constraint.jacobian_fun
 
             scipy_constraints.append(
-                scipy.optimize.NonlinearConstraint(constraint.fun, constraint.lower_bound, constraint.upper_bound,
-                                                   jacobian))
+                scipy.optimize.NonlinearConstraint(
+                    constraint.fun, constraint.lower_bound, constraint.upper_bound, jacobian
+                )
+            )
         elif isinstance(constraint, LinearInequalityConstraint):
-            scipy_constraints.append(scipy.optimize.LinearConstraint(constraint.constraint_matrix,
-                                                                     constraint.lower_bound,
-                                                                     constraint.upper_bound))
+            scipy_constraints.append(
+                scipy.optimize.LinearConstraint(
+                    constraint.constraint_matrix, constraint.lower_bound, constraint.upper_bound
+                )
+            )
         else:
-            raise ValueError('Constraint type {} not recognised'.format(type(constraint)))
+            raise ValueError("Constraint type {} not recognised".format(type(constraint)))
     return scipy_constraints

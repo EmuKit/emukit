@@ -17,9 +17,10 @@ _log = logging.getLogger(__name__)
 
 
 class GradientAcquisitionOptimizer(AcquisitionOptimizerBase):
-    """ Optimizes the acquisition function using a quasi-Newton method (L-BFGS).
+    """Optimizes the acquisition function using a quasi-Newton method (L-BFGS).
     Can be used for continuous acquisition functions.
     """
+
     def __init__(self, space: ParameterSpace, num_samples=1000, num_anchor=1) -> None:
         """
         :param space: The parameter space spanning the search problem.
@@ -47,9 +48,11 @@ class GradientAcquisitionOptimizer(AcquisitionOptimizerBase):
             return x, f(x)
 
         if acquisition.has_gradients:
+
             def f_df(x):
                 f_value, df_value = acquisition.evaluate_with_gradients(x)
                 return -f_value, -df_value
+
         else:
             f_df = None
 
@@ -62,8 +65,9 @@ class GradientAcquisitionOptimizer(AcquisitionOptimizerBase):
         _log.info("Starting gradient-based optimization of acquisition function {}".format(type(acquisition)))
         optimized_points = []
         for a in anchor_points:
-            optimized_point = apply_optimizer(optimizer, a, space=self.space, f=f, df=None, f_df=f_df,
-                                              context_manager=context_manager)
+            optimized_point = apply_optimizer(
+                optimizer, a, space=self.space, f=f, df=None, f_df=f_df, context_manager=context_manager
+            )
             optimized_points.append(optimized_point)
 
         x_min, fx_min = min(optimized_points, key=lambda t: t[1])

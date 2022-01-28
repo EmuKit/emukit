@@ -74,7 +74,8 @@ class UncertaintySampling(Acquisition):
             gradient_weighted = (density * variance_gradient.T).T + (variance[:, 0] * density_gradient.T).T
             return variance_weighted, gradient_weighted
 
-        gradient_weighted = (density ** p * variance_gradient.T).T \
-                            + (p * (variance[:, 0] * density ** (p - 1)) * density_gradient.T).T
+        gradient_weighted = (density ** p * variance_gradient.T).T + (
+            p * (variance[:, 0] * density ** (p - 1)) * density_gradient.T
+        ).T
 
         return variance_weighted, gradient_weighted

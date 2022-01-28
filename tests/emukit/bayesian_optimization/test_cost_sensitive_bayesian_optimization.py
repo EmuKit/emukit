@@ -10,14 +10,14 @@ from emukit.model_wrappers import GPyModelWrapper
 
 
 def test_cost_sensitive_bayesian_optimization_loop():
-    space = ParameterSpace([ContinuousParameter('x', 0, 1)])
+    space = ParameterSpace([ContinuousParameter("x", 0, 1)])
 
     x_init = np.random.rand(10, 1)
 
     def function_with_cost(x):
         return np.sin(x), x
 
-    user_fcn = UserFunctionWrapper(function_with_cost, extra_output_names=['cost'])
+    user_fcn = UserFunctionWrapper(function_with_cost, extra_output_names=["cost"])
 
     y_init, cost_init = function_with_cost(x_init)
 

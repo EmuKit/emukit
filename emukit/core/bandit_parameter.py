@@ -18,7 +18,8 @@ class BanditParameter(Parameter):
     A multivariate parameter consisting of a restricted domain of the full Cartesian product of its
     constituent sub-parameters
     """
-    def __init__(self, name: str, domain: np.ndarray, sub_parameter_names: Optional[List[str]]=None):
+
+    def __init__(self, name: str, domain: np.ndarray, sub_parameter_names: Optional[List[str]] = None):
         """
         :param name: Name of parameter
         :param domain: List of tuples representing valid values
@@ -28,7 +29,7 @@ class BanditParameter(Parameter):
         super().__init__(name)
         if not isinstance(domain, np.ndarray):
             raise ValueError("Domain must be a 2D np.ndarray, got type: {}".format(type(domain)))
-        if not domain.ndim==2:
+        if not domain.ndim == 2:
             raise ValueError("Domain must be a 2D np.ndarray, got dimensions: {}".format(domain.shape))
         self.domain = domain  # each column is homogeneously typed thanks to numpy.ndarray
         self.parameters = self._create_parameters(domain, sub_parameter_names)
@@ -38,7 +39,7 @@ class BanditParameter(Parameter):
         msg = f"<BanditParameter: {self.name} ndim={self.domain.ndim}"
         if self._sub_parameter_names:
             msg = msg + f" ({','.join(self._sub_parameter_names)})"
-        msg = msg + '>'
+        msg = msg + ">"
         return msg
 
     def __repr__(self):
@@ -51,7 +52,7 @@ class BanditParameter(Parameter):
         :param domain: 2D array (n by p) of valid states, each row represents one valid state
         :returns: List of names
         """
-        return [f'{self.name}_{i}' for i in range(domain.shape[1])]
+        return [f"{self.name}_{i}" for i in range(domain.shape[1])]
 
     def _create_parameters(self, domain: np.ndarray, parameter_names: Optional[List[str]]) -> List[Parameter]:
         """
@@ -65,15 +66,17 @@ class BanditParameter(Parameter):
         parameters = []
         parameter_names = parameter_names if parameter_names else self._create_parameter_names(domain)
         if domain.shape[1] != len(parameter_names):
-            raise ValueError("Provided domain shape {} != number of parameter names {}".format(domain.shape[1], len(parameter_names)))
+            raise ValueError(
+                "Provided domain shape {} != number of parameter names {}".format(domain.shape[1], len(parameter_names))
+            )
         for cix, parameter_name in enumerate(parameter_names):
-            sub_param_domain = domain[:,cix]
+            sub_param_domain = domain[:, cix]
             domain_unq = np.unique(sub_param_domain)
             if np.issubdtype(sub_param_domain.dtype, np.number):  # make discrete
-                parameter = DiscreteParameter(name = parameter_name, domain = domain_unq)
+                parameter = DiscreteParameter(name=parameter_name, domain=domain_unq)
             else:  # make categorical
                 encoding = OneHotEncoding(domain_unq)
-                parameter = CategoricalParameter(name = parameter_name, encoding = encoding)
+                parameter = CategoricalParameter(name=parameter_name, encoding=encoding)
                 raise NotImplementedError("Categorical sub-parameters not yet fully supported")
                 # NOTE Categorical sub-parameters not yet implemented because inputs are
                 # homogeneously typed np.ndarrays rather than structured arrays. In the future,
@@ -103,11 +106,15 @@ class BanditParameter(Parameter):
             elif x.ndim > 1:
                 raise ValueError("Expected x shape (n,) or (n, 1), actual is {}".format(x.shape))
             if x.shape[0] != self.domain.shape[1]:
-                raise ValueError("Received x with dimension {}, expected dimension is {}".format(x.shape[0],self.domain.shape[1]))
+                raise ValueError(
+                    "Received x with dimension {}, expected dimension is {}".format(x.shape[0], self.domain.shape[1])
+                )
             result = (self.domain == x).all(axis=1).any()
         elif isinstance(x, float):
             if self.domain.shape[1] > 1:
-                raise ValueError("Received x with dimension 1, expected dimension is {}".format(x.shape[0],self.domain.shape[1]))
+                raise ValueError(
+                    "Received x with dimension 1, expected dimension is {}".format(x.shape[0], self.domain.shape[1])
+                )
             result = (self.domain == x).all(axis=1).any()
         elif isinstance(x, list):
             result = (self.domain == x).all(axis=1).any()
@@ -141,8 +148,8 @@ class BanditParameter(Parameter):
 
         x_rounded = []
         for row in x:
-            dists = np.sqrt(np.sum((self.domain - row)**2))
-            rounded_value = min(self.domain, key=lambda d: np.linalg.norm(d-row))
+            dists = np.sqrt(np.sum((self.domain - row) ** 2))
+            rounded_value = min(self.domain, key=lambda d: np.linalg.norm(d - row))
             x_rounded.append(rounded_value)
 
         if not all([self.check_in_domain(xr) for xr in x_rounded]):
@@ -158,12 +165,15 @@ class BanditParameter(Parameter):
         """
         d = 0
         for p in self.parameters:
-            if isinstance(p, ContinuousParameter): d+=1
-            elif isinstance(p, DiscreteParameter): d+=1
-            elif isinstance(p, CategoricalParameter): d+=p.dimension
-            else: raise Exception("Parameter type {type(p)} not supported.")
+            if isinstance(p, ContinuousParameter):
+                d += 1
+            elif isinstance(p, DiscreteParameter):
+                d += 1
+            elif isinstance(p, CategoricalParameter):
+                d += p.dimension
+            else:
+                raise Exception("Parameter type {type(p)} not supported.")
         return d
-
 
     def sample_uniform(self, point_count: int) -> np.ndarray:
         """

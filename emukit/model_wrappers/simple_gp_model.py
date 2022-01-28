@@ -12,6 +12,7 @@ class SimpleGaussianProcessModel(IModel):
     This model is a Gaussian process with an RBF kernel, with no ARD. It is used to demonstrate uses of emukit,
     it does not aim to be flexible, robust or fast.
     """
+
     def __init__(self, x: np.ndarray, y: np.ndarray):
         """
         :param x: (n_points, n_dims) array containing training features
@@ -28,16 +29,16 @@ class SimpleGaussianProcessModel(IModel):
         """
         Prints the hyper-parameters
         """
-        return 'Lengthscale: {:.4f} \n Kernel variance: {:.4f} \n Likelihood variance: {:.4f}'.format(
-            self.lengthscale,
-            self.kernel_variance,
-            self.likelihood_variance)
+        return "Lengthscale: {:.4f} \n Kernel variance: {:.4f} \n Likelihood variance: {:.4f}".format(
+            self.lengthscale, self.kernel_variance, self.likelihood_variance
+        )
 
     def optimize(self) -> None:
         """
         Optimize the three hyperparameters of the model, namely the kernel variance, kernel lengthscale and likelihood
         variance
         """
+
         def optimize_fcn(log_hyper_parameters):
             # take exponential to ensure positive values
             hyper_parameters = np.exp(log_hyper_parameters)
@@ -50,9 +51,11 @@ class SimpleGaussianProcessModel(IModel):
         upper_bound = np.log(1e8)
 
         bounds = [(lower_bound, upper_bound) for _ in range(3)]
-        scipy.optimize.minimize(optimize_fcn, np.log(np.array([self.lengthscale,
-                                                               self.kernel_variance,
-                                                               self.likelihood_variance])), bounds=bounds)
+        scipy.optimize.minimize(
+            optimize_fcn,
+            np.log(np.array([self.lengthscale, self.kernel_variance, self.likelihood_variance])),
+            bounds=bounds,
+        )
 
     def predict(self, x_new: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
@@ -76,7 +79,7 @@ class SimpleGaussianProcessModel(IModel):
         variance = (self.kernel_variance - np.sum(np.square(tmp), axis=0))[:, None]
         return mean, variance
 
-    def _calc_kernel(self, X: np.ndarray, X2: np.ndarray=None) -> np.ndarray:
+    def _calc_kernel(self, X: np.ndarray, X2: np.ndarray = None) -> np.ndarray:
         """
         Implements an RBF kernel with no ARD
 
@@ -90,7 +93,7 @@ class SimpleGaussianProcessModel(IModel):
 
         X1sq = np.sum(np.square(X), 1)
         X2sq = np.sum(np.square(X2), 1)
-        r2 = -2. * np.dot(X, X2.T) + (X1sq[:, None] + X2sq[None, :])
+        r2 = -2.0 * np.dot(X, X2.T) + (X1sq[:, None] + X2sq[None, :])
         r2 = np.clip(r2, 0, np.inf)
         return self.kernel_variance * np.exp(-0.5 * r2 / self.lengthscale ** 2)
 
@@ -107,7 +110,7 @@ class SimpleGaussianProcessModel(IModel):
         L = np.linalg.cholesky(K)
 
         # Log determinant of the covariance matrix
-        log_det = 2. * np.sum(np.log(np.diag(L)))
+        log_det = 2.0 * np.sum(np.log(np.diag(L)))
 
         # calculate y^T K^{-1} y using the cholesky of K
         tmp = scipy.linalg.solve_triangular(L, self.y, lower=True)
@@ -118,7 +121,7 @@ class SimpleGaussianProcessModel(IModel):
     def set_data(self, X: np.ndarray, Y: np.ndarray) -> None:
         """
         Set training data to new values
-        
+
         :param X: (n_points, n_dims) array containing training features
         :param Y: (n_points, 1) array containing training targets
         """

@@ -25,6 +25,7 @@ class WarpedBayesianQuadratureModel(IModel, IDifferentiable):
     - no approximation if there is no warping (Vanilla BQ)
     - ...
     """
+
     def __init__(self, base_gp: IBaseGaussianProcess, warping: Warping, X: np.ndarray, Y: np.ndarray):
         """
         :param base_gp: The underlying Gaussian process model.
@@ -61,11 +62,11 @@ class WarpedBayesianQuadratureModel(IModel, IDifferentiable):
         return self.base_gp.kern.measure
 
     def transform(self, Y: np.ndarray) -> np.ndarray:
-        """ Transform from base-GP to integrand """
+        """Transform from base-GP to integrand"""
         return self._warping.transform(Y)
 
     def inverse_transform(self, Y: np.ndarray) -> np.ndarray:
-        """ Transform from integrand to base-GP """
+        """Transform from integrand to base-GP"""
         return self._warping.inverse_transform(Y)
 
     def predict_base(self, X_pred: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
@@ -77,8 +78,9 @@ class WarpedBayesianQuadratureModel(IModel, IDifferentiable):
         """
         raise NotImplementedError
 
-    def predict_base_with_full_covariance(self, X_pred: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray,
-                                                                             np.ndarray]:
+    def predict_base_with_full_covariance(
+        self, X_pred: np.ndarray
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """Compute predictive means and covariance of the warped GP as well as the base GP.
 
         :param X_pred: Locations at which to predict, shape (n_points, input_dim)

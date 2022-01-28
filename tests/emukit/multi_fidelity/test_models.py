@@ -11,8 +11,10 @@ from emukit.multi_fidelity.models import GPyLinearMultiFidelityModel
 class TestModels:
     @pytest.fixture()
     def functions(self):
-        return [lambda x: emukit.test_functions.forrester.forrester_low(x, 0),
-                lambda x: emukit.test_functions.forrester.forrester(x, 0)]
+        return [
+            lambda x: emukit.test_functions.forrester.forrester_low(x, 0),
+            lambda x: emukit.test_functions.forrester.forrester(x, 0),
+        ]
 
     @pytest.fixture()
     def x_init(self, functions):
@@ -20,8 +22,8 @@ class TestModels:
         n_fidelities = len(functions)
         x_init = np.zeros((5 * n_fidelities, 2))
         for i in range(n_fidelities):
-            x_init[i * 5:(i + 1) * 5, 0] = np.random.rand(5)
-            x_init[i * 5:(i + 1) * 5, 1] = i
+            x_init[i * 5 : (i + 1) * 5, 0] = np.random.rand(5)
+            x_init[i * 5 : (i + 1) * 5, 1] = i
         return x_init
 
     @pytest.fixture()
@@ -101,28 +103,29 @@ class TestModels:
         Compare the analytical comparison of variance reduction to the reduction we get by explicitly adding another
         training point into the model
         """
-        x_test_high = np.array([[0.24, 1.]])
-        x_test_low = np.array([[0.24, 0.]])
+        x_test_high = np.array([[0.24, 1.0]])
+        x_test_low = np.array([[0.24, 0.0]])
 
         model.gpy_model.mixed_noise.Gaussian_noise.variance.fix(1e-3)
         model.gpy_model.mixed_noise.Gaussian_noise_1.variance.fix(1e-3)
         var_reduction = model.calculate_variance_reduction(x_test_low, x_test_high)
 
         X_new = np.concatenate([model.gpy_model.X, x_test_low], axis=0)
-        y_new = np.concatenate([model.gpy_model.Y, np.array([[0.]])], axis=0)
+        y_new = np.concatenate([model.gpy_model.Y, np.array([[0.0]])], axis=0)
 
         old_var = model.predict(x_test_high)[1]
         model.set_data(X_new, y_new)
         new_var = model.predict(x_test_high)[1]
 
         var_diff = old_var - new_var
-        assert(np.isclose(var_reduction, var_diff))
+        assert np.isclose(var_reduction, var_diff)
 
 
 class TestInvalidInputs:
     """
     Test for failure conditions
     """
+
     @pytest.fixture()
     def kernel(self):
         """

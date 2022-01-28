@@ -41,9 +41,8 @@ class LinearMultiFidelityKernel(CombinationKernel):
         self.kernels = kernels
         self.n_fidelities = len(kernels)
 
-        super(LinearMultiFidelityKernel, self).__init__(
-            kernels=self.kernels, name='multifidelity', extra_dims=[-1])
-        self.scaling_param = Param('scale', np.ones(self.n_fidelities - 1))
+        super(LinearMultiFidelityKernel, self).__init__(kernels=self.kernels, name="multifidelity", extra_dims=[-1])
+        self.scaling_param = Param("scale", np.ones(self.n_fidelities - 1))
 
         # Link parameters so paramz knows about them
         self.link_parameters(self.scaling_param)
@@ -87,7 +86,7 @@ class LinearMultiFidelityKernel(CombinationKernel):
             idx = np.ix_(X[:, -1] == i)
             for j in range(i + 1):
                 kernel = self.kernels[j].Kdiag(X[idx])
-                scale = np.prod(self.scaling_param[j:i]**2)
+                scale = np.prod(self.scaling_param[j:i] ** 2)
                 k_diag[idx] += scale * kernel
 
         return k_diag
@@ -102,8 +101,7 @@ class LinearMultiFidelityKernel(CombinationKernel):
         for i in range(self.n_fidelities):
             for j in range(i + 1):
                 # Calculate gradients for block [i, j] and [j, i]
-                dl_dx += self._calculate_block_matrix_gradients(dL_dK, X, X2,
-                                                                i, j)
+                dl_dx += self._calculate_block_matrix_gradients(dL_dK, X, X2, i, j)
         return dl_dx
 
     def _calculate_block_matrix_gradients(self, dL_dK, X, X2, i, j):
@@ -151,9 +149,8 @@ class LinearMultiFidelityKernel(CombinationKernel):
             masked_dl_dk = np.zeros(dL_dKdiag.shape)
             masked_dl_dk[idx] = dL_dKdiag[idx]
             for j in range(i + 1):
-                scale = np.prod(self.scaling_param[j:i]**2)
-                dl_dx += self.kernels[j].gradients_X_diag(masked_dl_dk * scale,
-                                                          X)
+                scale = np.prod(self.scaling_param[j:i] ** 2)
+                dl_dx += self.kernels[j].gradients_X_diag(masked_dl_dk * scale, X)
         return dl_dx
 
     def update_gradients_diag(self, dL_dKdiag, X):
@@ -177,7 +174,7 @@ class LinearMultiFidelityKernel(CombinationKernel):
             # Look at all X values at fidelity i
             idx = np.ix_(X[:, -1] == i)
             for j in range(i + 1):
-                scale = np.prod(self.scaling_param[j:i]**2)
+                scale = np.prod(self.scaling_param[j:i] ** 2)
                 dk_dki[j][idx] += scale
 
         # Set gradients in sub-kernels
@@ -209,8 +206,8 @@ class LinearMultiFidelityKernel(CombinationKernel):
                     # coeff = prod(scaling_param[l:j])^2
 
                     # This is the scaling term in front of the sub-kernel term
-                    tmp1 = np.prod(self.scaling_param[i + 1:j])**2
-                    tmp2 = np.prod(self.scaling_param[k:i])**2
+                    tmp1 = np.prod(self.scaling_param[i + 1 : j]) ** 2
+                    tmp2 = np.prod(self.scaling_param[k:i]) ** 2
                     scale = 2 * tmp1 * tmp2 * self.scaling_param[i]
 
                     # If square of scaling term appears we need to multiply
@@ -272,13 +269,11 @@ class LinearMultiFidelityKernel(CombinationKernel):
         # Calculate gradients of scaling parameters
         scale_grad = np.zeros(self.n_fidelities - 1)
         for i_scale in range(self.n_fidelities - 1):
-            scale_grad[i_scale] = self._calculate_d_likelihood_d_scaling_param(
-                dL_dK, X, X2, i_scale, k_all_fidelities)
+            scale_grad[i_scale] = self._calculate_d_likelihood_d_scaling_param(dL_dK, X, X2, i_scale, k_all_fidelities)
 
         self.scaling_param.gradient = scale_grad
 
-    def _calculate_d_likelihood_d_scaling_param(
-            self, dL_dK, X, X2, i_scaling, k_all_fidelities):
+    def _calculate_d_likelihood_d_scaling_param(self, dL_dK, X, X2, i_scaling, k_all_fidelities):
         """
         Calculates gradient of likelihood wrt one scaling parameter
 
@@ -309,15 +304,12 @@ class LinearMultiFidelityKernel(CombinationKernel):
                     #         *prod(scaling_param[l:min_fidelity])
 
                     # Take product of scaling parameters from l to n
-                    scale_params_1 = np.prod(
-                        self.scaling_param[i_kern:min_fidelity])
+                    scale_params_1 = np.prod(self.scaling_param[i_kern:min_fidelity])
                     # Product of scaling parameters from l to j, omitting i
-                    scale_params_2 = np.prod(
-                        self.scaling_param[i_kern:i_scaling])
-                    scale_params_3 = \
-                        np.prod(self.scaling_param[i_scaling + 1:max_fidelity])
+                    scale_params_2 = np.prod(self.scaling_param[i_kern:i_scaling])
+                    scale_params_3 = np.prod(self.scaling_param[i_scaling + 1 : max_fidelity])
                     scale = scale_params_1 * scale_params_2 * scale_params_3
-                    if (i_scaling < min_fidelity):
+                    if i_scaling < min_fidelity:
                         scale *= 2
                     dk_dscale[idx] += scale * k_all_fidelities[i_kern][idx]
         return np.sum(dL_dK * dk_dscale)

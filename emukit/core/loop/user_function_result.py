@@ -9,6 +9,7 @@ class UserFunctionResult(object):
     """
     A class that records the inputs, outputs and meta-data of an evaluation of the user function.
     """
+
     def __init__(self, X: np.ndarray, Y: np.ndarray, **kwargs) -> None:
         """
         :param X: Function input. Shape: (function input dimension,)
@@ -24,7 +25,7 @@ class UserFunctionResult(object):
         self.extra_outputs = dict()
         for (key, val) in kwargs.items():
             if val.ndim != 1:
-                raise ValueError('Key word arguments must be 1-dimensional but {} is {}d'.format(key, val.ndim))
+                raise ValueError("Key word arguments must be 1-dimensional but {} is {}d".format(key, val.ndim))
             self.extra_outputs[key] = val
 
         self.X = X

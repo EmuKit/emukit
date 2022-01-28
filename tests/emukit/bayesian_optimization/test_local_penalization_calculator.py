@@ -13,7 +13,7 @@ from emukit.model_wrappers import GPyModelWrapper
 
 
 def test_local_penalization():
-    parameter_space = ParameterSpace([ContinuousParameter('x', 0, 1)])
+    parameter_space = ParameterSpace([ContinuousParameter("x", 0, 1)])
     acquisition_optimizer = GradientAcquisitionOptimizer(parameter_space)
     x_init = np.random.rand(5, 1)
     y_init = np.random.rand(5, 1)
@@ -30,7 +30,7 @@ def test_local_penalization():
 
 
 def test_local_penalization_requires_gradients():
-    parameter_space = ParameterSpace([ContinuousParameter('x', 0, 1)])
+    parameter_space = ParameterSpace([ContinuousParameter("x", 0, 1)])
     acquisition_optimizer = GradientAcquisitionOptimizer(parameter_space)
 
     model = mock.create_autospec(IModel)

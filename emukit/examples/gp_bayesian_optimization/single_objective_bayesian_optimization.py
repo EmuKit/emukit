@@ -25,10 +25,18 @@ class OptimizerType(Enum):
 
 
 class GPBayesianOptimization(BayesianOptimizationLoop):
-    def __init__(self, variables_list: list, X: np.array, Y: np.array, noiseless: bool = False,
-                 acquisition_type: AcquisitionType = AcquisitionType.EI, normalize_Y: bool = True,
-                 acquisition_optimizer_type: OptimizerType = OptimizerType.LBFGS,
-                 model_update_interval: int = int(1), batch_size: int = 1) -> None:
+    def __init__(
+        self,
+        variables_list: list,
+        X: np.array,
+        Y: np.array,
+        noiseless: bool = False,
+        acquisition_type: AcquisitionType = AcquisitionType.EI,
+        normalize_Y: bool = True,
+        acquisition_optimizer_type: OptimizerType = OptimizerType.LBFGS,
+        model_update_interval: int = int(1),
+        batch_size: int = 1,
+    ) -> None:
 
         """
         Generic class to run Bayesian optimization with GPyRegression model.
@@ -69,14 +77,13 @@ class GPBayesianOptimization(BayesianOptimizationLoop):
         # 3. Select the acquisition function
         self._acquisition_chooser()
 
-        super(GPBayesianOptimization, self).__init__(model=self.model,
-                                                     space=self.space,
-                                                     acquisition=self.acquisition,
-                                                     batch_size=batch_size)
+        super(GPBayesianOptimization, self).__init__(
+            model=self.model, space=self.space, acquisition=self.acquisition, batch_size=batch_size
+        )
 
     def _model_chooser(self):
-        """ Initialize the model used for the optimization """
-        kernel = Matern52(len(self.variables_list), variance=1., ARD=False)
+        """Initialize the model used for the optimization"""
+        kernel = Matern52(len(self.variables_list), variance=1.0, ARD=False)
         gpmodel = GPRegression(self.X, self.Y, kernel)
         gpmodel.optimize()
         self.model = GPyModelWrapper(gpmodel)
@@ -85,7 +92,7 @@ class GPBayesianOptimization(BayesianOptimizationLoop):
         self.model = GPyModelWrapper(gpmodel)
 
     def _acquisition_chooser(self):
-        """ Select the acquisition function used in the optimization """
+        """Select the acquisition function used in the optimization"""
         if self.acquisition_type is AcquisitionType.EI:
             self.acquisition = ExpectedImprovement(self.model)
         elif self.acquisition_type is AcquisitionType.PI:
@@ -94,7 +101,7 @@ class GPBayesianOptimization(BayesianOptimizationLoop):
             self.acquisition = NegativeLowerConfidenceBound(self.model)
 
     def suggest_new_locations(self):
-        """ Returns one or a batch of locations without evaluating the objective """
+        """Returns one or a batch of locations without evaluating the objective"""
         return self.candidate_point_calculator.compute_next_points(self.loop_state)
 
     def run_optimization(self, user_function: UserFunction, num_iterations: int) -> None:

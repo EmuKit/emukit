@@ -11,7 +11,6 @@ from ...core.interfaces import IDifferentiable, IModel
 
 
 class NegativeLowerConfidenceBound(Acquisition):
-
     def __init__(self, model: Union[IModel, IDifferentiable], beta: np.float64 = np.float64(1)) -> None:
 
         """
@@ -38,7 +37,7 @@ class NegativeLowerConfidenceBound(Acquisition):
         mean, variance = self.model.predict(x)
         standard_deviation = np.sqrt(variance)
 
-        return - (mean - self.beta * standard_deviation)
+        return -(mean - self.beta * standard_deviation)
 
     def evaluate_with_gradients(self, x: np.ndarray) -> Tuple:
         """
@@ -52,9 +51,9 @@ class NegativeLowerConfidenceBound(Acquisition):
         dmean_dx, dvariance_dx = self.model.get_prediction_gradients(x)
         dstandard_deviation_dx = dvariance_dx / (2 * standard_deviation)
 
-        lcb = - (mean - self.beta * standard_deviation)
+        lcb = -(mean - self.beta * standard_deviation)
 
-        dlcb_dx = - (dmean_dx - self.beta * dstandard_deviation_dx)
+        dlcb_dx = -(dmean_dx - self.beta * dstandard_deviation_dx)
 
         return lcb, dlcb_dx
 

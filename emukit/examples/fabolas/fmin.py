@@ -6,8 +6,15 @@ from emukit.core.parameter_space import ParameterSpace
 from emukit.examples.fabolas import FabolasLoop
 
 
-def fmin_fabolas(func, space: ParameterSpace, s_min: float, s_max: float, n_iters: int,
-                 n_init: int = 20, marginalize_hypers: bool = True) -> LoopState:
+def fmin_fabolas(
+    func,
+    space: ParameterSpace,
+    s_min: float,
+    s_max: float,
+    n_iters: int,
+    n_init: int = 20,
+    marginalize_hypers: bool = True,
+) -> LoopState:
     """
     Simple interface for Fabolas which optimizes the hyperparameters of machine learning algorithms
     by reasoning across training data set subsets. For further details see:
@@ -51,9 +58,18 @@ def fmin_fabolas(func, space: ParameterSpace, s_min: float, s_max: float, n_iter
 
         return np.array([[y]]), np.array([[c]])
 
-    loop = FabolasLoop(X_init=X_init, Y_init=Y_init, cost_init=cost_init, space=space, s_min=s_min,
-                       s_max=s_max, marginalize_hypers=marginalize_hypers)
-    loop.run_loop(user_function=UserFunctionWrapper(wrapper, extra_output_names=["cost"]),
-                  stopping_condition=FixedIterationsStoppingCondition(n_iters - n_init))
+    loop = FabolasLoop(
+        X_init=X_init,
+        Y_init=Y_init,
+        cost_init=cost_init,
+        space=space,
+        s_min=s_min,
+        s_max=s_max,
+        marginalize_hypers=marginalize_hypers,
+    )
+    loop.run_loop(
+        user_function=UserFunctionWrapper(wrapper, extra_output_names=["cost"]),
+        stopping_condition=FixedIterationsStoppingCondition(n_iters - n_init),
+    )
 
     return loop.loop_state

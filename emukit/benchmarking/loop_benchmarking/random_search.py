@@ -11,8 +11,9 @@ from ...core.parameter_space import ParameterSpace
 
 
 class RandomSearch(OuterLoop):
-    def __init__(self, space: ParameterSpace, x_init: np.ndarray = None,
-                 y_init: np.ndarray = None, cost_init: np.ndarray = None):
+    def __init__(
+        self, space: ParameterSpace, x_init: np.ndarray = None, y_init: np.ndarray = None, cost_init: np.ndarray = None
+    ):
 
         """
         Simple loop to perform random search where in each iteration points are sampled uniformly at random

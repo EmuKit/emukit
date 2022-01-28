@@ -15,6 +15,7 @@ class AcquisitionOptimizerBase(abc.ABC):
     """
     Base class for acquisition optimizers
     """
+
     def __init__(self, space: ParameterSpace):
         """
         :param space: Parameter space containing entire input domain including any context variables

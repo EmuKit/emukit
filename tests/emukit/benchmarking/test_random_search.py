@@ -22,7 +22,7 @@ def test_random_search_with_init_data():
     branin_fcn_with_cost = lambda x: (branin_fcn(x), np.zeros((x.shape[0], 1)))
 
     # Ensure function returns a value for cost
-    wrapped_fcn = UserFunctionWrapper(branin_fcn_with_cost, extra_output_names=['cost'])
+    wrapped_fcn = UserFunctionWrapper(branin_fcn_with_cost, extra_output_names=["cost"])
 
     x_init = parameter_space.sample_uniform(5)
     y_init = branin_fcn(x_init)

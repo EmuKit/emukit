@@ -67,8 +67,9 @@ def compute_ranks(errors, n_bootstrap=1000) -> np.ndarray:
         for _ in range(n_bootstrap):
             runs = [np.random.randint(n_runs) for i in range(n_methods)]
 
-            rank_samples = [stats.rankdata([errors[i, instance_id, ri, t] for i, ri in enumerate(runs)])
-                            for t in range(n_iters)]
+            rank_samples = [
+                stats.rankdata([errors[i, instance_id, ri, t] for i, ri in enumerate(runs)]) for t in range(n_iters)
+            ]
             ranks += np.array(rank_samples).T
     ranks /= n_instances * n_bootstrap
 

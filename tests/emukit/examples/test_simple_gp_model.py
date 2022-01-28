@@ -17,7 +17,7 @@ def simple_gp(x, y):
 
 @pytest.fixture
 def y(x):
-    return x**2
+    return x ** 2
 
 
 def test_simple_gp_model_predict(simple_gp, x, y):

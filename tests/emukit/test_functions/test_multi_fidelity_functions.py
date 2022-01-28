@@ -10,9 +10,16 @@ from emukit.test_functions.multi_fidelity import (
 )
 
 
-@pytest.mark.parametrize('fcn', [multi_fidelity_borehole_function, multi_fidelity_branin_function,
-                                 multi_fidelity_currin_function, multi_fidelity_hartmann_3d,
-                                 multi_fidelity_park_function])
+@pytest.mark.parametrize(
+    "fcn",
+    [
+        multi_fidelity_borehole_function,
+        multi_fidelity_branin_function,
+        multi_fidelity_currin_function,
+        multi_fidelity_hartmann_3d,
+        multi_fidelity_park_function,
+    ],
+)
 def test_multi_fidelity_function_shapes(fcn):
     n_points = 10
     fcn, space = fcn()
@@ -29,7 +36,7 @@ def test_multi_fidelity_function_shapes(fcn):
         samples[5:8, -1] = 1
         samples[8:, -1] = 2
     else:
-        raise ValueError('Please add a case for functions with {:.0f} fidelity levels'.format(n_fidelities))
+        raise ValueError("Please add a case for functions with {:.0f} fidelity levels".format(n_fidelities))
 
     # Check shapes when calling through function wrapper
     results = fcn.evaluate(samples)

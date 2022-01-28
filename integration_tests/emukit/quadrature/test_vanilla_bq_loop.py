@@ -24,8 +24,9 @@ def loop():
     y_init = np.random.rand(init_size, 1)
     bounds = [(-1, 1), (0, 1)]
 
-    gpy_model = GPy.models.GPRegression(X=x_init, Y=y_init, kernel=GPy.kern.RBF(input_dim=x_init.shape[1],
-                                                                                lengthscale=1., variance=1.))
+    gpy_model = GPy.models.GPRegression(
+        X=x_init, Y=y_init, kernel=GPy.kern.RBF(input_dim=x_init.shape[1], lengthscale=1.0, variance=1.0)
+    )
     emukit_qrbf = QuadratureRBFLebesgueMeasure(RBFGPy(gpy_model.kern), integral_bounds=bounds)
     emukit_model = BaseGaussianProcessGPy(kern=emukit_qrbf, gpy_model=gpy_model)
     emukit_method = VanillaBayesianQuadrature(base_gp=emukit_model, X=x_init, Y=y_init)

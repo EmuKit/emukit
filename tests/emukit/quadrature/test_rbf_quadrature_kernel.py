@@ -42,7 +42,7 @@ def qrbf_iso_gauss_infinite():
 
     gpy_kernel = GPy.kern.RBF(input_dim=D)
     emukit_rbf = RBFGPy(gpy_kernel)
-    measure = IsotropicGaussianMeasure(mean=np.arange(D), variance=2.)
+    measure = IsotropicGaussianMeasure(mean=np.arange(D), variance=2.0)
     emukit_qrbf = QuadratureRBFIsoGaussMeasure(rbf_kernel=emukit_rbf, measure=measure)
     return emukit_qrbf, x1, x2, M1, M2, D
 
@@ -107,10 +107,14 @@ def test_rbf_qkernel_lebesgue_qK(qrbf_lebesgue_finite):
     # simple random sampling with 1e6 samples. This was done 100 times. The intervals show mean\pm 3 std of the 100
     # integrals obtained by sampling. There might be a very small chance the true integrals lies outside the specified
     # intervals.
-    intervals = np.array([[3.047326312081091, 3.076162828036314],
-                          [5.114069393071916, 5.144207478013706],
-                          [0.9879234032609836, 1.0000191615928034],
-                          [0.07073863074148745, 0.07217298756057355]])
+    intervals = np.array(
+        [
+            [3.047326312081091, 3.076162828036314],
+            [5.114069393071916, 5.144207478013706],
+            [0.9879234032609836, 1.0000191615928034],
+            [0.07073863074148745, 0.07217298756057355],
+        ]
+    )
 
     qK = emukit_qrbf.qK(x2)[0, :]
     for i in range(4):
@@ -147,10 +151,14 @@ def test_rbf_qkernel_iso_gauss_qK(qrbf_iso_gauss_infinite):
     # simple random sampling with 1e6 samples. This was done 100 times. The intervals show mean\pm 3 std of the 100
     # integrals obtained by sampling. There might be a very small chance the true integrals lies outside the specified
     # intervals.
-    intervals = np.array([[0.28128128187888524, 0.2831094284574598],
-                          [0.28135046180349665, 0.28307273575812275],
-                          [0.14890780669545667, 0.15015321562978945],
-                          [0.037853812661332246, 0.038507854167645676]])
+    intervals = np.array(
+        [
+            [0.28128128187888524, 0.2831094284574598],
+            [0.28135046180349665, 0.28307273575812275],
+            [0.14890780669545667, 0.15015321562978945],
+            [0.037853812661332246, 0.038507854167645676],
+        ]
+    )
 
     qK = emukit_qrbf.qK(x2)[0, :]
     for i in range(4):
@@ -187,10 +195,14 @@ def test_rbf_qkernel_uniform_infinite_qK(qrbf_uniform_infinite):
     # simple random sampling with 1e6 samples. This was done 100 times. The intervals show mean\pm 3 std of the 100
     # integrals obtained by sampling. There might be a very small chance the true integrals lies outside the specified
     # intervals.
-    intervals = np.array([[0.06861687415316085, 0.06936924213600677],
-                          [0.21308724091498568, 0.21468500857986952],
-                          [0.010109845755552724, 0.010244630092969245],
-                          [0.00029973020746309673, 0.0003058513296511006]])
+    intervals = np.array(
+        [
+            [0.06861687415316085, 0.06936924213600677],
+            [0.21308724091498568, 0.21468500857986952],
+            [0.010109845755552724, 0.010244630092969245],
+            [0.00029973020746309673, 0.0003058513296511006],
+        ]
+    )
 
     qK = emukit_qrbf.qK(x2)[0, :]
     for i in range(4):
@@ -227,10 +239,14 @@ def test_rbf_qkernel_uniform_finite_qK(qrbf_uniform_finite):
     # simple random sampling with 1e6 samples. This was done 100 times. The intervals show mean\pm 3 std of the 100
     # integrals obtained by sampling. There might be a very small chance the true integrals lies outside the specified
     # intervals.
-    intervals = np.array([[0.018699755197549732, 0.019011045460302092],
-                          [0.13793221412478165, 0.13983049581168414],
-                          [0.0013275949763495015, 0.001350568348018562],
-                          [5.124284006599979e-06, 5.30585124276332e-06]])
+    intervals = np.array(
+        [
+            [0.018699755197549732, 0.019011045460302092],
+            [0.13793221412478165, 0.13983049581168414],
+            [0.0013275949763495015, 0.001350568348018562],
+            [5.124284006599979e-06, 5.30585124276332e-06],
+        ]
+    )
 
     qK = emukit_qrbf.qK(x2)[0, :]
     for i in range(4):

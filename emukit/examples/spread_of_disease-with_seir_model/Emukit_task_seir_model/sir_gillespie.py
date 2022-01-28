@@ -16,6 +16,7 @@ class SIRGillespie(GillespieBase):
     http://be150.caltech.edu/2016/handouts/gillespie_simulation.html
     (retrieved on Aug. 23, 2018)
     """
+
     def __init__(self, model: SIR):
         """x
         :param model: A SIR model
@@ -29,7 +30,7 @@ class SIRGillespie(GillespieBase):
         return int(1)
 
     def _get_possible_state_updates(self) -> np.ndarray:
-        """ possible updates of compartment counts """
+        """possible updates of compartment counts"""
         return np.array([[-1, 1], [0, -1]], dtype=np.int)
 
     def _get_current_rates(self, state: np.ndarray) -> np.ndarray:

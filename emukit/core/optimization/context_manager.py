@@ -17,6 +17,7 @@ class ContextManager:
     """
     Handles the context variables in the optimizer
     """
+
     def __init__(self, space: ParameterSpace, context: Context):
         """
         :param space: Parameter space of the search problem.
@@ -25,10 +26,8 @@ class ContextManager:
         """
         self.context = context
         self.space = space
-        self.contextfree_space = ParameterSpace(
-            [param for param in self.space.parameters if param.name not in context])
-        self.context_space = ParameterSpace(
-            [param for param in self.space.parameters if param.name in context])
+        self.contextfree_space = ParameterSpace([param for param in self.space.parameters if param.name not in context])
+        self.context_space = ParameterSpace([param for param in self.space.parameters if param.name in context])
 
         # Find indices of context and non context variables
         self.context_idxs = []
@@ -39,17 +38,17 @@ class ContextManager:
 
             # Find encoded values of context variable
             param = self.space.get_parameter_by_name(context_name)
-            if hasattr(param, 'encoding'):
+            if hasattr(param, "encoding"):
                 if context_value in param.encoding.categories:
-                    _log.info(f'Parameter {context_name} fixed to {context_value}')
+                    _log.info(f"Parameter {context_name} fixed to {context_value}")
                     self.context_values.extend(param.encoding.get_encoding(context_value))
                 else:
-                    raise ValueError(f'Context value {context_value} not found in encoding for {context_name}')
+                    raise ValueError(f"Context value {context_value} not found in encoding for {context_name}")
             else:
                 if param.check_in_domain(context_value):
-                    _log.info(f'Parameter {context_name} fixed to {context_value}')
+                    _log.info(f"Parameter {context_name} fixed to {context_value}")
                 else:
-                    _log.warning(f'{context_name} with value {context_value} is out of the domain')
+                    _log.warning(f"{context_name} with value {context_value} is out of the domain")
                 self.context_values.append(context_value)
 
         all_idxs = list(range(space.dimensionality))

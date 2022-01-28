@@ -19,8 +19,13 @@ from ..interfaces import IEntropySearchModel
 
 
 class MaxValueEntropySearch(Acquisition):
-    def __init__(self, model: Union[IModel, IEntropySearchModel], space: ParameterSpace,
-                 num_samples: int = 10, grid_size: int = 5000) -> None:
+    def __init__(
+        self,
+        model: Union[IModel, IEntropySearchModel],
+        space: ParameterSpace,
+        num_samples: int = 10,
+        grid_size: int = 5000,
+    ) -> None:
 
         """
         MES acquisition function approximates the distribution of the value at the global
@@ -53,7 +58,7 @@ class MaxValueEntropySearch(Acquisition):
         MES requires acces to a sample of possible minimum values y* of the objective function.
         To build this sample we approximate the empirical c.d.f of Pr(y*<y) with a Gumbel(a,b) distribution.
         This Gumbel distribution can then be easily sampled to yield approximate samples of y*
-        
+
         This needs to be called once at the start of each BO step.
         """
 
@@ -102,7 +107,7 @@ class MaxValueEntropySearch(Acquisition):
 
         minus_cdf = 1 - norm.cdf(gamma)
         # Clip  to improve numerical stability
-        minus_cdf = np.clip(minus_cdf, a_min = 1e-10, a_max = 1)
+        minus_cdf = np.clip(minus_cdf, a_min=1e-10, a_max=1)
 
         # calculate monte-carlo estimate of information gain
         f_acqu_x = np.mean(-gamma * norm.pdf(gamma) / (2 * minus_cdf) - np.log(minus_cdf), axis=1)
@@ -114,20 +119,20 @@ class MaxValueEntropySearch(Acquisition):
         return False
 
 
-
 def _fit_gumbel(fmean, fsd):
-    """ 
+    """
     Helper function to fit gumbel distribution when initialising the MES and MUMBO acquisition functions.
 
-    The Gumbel distribution for minimas has a cumulative density function of f(y)= 1 - exp(-1 * exp((y - a) / b)), i.e. the q^th quantile is given by 
-    Q(q) = a + b * log( -1 * log(1 - q)). We choose values for a and b that match the Gumbel's 
+    The Gumbel distribution for minimas has a cumulative density function of f(y)= 1 - exp(-1 * exp((y - a) / b)), i.e. the q^th quantile is given by
+    Q(q) = a + b * log( -1 * log(1 - q)). We choose values for a and b that match the Gumbel's
     interquartile range with that of the observed empirical cumulative density function of Pr(y*<y)
     i.e.  Pr(y* < lower_quantile)=0.25 and Pr(y* < upper_quantile)=0.75.
     """
+
     def probf(x: np.ndarray) -> float:
         # Build empirical CDF function
         return 1 - np.exp(np.sum(norm.logcdf(-(x - fmean) / fsd), axis=0))
-    
+
     # initialise end-points for binary search (the choice of 5 standard deviations ensures that these are outside the IQ range)
     left = np.min(fmean - 5 * fsd)
     right = np.max(fmean + 5 * fsd)
@@ -135,22 +140,25 @@ def _fit_gumbel(fmean, fsd):
     def binary_search(val: float) -> float:
         return bisect(lambda x: probf(x) - val, left, right, maxiter=10000)
 
-
     # Binary search for 3 percentiles
     lower_quantile, medium, upper_quantile = map(binary_search, [0.25, 0.5, 0.75])
 
     # solve for Gumbel scaling parameters
-    b = (lower_quantile - upper_quantile) / (np.log(np.log(4. / 3.)) - np.log(np.log(4.)))
-    a = medium - b * np.log(np.log(2.))
+    b = (lower_quantile - upper_quantile) / (np.log(np.log(4.0 / 3.0)) - np.log(np.log(4.0)))
+    a = medium - b * np.log(np.log(2.0))
 
     return a, b
 
 
-
 class MUMBO(MaxValueEntropySearch):
-    def __init__(self, model: Union[IModel, IEntropySearchModel], space: ParameterSpace,
-                 target_information_source_index: int = None, num_samples: int = 10,
-                 grid_size: int = 5000) -> None:
+    def __init__(
+        self,
+        model: Union[IModel, IEntropySearchModel],
+        space: ParameterSpace,
+        target_information_source_index: int = None,
+        num_samples: int = 10,
+        grid_size: int = 5000,
+    ) -> None:
 
         """
         MUMBO acquisition function approximates the distribution of the value at the global
@@ -179,7 +187,7 @@ class MUMBO(MaxValueEntropySearch):
         info_source_parameter, source_idx = _find_source_parameter(space)
         self.source_idx = source_idx
 
-        # If not told otherwise assume we are in a multi-fidelity setting 
+        # If not told otherwise assume we are in a multi-fidelity setting
         # and the highest index is the highest fidelity
         if target_information_source_index is None:
             target_information_source_index = max(info_source_parameter.domain)
@@ -200,10 +208,10 @@ class MUMBO(MaxValueEntropySearch):
         MUMBO requires acces to a sample of possible minimum values y* of the objective function.
         To build this sample we approximate the empirical c.d.f of Pr(y*<y) with a Gumbel(a,b) distribution.
         This Gumbel distribution can then be easily sampled to yield approximate samples of y*
-        
+
         This needs to be called once at the start of each BO step.
-        """        
-        
+        """
+
         # First we generate a random grid of locations at which to fit the Gumbel distribution
         random_design = RandomDesign(self.space)
         grid = random_design.get_samples(self.grid_size)
@@ -226,7 +234,6 @@ class MUMBO(MaxValueEntropySearch):
         gumbel_samples = -np.log(-np.log(uniform_samples)) * b + a
         self.mins = gumbel_samples
 
-
     def evaluate(self, x: np.ndarray) -> np.ndarray:
         """
         Computes the information gain, i.e the change in entropy of p_min (the distribution
@@ -235,7 +242,6 @@ class MUMBO(MaxValueEntropySearch):
         """
         if not self._required_parameters_initialized():
             self.update_parameters()
-
 
         # Calculate GP posterior at candidate points
         fmean, fvar = self.model.predict(x)
@@ -256,48 +262,52 @@ class MUMBO(MaxValueEntropySearch):
 
         # also get pair-wise correlations between GP at x and x_target_fidelity
         # faster to do for loop rather than vectorize to avoid unecessary between term covariance calculations
-        covariances = [self.model.get_covariance_between_points(x[i].reshape(1, -1), x_target_fidelity[i].reshape(1, -1)) for i in range(0, x.shape[0])]
+        covariances = [
+            self.model.get_covariance_between_points(x[i].reshape(1, -1), x_target_fidelity[i].reshape(1, -1))
+            for i in range(0, x.shape[0])
+        ]
         covariances = np.array(covariances).reshape(-1, 1)
         correlations = covariances / (fsd * gsd)
         # clip for numerical stability
         correlations = np.clip(correlations, -1, 1)
 
-        # Calculate variance of extended skew Gaussian distributions (ESG) 
-        # These will be used to define reasonable ranges for the numerical 
+        # Calculate variance of extended skew Gaussian distributions (ESG)
+        # These will be used to define reasonable ranges for the numerical
         # intergration of the ESG's differential entropy.
         gammas = (self.mins - fmean) / fsd
         minus_cdf = 1 - norm.cdf(gammas)
         # Clip  to improve numerical stability
-        minus_cdf = np.clip(minus_cdf, a_min = 1e-10, a_max = 1)
+        minus_cdf = np.clip(minus_cdf, a_min=1e-10, a_max=1)
         ESGmean = correlations * (norm.pdf(gammas)) / minus_cdf
         ESGvar = 1 + correlations * ESGmean * (gammas - norm.pdf(gammas) / minus_cdf)
         # Clip  to improve numerical stability
         ESGvar = np.maximum(ESGvar, 0)
 
-        # get upper limits for numerical integration 
+        # get upper limits for numerical integration
         # we need this range to contain almost all of the ESG's probability density
-        # we found +-8 standard deviations provides a tight enough approximation 
+        # we found +-8 standard deviations provides a tight enough approximation
         upper_limit = ESGmean + 8 * np.sqrt(ESGvar)
         lower_limit = ESGmean - 8 * np.sqrt(ESGvar)
 
-        # perform numerical integrations 
+        # perform numerical integrations
         # build discretisation
         z = np.linspace(lower_limit, upper_limit, num=5000)
         # calculate ESG density at these points
         minus_correlations = np.sqrt(1 - correlations ** 2)
         # clip below for numerical stability
-        minus_correlations = np.maximum(minus_correlations,1e-10)
-        density = norm.pdf(z) * (1 - norm.cdf((gammas - correlations* z) / minus_correlations)) / minus_cdf
+        minus_correlations = np.maximum(minus_correlations, 1e-10)
+        density = norm.pdf(z) * (1 - norm.cdf((gammas - correlations * z) / minus_correlations)) / minus_cdf
         # calculate point-wise entropy function contributions (carefuly where density is 0)
-        entropy_function = - density * np.log(density, out=np.zeros_like(density), where=(density != 0))
+        entropy_function = -density * np.log(density, out=np.zeros_like(density), where=(density != 0))
         # perform integration over ranges
         approximate_entropy = simps(entropy_function.T, z.T)
         # build monte-carlo estimate over the gumbel samples
         approximate_entropy = np.mean(approximate_entropy, axis=0)
 
         # build MUMBO acquisition function
-        f_acqu_x = (0.5*np.log(2*np.pi*np.e)-approximate_entropy)
+        f_acqu_x = 0.5 * np.log(2 * np.pi * np.e) - approximate_entropy
         return f_acqu_x.reshape(-1, 1)
+
 
 def _find_source_parameter(space):
     # Find information source parameter in parameter space
@@ -309,6 +319,6 @@ def _find_source_parameter(space):
             source_idx = i
 
     if info_source_parameter is None:
-        raise ValueError('No information source parameter found in the parameter space')
+        raise ValueError("No information source parameter found in the parameter space")
 
     return info_source_parameter, source_idx

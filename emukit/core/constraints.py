@@ -23,7 +23,7 @@ class InequalityConstraint(IConstraint):
         :param upper_bound: Upper bound vector of size (n_constraint,). Can be np.inf for one sided constraint
         """
         if (lower_bound is None) and (upper_bound is None):
-            raise ValueError('Neither lower nor upper bounds is set, at least one must be specified')
+            raise ValueError("Neither lower nor upper bounds is set, at least one must be specified")
 
         # Default lower bound to -infinity
         if lower_bound is None:
@@ -34,10 +34,10 @@ class InequalityConstraint(IConstraint):
             upper_bound = np.full([lower_bound.shape[0]], np.inf)
 
         if np.any((lower_bound == -np.inf) & (upper_bound == np.inf)):
-            raise ValueError('One or more inequality constraints are unbounded')
+            raise ValueError("One or more inequality constraints are unbounded")
 
         if np.any(lower_bound >= upper_bound):
-            raise ValueError('Lower bound is greater than or equal to upper bound for one or more constraints')
+            raise ValueError("Lower bound is greater than or equal to upper bound for one or more constraints")
 
         self.lower_bound = lower_bound
         self.upper_bound = upper_bound
@@ -47,7 +47,8 @@ class LinearInequalityConstraint(InequalityConstraint):
     """
     Constraint of the form lower_bound <= Ax <= upper_bound where the matrix A is called "constraint_matrix"
     """
-    def __init__(self, constraint_matrix: np.ndarray, lower_bound: np.ndarray=None, upper_bound: np.ndarray=None):
+
+    def __init__(self, constraint_matrix: np.ndarray, lower_bound: np.ndarray = None, upper_bound: np.ndarray = None):
         """
 
         :param constraint_matrix: (n_constraint, n_x_dims) matrix in b_lower <= Ax <= b_upper
@@ -56,8 +57,11 @@ class LinearInequalityConstraint(InequalityConstraint):
         """
         super().__init__(lower_bound, upper_bound)
         if (constraint_matrix.shape[0] != lower_bound.shape[0]) or (constraint_matrix.shape[0] != upper_bound.shape[0]):
-            raise ValueError('Shape mismatch between constraint matrix {} and lower {} or upper {} bounds'.format(
-                              constraint_matrix.shape, lower_bound.shape, upper_bound.shape))
+            raise ValueError(
+                "Shape mismatch between constraint matrix {} and lower {} or upper {} bounds".format(
+                    constraint_matrix.shape, lower_bound.shape, upper_bound.shape
+                )
+            )
 
         self.constraint_matrix = constraint_matrix
 
@@ -70,8 +74,10 @@ class LinearInequalityConstraint(InequalityConstraint):
                  constraints and zero if any constraint is violated
         """
         if self.constraint_matrix.shape[1] != x.shape[1]:
-            raise ValueError('Dimension mismatch between constraint matrix (second dim {})' +
-                            ' and input x (second dim {})'.format(self.constraint_matrix.shape[1], x.shape[1]))
+            raise ValueError(
+                "Dimension mismatch between constraint matrix (second dim {})"
+                + " and input x (second dim {})".format(self.constraint_matrix.shape[1], x.shape[1])
+            )
 
         # Transpose here is needed to handle input dimensions
         # that is, A is (n_const, n_dims) and x is (n_points, n_dims)
@@ -83,8 +89,14 @@ class NonlinearInequalityConstraint(InequalityConstraint):
     """
     Constraint of the form lower_bound <= g(x) <= upper_bound
     """
-    def __init__(self, constraint_function: Callable, lower_bound: np.ndarray, upper_bound: np.ndarray,
-                 jacobian_fun: Optional[Callable]=None):
+
+    def __init__(
+        self,
+        constraint_function: Callable,
+        lower_bound: np.ndarray,
+        upper_bound: np.ndarray,
+        jacobian_fun: Optional[Callable] = None,
+    ):
         """
         :param constraint_function: function defining constraint in b_lower <= fun(x) <= b_upper.
                                     Has signature f(x) -> array, shape(m,) where x is 1d and m is the number of constraints

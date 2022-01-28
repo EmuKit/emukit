@@ -33,8 +33,9 @@ def test_multi_source_batch_experimental_design():
     acquisition = ModelVariance(model)
 
     # Create batch candidate point calculator
-    batch_candidate_point_calculator = GreedyBatchPointCalculator(model, acquisition,
-                                                                  multi_source_acquisition_optimizer, batch_size=5)
+    batch_candidate_point_calculator = GreedyBatchPointCalculator(
+        model, acquisition, multi_source_acquisition_optimizer, batch_size=5
+    )
 
     initial_loop_state = LoopState(intiial_results)
     loop = OuterLoop(batch_candidate_point_calculator, FixedIntervalUpdater(model, 1), initial_loop_state)

@@ -14,6 +14,7 @@ class ModelVariance(Acquisition):
     """
     This acquisition selects the point in the domain where the predictive variance is the highest
     """
+
     def __init__(self, model: Union[IModel, IDifferentiable]) -> None:
         self.model = model
 

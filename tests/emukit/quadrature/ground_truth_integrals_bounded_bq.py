@@ -24,7 +24,7 @@ if __name__ == "__main__":
     # METHOD = 'Bounded BQ lower'
     # METHOD = 'Bounded BQ upper'
     # METHOD = 'WSABI-l adapt'
-    METHOD = 'WSABI-l fixed'
+    METHOD = "WSABI-l fixed"
 
     # the GPy model
     X = np.array([[-1, 1], [0, 0], [-2, 0.1]])
@@ -40,28 +40,24 @@ if __name__ == "__main__":
     base_gp = BaseGaussianProcessGPy(kern=qrbf, gpy_model=gpy_model)
 
     # the emukit bounded BQ model
-    if METHOD == 'Bounded BQ lower':
+    if METHOD == "Bounded BQ lower":
         bound = np.min(base_gp.Y) - 0.5
-        model = BoundedBayesianQuadrature(base_gp=base_gp, X=X, Y=Y,
-                                          bound=bound,
-                                          is_lower_bounded=True)
-    elif METHOD == 'Bounded BQ upper':
+        model = BoundedBayesianQuadrature(base_gp=base_gp, X=X, Y=Y, bound=bound, is_lower_bounded=True)
+    elif METHOD == "Bounded BQ upper":
         bound = np.max(base_gp.Y) + 0.5
-        model = BoundedBayesianQuadrature(base_gp=base_gp, X=X, Y=Y,
-                                          bound=bound,
-                                          is_lower_bounded=False)
-    elif METHOD == 'WSABI-l adapt':
+        model = BoundedBayesianQuadrature(base_gp=base_gp, X=X, Y=Y, bound=bound, is_lower_bounded=False)
+    elif METHOD == "WSABI-l adapt":
         model = WSABIL(base_gp=base_gp, X=base_gp.X, Y=base_gp.Y, adapt_alpha=True)
 
-    elif METHOD == 'WSABI-l fixed':
+    elif METHOD == "WSABI-l fixed":
         model = WSABIL(base_gp=base_gp, X=base_gp.X, Y=base_gp.Y, adapt_alpha=False)
 
     else:
         raise ValueError
 
     print()
-    print('method: {}'.format(METHOD))
-    print('no dimensions: {}'.format(D))
+    print("method: {}".format(METHOD))
+    print("no dimensions: {}".format(D))
     print()
 
     # === mean =============================================================
@@ -78,13 +74,12 @@ if __name__ == "__main__":
         mZ_samples = integral_mean_from_measure_samples(num_samples, model)
         mZ_SAMPLES[i] = mZ_samples
 
-    print('=== mean =======================================================')
-    print('no samples per integral: {:.1E}'.format(num_samples))
-    print('number of integrals: {}'.format(num_runs))
-    print('number of standard deviations: {}'.format(num_std))
-    print('range with given settings: ')
-    print([mZ_SAMPLES.mean() - num_std * mZ_SAMPLES.std(),
-           mZ_SAMPLES.mean() + num_std * mZ_SAMPLES.std()])
+    print("=== mean =======================================================")
+    print("no samples per integral: {:.1E}".format(num_samples))
+    print("number of integrals: {}".format(num_runs))
+    print("number of standard deviations: {}".format(num_std))
+    print("range with given settings: ")
+    print([mZ_SAMPLES.mean() - num_std * mZ_SAMPLES.std(), mZ_SAMPLES.mean() + num_std * mZ_SAMPLES.std()])
     print()
 
     # === variance ==========================================================

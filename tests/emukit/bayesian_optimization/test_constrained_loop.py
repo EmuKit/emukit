@@ -9,7 +9,7 @@ from emukit.model_wrappers import GPyModelWrapper
 
 
 def f(x):
-    return x**2, x - 0.5
+    return x ** 2, x - 0.5
 
 
 def test_loop():
@@ -26,14 +26,16 @@ def test_loop():
     gpy_constraint_model = GPy.models.GPRegression(x_init, y_init)
     constraint_model = GPyModelWrapper(gpy_constraint_model)
 
-    space = ParameterSpace([ContinuousParameter('x', 0, 1)])
+    space = ParameterSpace([ContinuousParameter("x", 0, 1)])
     acquisition = ExpectedImprovement(model)
 
     # Make loop and collect points
-    bo = UnknownConstraintBayesianOptimizationLoop(model_objective=model, space=space, acquisition=acquisition,
-                                                   model_constraint=constraint_model)
-    bo.run_loop(UserFunctionWrapper(f, extra_output_names=['Y_constraint']),
-                FixedIterationsStoppingCondition(n_iterations))
+    bo = UnknownConstraintBayesianOptimizationLoop(
+        model_objective=model, space=space, acquisition=acquisition, model_constraint=constraint_model
+    )
+    bo.run_loop(
+        UserFunctionWrapper(f, extra_output_names=["Y_constraint"]), FixedIterationsStoppingCondition(n_iterations)
+    )
 
     # Check we got the correct number of points
     assert bo.loop_state.X.shape[0] == n_iterations + 5

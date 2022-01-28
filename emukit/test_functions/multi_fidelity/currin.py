@@ -28,18 +28,25 @@ def multi_fidelity_currin_function() -> Tuple[MultiSourceFunctionWrapper, Parame
 
     Reference: https://www.sfu.ca/~ssurjano/curretal88exp.html
     """
+
     def high(x):
         x1 = x[:, 0]
         x2 = x[:, 1]
-        return (1 - np.exp(-0.5 / x2) * ((2300 * x1**3 + 1900 * x1**2 + 2092 * x1 + 60)
-                                     / (100 * x1**3 + 500 * x1**2 + 4 * x1 + 20)))[:, None]
+        return (
+            1
+            - np.exp(-0.5 / x2)
+            * ((2300 * x1 ** 3 + 1900 * x1 ** 2 + 2092 * x1 + 60) / (100 * x1 ** 3 + 500 * x1 ** 2 + 4 * x1 + 20))
+        )[:, None]
 
     def low(x):
-        return (0.25 * high(np.stack([x[:, 0] + 0.05, x[:, 1] + 0.05], axis=1)) +
-                0.25 * high(np.stack([x[:, 0] + 0.05, np.maximum(0, x[:, 1] - 0.05)], axis=1)) +
-                0.25 * high(np.stack([x[:, 0] - 0.05, x[:, 1] + 0.05], axis=1)) +
-                0.25 * high(np.stack([x[:, 0] - 0.05, np.maximum(0, x[:, 1] - 0.05)], axis=1)))
+        return (
+            0.25 * high(np.stack([x[:, 0] + 0.05, x[:, 1] + 0.05], axis=1))
+            + 0.25 * high(np.stack([x[:, 0] + 0.05, np.maximum(0, x[:, 1] - 0.05)], axis=1))
+            + 0.25 * high(np.stack([x[:, 0] - 0.05, x[:, 1] + 0.05], axis=1))
+            + 0.25 * high(np.stack([x[:, 0] - 0.05, np.maximum(0, x[:, 1] - 0.05)], axis=1))
+        )
 
-    space = ParameterSpace([ContinuousParameter('x1', 0, 1), ContinuousParameter('x2', 0, 1),
-                            InformationSourceParameter(2)])
+    space = ParameterSpace(
+        [ContinuousParameter("x1", 0, 1), ContinuousParameter("x2", 0, 1), InformationSourceParameter(2)]
+    )
     return MultiSourceFunctionWrapper([low, high]), space

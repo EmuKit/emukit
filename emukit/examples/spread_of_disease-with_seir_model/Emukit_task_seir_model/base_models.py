@@ -25,6 +25,7 @@ class SEIR(SIR):
     4 compartment model for the spread of a disease
     susceptible -> exposed -> infected -> recovered
     """
+
     def __init__(self, N: int, alpha: float, beta: float):
         """
         :param N: the population size

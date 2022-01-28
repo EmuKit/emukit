@@ -16,7 +16,7 @@ def sixhumpcamel_function():
 
     """
 
-    parameter_space = ParameterSpace([ContinuousParameter('x1', -2, 2), ContinuousParameter('x2', -1, 1)])
+    parameter_space = ParameterSpace([ContinuousParameter("x1", -2, 2), ContinuousParameter("x2", -1, 1)])
     return _sixhumpcamel, parameter_space
 
 
@@ -27,4 +27,4 @@ def _sixhumpcamel(x):
     term2 = x1 * x2
     term3 = (-4 + 4 * x2 ** 2) * x2 ** 2
     y = term1 + term2 + term3
-    return y[:,None]
+    return y[:, None]

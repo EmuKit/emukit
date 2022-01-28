@@ -7,7 +7,6 @@ from emukit.core.interfaces import IDifferentiable, IModel
 
 
 class DynamicNegativeLowerConfidenceBound(NegativeLowerConfidenceBound):
-
     def __init__(self, model: Union[IModel, IDifferentiable], input_space_size: int, delta: float) -> None:
         """
         Dynamic extension of the LCB acquisition. The beta coefficient is updated at each iteration, based on the explorativeness parameter delta which is inversely

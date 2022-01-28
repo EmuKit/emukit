@@ -28,7 +28,7 @@ class WSABIL(BoundedBayesianQuadrature):
 
     """
 
-    def __init__(self, base_gp: IBaseGaussianProcess, X: np.ndarray, Y: np.ndarray, adapt_alpha: bool=True):
+    def __init__(self, base_gp: IBaseGaussianProcess, X: np.ndarray, Y: np.ndarray, adapt_alpha: bool = True):
         """
         :param base_gp: A model derived from :class:`emukit.quadrature.interfaces.IBaseGaussianProcess`.
                         Must use :class:`emukit.quadrature.kernels.QuadratureRBFIsoGaussMeasure` as kernel.

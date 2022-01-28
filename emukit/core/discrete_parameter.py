@@ -13,6 +13,7 @@ class DiscreteParameter(Parameter):
     """
     A parameter that takes a discrete set of values where the order and spacing of values is important
     """
+
     def __init__(self, name: str, domain: Iterable):
         """
         :param name: Name of parameter
@@ -92,4 +93,4 @@ class InformationSourceParameter(DiscreteParameter):
         """
         :param n_sources: Number of information sources in the problem
         """
-        super().__init__('source', list(range(n_sources)))
+        super().__init__("source", list(range(n_sources)))

@@ -5,19 +5,17 @@ import numpy as np
 try:
     from sklearn.gaussian_process import GaussianProcessRegressor
 except ImportError:
-    ImportError('scikit-learn needs to be installed in order to use SklearnGPRWrapper')
+    ImportError("scikit-learn needs to be installed in order to use SklearnGPRWrapper")
 
 from emukit.core.interfaces.models import IModel
 
 
 class SklearnGPRWrapper(IModel):
-
     def __init__(self, sklearn_model: GaussianProcessRegressor):
         """
         :param sklearn_model: Scikit-learn GPR model to wrap
         """
         self.model = sklearn_model
-
 
     def predict(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
@@ -29,16 +27,14 @@ class SklearnGPRWrapper(IModel):
         mean, std = self.model.predict(X, return_std=True)
         return mean, np.power(std, 2.0).reshape(-1, 1)
 
-
     def set_data(self, X: np.ndarray, Y: np.ndarray) -> None:
         """
         Sets training data in model
         :param X: new points
         :param Y: function values at new points X
-        
+
         """
         self.model.X_train_, self.model.y_train_ = X, Y
-
 
     def optimize(self) -> None:
         """
@@ -46,11 +42,9 @@ class SklearnGPRWrapper(IModel):
         """
         self.model.fit(self.X, self.Y)
 
-
     @property
     def X(self) -> np.ndarray:
         return self.model.X_train_
-
 
     @property
     def Y(self) -> np.ndarray:

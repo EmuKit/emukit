@@ -99,10 +99,10 @@ if __name__ == "__main__":
     np.random.seed(0)
 
     # === Choose MEASURE BELOW ======
-    #MEASURE_INTBOUNDS = 'Lebesgue-finite'
-    #MEASURE_INTBOUNDS = 'GaussIso-infinite'
-    #MEASURE_INTBOUNDS = 'Uniform-infinite'
-    MEASURE_INTBOUNDS = 'Uniform-finite'
+    # MEASURE_INTBOUNDS = 'Lebesgue-finite'
+    # MEASURE_INTBOUNDS = 'GaussIso-infinite'
+    # MEASURE_INTBOUNDS = 'Uniform-infinite'
+    MEASURE_INTBOUNDS = "Uniform-finite"
     # === CHOOSE MEASURE ABOVE ======
 
     x1 = np.array([[-1, 1], [0, 0], [-2, 0.1]])
@@ -112,23 +112,23 @@ if __name__ == "__main__":
     gpy_kernel = GPy.kern.RBF(input_dim=D)
     emukit_rbf = RBFGPy(gpy_kernel)
 
-    if MEASURE_INTBOUNDS == 'Lebesgue-finite':
+    if MEASURE_INTBOUNDS == "Lebesgue-finite":
         emukit_qrbf = QuadratureRBFLebesgueMeasure(emukit_rbf, integral_bounds=[(-1, 2), (-3, 3)])
-    elif MEASURE_INTBOUNDS == 'GaussIso-infinite':
-        measure = IsotropicGaussianMeasure(mean=np.arange(D), variance=2.)
+    elif MEASURE_INTBOUNDS == "GaussIso-infinite":
+        measure = IsotropicGaussianMeasure(mean=np.arange(D), variance=2.0)
         emukit_qrbf = QuadratureRBFIsoGaussMeasure(rbf_kernel=emukit_rbf, measure=measure)
-    elif MEASURE_INTBOUNDS == 'Uniform-infinite':
+    elif MEASURE_INTBOUNDS == "Uniform-infinite":
         measure = UniformMeasure(bounds=[(0, 2), (-4, 3)])
         emukit_qrbf = QuadratureRBFUniformMeasure(emukit_rbf, integral_bounds=None, measure=measure)
-    elif MEASURE_INTBOUNDS == 'Uniform-finite':
+    elif MEASURE_INTBOUNDS == "Uniform-finite":
         measure = UniformMeasure(bounds=[(1, 2), (-4, 2)])
         emukit_qrbf = QuadratureRBFUniformMeasure(emukit_rbf, integral_bounds=[(-1, 2), (-3, 3)], measure=measure)
     else:
-        raise ValueError('Measure-integral-bounds combination not defined')
+        raise ValueError("Measure-integral-bounds combination not defined")
 
     print()
-    print('measure: {}'.format(MEASURE_INTBOUNDS))
-    print('no dimensions: {}'.format(D))
+    print("measure: {}".format(MEASURE_INTBOUNDS))
+    print("no dimensions: {}".format(D))
     print()
 
     # === qK ==============================================================
@@ -141,26 +141,30 @@ if __name__ == "__main__":
     for i in range(num_runs):
         num_samples = int(num_samples)
 
-        if MEASURE_INTBOUNDS == 'Lebesgue-finite':
+        if MEASURE_INTBOUNDS == "Lebesgue-finite":
             qK_samples = qK_lebesgue(num_samples, emukit_qrbf, x2)
-        elif MEASURE_INTBOUNDS == 'GaussIso-infinite':
+        elif MEASURE_INTBOUNDS == "GaussIso-infinite":
             qK_samples = qK_gauss_iso(num_samples, emukit_qrbf, x2)
-        elif MEASURE_INTBOUNDS == 'Uniform-infinite':
+        elif MEASURE_INTBOUNDS == "Uniform-infinite":
             qK_samples = qK_uniform(num_samples, emukit_qrbf, x2)
-        elif MEASURE_INTBOUNDS == 'Uniform-finite':
+        elif MEASURE_INTBOUNDS == "Uniform-finite":
             qK_samples = qK_uniform(num_samples, emukit_qrbf, x2)
         else:
-            raise ValueError('Measure-integral-bounds combination not defined')
+            raise ValueError("Measure-integral-bounds combination not defined")
 
         qK_SAMPLES[i, :] = qK_samples
 
-    print('=== qK ========================================================')
-    print('no samples per integral: {:.1E}'.format(num_samples))
-    print('number of integrals: {}'.format(num_runs))
-    print('number of standard deviations: {}'.format(num_std))
+    print("=== qK ========================================================")
+    print("no samples per integral: {:.1E}".format(num_samples))
+    print("number of integrals: {}".format(num_runs))
+    print("number of standard deviations: {}".format(num_std))
     for i in range(x2.shape[0]):
-        print([qK_SAMPLES[:, i].mean() - num_std * qK_SAMPLES[:, i].std(),
-               qK_SAMPLES[:, i].mean() + num_std * qK_SAMPLES[:, i].std()])
+        print(
+            [
+                qK_SAMPLES[:, i].mean() - num_std * qK_SAMPLES[:, i].std(),
+                qK_SAMPLES[:, i].mean() + num_std * qK_SAMPLES[:, i].std(),
+            ]
+        )
     print()
 
     # === qKq =============================================================
@@ -173,23 +177,22 @@ if __name__ == "__main__":
     for i in range(num_runs):
         num_samples = int(num_samples)
 
-        if MEASURE_INTBOUNDS == 'Lebesgue-finite':
+        if MEASURE_INTBOUNDS == "Lebesgue-finite":
             qKq_samples = qKq_lebesgue(num_samples, emukit_qrbf)
-        elif MEASURE_INTBOUNDS == 'GaussIso-infinite':
+        elif MEASURE_INTBOUNDS == "GaussIso-infinite":
             qKq_samples = qKq_gauss_iso(num_samples, emukit_qrbf)
-        elif MEASURE_INTBOUNDS == 'Uniform-infinite':
+        elif MEASURE_INTBOUNDS == "Uniform-infinite":
             qKq_samples = qKq_uniform(num_samples, emukit_qrbf)
-        elif MEASURE_INTBOUNDS == 'Uniform-finite':
+        elif MEASURE_INTBOUNDS == "Uniform-finite":
             qKq_samples = qKq_uniform(num_samples, emukit_qrbf)
         else:
-            raise ValueError('Measure-integral-bounds combination not defined')
+            raise ValueError("Measure-integral-bounds combination not defined")
 
         qKq_SAMPLES[i] = qKq_samples
 
-    print('=== qKq =======================================================')
-    print('no samples per integral: {:.1E}'.format(num_samples))
-    print('number of integrals: {}'.format(num_runs))
-    print('number of standard deviations: {}'.format(num_std))
-    print([qKq_SAMPLES.mean() - num_std * qKq_SAMPLES.std(),
-           qKq_SAMPLES.mean() + num_std * qKq_SAMPLES.std()])
+    print("=== qKq =======================================================")
+    print("no samples per integral: {:.1E}".format(num_samples))
+    print("number of integrals: {}".format(num_runs))
+    print("number of standard deviations: {}".format(num_std))
+    print([qKq_SAMPLES.mean() - num_std * qKq_SAMPLES.std(), qKq_SAMPLES.mean() + num_std * qKq_SAMPLES.std()])
     print()

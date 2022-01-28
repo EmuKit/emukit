@@ -34,8 +34,9 @@ class NoopModelUpdater(ModelUpdater):
 
 
 class FixedIntervalUpdater(ModelUpdater):
-    """ Updates hyper-parameters every nth iteration, where n is defined by the user """
-    def __init__(self, model: IModel, interval: int=1, targets_extractor_fcn: Callable=None) -> None:
+    """Updates hyper-parameters every nth iteration, where n is defined by the user"""
+
+    def __init__(self, model: IModel, interval: int = 1, targets_extractor_fcn: Callable = None) -> None:
         """
         :param model: Emukit emulator model
         :param interval: Number of function evaluations between optimizing model hyper-parameters

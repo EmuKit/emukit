@@ -11,6 +11,7 @@ from . import SIR
 
 class GillespieBase:
     """Base class for a Gillespie simulations of a compartments model."""
+
     def __init__(self, model: SIR):
         """
         :param model: A SEIR model
@@ -47,8 +48,9 @@ class GillespieBase:
         dt = np.random.exponential(1.0 / sum_of_rates)
 
         # draw occurring event according to current rates
-        event = np.random.choice(np.asarray([i for i in range(len(self.initial_state))], dtype=int),
-                                 p=rates / sum_of_rates)
+        event = np.random.choice(
+            np.asarray([i for i in range(len(self.initial_state))], dtype=int), p=rates / sum_of_rates
+        )
 
         return event, dt
 
@@ -63,13 +65,13 @@ class GillespieBase:
         num_gil_times.
         """
         # initialize
-        t = 0.
+        t = 0.0
         times = np.asarray([t])
         states = self.initial_state.copy()[None, :]
 
         # Perform simulation
         while t < time_end:
-            if self._get_current_rates(states[-1, :]).sum() == 0.:
+            if self._get_current_rates(states[-1, :]).sum() == 0.0:
                 # make sure to stop when all individuals are recovered
                 t = time_end
                 states = np.append(states, states[-1:, :], axis=0)
@@ -103,8 +105,9 @@ class GillespieBase:
         gillespie_path = self._draw_gillespie(times_fixed[-1])
         return self._map_gillespie_times_to_fixed_times(gillespie_path, times_fixed)
 
-    def _map_gillespie_times_to_fixed_times(self, gillespie_path: Tuple[np.ndarray, np.ndarray],
-                                            times_fixed: np.ndarray) -> np.ndarray:
+    def _map_gillespie_times_to_fixed_times(
+        self, gillespie_path: Tuple[np.ndarray, np.ndarray], times_fixed: np.ndarray
+    ) -> np.ndarray:
         """
         Maps a given sample onto a given ordered time array
 
@@ -116,7 +119,7 @@ class GillespieBase:
         assert times_fixed[0] == 0
 
         times_path, compartments_path = gillespie_path
-        idx_new = np.searchsorted(times_path, times_fixed, side='right') - 1
+        idx_new = np.searchsorted(times_path, times_fixed, side="right") - 1
         compartments_new = compartments_path[idx_new, :]
         return compartments_new
 
@@ -163,7 +166,7 @@ class GillespieBase:
             t[i], state[i] = self._compute_height_and_time_of_peak(gillespie_path)
 
         # only count the maxima where at least one infection has occurred
-        idx_of_peaks = (t != 0.)
+        idx_of_peaks = t != 0.0
         num_of_peaks = idx_of_peaks.sum()
 
-        return t[idx_of_peaks].sum()/num_of_peaks, state[idx_of_peaks].sum()/num_of_peaks
+        return t[idx_of_peaks].sum() / num_of_peaks, state[idx_of_peaks].sum() / num_of_peaks

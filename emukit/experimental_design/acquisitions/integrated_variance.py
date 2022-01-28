@@ -18,9 +18,13 @@ class IntegratedVarianceReduction(Acquisition):
     Acquisition function for integrated variance reduction
     """
 
-    def __init__(self,
-                 model: ICalculateVarianceReduction, space: ParameterSpace,
-                 x_monte_carlo=None, num_monte_carlo_points: int=int(1e5)) -> None:
+    def __init__(
+        self,
+        model: ICalculateVarianceReduction,
+        space: ParameterSpace,
+        x_monte_carlo=None,
+        num_monte_carlo_points: int = int(1e5),
+    ) -> None:
         """
         :param model: The emulation model
         :param space: The parameter space to select points within
@@ -41,7 +45,7 @@ class IntegratedVarianceReduction(Acquisition):
             # Use user supplied points
             in_domain = space.check_points_in_domain(x_monte_carlo)
             if not np.all(in_domain):
-                raise ValueError('Some or all of the points in x_monte_carlo are out of the valid domain.')
+                raise ValueError("Some or all of the points in x_monte_carlo are out of the valid domain.")
             self._x_monte_carlo = x_monte_carlo
 
     def evaluate(self, x: np.ndarray) -> np.ndarray:

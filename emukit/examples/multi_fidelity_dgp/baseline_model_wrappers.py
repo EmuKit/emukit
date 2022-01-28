@@ -33,10 +33,10 @@ class HighFidelityGp(IModel):
         kern = GPy.kern.RBF(X[1].shape[1], ARD=True)
         self.model = GPy.models.GPRegression(X[1], Y[1], kernel=kern)
         self.model.Gaussian_noise.variance = 1e-6
-        self.name = 'hf_gp'
+        self.name = "hf_gp"
 
     def optimize(self):
-        _log.info('\n--- Optimization: ---\n'.format(self.name))
+        _log.info("\n--- Optimization: ---\n".format(self.name))
         self.model.optimize_restarts(10, robust=True)
 
     def predict(self, X):
@@ -62,6 +62,7 @@ class LinearAutoRegressiveModel(IModel):
     Linear model, AR1 in paper. Optimized with noise fixed at 1e-6 until convergence then the noise parameter is freed
     and the model is optimized again
     """
+
     def __init__(self, X, Y, n_restarts=10):
         """
 
@@ -80,7 +81,7 @@ class LinearAutoRegressiveModel(IModel):
             gpy_lin_mf_model.mixed_noise.Gaussian_noise_2.fix(1e-6)
 
         self.model = GPyMultiOutputWrapper(gpy_lin_mf_model, len(X), n_optimization_restarts=n_restarts)
-        self.name = 'ar1'
+        self.name = "ar1"
         self.n_fidelities = len(X)
 
     def predict(self, X):
@@ -90,7 +91,7 @@ class LinearAutoRegressiveModel(IModel):
         return self.model.predict(X)
 
     def optimize(self):
-        _log.info('\n--- Optimization: ---\n'.format(self.name))
+        _log.info("\n--- Optimization: ---\n".format(self.name))
         self.model.optimize()
         self.model.gpy_model.mixed_noise.Gaussian_noise.unfix()
         self.model.gpy_model.mixed_noise.Gaussian_noise_1.unfix()
@@ -114,13 +115,15 @@ class NonLinearAutoRegressiveModel(IModel):
     """
     Non-linear model, NARGP in paper
     """
+
     def __init__(self, X, Y, n_restarts=10):
         x_train, y_train = convert_xy_lists_to_arrays(X, Y)
         base_kernel = GPy.kern.RBF
         kernels = make_non_linear_kernels(base_kernel, len(X), x_train.shape[1] - 1, ARD=True)
-        self.model = NonLinearMultiFidelityModel(x_train, y_train, n_fidelities=len(X), kernels=kernels,
-                                                 verbose=True, optimization_restarts=n_restarts)
-        self.name = 'nargp'
+        self.model = NonLinearMultiFidelityModel(
+            x_train, y_train, n_fidelities=len(X), kernels=kernels, verbose=True, optimization_restarts=n_restarts
+        )
+        self.name = "nargp"
 
     def predict(self, X):
         """
@@ -129,7 +132,7 @@ class NonLinearAutoRegressiveModel(IModel):
         return self.model.predict(X)
 
     def optimize(self):
-        _log.info('\n--- Optimization: ---\n'.format(self.name))
+        _log.info("\n--- Optimization: ---\n".format(self.name))
         self.model.optimize()
 
     def set_data(self, X: np.ndarray, Y: np.ndarray) -> None:

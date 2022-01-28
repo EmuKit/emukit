@@ -23,9 +23,16 @@ class LocalPenalizationPointCalculator(CandidatePointCalculator):
     <https://arxiv.org/abs/1505.08052>`_
     """
 
-    def __init__(self, acquisition: Acquisition, acquisition_optimizer: AcquisitionOptimizerBase,
-                 model: IDifferentiable, parameter_space: ParameterSpace, batch_size: int,
-                 fixed_lipschitz_constant: Optional[float] = None, fixed_minimum: Optional[float] = None):
+    def __init__(
+        self,
+        acquisition: Acquisition,
+        acquisition_optimizer: AcquisitionOptimizerBase,
+        model: IDifferentiable,
+        parameter_space: ParameterSpace,
+        batch_size: int,
+        fixed_lipschitz_constant: Optional[float] = None,
+        fixed_minimum: Optional[float] = None,
+    ):
         """
         :param acquisition: Base acquisition function to use without any penalization applied, this acquisition should
                             output positive values only.
@@ -37,8 +44,9 @@ class LocalPenalizationPointCalculator(CandidatePointCalculator):
         :param fixed_minimum: User-specified minimum output, which specifies origin of penalization cones
         """
         if not isinstance(model, IDifferentiable):
-            raise ValueError('Model must implement ' + str(IDifferentiable) +
-                             ' for use with Local Penalization batch method.')
+            raise ValueError(
+                "Model must implement " + str(IDifferentiable) + " for use with Local Penalization batch method."
+            )
 
         self.acquisition = acquisition
         self.acquisition_optimizer = acquisition_optimizer
@@ -48,7 +56,7 @@ class LocalPenalizationPointCalculator(CandidatePointCalculator):
         self.fixed_lipschitz_constant = fixed_lipschitz_constant
         self.fixed_minimum = fixed_minimum
 
-    def compute_next_points(self, loop_state: LoopState, context: dict=None) -> np.ndarray:
+    def compute_next_points(self, loop_state: LoopState, context: dict = None) -> np.ndarray:
         """
         Computes a batch of points using local penalization.
 
@@ -95,6 +103,7 @@ def _estimate_lipschitz_constant(space: ParameterSpace, model: IDifferentiable):
     Estimate the lipschitz constant of the function by max norm of gradient currently in the model. Find this max
     gradient norm using an optimizer.
     """
+
     def negative_gradient_norm(x):
         d_mean_d_x, _ = model.get_prediction_gradients(x)
         result = np.sqrt((np.square(d_mean_d_x)).sum(1))  # simply take the norm of the expectation of the gradient
@@ -107,9 +116,9 @@ def _estimate_lipschitz_constant(space: ParameterSpace, model: IDifferentiable):
     x0 = samples[np.argmin(gradient_norm_at_samples)][None, :]
 
     # Run optimizer to find point of highest gradient
-    res = scipy.optimize.minimize(lambda x: negative_gradient_norm(x[None, :]), x0,
-                                  bounds=space.get_bounds(),
-                                  options={'maxiter': MAX_ITER})
+    res = scipy.optimize.minimize(
+        lambda x: negative_gradient_norm(x[None, :]), x0, bounds=space.get_bounds(), options={"maxiter": MAX_ITER}
+    )
     lipschitz_constant = -res.fun[0]
 
     min_lipschitz_constant = 1e-7

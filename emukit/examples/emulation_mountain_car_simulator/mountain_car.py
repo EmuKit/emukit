@@ -15,13 +15,13 @@ def display_frames_as_gif(frames, title):
     plt.figure(figsize=(frames[0].shape[1] / 72.0, frames[0].shape[0] / 72.0), dpi=72)
     plt.title(title)
     patch = plt.imshow(frames[0])
-    plt.axis('off')
+    plt.axis("off")
 
     def animate(i):
         patch.set_data(frames[i])
 
     anim = animation.FuncAnimation(plt.gcf(), animate, frames=len(frames), interval=30)
-    display(display_animation(anim, default_mode='loop'))
+    display(display_animation(anim, default_mode="loop"))
 
 
 # Define a low fidelity simulation that returns the approximate car dynamics
@@ -48,30 +48,31 @@ def low_cost_simulation(state):
     power = 0.002
     position = state[0]
     action = state[2]
-    d_velocity = power * action - 0.004 * (np.cos(3.3 * position - 0.3))**2 - 0.001
+    d_velocity = power * action - 0.004 * (np.cos(3.3 * position - 0.3)) ** 2 - 0.001
     d_position = d_velocity
     return d_position, d_velocity
 
 
-def plot_emu_sim_comparison(env, control_params, emulator, fidelity='single'):
+def plot_emu_sim_comparison(env, control_params, emulator, fidelity="single"):
     reward, state_trajectory, control_inputs, _ = run_simulation(env, control_params)
 
     reward_emu, state_trajectory_emu_mean, control_inputs_emu_mean = run_emulation(
-        emulator, control_params, state_trajectory[0, :].copy(), fidelity=fidelity)
+        emulator, control_params, state_trajectory[0, :].copy(), fidelity=fidelity
+    )
 
     f, axarr = plt.subplots(1, 3, figsize=(10, 3))
-    h1, = axarr[0].plot(state_trajectory_emu_mean[:, 0])
+    (h1,) = axarr[0].plot(state_trajectory_emu_mean[:, 0])
 
-    h2, = axarr[0].plot(state_trajectory[:, 0])
-    axarr[0].set_title('Position')
+    (h2,) = axarr[0].plot(state_trajectory[:, 0])
+    axarr[0].set_title("Position")
     axarr[1].plot(state_trajectory_emu_mean[:, 1])
     axarr[1].plot(state_trajectory[:, 1])
-    axarr[1].set_title('Velocity')
+    axarr[1].set_title("Velocity")
 
     axarr[2].plot(control_inputs_emu_mean)
     axarr[2].plot(control_inputs)
-    axarr[2].set_title('Control Input')
-    f.legend([h1, h2], ['Emulation', 'Simulation'], loc=4)
+    axarr[2].set_title("Control Input")
+    f.legend([h1, h2], ["Emulation", "Simulation"], loc=4)
     plt.tight_layout()
     plt.show()
 
@@ -90,20 +91,20 @@ def run_simulation(env, controller_gains, render=False):
         # Calculate control input
         control_input = calculate_linear_control(observation, controller_gains)
         if render:
-            frames.append(env.render(mode='rgb_array'))
+            frames.append(env.render(mode="rgb_array"))
         # Save current state + control
         state_trajectory = np.concatenate([state_trajectory, observation[np.newaxis, :]], axis=0)
         control_inputs = np.concatenate([control_inputs, control_input[np.newaxis, :]])
 
         observation, reward, done, info = env.step(control_input)
-        cost -= (reward - 1)
+        cost -= reward - 1
         if done:
             state_trajectory = np.concatenate([state_trajectory, observation[np.newaxis, :]], axis=0)
             return cost, state_trajectory, control_inputs, frames
     return cost, state_trajectory, control_inputs, frames
 
 
-def run_emulation(dynamics_models, controller_gains, X_0, fidelity='single'):
+def run_emulation(dynamics_models, controller_gains, X_0, fidelity="single"):
     observation = X_0.copy()
     state_trajectory = np.ndarray((0, observation.shape[0])) * np.nan
     control_inputs = np.ndarray((0, 1)) * np.nan
@@ -112,7 +113,7 @@ def run_emulation(dynamics_models, controller_gains, X_0, fidelity='single'):
     for _ in range(0, N_STEPS_MAX):
         # Evaluate controller
         control_input = calculate_linear_control(observation, controller_gains)
-        cost += (np.power(control_input[0], 2) * 0.1 + 1)
+        cost += np.power(control_input[0], 2) * 0.1 + 1
 
         # Store state + control
         state_trajectory = np.concatenate([state_trajectory, observation[np.newaxis, :]], axis=0)
@@ -163,7 +164,7 @@ def v_simulation(state):
 
 
 class plot_control(object):
-    def __init__(self, velocity_emulator, fidelity='single'):
+    def __init__(self, velocity_emulator, fidelity="single"):
         self.velocity_emulator = velocity_emulator
         self.fidelity = fidelity
 
@@ -172,7 +173,7 @@ class plot_control(object):
         position_contour = np.linspace(-1.2, 0.6, n_points_contour)
         velocity_contour = np.linspace(-1 / 0.07, 1 / 0.07, n_points_contour)
         x_contour_grid = np.meshgrid(position_contour, velocity_contour)
-        x_contour = np.ones((n_points_contour**2, 3)) * control
+        x_contour = np.ones((n_points_contour ** 2, 3)) * control
         for i in range(0, len(x_contour_grid)):
             x_contour[:, i] = x_contour_grid[i].flatten()
 
@@ -186,25 +187,33 @@ class plot_control(object):
 
         # Do plots
         fig, ax = plt.subplots(1, 2, figsize=(12, 4))
-        ax[0].set_title('Acceleration from Emulator')
-        ax[0].contourf(position_contour, velocity_contour, np.reshape(y_emulator, (n_points_contour, n_points_contour)),
-                       cmap=cm.RdBu)
-        ax[1].set_title('Acceleration from Simulator')
-        ax[1].contourf(position_contour, velocity_contour, np.reshape(y_simulator, (n_points_contour,
-                                                                                    n_points_contour)), cmap=cm.RdBu)
+        ax[0].set_title("Acceleration from Emulator")
+        ax[0].contourf(
+            position_contour,
+            velocity_contour,
+            np.reshape(y_emulator, (n_points_contour, n_points_contour)),
+            cmap=cm.RdBu,
+        )
+        ax[1].set_title("Acceleration from Simulator")
+        ax[1].contourf(
+            position_contour,
+            velocity_contour,
+            np.reshape(y_simulator, (n_points_contour, n_points_contour)),
+            cmap=cm.RdBu,
+        )
         plt.tight_layout()
-        ax[1].set_xlabel('Car Position')
-        ax[0].set_xlabel('Car Position')
-        ax[0].set_ylabel('Car Velocity')
+        ax[1].set_xlabel("Car Position")
+        ax[0].set_xlabel("Car Position")
+        ax[0].set_ylabel("Car Velocity")
 
 
 def evaluate_model(model, x, fidelity):
     # Evaluate emulator
-    if fidelity == 'single':
+    if fidelity == "single":
         y = model.predict(x)[0]
-    elif fidelity == 'multi-linear':
+    elif fidelity == "multi-linear":
         x_extended = np.hstack([x, np.ones([x.shape[0], 1])])
         y = model.predict(x_extended)[0]
     else:
-        raise ValueError('Unknown fidelity')
+        raise ValueError("Unknown fidelity")
     return y

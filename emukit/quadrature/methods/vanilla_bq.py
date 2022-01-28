@@ -35,8 +35,9 @@ class VanillaBayesianQuadrature(WarpedBayesianQuadratureModel):
         m, cov = self.base_gp.predict(X_pred)
         return m, cov, m, cov
 
-    def predict_base_with_full_covariance(self, X_pred: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray,
-                                                                             np.ndarray]:
+    def predict_base_with_full_covariance(
+        self, X_pred: np.ndarray
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """Compute predictive means and covariance of the warped GP as well as the base GP.
 
         :param X_pred: Locations at which to predict, shape (n_points, input_dim).

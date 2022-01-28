@@ -12,8 +12,13 @@ from ..methods import VanillaBayesianQuadrature
 
 
 class VanillaBayesianQuadratureLoop(OuterLoop):
-    def __init__(self, model: VanillaBayesianQuadrature, acquisition: Acquisition = None,
-                 model_updater: ModelUpdater = None, acquisition_optimizer: AcquisitionOptimizerBase = None):
+    def __init__(
+        self,
+        model: VanillaBayesianQuadrature,
+        acquisition: Acquisition = None,
+        model_updater: ModelUpdater = None,
+        acquisition_optimizer: AcquisitionOptimizerBase = None,
+    ):
         """
         The loop for vanilla Bayesian Quadrature
 

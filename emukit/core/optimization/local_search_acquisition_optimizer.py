@@ -23,7 +23,7 @@ _log = logging.getLogger(__name__)
 
 
 class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
-    """ Optimizes the acquisition function by multiple local searches starting at random points.
+    """Optimizes the acquisition function by multiple local searches starting at random points.
     Each local optimization iteratively evaluates the one-exchange neighbourhoods.
     Can be used for discrete and continuous acquisition functions.
 
@@ -52,8 +52,15 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
            International Conference on Learning and Intelligent Optimization.
            Springer, Berlin, Heidelberg, 2011.
     """
-    def __init__(self, space: ParameterSpace, num_steps: int = 10, num_init_points: int = 5,
-                 std_dev: float = 0.02, num_continuous: int = 4) -> None:
+
+    def __init__(
+        self,
+        space: ParameterSpace,
+        num_steps: int = 10,
+        num_init_points: int = 5,
+        std_dev: float = 0.02,
+        num_continuous: int = 4,
+    ) -> None:
         """
         :param space: The parameter space spanning the search problem.
         :param num_steps: Maximum number of steps to follow from each start point.
@@ -68,7 +75,7 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         self.num_continuous = num_continuous
 
     def _neighbours_per_parameter(self, all_features: np.ndarray, parameters: Sequence[Parameter]) -> List[np.ndarray]:
-        """ Generates parameter encodings for one-exchange neighbours of
+        """Generates parameter encodings for one-exchange neighbours of
             parameters encoded in parameter feature vector
 
         :param all_features: The encoded parameter point (1d-array)
@@ -78,24 +85,22 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
         current_feature = 0
         for parameter in parameters:
             features = parameter.round(
-                all_features[current_feature:(current_feature + parameter.dimension)]
-                .reshape(1, -1)).ravel()
+                all_features[current_feature : (current_feature + parameter.dimension)].reshape(1, -1)
+            ).ravel()
             if isinstance(parameter, CategoricalParameter):
                 if isinstance(parameter.encoding, OrdinalEncoding):
-                    left_right = np.unique([parameter.encoding.round_row(features - 1),
-                                            parameter.encoding.round_row(features + 1)])
+                    left_right = np.unique(
+                        [parameter.encoding.round_row(features - 1), parameter.encoding.round_row(features + 1)]
+                    )
                     neighbours.append(left_right[left_right != features].reshape(-1, 1))
                 elif isinstance(parameter.encoding, OneHotEncoding):
                     # All categories apart from current one are valid neighbours with one hot encoding
-                    neighbours.append(parameter.encodings[
-                        (parameter.encodings != features).any(axis=1)])
+                    neighbours.append(parameter.encodings[(parameter.encodings != features).any(axis=1)])
                 else:
-                    raise TypeError("{} not a supported parameter encoding."
-                                    .format(type(parameter.encoding)))
+                    raise TypeError("{} not a supported parameter encoding.".format(type(parameter.encoding)))
             elif isinstance(parameter, DiscreteParameter):
                 # Find current position in domain while being robust to numerical precision problems
-                current_index = np.argmin(np.abs(
-                    np.subtract(parameter.domain, features.item())))
+                current_index = np.argmin(np.abs(np.subtract(parameter.domain, features.item())))
                 this_neighbours = []
                 if current_index > 0:
                     this_neighbours.append([parameter.domain[current_index - 1]])
@@ -110,13 +115,12 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
                         samples.append(sample)
                 neighbours.append(np.vstack(samples))
             else:
-                raise TypeError("{} not a supported parameter type."
-                                 .format(type(parameter)))
+                raise TypeError("{} not a supported parameter type.".format(type(parameter)))
             current_feature += parameter.dimension
         return neighbours
 
     def _neighbours(self, all_features: np.ndarray, parameters: Sequence[Parameter]) -> np.ndarray:
-        """ Generates one-exchange neighbours of encoded parameter point.
+        """Generates one-exchange neighbours of encoded parameter point.
 
         :param all_features: The encoded parameter point (1d-array)
         :return: All one-exchange neighbours as 2d-array (neighbours, features)
@@ -132,17 +136,17 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
             current_neighbour, current_feature = next_neighbour, next_feature
         return neighbours
 
-    def _one_local_search(self, acquisition: Acquisition, x: np.ndarray,
-                          context_manager: Optional[ContextManager] = None):
-        """ Local maximum search on acquisition starting at a single point.
+    def _one_local_search(
+        self, acquisition: Acquisition, x: np.ndarray, context_manager: Optional[ContextManager] = None
+    ):
+        """Local maximum search on acquisition starting at a single point.
 
         :param acquisition: The acquisition the maximum is searched of.
         :param x: The initial point.
         :return: Tuple of (maximum point as 1d-array, value of acquisition at this point)
         """
         incumbent_value = acquisition.evaluate(x.reshape(1, -1)).item()
-        _log.debug("Start local search with acquisition={:.4f} at {}"
-                   .format(incumbent_value, str(x)))
+        _log.debug("Start local search with acquisition={:.4f} at {}".format(incumbent_value, str(x)))
         for step in range(self.num_steps):
             neighbours = self._neighbours(x, context_manager.contextfree_space.parameters)
             neighbours_with_context = context_manager.expand_vector(neighbours)
@@ -151,8 +155,9 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
             max_neighbour = neighbours[max_index]
             max_value = acquisition_values[max_index].item()
             if max_value < incumbent_value:
-                _log.debug("End after {} steps at maximum of acquisition={:.4f} at {}"
-                           .format(step, incumbent_value, str(x)))
+                _log.debug(
+                    "End after {} steps at maximum of acquisition={:.4f} at {}".format(step, incumbent_value, str(x))
+                )
                 return x, incumbent_value
             else:
                 incumbent_value = max_value

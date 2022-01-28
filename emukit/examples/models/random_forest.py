@@ -8,19 +8,26 @@ from ...core.interfaces.models import IModel
 try:
     from sklearn.ensemble import RandomForestRegressor
 except ImportError:
-    raise ImportError("""
+    raise ImportError(
+        """
         This module is missing required dependencies. Try running:
 
         pip install scikit-learn
 
         Refer to http://scikit-learn.org/stable/install.html for further information.
-    """)
+    """
+    )
 
 
 class RandomForest(IModel):
-
-    def __init__(self, X_init: np.ndarray, Y_init: np.ndarray, num_trees: int = 30,
-                 do_bootstrapping: bool = True, seed: int = None) -> None:
+    def __init__(
+        self,
+        X_init: np.ndarray,
+        Y_init: np.ndarray,
+        num_trees: int = 30,
+        do_bootstrapping: bool = True,
+        seed: int = None,
+    ) -> None:
         """
         Interface to random forests for Bayesian optimization based on Scikit Learn package.
 

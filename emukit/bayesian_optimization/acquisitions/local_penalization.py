@@ -16,6 +16,7 @@ class LocalPenalization(Acquisition):
 
     where :math:`x_i` are the points already in the batch
     """
+
     def __init__(self, model: IModel):
         """
         :param model: Model
@@ -84,9 +85,13 @@ class LocalPenalization(Acquisition):
         distances, d_dist_dx = _distance_with_gradient(x, self.x_batch)
         normalized_distance = (distances - self.radius) / self.scale
         h_func = norm.cdf(normalized_distance)
-        d_value_dx = 0.5 * (1 / h_func[:, :, None]) \
-                     * norm.pdf(normalized_distance)[:, :, None] \
-                     * d_dist_dx / self.scale[None, :, None]
+        d_value_dx = (
+            0.5
+            * (1 / h_func[:, :, None])
+            * norm.pdf(normalized_distance)[:, :, None]
+            * d_dist_dx
+            / self.scale[None, :, None]
+        )
         return norm.logcdf(normalized_distance).sum(1, keepdims=True), d_value_dx.sum(1)
 
 
@@ -97,7 +102,7 @@ def _distance_calculation(x_1, x_2):
 
 def _distance_with_gradient(x_1, x_2):
     distances = _distance_calculation(x_1, x_2)
-    inv_distance = np.where(distances != 0., 1 / distances, 0)
+    inv_distance = np.where(distances != 0.0, 1 / distances, 0)
     dx = x_1[:, None, :] - x_2[None, :, :]
     d_dist_dx = 2 * dx * inv_distance[:, :, None]
     return distances, d_dist_dx

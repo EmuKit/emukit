@@ -73,13 +73,15 @@ class UniformMeasure(IntegrationMeasure):
         :param bounds: List of D tuples, where D is the dimensionality of the domain and the tuples contain the lower
         and upper bounds of the box defining the uniform measure i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)]
         """
-        super().__init__('UniformMeasure')
+        super().__init__("UniformMeasure")
 
         # checks if lower bounds are smaller than upper bounds.
         for (lb_d, ub_d) in bounds:
             if lb_d >= ub_d:
-                raise ValueError("Upper bound of uniform measure must be larger than lower bound. Found a pair "
-                                 "containing ({}, {}).".format(lb_d, ub_d))
+                raise ValueError(
+                    "Upper bound of uniform measure must be larger than lower bound. Found a pair "
+                    "containing ({}, {}).".format(lb_d, ub_d)
+                )
 
         self.bounds = bounds
         # uniform measure has constant density which is computed here.
@@ -90,9 +92,10 @@ class UniformMeasure(IntegrationMeasure):
         volume = np.prod(differences)
 
         if volume <= 0:
-            raise NumericalPrecisionError("Domain volume of uniform measure is not positive. Its value is {}.".format(
-                volume))
-        return float(1. / volume)
+            raise NumericalPrecisionError(
+                "Domain volume of uniform measure is not positive. Its value is {}.".format(volume)
+            )
+        return float(1.0 / volume)
 
     @property
     def can_sample(self) -> bool:
@@ -135,7 +138,7 @@ class UniformMeasure(IntegrationMeasure):
         """
         return self.bounds
 
-    def get_samples(self, num_samples: int, context_manager: ContextManager=None) -> np.ndarray:
+    def get_samples(self, num_samples: int, context_manager: ContextManager = None) -> np.ndarray:
         """
         Samples from the uniform distribution.
 
@@ -169,20 +172,20 @@ class IsotropicGaussianMeasure(IntegrationMeasure):
         :param mean: the mean of the Gaussian, shape (num_dimensions, )
         :param variance: the scalar variance of the isotropic covariance matrix of the Gaussian.
         """
-        super().__init__('GaussianMeasure')
+        super().__init__("GaussianMeasure")
         # check mean
         if not isinstance(mean, np.ndarray):
-            raise TypeError('Mean must be of type numpy.ndarray, {} given.'.format(type(mean)))
+            raise TypeError("Mean must be of type numpy.ndarray, {} given.".format(type(mean)))
 
         if mean.ndim != 1:
-            raise ValueError('Dimension of mean must be 1, dimension {} given.'.format(mean.ndim))
+            raise ValueError("Dimension of mean must be 1, dimension {} given.".format(mean.ndim))
 
         # check covariance
         if not isinstance(variance, float):
-            raise TypeError('Variance must be of type float, {} given.'.format(type(variance)))
+            raise TypeError("Variance must be of type float, {} given.".format(type(variance)))
 
         if not variance > 0:
-            raise ValueError('Variance must be positive, current value is {}.'.format(variance))
+            raise ValueError("Variance must be positive, current value is {}.".format(variance))
 
         self.mean = mean
         self.variance = variance
@@ -208,7 +211,7 @@ class IsotropicGaussianMeasure(IntegrationMeasure):
         """
         factor = (2 * np.pi * self.variance) ** (self.num_dimensions / 2)
         scaled_diff = (x - self.mean) / (np.sqrt(2 * self.variance))
-        return np.exp(- np.sum(scaled_diff ** 2, axis=1)) / factor
+        return np.exp(-np.sum(scaled_diff ** 2, axis=1)) / factor
 
     def compute_density_gradient(self, x: np.ndarray) -> np.ndarray:
         """
@@ -217,7 +220,7 @@ class IsotropicGaussianMeasure(IntegrationMeasure):
         :return: the gradient of the density at x, shape (num_points, num_dimensions)
         """
         values = self.compute_density(x)
-        return ((- values / self.variance) * (x - self.mean).T).T
+        return ((-values / self.variance) * (x - self.mean).T).T
 
     def get_box(self) -> List[Tuple[float, float]]:
         """
@@ -234,7 +237,7 @@ class IsotropicGaussianMeasure(IntegrationMeasure):
         upper = self.mean + factor * np.sqrt(self.variance)
         return list(zip(lower, upper))
 
-    def get_samples(self, num_samples: int, context_manager: ContextManager=None) -> np.ndarray:
+    def get_samples(self, num_samples: int, context_manager: ContextManager = None) -> np.ndarray:
         """
         Samples from the isotropic Gaussian distribution.
 

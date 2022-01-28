@@ -21,8 +21,13 @@ class QuadratureKernel:
     An example of a specific QuadratureKernel and IStandardKernel pair is QuadratureRBF and IRBF.
     """
 
-    def __init__(self, kern: IStandardKernel, integral_bounds: Optional[List[Tuple[float, float]]],
-                 measure: Optional[IntegrationMeasure], variable_names: str='') -> None:
+    def __init__(
+        self,
+        kern: IStandardKernel,
+        integral_bounds: Optional[List[Tuple[float, float]]],
+        measure: Optional[IntegrationMeasure],
+        variable_names: str = "",
+    ) -> None:
         """
         :param kern: standard emukit kernel
         :param integral_bounds: defines the domain of the integral. List of D tuples, where D is the dimensionality
@@ -38,7 +43,7 @@ class QuadratureKernel:
         # details. Note that this only affects methods that use this box, e.g. the acqusition optimizers. The integrals
         # in this kernel will have infinite bounds still.
         if (integral_bounds is None) and (measure is None):
-            raise ValueError('integral_bounds and measure are both None. At least one of them must be given.')
+            raise ValueError("integral_bounds and measure are both None. At least one of them must be given.")
         if integral_bounds is None:
             reasonable_box_bounds = measure.get_box()
             self.integral_bounds = None

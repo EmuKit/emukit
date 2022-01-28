@@ -12,7 +12,7 @@ from emukit.quadrature.kernels.bounds import BoxBounds
 @pytest.fixture
 def integral_bounds():
     bounds = 3 * [(-4, 4)]
-    integral_bounds = BoxBounds(name='test_name', bounds=bounds)
+    integral_bounds = BoxBounds(name="test_name", bounds=bounds)
     return integral_bounds
 
 
@@ -21,25 +21,25 @@ def test_integral_bounds_values():
     lower_bounds = np.array([[-1, -2]])
     upper_bounds = np.array([[1, 0]])
 
-    bounds = BoxBounds(name='test_name', bounds=bounds)
+    bounds = BoxBounds(name="test_name", bounds=bounds)
     res = bounds.get_lower_and_upper_bounds()
     assert len(res) == 2
     assert np.all(res[0] == lower_bounds)
     assert np.all(res[1] == upper_bounds)
 
     assert len(bounds.convert_to_list_of_continuous_parameters()) == 2
-    assert bounds.name == 'test_name'
+    assert bounds.name == "test_name"
 
 
 def test_integral_bounds_wrong_bounds_init():
     bounds_wrong = [(-1, 1), (0, -2)]
 
     with pytest.raises(ValueError):
-        BoxBounds(name='test_name', bounds=bounds_wrong)
+        BoxBounds(name="test_name", bounds=bounds_wrong)
 
     bounds_empty = []
     with pytest.raises(ValueError):
-        BoxBounds(name='test_name', bounds=bounds_empty)
+        BoxBounds(name="test_name", bounds=bounds_empty)
 
 
 def test_integral_bounds_set(integral_bounds):

@@ -13,26 +13,26 @@ try:
     import torch
     import torch.nn as nn
 except ImportError:
-    raise ImportError('pytorch is not installed. Please install it by running pip install torch torchvision')
+    raise ImportError("pytorch is not installed. Please install it by running pip install torch torchvision")
 
 try:
     from pybnn.bohamiann import Bohamiann
     from pybnn.util.layers import AppendLayer
 except ImportError:
-    raise ImportError('pybnn is not installed. Please install it by running pip install pybnn')
+    raise ImportError("pybnn is not installed. Please install it by running pip install pybnn")
 
 try:
     import GPy
     from GPy.models import BayesianGPLVM
 except ImportError:
-    raise ImportError('GPy is not installed. Please install it by running pip install GPy')
+    raise ImportError("GPy is not installed. Please install it by running pip install GPy")
 
 
 from emukit.examples.profet.meta_benchmarks.architecture import get_default_architecture
 from emukit.examples.profet.meta_benchmarks.meta_forrester import get_architecture_forrester
 
 
-def download_data(path, source='http://www.ml4aad.org/wp-content/uploads/2019/05/profet_data.tar.gz'):
+def download_data(path, source="http://www.ml4aad.org/wp-content/uploads/2019/05/profet_data.tar.gz"):
 
     l = urlretrieve(source)[0]
 
@@ -58,27 +58,25 @@ def normalize_Y(Y, indexD):
 
 
 hidden_space = {
-    'forrester': 2,
-    'fcnet': 5,
-    'svm': 5,
-    'xgboost': 5,
-    }
+    "forrester": 2,
+    "fcnet": 5,
+    "svm": 5,
+    "xgboost": 5,
+}
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--n_samples', default=1000, type=int, nargs='?',
-                        help='number of samples to draw from the meta-model')
-    parser.add_argument('--output_path', default="./", type=str, nargs='?',
-                        help='specifies the path where the samples will be saved')
-    parser.add_argument('--benchmark', default="forrester", type=str, nargs='?',
-                        help='specifies the benchmark')
-    parser.add_argument('--input_path', default="./", type=str, nargs='?',
-                        help='path to the input data')
-    parser.add_argument('--n_hidden', default=5, type=int, nargs='?',
-                        help='number of hidden dimensions')
-    parser.add_argument('--burnin', default=50000, type=int, nargs='?',
-                        help='number of burnin steps for SGHMC')
-    parser.add_argument('--download', action='store_true')
+    parser.add_argument(
+        "--n_samples", default=1000, type=int, nargs="?", help="number of samples to draw from the meta-model"
+    )
+    parser.add_argument(
+        "--output_path", default="./", type=str, nargs="?", help="specifies the path where the samples will be saved"
+    )
+    parser.add_argument("--benchmark", default="forrester", type=str, nargs="?", help="specifies the benchmark")
+    parser.add_argument("--input_path", default="./", type=str, nargs="?", help="path to the input data")
+    parser.add_argument("--n_hidden", default=5, type=int, nargs="?", help="number of hidden dimensions")
+    parser.add_argument("--burnin", default=50000, type=int, nargs="?", help="number of burnin steps for SGHMC")
+    parser.add_argument("--download", action="store_true")
     args = parser.parse_args()
 
     n_samples = args.n_samples
@@ -120,8 +118,7 @@ if __name__ == "__main__":
     # train the probabilistic encoder
     kern = GPy.kern.Matern52(Q_h, ARD=True)
 
-    m_lvm = BayesianGPLVM(Y_norm.reshape(n_tasks, n_configs), Q_h, kernel=kern,
-                          num_inducing=n_inducing_lvm)
+    m_lvm = BayesianGPLVM(Y_norm.reshape(n_tasks, n_configs), Q_h, kernel=kern, num_inducing=n_inducing_lvm)
     m_lvm.optimize(max_iters=10000, messages=1)
 
     ls = np.array([m_lvm.kern.lengthscale[i] for i in range(m_lvm.kern.lengthscale.shape[0])])
@@ -156,17 +153,32 @@ if __name__ == "__main__":
     if args.benchmark == "fcnet" or args.benchmark == "svm":
         normalize_targets = False
 
-    model_objective = Bohamiann(get_network=get_architecture, print_every_n_steps=10000,
-                                normalize_output=normalize_targets)
-    model_objective.train(X_train, Y_train, num_steps=num_steps + num_burnin_steps,
-                          num_burn_in_steps=num_burnin_steps, keep_every=mcmc_thining,
-                          lr=lr, verbose=True, batch_size=batch_size)
+    model_objective = Bohamiann(
+        get_network=get_architecture, print_every_n_steps=10000, normalize_output=normalize_targets
+    )
+    model_objective.train(
+        X_train,
+        Y_train,
+        num_steps=num_steps + num_burnin_steps,
+        num_burn_in_steps=num_burnin_steps,
+        keep_every=mcmc_thining,
+        lr=lr,
+        verbose=True,
+        batch_size=batch_size,
+    )
 
     if args.benchmark != "forrester":
         model_cost = Bohamiann(get_network=get_default_architecture, print_every_n_steps=10000)
-        model_cost.train(X_train, C_train, num_steps=num_steps + num_burnin_steps,
-                         num_burn_in_steps=num_burnin_steps, keep_every=mcmc_thining,
-                         lr=lr, verbose=True, batch_size=batch_size)
+        model_cost.train(
+            X_train,
+            C_train,
+            num_steps=num_steps + num_burnin_steps,
+            num_burn_in_steps=num_burnin_steps,
+            keep_every=mcmc_thining,
+            lr=lr,
+            verbose=True,
+            batch_size=batch_size,
+        )
 
     # generate samples
     sampled_h = np.zeros([n_samples, ls.shape[0]])
