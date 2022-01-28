@@ -52,6 +52,8 @@ class Benchmarker:
         if len(set(self.metric_names)) != len(self.metric_names):
             raise ValueError("Names of metrics are not unique")
 
+
+
     def run_benchmark(self, n_initial_data: int = 10, n_iterations: int = 10, n_repeats: int = 10) -> BenchmarkResult:
         """
         Runs the benchmarking. For each initial data set, every loop is created and run for the specified number of

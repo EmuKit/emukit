@@ -24,7 +24,9 @@ def test_categorical_parameter_rounding(encoding):
 def test_categorical_parameter_check_in_domain(encoding):
     param = CategoricalParameter("v", encoding)
 
-    assert param.check_in_domain(np.array([[1, 0, 0], [0, 0.5, 0]]))
+    assert param.check_in_domain(np.array([
+        [1, 0, 0], [0, 0.5, 0]
+    ]))
     assert not param.check_in_domain(np.array([[2, 0, 0], [0, 0.5, 0]]))
 
     with pytest.raises(ValueError):  # wrong encoding dimension
