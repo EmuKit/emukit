@@ -44,14 +44,16 @@ To learn about emulation as a concept, check out the [Emukit playground](https:/
 
 ## Citing the library
 
-If you are using emukit, we would appreciate if you could cite our paper in your research:
+If you are using emukit, we would appreciate if you could cite our paper about Emukit in your research:
 
     @inproceedings{emukit2019,
-      author = {Paleyes, Andrei and Pullin, Mark and Mahsereci, Maren and Lawrence, Neil and González, Javier},
+      author = {Paleyes, Andrei and Pullin, Mark and Mahsereci, Maren and McCollum, Cliff and Lawrence, Neil and González, Javier},
       title = {Emulation of physical processes with Emukit},
       booktitle = {Second Workshop on Machine Learning and the Physical Sciences, NeurIPS},
       year = {2019}
     }
+
+The paper itself can be found on [arXiv](https://arxiv.org/abs/2110.13293).
 
 ## License
 
