@@ -6,7 +6,7 @@ from emukit.core.constraints import InequalityConstraint, LinearInequalityConstr
 
 @pytest.fixture
 def linear_constraint():
-    A = np.array([[1., 0.5]])
+    A = np.array([[1.0, 0.5]])
     b_lower = np.array([-5])
     b_upper = np.array([5])
     return LinearInequalityConstraint(A, b_lower, b_upper)
@@ -14,7 +14,7 @@ def linear_constraint():
 
 @pytest.fixture
 def linear_constraint_2d():
-    A = np.array([[1., 0.5], [0.5, 1.]])
+    A = np.array([[1.0, 0.5], [0.5, 1.0]])
     b_lower = np.array([-5, -5])
     b_upper = np.array([5, 5])
     return LinearInequalityConstraint(A, b_lower, b_upper)
@@ -22,7 +22,7 @@ def linear_constraint_2d():
 
 @pytest.fixture
 def nonlinear_constraint_no_jac():
-    fun = lambda x: x[0]**2 + x[1]**2
+    fun = lambda x: x[0] ** 2 + x[1] ** 2
     b_lower = np.array([-1])
     b_upper = np.array([1])
     return NonlinearInequalityConstraint(fun, b_lower, b_upper)
@@ -35,7 +35,7 @@ def test_linear_inequality_constraint_input_dims_mismatch(linear_constraint):
 
 
 def test_linear_inequality_constraint_bounds_dims_mismatch():
-    A = np.array([[1., 0.5], [0.5, 1.]])
+    A = np.array([[1.0, 0.5], [0.5, 1.0]])
     b_lower = np.array([-5, -5])
     b_upper = np.array([5])
     with pytest.raises(ValueError):

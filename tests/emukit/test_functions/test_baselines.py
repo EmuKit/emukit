@@ -12,7 +12,7 @@ def test_univariate_approximate_ground_truth_integral_shape():
     """
     Test output dimension is 2d
     """
-    res = univariate_approximate_ground_truth_integral(lambda x: 1., (0., 1.))
+    res = univariate_approximate_ground_truth_integral(lambda x: 1.0, (0.0, 1.0))
     assert len(res) == 2
 
 
@@ -20,5 +20,5 @@ def test_bivariate_approximate_ground_truth_integral_shape():
     """
     Test output dimension is 2d
     """
-    res = bivariate_approximate_ground_truth_integral(lambda x: 1., 2*[(0., 1.)])
+    res = bivariate_approximate_ground_truth_integral(lambda x: 1.0, 2 * [(0.0, 1.0)])
     assert len(res) == 2

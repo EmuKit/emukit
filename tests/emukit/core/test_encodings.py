@@ -7,15 +7,15 @@ from emukit.core import OneHotEncoding, OrdinalEncoding
 
 @pytest.fixture
 def categories():
-    return ['one', 'two', 'three']
+    return ["one", "two", "three"]
 
 
 def test_one_hot_encoding(categories):
     encoding = OneHotEncoding(categories)
 
     assert encoding.dimension == 3
-    assert encoding.get_category([1, 0, 0]) == 'one'
-    assert encoding.get_encoding('three') == [0, 0, 1]
+    assert encoding.get_category([1, 0, 0]) == "one"
+    assert encoding.get_encoding("three") == [0, 0, 1]
 
     with pytest.raises(ValueError):
         encoding.get_category([1, 1, 0])
@@ -43,8 +43,8 @@ def test_ordinal_encoding(categories):
     encoding = OrdinalEncoding(categories)
 
     assert encoding.dimension == 1
-    assert encoding.get_category([1]) == 'one'
-    assert encoding.get_encoding('three') == [3]
+    assert encoding.get_category([1]) == "one"
+    assert encoding.get_encoding("three") == [3]
 
 
 def test_ordinal_encoding_rounding(categories):

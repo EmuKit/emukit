@@ -2,17 +2,17 @@ try:
     import torch
     import torch.nn as nn
 except ImportError:
-    raise ImportError('pytorch is not installed. Please install it by running pip install torch torchvision')
+    raise ImportError("pytorch is not installed. Please install it by running pip install torch torchvision")
 
 try:
     from pybnn.util.layers import AppendLayer
 except ImportError:
-    raise ImportError('pybnn is not installed. Please install it by running pip install pybnn')
+    raise ImportError("pybnn is not installed. Please install it by running pip install pybnn")
 
 
-def get_default_architecture(input_dimensionality: int,
-                             classification: bool = False,
-                             n_hidden: int = 500) -> torch.nn.Module:
+def get_default_architecture(
+    input_dimensionality: int, classification: bool = False, n_hidden: int = 500
+) -> torch.nn.Module:
     """
     Defines the architecture that is used for Meta-Surrogate benchmarks.
     In the case of emulating a classification benchmark, we pass the mean prediction through a sigmoid
@@ -23,6 +23,7 @@ def get_default_architecture(input_dimensionality: int,
     :param n_hidden: number of units in the hidden layer
     :return: nn.Module
     """
+
     class Architecture(nn.Module):
         def __init__(self, n_inputs, n_hidden=500, classification=False):
             super(Architecture, self).__init__()
@@ -42,6 +43,4 @@ def get_default_architecture(input_dimensionality: int,
                 mean = x
             return self.sigma_layer(mean)
 
-    return Architecture(n_inputs=input_dimensionality,
-                        n_hidden=n_hidden,
-                        classification=classification)
+    return Architecture(n_inputs=input_dimensionality, n_hidden=n_hidden, classification=classification)

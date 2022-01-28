@@ -18,7 +18,7 @@ def test_convert_x_list_to_array():
 def test_convert_y_list_to_array():
     y_list = [np.array([[0.0], [1.0]]), np.array([[2.0], [5.0]])]
     y_array = convert_y_list_to_array(y_list)
-    expected_output = np.array([[0.], [1.0], [2.], [5.]])
+    expected_output = np.array([[0.0], [1.0], [2.0], [5.0]])
     assert np.array_equal(y_array, expected_output)
 
 
@@ -27,7 +27,7 @@ def test_convert_xy_lists_to_arrays():
     y_list = [np.array([[0.0], [1.0]]), np.array([[2.0], [5.0]])]
     x_array, y_array = convert_xy_lists_to_arrays(x_list, y_list)
 
-    expected_y = np.array([[0.], [1.0], [2.], [5.]])
+    expected_y = np.array([[0.0], [1.0], [2.0], [5.0]])
     expected_x = np.array([[1, 0, 0], [2, 1, 0], [3, 2, 1], [4, 5, 1]])
     assert np.array_equal(y_array, expected_y)
     assert np.array_equal(x_array, expected_x)

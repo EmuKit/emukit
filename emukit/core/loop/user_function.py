@@ -21,7 +21,8 @@ _log = logging.getLogger(__name__)
 
 
 class UserFunction(abc.ABC, Callable):
-    """ The user supplied function is interrogated as part of the outer loop """
+    """The user supplied function is interrogated as part of the outer loop"""
+
     @abc.abstractmethod
     def evaluate(self, X: np.ndarray) -> List[UserFunctionResult]:
         pass
@@ -31,7 +32,8 @@ class UserFunction(abc.ABC, Callable):
 
 
 class UserFunctionWrapper(UserFunction):
-    """ Wraps a user-provided python function. """
+    """Wraps a user-provided python function."""
+
     def __init__(self, f: Callable, extra_output_names: List[str] = None):
         """
         :param f: A python function that takes in a 2d numpy ndarray of inputs and returns a either a 2d numpy array
@@ -53,8 +55,10 @@ class UserFunctionWrapper(UserFunction):
         :return: List of function results
         """
         if inputs.ndim != 2:
-            raise ValueError("User function should receive 2d array as an input, "
-                             "actual input dimensionality is {}".format(inputs.ndim))
+            raise ValueError(
+                "User function should receive 2d array as an input, "
+                "actual input dimensionality is {}".format(inputs.ndim)
+            )
 
         _log.info("Evaluating user function for {} point(s)".format(inputs.shape[0]))
         outputs = self.f(inputs)
@@ -66,17 +70,23 @@ class UserFunctionWrapper(UserFunction):
             user_fcn_outputs = outputs
             extra_outputs = tuple()
         else:
-            raise ValueError("User provided function should return a tuple or an ndarray, "
-                             "{} received".format(type(outputs)))
+            raise ValueError(
+                "User provided function should return a tuple or an ndarray, " "{} received".format(type(outputs))
+            )
 
         # Validate number of outputs returned by the user function
         if len(extra_outputs) != len(self.extra_output_names):
-            raise ValueError('User function provided {} outputs but UserFunctionWrapper expected {}'.format(
-                len(extra_outputs) + 1, len(self.extra_output_names) + 1))
+            raise ValueError(
+                "User function provided {} outputs but UserFunctionWrapper expected {}".format(
+                    len(extra_outputs) + 1, len(self.extra_output_names) + 1
+                )
+            )
 
         if user_fcn_outputs.ndim != 2:
-            raise ValueError("User function should return 2d array or a tuple of 2d arrays as an output, "
-                             "actual output dimensionality is {}".format(outputs.ndim))
+            raise ValueError(
+                "User function should return 2d array or a tuple of 2d arrays as an output, "
+                "actual output dimensionality is {}".format(outputs.ndim)
+            )
 
         results = []
         for i in range(user_fcn_outputs.shape[0]):
@@ -91,7 +101,7 @@ class MultiSourceFunctionWrapper(UserFunction):
     Wraps a list of python functions that each correspond to different information source.
     """
 
-    def __init__(self, f: List, source_index: int=-1, extra_output_names: List[str] = None) -> None:
+    def __init__(self, f: List, source_index: int = -1, extra_output_names: List[str] = None) -> None:
         """
         :param f: A list of python function that take in a 2d numpy ndarrays of inputs and return 2d numpy ndarrays
                   of outputs.
@@ -115,8 +125,10 @@ class MultiSourceFunctionWrapper(UserFunction):
         """
 
         if inputs.ndim != 2:
-            raise ValueError("User function should receive 2d array as an input, "
-                             "actual input dimensionality is {}".format(inputs.ndim))
+            raise ValueError(
+                "User function should receive 2d array as an input, "
+                "actual input dimensionality is {}".format(inputs.ndim)
+            )
 
         n_sources = len(self.f)
 
@@ -138,21 +150,27 @@ class MultiSourceFunctionWrapper(UserFunction):
 
                 # Check correct number of outputs from user function
                 if len(extra_outputs[-1]) != len(self.extra_output_names):
-                    raise ValueError('Expected {} outputs from user function but got {}'.format(
-                        len(self.extra_output_names) + 1, len(extra_outputs[-1]) + 1))
+                    raise ValueError(
+                        "Expected {} outputs from user function but got {}".format(
+                            len(self.extra_output_names) + 1, len(extra_outputs[-1]) + 1
+                        )
+                    )
             elif isinstance(this_outputs, np.ndarray):
                 outputs.append(this_outputs)
 
                 # Check correct number of outputs from user function
                 if len(self.extra_output_names) != 0:
-                    raise ValueError('Expected {} output from user function but got 1'.format(
-                        len(self.extra_output_names) + 1))
+                    raise ValueError(
+                        "Expected {} output from user function but got 1".format(len(self.extra_output_names) + 1)
+                    )
 
                 # Dummy extra outputs - won't be used below
                 extra_outputs.append(tuple())
             else:
-                raise ValueError("User provided function should return a tuple or an ndarray, "
-                                 "{} received".format(type(this_outputs)))
+                raise ValueError(
+                    "User provided function should return a tuple or an ndarray, "
+                    "{} received".format(type(this_outputs))
+                )
 
         sort_indices = np.argsort(np.concatenate(indices, axis=0))
         outputs = np.concatenate(outputs, axis=0)

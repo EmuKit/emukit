@@ -44,7 +44,7 @@ def integral_var_uniform(num_samples: int, model: VanillaBayesianQuadrature):
 if __name__ == "__main__":
     np.random.seed(0)
 
-    METHOD = 'Vanilla BQ'
+    METHOD = "Vanilla BQ"
 
     X = np.array([[-1, 1], [0, 0], [-2, 0.1]])
     Y = np.array([[1], [2], [3]])
@@ -58,8 +58,8 @@ if __name__ == "__main__":
     vanilla_bq = VanillaBayesianQuadrature(base_gp=model, X=X, Y=Y)
 
     print()
-    print('method: {}'.format(METHOD))
-    print('no dimensions: {}'.format(D))
+    print("method: {}".format(METHOD))
+    print("no dimensions: {}".format(D))
     print()
 
     # === mean =============================================================
@@ -76,12 +76,11 @@ if __name__ == "__main__":
         mZ_samples = integral_mean_uniform(num_samples, vanilla_bq)
         mZ_SAMPLES[i] = mZ_samples
 
-    print('=== mean =======================================================')
-    print('no samples per integral: {:.1E}'.format(num_samples))
-    print('number of integrals: {}'.format(num_runs))
-    print('number of standard deviations: {}'.format(num_std))
-    print([mZ_SAMPLES.mean() - num_std * mZ_SAMPLES.std(),
-           mZ_SAMPLES.mean() + num_std * mZ_SAMPLES.std()])
+    print("=== mean =======================================================")
+    print("no samples per integral: {:.1E}".format(num_samples))
+    print("number of integrals: {}".format(num_runs))
+    print("number of standard deviations: {}".format(num_std))
+    print([mZ_SAMPLES.mean() - num_std * mZ_SAMPLES.std(), mZ_SAMPLES.mean() + num_std * mZ_SAMPLES.std()])
     print()
 
     # === variance ==========================================================
@@ -96,10 +95,9 @@ if __name__ == "__main__":
         vZ_samples = integral_var_uniform(num_samples, vanilla_bq)
         vZ_SAMPLES[i] = vZ_samples
 
-    print('=== mean =======================================================')
-    print('no samples per integral: {:.1E}'.format(num_samples))
-    print('number of integrals: {}'.format(num_runs))
-    print('number of standard deviations: {}'.format(num_std))
-    print([vZ_SAMPLES.mean() - num_std * vZ_SAMPLES.std(),
-           vZ_SAMPLES.mean() + num_std * vZ_SAMPLES.std()])
+    print("=== mean =======================================================")
+    print("no samples per integral: {:.1E}".format(num_samples))
+    print("number of integrals: {}".format(num_runs))
+    print("number of standard deviations: {}".format(num_std))
+    print([vZ_SAMPLES.mean() - num_std * vZ_SAMPLES.std(), vZ_SAMPLES.mean() + num_std * vZ_SAMPLES.std()])
     print()

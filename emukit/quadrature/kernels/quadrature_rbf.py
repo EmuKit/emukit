@@ -21,8 +21,13 @@ class QuadratureRBF(QuadratureKernel):
     Note 2: each child of this class implements a unique measure-integralBounds pair
     """
 
-    def __init__(self, rbf_kernel: IRBF, integral_bounds: Optional[List[Tuple[float, float]]],
-                 measure: Optional[IntegrationMeasure], variable_names: str='') -> None:
+    def __init__(
+        self,
+        rbf_kernel: IRBF,
+        integral_bounds: Optional[List[Tuple[float, float]]],
+        measure: Optional[IntegrationMeasure],
+        variable_names: str = "",
+    ) -> None:
         """
         :param rbf_kernel: standard emukit rbf-kernel
         :param integral_bounds: defines the domain of the integral. List of D tuples, where D is the dimensionality
@@ -32,7 +37,9 @@ class QuadratureRBF(QuadratureKernel):
         :param variable_names: the (variable) name(s) of the integral
         """
 
-        super().__init__(kern=rbf_kernel, integral_bounds=integral_bounds, measure=measure, variable_names=variable_names)
+        super().__init__(
+            kern=rbf_kernel, integral_bounds=integral_bounds, measure=measure, variable_names=variable_names
+        )
 
     @property
     def lengthscale(self):
@@ -85,7 +92,7 @@ class QuadratureRBF(QuadratureKernel):
         return self.dqK_dx(x1).T
 
     # rbf-kernel specific helper
-    def _scaled_vector_diff(self, v1: np.ndarray, v2: np.ndarray, scale: float=None) -> np.ndarray:
+    def _scaled_vector_diff(self, v1: np.ndarray, v2: np.ndarray, scale: float = None) -> np.ndarray:
         """
         Scaled element-wise vector difference between vectors v1 and v2
 
@@ -113,7 +120,7 @@ class QuadratureRBFLebesgueMeasure(QuadratureRBF):
     Note that each standard kernel goes with a corresponding quadrature kernel, in this case standard rbf kernel.
     """
 
-    def __init__(self, rbf_kernel: IRBF, integral_bounds: List[Tuple[float, float]], variable_names: str='') -> None:
+    def __init__(self, rbf_kernel: IRBF, integral_bounds: List[Tuple[float, float]], variable_names: str = "") -> None:
         """
         :param rbf_kernel: standard emukit rbf-kernel
         :param integral_bounds: defines the domain of the integral. List of D tuples, where D is the dimensionality
@@ -121,8 +128,9 @@ class QuadratureRBFLebesgueMeasure(QuadratureRBF):
         i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)]
         :param variable_names: the (variable) name(s) of the integral
         """
-        super().__init__(rbf_kernel=rbf_kernel, integral_bounds=integral_bounds, measure=None,
-                         variable_names=variable_names)
+        super().__init__(
+            rbf_kernel=rbf_kernel, integral_bounds=integral_bounds, measure=None, variable_names=variable_names
+        )
 
     def qK(self, x2: np.ndarray) -> np.ndarray:
         """
@@ -135,7 +143,7 @@ class QuadratureRBFLebesgueMeasure(QuadratureRBF):
         upper_bounds = self.integral_bounds.upper_bounds
         erf_lo = erf(self._scaled_vector_diff(lower_bounds, x2))
         erf_up = erf(self._scaled_vector_diff(upper_bounds, x2))
-        kernel_mean = self.variance * (self.lengthscale * np.sqrt(np.pi / 2.) * (erf_up - erf_lo)).prod(axis=1)
+        kernel_mean = self.variance * (self.lengthscale * np.sqrt(np.pi / 2.0) * (erf_up - erf_lo)).prod(axis=1)
 
         return kernel_mean.reshape(1, -1)
 
@@ -147,9 +155,9 @@ class QuadratureRBFLebesgueMeasure(QuadratureRBF):
         """
         lower_bounds = self.integral_bounds.lower_bounds
         upper_bounds = self.integral_bounds.upper_bounds
-        prefac = self.variance * (2. * self.lengthscale**2)**self.input_dim
+        prefac = self.variance * (2.0 * self.lengthscale ** 2) ** self.input_dim
         diff_bounds_scaled = self._scaled_vector_diff(upper_bounds, lower_bounds)
-        exp_term = np.exp(-diff_bounds_scaled**2) - 1.
+        exp_term = np.exp(-(diff_bounds_scaled ** 2)) - 1.0
         erf_term = erf(diff_bounds_scaled) * diff_bounds_scaled * np.sqrt(np.pi)
 
         return float(prefac * (exp_term + erf_term).prod())
@@ -162,12 +170,12 @@ class QuadratureRBFLebesgueMeasure(QuadratureRBF):
         """
         lower_bounds = self.integral_bounds.lower_bounds
         upper_bounds = self.integral_bounds.upper_bounds
-        exp_lo = np.exp(- self._scaled_vector_diff(x2, lower_bounds) ** 2)
-        exp_up = np.exp(- self._scaled_vector_diff(x2, upper_bounds) ** 2)
+        exp_lo = np.exp(-self._scaled_vector_diff(x2, lower_bounds) ** 2)
+        exp_up = np.exp(-self._scaled_vector_diff(x2, upper_bounds) ** 2)
         erf_lo = erf(self._scaled_vector_diff(lower_bounds, x2))
         erf_up = erf(self._scaled_vector_diff(upper_bounds, x2))
 
-        fraction = ((exp_lo - exp_up) / (self.lengthscale * np.sqrt(np.pi / 2.) * (erf_up - erf_lo))).T
+        fraction = ((exp_lo - exp_up) / (self.lengthscale * np.sqrt(np.pi / 2.0) * (erf_up - erf_lo))).T
 
         return self.qK(x2) * fraction
 
@@ -179,7 +187,7 @@ class QuadratureRBFIsoGaussMeasure(QuadratureRBF):
     Note that each standard kernel goes with a corresponding quadrature kernel, in this case standard rbf kernel.
     """
 
-    def __init__(self, rbf_kernel: IRBF, measure: IsotropicGaussianMeasure, variable_names: str='') -> None:
+    def __init__(self, rbf_kernel: IRBF, measure: IsotropicGaussianMeasure, variable_names: str = "") -> None:
         """
         :param rbf_kernel: standard emukit rbf-kernel
         :param measure: a Gaussian measure
@@ -187,7 +195,7 @@ class QuadratureRBFIsoGaussMeasure(QuadratureRBF):
         """
         super().__init__(rbf_kernel=rbf_kernel, integral_bounds=None, measure=measure, variable_names=variable_names)
 
-    def qK(self, x2: np.ndarray, scale_factor: float = 1.) -> np.ndarray:
+    def qK(self, x2: np.ndarray, scale_factor: float = 1.0) -> np.ndarray:
         """
         RBF kernel with the first component integrated out aka kernel mean
 
@@ -199,7 +207,7 @@ class QuadratureRBFIsoGaussMeasure(QuadratureRBF):
         det_factor = (self.measure.variance / lengthscale ** 2 + 1) ** (self.input_dim / 2)
         scale = np.sqrt(lengthscale ** 2 + self.measure.variance)
         scaled_vector_diff = self._scaled_vector_diff(x2, self.measure.mean, scale)
-        kernel_mean = (self.variance / det_factor) * np.exp(- np.sum(scaled_vector_diff ** 2, axis=1))
+        kernel_mean = (self.variance / det_factor) * np.exp(-np.sum(scaled_vector_diff ** 2, axis=1))
         return kernel_mean.reshape(1, -1)
 
     def qKq(self) -> float:
@@ -220,8 +228,8 @@ class QuadratureRBFIsoGaussMeasure(QuadratureRBF):
         :return: the gradient with shape (input_dim, N)
         """
         qK_x = self.qK(x2)
-        factor = 1. / (self.lengthscale ** 2 + self.measure.variance)
-        return - (qK_x * factor) * (x2 - self.measure.mean).T
+        factor = 1.0 / (self.lengthscale ** 2 + self.measure.variance)
+        return -(qK_x * factor) * (x2 - self.measure.mean).T
 
 
 class QuadratureRBFUniformMeasure(QuadratureRBF):
@@ -232,8 +240,13 @@ class QuadratureRBFUniformMeasure(QuadratureRBF):
     Note that each standard kernel goes with a corresponding quadrature kernel, in this case standard rbf kernel.
     """
 
-    def __init__(self, rbf_kernel: IRBF, integral_bounds: Optional[List[Tuple[float, float]]],
-                 measure: UniformMeasure, variable_names: str=''):
+    def __init__(
+        self,
+        rbf_kernel: IRBF,
+        integral_bounds: Optional[List[Tuple[float, float]]],
+        measure: UniformMeasure,
+        variable_names: str = "",
+    ):
         """
         :param rbf_kernel: standard emukit rbf-kernel
         :param integral_bounds: defines the domain of the integral. List of D tuples, where D is the dimensionality
@@ -242,8 +255,9 @@ class QuadratureRBFUniformMeasure(QuadratureRBF):
         :param measure: A D-dimensional uniform measure
         :param variable_names: the (variable) name(s) of the integral
         """
-        super().__init__(rbf_kernel=rbf_kernel, integral_bounds=integral_bounds, measure=measure,
-                         variable_names=variable_names)
+        super().__init__(
+            rbf_kernel=rbf_kernel, integral_bounds=integral_bounds, measure=measure, variable_names=variable_names
+        )
 
         # construct bounds that are used in the computation of the kernel integrals. The lower bounds are the max of
         # the lower bounds of integral and measure. The upper bounds are the min of the upper bounds of integral and
@@ -256,8 +270,10 @@ class QuadratureRBFUniformMeasure(QuadratureRBF):
         # checks if lower bounds are smaller than upper bounds.
         for (lb_d, ub_d) in bounds:
             if lb_d >= ub_d:
-                raise ValueError("Upper bound of relevant integration domain must be larger than lower bound. Found a "
-                                 "pair containing ({}, {}).".format(lb_d, ub_d))
+                raise ValueError(
+                    "Upper bound of relevant integration domain must be larger than lower bound. Found a "
+                    "pair containing ({}, {}).".format(lb_d, ub_d)
+                )
         self._bounds_list_for_kernel_integrals = bounds
         self.reasonable_box_bounds = BoxBounds(name=variable_names, bounds=bounds)
 
@@ -272,7 +288,7 @@ class QuadratureRBFUniformMeasure(QuadratureRBF):
         upper_bounds = np.array([b[1] for b in self._bounds_list_for_kernel_integrals])
         erf_lo = erf(self._scaled_vector_diff(lower_bounds, x2))
         erf_up = erf(self._scaled_vector_diff(upper_bounds, x2))
-        kernel_mean = self.variance * (self.lengthscale * np.sqrt(np.pi / 2.) * (erf_up - erf_lo)).prod(axis=1)
+        kernel_mean = self.variance * (self.lengthscale * np.sqrt(np.pi / 2.0) * (erf_up - erf_lo)).prod(axis=1)
 
         return kernel_mean.reshape(1, -1) * self.measure.density
 
@@ -284,9 +300,9 @@ class QuadratureRBFUniformMeasure(QuadratureRBF):
         """
         lower_bounds = np.array([b[0] for b in self._bounds_list_for_kernel_integrals])
         upper_bounds = np.array([b[1] for b in self._bounds_list_for_kernel_integrals])
-        prefac = self.variance * (2. * self.lengthscale**2)**self.input_dim
+        prefac = self.variance * (2.0 * self.lengthscale ** 2) ** self.input_dim
         diff_bounds_scaled = self._scaled_vector_diff(upper_bounds, lower_bounds)
-        exp_term = np.exp(-diff_bounds_scaled**2) - 1.
+        exp_term = np.exp(-(diff_bounds_scaled ** 2)) - 1.0
         erf_term = erf(diff_bounds_scaled) * diff_bounds_scaled * np.sqrt(np.pi)
 
         return float(prefac * (exp_term + erf_term).prod()) * self.measure.density ** 2
@@ -299,11 +315,11 @@ class QuadratureRBFUniformMeasure(QuadratureRBF):
         """
         lower_bounds = np.array([b[0] for b in self._bounds_list_for_kernel_integrals])
         upper_bounds = np.array([b[1] for b in self._bounds_list_for_kernel_integrals])
-        exp_lo = np.exp(- self._scaled_vector_diff(x2, lower_bounds) ** 2)
-        exp_up = np.exp(- self._scaled_vector_diff(x2, upper_bounds) ** 2)
+        exp_lo = np.exp(-self._scaled_vector_diff(x2, lower_bounds) ** 2)
+        exp_up = np.exp(-self._scaled_vector_diff(x2, upper_bounds) ** 2)
         erf_lo = erf(self._scaled_vector_diff(lower_bounds, x2))
         erf_up = erf(self._scaled_vector_diff(upper_bounds, x2))
 
-        fraction = ((exp_lo - exp_up) / (self.lengthscale * np.sqrt(np.pi / 2.) * (erf_up - erf_lo))).T
+        fraction = ((exp_lo - exp_up) / (self.lengthscale * np.sqrt(np.pi / 2.0) * (erf_up - erf_lo))).T
 
         return self.qK(x2) * fraction

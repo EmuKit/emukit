@@ -8,12 +8,12 @@ try:
     import torch
     import torch.nn as nn
 except ImportError:
-    raise ImportError('pytorch is not installed. Please installed version it by running pip install torch torchvision')
+    raise ImportError("pytorch is not installed. Please installed version it by running pip install torch torchvision")
 
 try:
     from pybnn.util.layers import AppendLayer
 except ImportError:
-    raise ImportError('pybnn is not installed. Please install it by running pip install pybnn')
+    raise ImportError("pybnn is not installed. Please install it by running pip install pybnn")
 
 from emukit.core import ContinuousParameter, ParameterSpace
 from emukit.core.loop.user_function import UserFunctionWrapper
@@ -53,8 +53,7 @@ def meta_forrester(fname_objective: str) -> Tuple[UserFunctionWrapper, Parameter
     :param fname_objective: filename for the objective function
     :return: Tuple of user function object and parameter space
     """
-    parameter_space = ParameterSpace([
-        ContinuousParameter('x', 0, 1)])
+    parameter_space = ParameterSpace([ContinuousParameter("x", 0, 1)])
     data = pickle.load(open(fname_objective, "rb"))
     x_mean_objective = data["x_mean"]
     x_std_objective = data["x_std"]

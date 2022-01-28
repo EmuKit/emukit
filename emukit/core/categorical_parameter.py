@@ -20,9 +20,11 @@ class CategoricalParameter(Parameter):
 
         self._cont_params = []
         for column_idx in range(self.encodings.shape[1]):
-            cont_param = ContinuousParameter(name + '_' + str(column_idx),
-                                             np.min(self.encodings[:, column_idx]),
-                                             np.max(self.encodings[:, column_idx]))
+            cont_param = ContinuousParameter(
+                name + "_" + str(column_idx),
+                np.min(self.encodings[:, column_idx]),
+                np.max(self.encodings[:, column_idx]),
+            )
             self._cont_params.append(cont_param)
 
     def __str__(self):
@@ -62,8 +64,7 @@ class CategoricalParameter(Parameter):
         :return: A boolean value which indicates whether all points lie in the domain
         """
         if x.ndim != 2 or x.shape[1] != self.dimension:
-            raise ValueError("Expected x shape (points, {}), actual is {}"
-                             .format(self.dimension, x.shape))
+            raise ValueError("Expected x shape (points, {}), actual is {}".format(self.dimension, x.shape))
 
         for i, param in enumerate(self._cont_params):
             # First check if this particular parameter is in domain

@@ -20,7 +20,7 @@ def test_loop():
     x_init = np.random.rand(5, 1)
     y_init = np.random.rand(5, 1)
     yc_init = np.random.rand(5, 1)
-    x = ContinuousParameter('x', 0, 1)
+    x = ContinuousParameter("x", 0, 1)
     bo = UnknownConstraintGPBayesianOptimization(variables_list=[x], X=x_init, Y=y_init, Yc=yc_init, batch_size=1)
     results = None
     for _ in range(n_iterations + 1):

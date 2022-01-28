@@ -12,7 +12,6 @@ from ...core.interfaces import IDifferentiable, IModel
 
 
 class ProbabilityOfImprovement(Acquisition):
-
     def __init__(self, model: Union[IModel, IDifferentiable], jitter: float = float(0)) -> None:
         """
         This acquisition computes for a given input point the probability of improving over the
@@ -56,11 +55,10 @@ class ProbabilityOfImprovement(Acquisition):
         u = (y_minimum - mean) / standard_deviation
         pdf = scipy.stats.norm.pdf(y_minimum, mean, standard_deviation)
         cdf = scipy.stats.norm.cdf(y_minimum, mean, standard_deviation)
-        dcdf_dx = - pdf * (dmean_dx + dstandard_devidation_dx * u)
+        dcdf_dx = -pdf * (dmean_dx + dstandard_devidation_dx * u)
 
         return cdf, dcdf_dx
 
     @property
     def has_gradients(self):
         return isinstance(self.model, IDifferentiable)
-

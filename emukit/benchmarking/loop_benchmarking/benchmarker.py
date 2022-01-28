@@ -15,8 +15,14 @@ _log = logging.getLogger(__name__)
 
 
 class Benchmarker:
-    def __init__(self, loops_with_names: List[Tuple[str, Callable]], test_function: Union[Callable, UserFunction],
-                 parameter_space: ParameterSpace, metrics: List[Metric], initial_design: ModelFreeDesignBase=None):
+    def __init__(
+        self,
+        loops_with_names: List[Tuple[str, Callable]],
+        test_function: Union[Callable, UserFunction],
+        parameter_space: ParameterSpace,
+        metrics: List[Metric],
+        initial_design: ModelFreeDesignBase = None,
+    ):
         """
         :param loops_with_names: A list of tuples where the first entry is the name of the loop and the second is a
                                  function that takes in initial x and y training data and returns a loop to be
@@ -44,9 +50,9 @@ class Benchmarker:
         self.metric_names = [metric.name for metric in metrics]
 
         if len(set(self.metric_names)) != len(self.metric_names):
-            raise ValueError('Names of metrics are not unique')
+            raise ValueError("Names of metrics are not unique")
 
-    def run_benchmark(self, n_initial_data: int=10, n_iterations: int=10, n_repeats: int=10) -> BenchmarkResult:
+    def run_benchmark(self, n_initial_data: int = 10, n_iterations: int = 10, n_repeats: int = 10) -> BenchmarkResult:
         """
         Runs the benchmarking. For each initial data set, every loop is created and run for the specified number of
         iterations and the results are collected.
@@ -60,7 +66,7 @@ class Benchmarker:
         for j in range(n_repeats):
             initial_loop_state = self._create_initial_loop_state(n_initial_data)
             for i, (loop, loop_name) in enumerate(zip(self.loops, self.loop_names)):
-                _log.info('Benchmarking loop ' + str(i) + ' for repeat ' + str(j))
+                _log.info("Benchmarking loop " + str(i) + " for repeat " + str(j))
 
                 this_loop = loop(initial_loop_state)
                 this_loop.loop_state.metrics = dict()

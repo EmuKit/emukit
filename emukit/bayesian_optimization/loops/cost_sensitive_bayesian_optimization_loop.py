@@ -14,9 +14,15 @@ from ...core.parameter_space import ParameterSpace
 
 
 class CostSensitiveBayesianOptimizationLoop(OuterLoop):
-    def __init__(self, space: ParameterSpace, model_objective: IModel, model_cost: IModel,
-                 acquisition: Acquisition = None, update_interval: int = 1,
-                 acquisition_optimizer: AcquisitionOptimizerBase = None):
+    def __init__(
+        self,
+        space: ParameterSpace,
+        model_objective: IModel,
+        model_cost: IModel,
+        acquisition: Acquisition = None,
+        update_interval: int = 1,
+        acquisition_optimizer: AcquisitionOptimizerBase = None,
+    ):
 
         """
         Emukit class that implements a loop for building modular cost sensitive Bayesian optimization.
@@ -33,8 +39,9 @@ class CostSensitiveBayesianOptimizationLoop(OuterLoop):
         """
 
         if not np.all(np.isclose(model_objective.X, model_cost.X)):
-            raise ValueError('Emukit currently only supports identical '
-                             'training inputs for the cost and objective model')
+            raise ValueError(
+                "Emukit currently only supports identical " "training inputs for the cost and objective model"
+            )
 
         if acquisition is None:
             expected_improvement = ExpectedImprovement(model_objective)
@@ -49,6 +56,6 @@ class CostSensitiveBayesianOptimizationLoop(OuterLoop):
 
         loop_state = create_loop_state(model_objective.X, model_objective.Y, cost=model_cost.Y)
 
-        super(CostSensitiveBayesianOptimizationLoop, self).__init__(candidate_point_calculator,
-                                                                    [model_updater_objective, model_updater_cost],
-                                                                    loop_state)
+        super(CostSensitiveBayesianOptimizationLoop, self).__init__(
+            candidate_point_calculator, [model_updater_objective, model_updater_cost], loop_state
+        )

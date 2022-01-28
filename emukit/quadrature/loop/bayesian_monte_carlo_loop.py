@@ -27,7 +27,8 @@ class BayesianMonteCarlo(OuterLoop):
     interface as the active and adaptive learning schemes that depend explicitly or implicitly (through hyperparameters)
     on the previous evaluations.
     """
-    def __init__(self, model: WarpedBayesianQuadratureModel, model_updater: ModelUpdater=None):
+
+    def __init__(self, model: WarpedBayesianQuadratureModel, model_updater: ModelUpdater = None):
         """
         :param model: a warped Bayesian quadrature method, e.g., VanillaBayesianQuadrature
         :param model_updater: Defines how and when the quadrature model is updated if new data arrives. Defaults to

@@ -6,11 +6,10 @@ from emukit.core.optimization import GradientAcquisitionOptimizer, MultiSourceAc
 
 
 def test_multi_source_acquisition_optimizer(simple_square_acquisition):
-    space = ParameterSpace([ContinuousParameter('x', 0, 1),
-                            InformationSourceParameter(2)])
+    space = ParameterSpace([ContinuousParameter("x", 0, 1), InformationSourceParameter(2)])
     single_optimizer = GradientAcquisitionOptimizer(space)
     optimizer = MultiSourceAcquisitionOptimizer(single_optimizer, space)
 
     opt_x, opt_val = optimizer.optimize(simple_square_acquisition)
-    assert_array_equal(opt_x, np.array([[0., 1.]]))
-    assert_array_equal(opt_val, np.array([[2.]]))
+    assert_array_equal(opt_x, np.array([[0.0, 1.0]]))
+    assert_array_equal(opt_val, np.array([[2.0]]))

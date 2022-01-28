@@ -8,13 +8,15 @@ from ...core.interfaces.models import IDifferentiable, IModel
 try:
     from pybnn import bohamiann
 except ImportError:
-    raise ImportError("""
+    raise ImportError(
+        """
         This module is missing required dependencies. Try running
 
         pip install git+https://github.com/automl/pybnn.git
 
         Refer to https://github.com/automl/pybnn for further information.
-    """)
+    """
+    )
 
 import torch
 import torch.nn as nn
@@ -27,7 +29,7 @@ def get_default_network(input_dimensionality: int) -> torch.nn.Module:
             if bias:
                 self.bias = nn.Parameter(torch.Tensor(1, 1))
             else:
-                self.register_parameter('bias', None)
+                self.register_parameter("bias", None)
 
         def forward(self, x):
             return torch.cat((x, self.bias * torch.ones_like(x)), dim=1)
@@ -40,18 +42,21 @@ def get_default_network(input_dimensionality: int) -> torch.nn.Module:
             nn.init.constant_(module.bias, val=0.0)
 
     return nn.Sequential(
-        nn.Linear(input_dimensionality, 50), nn.Tanh(),
-        nn.Linear(50, 50), nn.Tanh(),
-        nn.Linear(50, 1),
-        AppendLayer()
+        nn.Linear(input_dimensionality, 50), nn.Tanh(), nn.Linear(50, 50), nn.Tanh(), nn.Linear(50, 1), AppendLayer()
     ).apply(init_weights)
 
 
 class Bohamiann(IModel, IDifferentiable):
-
-    def __init__(self, X_init: np.ndarray, Y_init: np.ndarray, num_steps: int = 5000, num_burnin: int = 5000,
-                 lr: float = 1e-2, get_architecture=get_default_network,
-                 **kwargs) -> None:
+    def __init__(
+        self,
+        X_init: np.ndarray,
+        Y_init: np.ndarray,
+        num_steps: int = 5000,
+        num_burnin: int = 5000,
+        lr: float = 1e-2,
+        get_architecture=get_default_network,
+        **kwargs
+    ) -> None:
         """
         Implements Bayesian neural networks as described by Springenberg et. al[1] based on
         stochastic gradient Hamiltonian monte carlo sampling[2].
@@ -81,8 +86,15 @@ class Bohamiann(IModel, IDifferentiable):
         self._X = X_init
         self._Y = Y_init
 
-        self.model.train(X_init, Y_init, num_steps=self.num_steps + self.num_burnin, lr=lr,
-                         num_burn_in_steps=self.num_burnin, keep_every=100, **kwargs)
+        self.model.train(
+            X_init,
+            Y_init,
+            num_steps=self.num_steps + self.num_burnin,
+            lr=lr,
+            num_burn_in_steps=self.num_burnin,
+            keep_every=100,
+            **kwargs
+        )
 
     @property
     def X(self):
@@ -112,8 +124,9 @@ class Bohamiann(IModel, IDifferentiable):
         self._X = X
         self._Y = Y
 
-        self.model.train(self._X, self._Y, num_steps=self.num_steps,
-                         num_burn_in_steps=self.num_burnin, keep_every=100, verbose=True)
+        self.model.train(
+            self._X, self._Y, num_steps=self.num_steps, num_burn_in_steps=self.num_burnin, keep_every=100, verbose=True
+        )
 
     def optimize(self) -> None:
         pass

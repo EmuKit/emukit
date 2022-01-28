@@ -16,8 +16,7 @@ def test_continuous_entropy_search():
 
     model = FabolasModel(X_init=x_init, Y_init=y_init, s_min=s_min, s_max=s_max)
 
-    space = ParameterSpace([ContinuousParameter("x", 0, 1),
-                            ContinuousParameter("s", np.log(s_min), np.log(s_max))])
+    space = ParameterSpace([ContinuousParameter("x", 0, 1), ContinuousParameter("s", np.log(s_min), np.log(s_max))])
 
     es = ContinuousFidelityEntropySearch(model, space, num_representer_points=10)
     es.update_pmin()

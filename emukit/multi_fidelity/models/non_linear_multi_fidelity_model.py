@@ -20,8 +20,9 @@ from ...core.interfaces import IDifferentiable, IModel
 from ..convert_lists_to_array import convert_x_list_to_array, convert_y_list_to_array
 
 
-def make_non_linear_kernels(base_kernel_class: Type[GPy.kern.Kern],
-                            n_fidelities: int, n_input_dims: int, ARD: bool=False) -> List:
+def make_non_linear_kernels(
+    base_kernel_class: Type[GPy.kern.Kern], n_fidelities: int, n_input_dims: int, ARD: bool = False
+) -> List:
     """
     This function takes a base kernel class and constructs the structured multi-fidelity kernels
 
@@ -42,14 +43,16 @@ def make_non_linear_kernels(base_kernel_class: Type[GPy.kern.Kern],
     """
 
     base_dims_list = list(range(n_input_dims))
-    kernels = [base_kernel_class(n_input_dims, active_dims=base_dims_list, ARD=ARD, name='kern_fidelity_1')]
+    kernels = [base_kernel_class(n_input_dims, active_dims=base_dims_list, ARD=ARD, name="kern_fidelity_1")]
     for i in range(1, n_fidelities):
-        fidelity_name = 'fidelity' + str(i + 1)
-        interaction_kernel = base_kernel_class(n_input_dims, active_dims=base_dims_list, ARD=ARD,
-                                               name='scale_kernel_' + fidelity_name)
-        scale_kernel = base_kernel_class(1, active_dims=[n_input_dims], name='previous_fidelity_' + fidelity_name)
-        bias_kernel = base_kernel_class(n_input_dims, active_dims=base_dims_list,
-                                        ARD=ARD, name='bias_kernel_' + fidelity_name)
+        fidelity_name = "fidelity" + str(i + 1)
+        interaction_kernel = base_kernel_class(
+            n_input_dims, active_dims=base_dims_list, ARD=ARD, name="scale_kernel_" + fidelity_name
+        )
+        scale_kernel = base_kernel_class(1, active_dims=[n_input_dims], name="previous_fidelity_" + fidelity_name)
+        bias_kernel = base_kernel_class(
+            n_input_dims, active_dims=base_dims_list, ARD=ARD, name="bias_kernel_" + fidelity_name
+        )
         kernels.append(interaction_kernel * scale_kernel + bias_kernel)
     return kernels
 
@@ -62,8 +65,16 @@ class NonLinearMultiFidelityModel(IModel, IDifferentiable):
     fidelities, in practice the model will work if this constraint is ignored.
     """
 
-    def __init__(self, X_init: np.ndarray, Y_init: np.ndarray, n_fidelities, kernels: List[GPy.kern.Kern],
-                 n_samples=100, verbose=False, optimization_restarts=5) -> None:
+    def __init__(
+        self,
+        X_init: np.ndarray,
+        Y_init: np.ndarray,
+        n_fidelities,
+        kernels: List[GPy.kern.Kern],
+        n_samples=100,
+        verbose=False,
+        optimization_restarts=5,
+    ) -> None:
         """
         By default the noise at intermediate levels will be fixed to 1e-4.
 
@@ -80,10 +91,10 @@ class NonLinearMultiFidelityModel(IModel, IDifferentiable):
         """
 
         if not isinstance(X_init, np.ndarray):
-            raise TypeError('X_init expected to be a numpy array')
+            raise TypeError("X_init expected to be a numpy array")
 
         if not isinstance(Y_init, np.ndarray):
-            raise TypeError('Y_init expected to be a numpy array')
+            raise TypeError("Y_init expected to be a numpy array")
 
         self.verbose = verbose
         self.optimization_restarts = optimization_restarts
@@ -100,7 +111,8 @@ class NonLinearMultiFidelityModel(IModel, IDifferentiable):
 
         is_lowest_fidelity = X_init[:, self._fidelity_idx] == 0
         self.models.append(
-            GPy.models.GPRegression(X_init[is_lowest_fidelity, :-1], Y_init[is_lowest_fidelity, :], kernels[0]))
+            GPy.models.GPRegression(X_init[is_lowest_fidelity, :-1], Y_init[is_lowest_fidelity, :], kernels[0])
+        )
 
         # Make models for fidelities but lowest fidelity
         for i in range(1, self.n_fidelities):
@@ -256,11 +268,12 @@ class NonLinearMultiFidelityModel(IModel, IDifferentiable):
         for i in range(1, fidelity + 1):
             previous_sample_variance = sample_variance.copy()
             # Predict at all fidelities up until the one we are interested in
-            sample_mean, sample_variance, x_augmented = \
-                self._propagate_samples_through_level(X, i, sample_mean, sample_variance)
-            dsample_mean_dx, dsample_var_dx = \
-                self._propagate_samples_through_level_gradient(dsample_mean_dx, dsample_var_dx,
-                                                               i, previous_sample_variance, x_augmented)
+            sample_mean, sample_variance, x_augmented = self._propagate_samples_through_level(
+                X, i, sample_mean, sample_variance
+            )
+            dsample_mean_dx, dsample_var_dx = self._propagate_samples_through_level_gradient(
+                dsample_mean_dx, dsample_var_dx, i, previous_sample_variance, x_augmented
+            )
         return sample_mean, dsample_mean_dx, sample_variance, dsample_var_dx
 
     def _propagate_samples_through_level(self, X, i_level, sample_mean, sample_variance):
@@ -283,8 +296,9 @@ class NonLinearMultiFidelityModel(IModel, IDifferentiable):
         sample_mean, sample_variance = self.models[i_level].predict(x_augmented)
         return sample_mean, sample_variance, x_augmented
 
-    def _propagate_samples_through_level_gradient(self, dsample_mean_dx, dsample_var_dx, i_fidelity, sample_variance,
-                                                  x_augmented):
+    def _propagate_samples_through_level_gradient(
+        self, dsample_mean_dx, dsample_var_dx, i_fidelity, sample_variance, x_augmented
+    ):
         """
         Calculates gradients of sample mean and variance with respect to X when propagated through a level
 

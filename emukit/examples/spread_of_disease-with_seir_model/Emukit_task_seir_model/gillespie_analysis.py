@@ -11,7 +11,8 @@ from .sir_gillespie import SIRGillespie
 
 
 class AlphaPrior:
-    """ Defines possible priors over the parameter alpha """
+    """Defines possible priors over the parameter alpha"""
+
     def __init__(self, name):
         self.name = name
 
@@ -24,7 +25,8 @@ class AlphaPrior:
 
 
 class GammaPrior(AlphaPrior):
-    """ Gamma prior on the infection/recovery rate parameter """
+    """Gamma prior on the infection/recovery rate parameter"""
+
     def __init__(self, a: int, loc: float, scale: float):
         """
         :param a: shape parameter
@@ -35,7 +37,7 @@ class GammaPrior(AlphaPrior):
         self.loc = loc
         self.scale = scale
         self.gamma = gamma(a, loc, scale)
-        super(GammaPrior, self).__init__(name='gamma prior')
+        super(GammaPrior, self).__init__(name="gamma prior")
 
     def evaluate(self, alpha: float) -> float:
         """
@@ -46,7 +48,8 @@ class GammaPrior(AlphaPrior):
 
 
 class UniformPrior(AlphaPrior):
-    """ Uniform prior on the infection/recovery rate parameter """
+    """Uniform prior on the infection/recovery rate parameter"""
+
     def __init__(self, alpha_min: float, alpha_max: float):
         """
         :param alpha_min: left interval bound
@@ -54,20 +57,21 @@ class UniformPrior(AlphaPrior):
         """
         self.alpha_min = alpha_min
         self.alpha_max = alpha_max
-        super(UniformPrior, self).__init__(name='uniform prior')
+        super(UniformPrior, self).__init__(name="uniform prior")
 
     def evaluate(self, alpha: float) -> float:
         """
         :param alpha: the ratio of infection rate and recovery rate
         :return: the probability density at alpha
         """
-        return 1./(self.alpha_max - self.alpha_min)
+        return 1.0 / (self.alpha_max - self.alpha_min)
 
 
 class MeanMaxInfectionGillespie:
     """
     Statistics for the time occurrence and height of the infection peak of the gillespie simulation.
     """
+
     def __init__(self, gillespie_model: SIRGillespie, num_gil: int, time_end: float, alpha_prior: AlphaPrior):
         """
         :param gillespie_model: a SIRGillespie model

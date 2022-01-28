@@ -13,12 +13,11 @@ def test_categorical_variables():
     def objective(x):
         return np.array(np.sum(x, axis=1).reshape(-1, 1))
 
-    carol_spirits = ['past', 'present', 'yet to come']
+    carol_spirits = ["past", "present", "yet to come"]
     encoding = OneHotEncoding(carol_spirits)
-    parameter_space = ParameterSpace([
-        ContinuousParameter('real_param', 0.0, 1.0),
-        CategoricalParameter('categorical_param', encoding)
-    ])
+    parameter_space = ParameterSpace(
+        [ContinuousParameter("real_param", 0.0, 1.0), CategoricalParameter("categorical_param", encoding)]
+    )
 
     x_init = parameter_space.sample_uniform(10)
 

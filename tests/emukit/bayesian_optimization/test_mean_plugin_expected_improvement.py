@@ -15,15 +15,14 @@ class MockIModel(IModel):
     def __init__(self, X, Y):
         self._X = X
         self._Y = Y
-    
+
     @property
     def X(self):
         return self._X
-    
+
     @property
     def Y(self):
         return self._Y
-        
 
 
 def deterministic_test_func(x: np.ndarray) -> np.ndarray:
@@ -38,6 +37,7 @@ class MockNoiselessModel(MockIModel, IModelWithNoise):
     This model mocks predictions for the deterministic_test_func() (the mean prediction will
     be the same as function output).
     """
+
     @staticmethod
     def _mean_func(X):
         return deterministic_test_func(X)
@@ -45,7 +45,7 @@ class MockNoiselessModel(MockIModel, IModelWithNoise):
     @staticmethod
     def _var_func(X):
         return (np.cos(X * 10) + 1.2).sum(axis=-1, keepdims=True)
-    
+
     def predict(self, X):
         return self._mean_func(X), self._var_func(X)
 
@@ -55,12 +55,13 @@ class MockNoiselessModel(MockIModel, IModelWithNoise):
 
 class MockConstantModel(MockIModel, IModelWithNoise):
     """Model the predicts the same output distribution everywhere"""
+
     def predict(self, X):
-        # Return mean 1 and variance 8
+        # Return mean 1 and variance 8
         return np.ones([X.shape[0], 1]), 8 * np.ones([X.shape[0], 1])
-    
+
     def predict_noiseless(self, X):
-        # Return mean 1 and variance 1
+        # Return mean 1 and variance 1
         return np.ones([X.shape[0], 1]), np.ones([X.shape[0], 1])
 
 
@@ -91,7 +92,7 @@ def test_mean_plugin_expected_improvement_returns_expected():
 
     x_new = np.random.randn(100, 3)
     acquisition_values = mean_plugin_ei.evaluate(x_new)
-    # The mean at every previously observed point will be 1, hence y_minimum will be 1.0.
-    # The predicted values in the batch should all have mean 1 and variance 1
-    # The correct expected improvement for Gaussian Y ~ Normal(1, 1), and y_minimum = 1.0 is 0.3989422804014327
+    # The mean at every previously observed point will be 1, hence y_minimum will be 1.0.
+    # The predicted values in the batch should all have mean 1 and variance 1
+    # The correct expected improvement for Gaussian Y ~ Normal(1, 1), and y_minimum = 1.0 is 0.3989422804014327
     assert pytest.approx(0.3989422804014327, abs=0, rel=1e-7) == acquisition_values

@@ -83,6 +83,6 @@ class IBaseGaussianProcess(IModel, IDifferentiable):
         dKdiag_dx = self.kern.dKdiag_dx(X)
         dKxX_dx1 = self.kern.dK_dx1(X, self.X)
         graminv_KXx = self.solve_linear(self.kern.K(self.X, X))
-        d_var_dx = dKdiag_dx - 2. * (dKxX_dx1 * np.transpose(graminv_KXx)).sum(axis=2, keepdims=False)
+        d_var_dx = dKdiag_dx - 2.0 * (dKxX_dx1 * np.transpose(graminv_KXx)).sum(axis=2, keepdims=False)
 
         return d_mean_dx, d_var_dx.T

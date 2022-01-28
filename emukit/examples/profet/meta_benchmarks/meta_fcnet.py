@@ -3,7 +3,7 @@ import pickle
 try:
     import torch
 except ImportError:
-    raise ImportError('pytorch is not installed. Please install it by running pip install torch torchvision')
+    raise ImportError("pytorch is not installed. Please install it by running pip install torch torchvision")
 
 from functools import partial
 from typing import Tuple
@@ -38,14 +38,16 @@ def meta_fcnet(fname_objective: str, fname_cost: str, noise: bool = True) -> Tup
     :param noise: determines whether to add noise on the function value or not
     :return: Tuple of user function object and parameter space
     """
-    parameter_space = ParameterSpace([
-        ContinuousParameter('lr', 0, 1),  # original space [1e-6, 1e-1]
-        ContinuousParameter('batch_size', 0, 1),  # original space [8, 128]
-        ContinuousParameter('n_units_1', 0, 1),  # original space [16, 512]
-        ContinuousParameter('n_units_2', 0, 1),  # original space [16, 512]
-        ContinuousParameter('dropout_1', 0, 1),  # original space [0, 0.99]
-        ContinuousParameter('dropout_2', 0, 1),  # original space [0, 0.99]
-    ])
+    parameter_space = ParameterSpace(
+        [
+            ContinuousParameter("lr", 0, 1),  # original space [1e-6, 1e-1]
+            ContinuousParameter("batch_size", 0, 1),  # original space [8, 128]
+            ContinuousParameter("n_units_1", 0, 1),  # original space [16, 512]
+            ContinuousParameter("n_units_2", 0, 1),  # original space [16, 512]
+            ContinuousParameter("dropout_1", 0, 1),  # original space [0, 0.99]
+            ContinuousParameter("dropout_2", 0, 1),  # original space [0, 0.99]
+        ]
+    )
     data = pickle.load(open(fname_objective, "rb"))
 
     x_mean_objective = data["x_mean"]
@@ -64,12 +66,22 @@ def meta_fcnet(fname_objective: str, fname_cost: str, noise: bool = True) -> Tup
     cost = get_default_architecture(x_mean_cost.shape[0]).float()
     cost.load_state_dict(data["state_dict"])
 
-    f = partial(objective_function, model_objective=objective, model_cost=cost,
-                task_feature_objective=task_feature_objective, task_feature_cost=task_feature_cost,
-                x_mean_objective=x_mean_objective, x_std_objective=x_std_objective,
-                x_mean_cost=x_mean_cost, x_std_cost=x_std_cost,
-                y_mean_objective=None, y_std_objective=None,
-                y_mean_cost=y_mean_cost, y_std_cost=y_std_cost,
-                log_objective=False, with_noise=noise)
+    f = partial(
+        objective_function,
+        model_objective=objective,
+        model_cost=cost,
+        task_feature_objective=task_feature_objective,
+        task_feature_cost=task_feature_cost,
+        x_mean_objective=x_mean_objective,
+        x_std_objective=x_std_objective,
+        x_mean_cost=x_mean_cost,
+        x_std_cost=x_std_cost,
+        y_mean_objective=None,
+        y_std_objective=None,
+        y_mean_cost=y_mean_cost,
+        y_std_cost=y_std_cost,
+        log_objective=False,
+        with_noise=noise,
+    )
 
     return f, parameter_space

@@ -57,7 +57,7 @@ def loop_fixed(wsabil_fixed):
 wsabi_test_list = [lazy_fixture("loop_adapt"), lazy_fixture("loop_fixed")]
 
 
-@pytest.mark.parametrize('loop', wsabi_test_list)
+@pytest.mark.parametrize("loop", wsabi_test_list)
 def test_wsabil_loop(loop):
     emukit_loop, init_size, _, _ = loop
     num_iter = 5
@@ -68,7 +68,7 @@ def test_wsabil_loop(loop):
     assert emukit_loop.loop_state.Y.shape[0] == num_iter + init_size
 
 
-@pytest.mark.parametrize('loop', wsabi_test_list)
+@pytest.mark.parametrize("loop", wsabi_test_list)
 def test_wsabil_loop_initial_state(loop):
     emukit_loop, _, x_init, y_init = loop
 

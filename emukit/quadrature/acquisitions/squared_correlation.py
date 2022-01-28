@@ -51,7 +51,7 @@ class SquaredCorrelation(Acquisition):
         two (n_points, 1).
         """
         integral_current_var, y_predictive_var, predictive_cov = self._value_terms(x)
-        squared_correlation = predictive_cov**2 / (integral_current_var * y_predictive_var)
+        squared_correlation = predictive_cov ** 2 / (integral_current_var * y_predictive_var)
         return squared_correlation, integral_current_var, y_predictive_var, predictive_cov
 
     def evaluate_with_gradients(self, x: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
@@ -66,8 +66,8 @@ class SquaredCorrelation(Acquisition):
 
         # gradient
         d_y_predictive_var_dx, d_predictive_cov_dx = self._gradient_terms(x)
-        first_term = 2. * predictive_cov * d_predictive_cov_dx
-        second_term = (predictive_cov**2 / y_predictive_var) * d_y_predictive_var_dx
+        first_term = 2.0 * predictive_cov * d_predictive_cov_dx
+        second_term = (predictive_cov ** 2 / y_predictive_var) * d_y_predictive_var_dx
         normalization = integral_current_var * y_predictive_var
         squared_correlation_gradient = (first_term - second_term) / normalization
 

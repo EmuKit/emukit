@@ -5,7 +5,7 @@ from emukit.examples.gp_bayesian_optimization.single_objective_bayesian_optimiza
 
 
 def f(x):
-    return x**2
+    return x ** 2
 
 
 def test_loop():
@@ -13,7 +13,7 @@ def test_loop():
 
     x_init = np.random.rand(5, 1)
     y_init = np.random.rand(5, 1)
-    x = ContinuousParameter('x', 0, 1)
+    x = ContinuousParameter("x", 0, 1)
     bo = GPBayesianOptimization(variables_list=[x], X=x_init, Y=y_init)
     bo.run_optimization(f, n_iterations)
 

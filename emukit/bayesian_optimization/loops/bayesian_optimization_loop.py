@@ -18,9 +18,17 @@ from ..local_penalization_calculator import LocalPenalizationPointCalculator
 
 _log = logging.getLogger(__name__)
 
+
 class BayesianOptimizationLoop(OuterLoop):
-    def __init__(self, space: ParameterSpace, model: IModel, acquisition: Acquisition = None, update_interval: int = 1,
-                 batch_size: int = 1, acquisition_optimizer: AcquisitionOptimizerBase = None):
+    def __init__(
+        self,
+        space: ParameterSpace,
+        model: IModel,
+        acquisition: Acquisition = None,
+        update_interval: int = 1,
+        batch_size: int = 1,
+        acquisition_optimizer: AcquisitionOptimizerBase = None,
+    ):
 
         """
         Emukit class that implement a loop for building modular Bayesian optimization
@@ -52,8 +60,9 @@ class BayesianOptimizationLoop(OuterLoop):
         else:
             _log.info("Batch size is " + str(batch_size) + ", using LocalPenalizationPointCalculator")
             log_acquisition = LogAcquisition(acquisition)
-            candidate_point_calculator = LocalPenalizationPointCalculator(log_acquisition, acquisition_optimizer, model,
-                                                                          space, batch_size)
+            candidate_point_calculator = LocalPenalizationPointCalculator(
+                log_acquisition, acquisition_optimizer, model, space, batch_size
+            )
 
         loop_state = create_loop_state(model.X, model.Y)
 

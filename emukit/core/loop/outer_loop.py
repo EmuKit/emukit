@@ -32,8 +32,13 @@ class OuterLoop(object):
          - ``loop_start_event`` called at the start of the `run_loop` method
          - ``iteration_end_event`` called at the end of each iteration
     """
-    def __init__(self, candidate_point_calculator: CandidatePointCalculator,
-                 model_updaters: Union[ModelUpdater, List[ModelUpdater]], loop_state: LoopState = None) -> None:
+
+    def __init__(
+        self,
+        candidate_point_calculator: CandidatePointCalculator,
+        model_updaters: Union[ModelUpdater, List[ModelUpdater]],
+        loop_state: LoopState = None,
+    ) -> None:
         """
         :param candidate_point_calculator: Finds next points to evaluate by optimizing the acquisition function
         :param model_updaters: Updates the data in the model(s) and the model hyper-parameters when we observe new data
@@ -53,9 +58,12 @@ class OuterLoop(object):
         self.loop_start_event = EventHandler()
         self.iteration_end_event = EventHandler()
 
-    def run_loop(self, user_function: Union[UserFunction, Callable],
-                 stopping_condition: Union[StoppingCondition, int],
-                 context: dict = None) -> None:
+    def run_loop(
+        self,
+        user_function: Union[UserFunction, Callable],
+        stopping_condition: Union[StoppingCondition, int],
+        context: dict = None,
+    ) -> None:
         """
         :param user_function: The function that we are emulating
         :param stopping_condition: If integer - a number of iterations to run, or an object - a stopping
@@ -71,8 +79,10 @@ class OuterLoop(object):
         is_single_condition = isinstance(stopping_condition, StoppingCondition)
 
         if not (is_int or is_single_condition):
-            raise ValueError("Expected stopping_condition to be an int or a StoppingCondition instance,"
-                             "but received {}".format(type(stopping_condition)))
+            raise ValueError(
+                "Expected stopping_condition to be an int or a StoppingCondition instance,"
+                "but received {}".format(type(stopping_condition))
+            )
 
         if not isinstance(user_function, UserFunction):
             user_function = UserFunctionWrapper(user_function)
@@ -102,7 +112,7 @@ class OuterLoop(object):
         for model_updater in self.model_updaters:
             model_updater.update(self.loop_state)
 
-    def get_next_points(self, results: List[UserFunctionResult], context: dict={}) -> np.ndarray:
+    def get_next_points(self, results: List[UserFunctionResult], context: dict = {}) -> np.ndarray:
         """
         This method is used when the user doesn't want Emukit to evaluate the function of interest but rather just wants
         the input locations to evaluate the function at. This method calculates the new input locations.

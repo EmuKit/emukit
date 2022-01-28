@@ -13,11 +13,18 @@ from ..experimental_design.interfaces import ICalculateVarianceReduction
 
 
 class GPyModelWrapper(
-    IModel, IDifferentiable, IJointlyDifferentiable, ICalculateVarianceReduction, IEntropySearchModel, IPriorHyperparameters, IModelWithNoise
+    IModel,
+    IDifferentiable,
+    IJointlyDifferentiable,
+    ICalculateVarianceReduction,
+    IEntropySearchModel,
+    IPriorHyperparameters,
+    IModelWithNoise,
 ):
     """
     This is a thin wrapper around GPy models to allow users to plug GPy models into Emukit
     """
+
     def __init__(self, gpy_model: GPy.core.Model, n_restarts: int = 1):
         """
         :param gpy_model: GPy model object to wrap
@@ -91,9 +98,9 @@ class GPyModelWrapper(
         """
         covariance = self.model.posterior_covariance_between_points(x_train_new, x_test, include_likelihood=False)
         variance_prediction = self.model.predict(x_train_new)[1]
-        return covariance**2 / variance_prediction
+        return covariance ** 2 / variance_prediction
 
-    def predict_covariance(self, X: np.ndarray, with_noise: bool=True) -> np.ndarray:
+    def predict_covariance(self, X: np.ndarray, with_noise: bool = True) -> np.ndarray:
         """
         Calculates posterior covariance between points in X
         :param X: Array of size n_points x n_dimensions containing input locations to compute posterior covariance at
@@ -132,8 +139,9 @@ class GPyModelWrapper(
         """
         return self.model.Y
 
-    def generate_hyperparameters_samples(self, n_samples=20, n_burnin=100, subsample_interval=10,
-                                         step_size=1e-1, leapfrog_steps=20) -> np.ndarray:
+    def generate_hyperparameters_samples(
+        self, n_samples=20, n_burnin=100, subsample_interval=10, step_size=1e-1, leapfrog_steps=20
+    ) -> np.ndarray:
         """
         Generates the samples from the hyper-parameters and returns them.
         :param n_samples: Number of generated samples.
@@ -145,14 +153,14 @@ class GPyModelWrapper(
 
         """
         self.model.optimize(max_iters=self.n_restarts)
-        # Add jitter to all unfixed parameters. After optimizing the hyperparameters, the gradient of the
-        # posterior probability of the parameters wrt. the parameters will be close to 0.0, which is a poor
-        # initialization for HMC
+        # Add jitter to all unfixed parameters. After optimizing the hyperparameters, the gradient of the
+        # posterior probability of the parameters wrt. the parameters will be close to 0.0, which is a poor
+        # initialization for HMC
         unfixed_params = [param for param in self.model.flattened_parameters if not param.is_fixed]
         for param in unfixed_params:
-            # Add jitter by multiplying with log-normal noise with mean 1 and standard deviation 0.01 
-            # This ensures the sign of the parameter remains the same
-            param *= np.random.lognormal(np.log(1. / np.sqrt(1.0001)), np.sqrt(np.log(1.0001)), size=param.size)
+            # Add jitter by multiplying with log-normal noise with mean 1 and standard deviation 0.01
+            # This ensures the sign of the parameter remains the same
+            param *= np.random.lognormal(np.log(1.0 / np.sqrt(1.0001)), np.sqrt(np.log(1.0001)), size=param.size)
         hmc = GPy.inference.mcmc.HMC(self.model, stepsize=step_size)
         samples = hmc.sample(num_samples=n_burnin + n_samples * subsample_interval, hmc_iters=leapfrog_steps)
         return samples[n_burnin::subsample_interval]
@@ -226,8 +234,9 @@ class GPyMultiOutputWrapper(IModel, IDifferentiable, ICalculateVarianceReduction
     X inputs should have the corresponding output index as the last column in the array
     """
 
-    def __init__(self, gpy_model: GPy.core.GP, n_outputs: int, n_optimization_restarts: int,
-                 verbose_optimization: bool=True):
+    def __init__(
+        self, gpy_model: GPy.core.GP, n_outputs: int, n_optimization_restarts: int, verbose_optimization: bool = True
+    ):
         """
         :param gpy_model: GPy multi-output model
         :param n_outputs: Number of outputs in the problem
@@ -249,10 +258,10 @@ class GPyMultiOutputWrapper(IModel, IDifferentiable, ICalculateVarianceReduction
         :return: Array of variance reduction at each test point
         """
         fidelities_train_new = x_train_new[:, -1]
-        y_metadata = {'output_index': fidelities_train_new.astype(int)}
+        y_metadata = {"output_index": fidelities_train_new.astype(int)}
         covariance = self.gpy_model.posterior_covariance_between_points(x_train_new, x_test, include_likelihood=False)
         variance_prediction = self.gpy_model.predict(x_train_new, Y_metadata=y_metadata)[1]
-        return covariance**2 / variance_prediction
+        return covariance ** 2 / variance_prediction
 
     def get_prediction_gradients(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """
@@ -270,7 +279,7 @@ class GPyMultiOutputWrapper(IModel, IDifferentiable, ICalculateVarianceReduction
         :return: predicted (mean, variance) at X
         """
         output_index = X[:, -1]
-        y_metadata = {'output_index': output_index.astype(int)}
+        y_metadata = {"output_index": output_index.astype(int)}
         return self.gpy_model.predict(X, Y_metadata=y_metadata)
 
     def set_data(self, X: np.ndarray, Y: np.ndarray) -> None:
@@ -279,7 +288,7 @@ class GPyMultiOutputWrapper(IModel, IDifferentiable, ICalculateVarianceReduction
         :param X: New training features with output index as last column
         :param Y: New training targets with output index as last column
         """
-        y_metadata = {'output_index': X[:, -1].astype(int)}
+        y_metadata = {"output_index": X[:, -1].astype(int)}
         self.gpy_model.update_model(False)
         self.gpy_model.Y_metadata = y_metadata
         self.gpy_model.set_XY(X, Y)
@@ -294,8 +303,9 @@ class GPyMultiOutputWrapper(IModel, IDifferentiable, ICalculateVarianceReduction
         if self.n_optimization_restarts == 1:
             self.gpy_model.optimize()
         elif self.n_optimization_restarts >= 1:
-            self.gpy_model.optimize_restarts(self.n_optimization_restarts, verbose=self.verbose_optimization,
-                                             robust=True)
+            self.gpy_model.optimize_restarts(
+                self.n_optimization_restarts, verbose=self.verbose_optimization, robust=True
+            )
 
     @property
     def X(self) -> np.ndarray:
@@ -314,7 +324,7 @@ class GPyMultiOutputWrapper(IModel, IDifferentiable, ICalculateVarianceReduction
         :return: Posterior covariance matrix of size n_points x n_points
         """
         output_index = X[:, -1]
-        y_metadata = {'output_index': output_index.astype(int)}
+        y_metadata = {"output_index": output_index.astype(int)}
         variance = self.gpy_model.predict(X, Y_metadata=y_metadata, full_cov=True)[1]
         variance = np.maximum(variance, 1e-10)
         return variance
@@ -330,8 +340,9 @@ class GPyMultiOutputWrapper(IModel, IDifferentiable, ICalculateVarianceReduction
         """
         return self.gpy_model.posterior_covariance_between_points(X1, X2, include_likelihood=False)
 
-    def generate_hyperparameters_samples(self, n_samples = 10, n_burnin = 5, subsample_interval = 1,
-                                         step_size = 1e-1, leapfrog_steps = 1) -> np.ndarray:
+    def generate_hyperparameters_samples(
+        self, n_samples=10, n_burnin=5, subsample_interval=1, step_size=1e-1, leapfrog_steps=1
+    ) -> np.ndarray:
         """
         Generates the samples from the hyper-parameters, and returns them (a numpy array whose rows are
         samples of the hyper-parameters).
@@ -342,9 +353,11 @@ class GPyMultiOutputWrapper(IModel, IDifferentiable, ICalculateVarianceReduction
         :param leapfrog_steps: Number of gradient steps before each Metropolis Hasting step.
         """
         self.gpy_model.optimize(max_iters=self.n_optimization_restarts)
-        self.gpy_model.param_array[:] = self.gpy_model.param_array * (1.+np.random.randn(self.gpy_model.param_array.size)*0.01)
-        hmc = GPy.inference.mcmc.HMC(self.gpy_model, stepsize = step_size)
-        samples = hmc.sample(num_samples = n_burnin + n_samples * subsample_interval, hmc_iters = leapfrog_steps)
+        self.gpy_model.param_array[:] = self.gpy_model.param_array * (
+            1.0 + np.random.randn(self.gpy_model.param_array.size) * 0.01
+        )
+        hmc = GPy.inference.mcmc.HMC(self.gpy_model, stepsize=step_size)
+        samples = hmc.sample(num_samples=n_burnin + n_samples * subsample_interval, hmc_iters=leapfrog_steps)
         return samples[n_burnin::subsample_interval]
 
     def fix_model_hyperparameters(self, sample_hyperparameters: np.ndarray) -> None:

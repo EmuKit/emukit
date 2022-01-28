@@ -10,8 +10,9 @@ from ..methods import WSABIL
 
 
 class WSABILLoop(OuterLoop):
-    def __init__(self, model: WSABIL, model_updater: ModelUpdater = None,
-                 acquisition_optimizer: AcquisitionOptimizerBase = None):
+    def __init__(
+        self, model: WSABIL, model_updater: ModelUpdater = None, acquisition_optimizer: AcquisitionOptimizerBase = None
+    ):
         """The loop for WSABI-L [1].
 
         :param model: The WSABI-L model.

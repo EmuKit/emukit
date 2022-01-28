@@ -13,6 +13,7 @@ class ContinuousParameter(Parameter):
     """
     A univariate continuous parameter with a domain defined in a range between two values
     """
+
     def __init__(self, name: str, min_value: float, max_value: float):
         """
         :param name: Name of parameter

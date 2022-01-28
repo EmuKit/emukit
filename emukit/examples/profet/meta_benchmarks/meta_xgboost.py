@@ -3,7 +3,7 @@ import pickle
 try:
     import torch
 except ImportError:
-    raise ImportError('pytorch is not installed. Please install it by running pip install torch torchvision')
+    raise ImportError("pytorch is not installed. Please install it by running pip install torch torchvision")
 
 
 from functools import partial
@@ -15,7 +15,9 @@ from emukit.examples.profet.meta_benchmarks.architecture import get_default_arch
 from emukit.examples.profet.meta_benchmarks.meta_surrogates import objective_function
 
 
-def meta_xgboost(fname_objective: str, fname_cost: str, noise: bool=True) -> Tuple[UserFunctionWrapper, ParameterSpace]:
+def meta_xgboost(
+    fname_objective: str, fname_cost: str, noise: bool = True
+) -> Tuple[UserFunctionWrapper, ParameterSpace]:
     """
     Interface to the Meta-XGBoost benchmark which imitates the hyperparameter optimization of
     XGBoost on UCI like regression datasets.
@@ -39,15 +41,18 @@ def meta_xgboost(fname_objective: str, fname_cost: str, noise: bool=True) -> Tup
     :param noise: determines whether to add noise on the function value or not
     :return: Tuple of user function object and parameter space
     """
-    parameter_space = ParameterSpace([
-        ContinuousParameter('learning_rate', 0, 1),  # original space was in [1e-6, 1e-1]
-        ContinuousParameter('gamma', 0, 1),  # original space was in [0, 2]
-        ContinuousParameter('reg_alpha', 0, 1),  # original space was in [1e-5, 1e3]
-        ContinuousParameter('reg_lambda', 0, 1),  # original space was in [1e-4, 1e3]
-        ContinuousParameter('n_estimators', 0, 1),  # original space was in [10, 500]
-        ContinuousParameter('subsample', 0, 1),  # original space was in [1e-1, 1]
-        ContinuousParameter('max_depth', 0, 1),  # original space was in [1, 15]
-        ContinuousParameter('min_child_weight', 0, 1)])  # original space was in [0, 20]
+    parameter_space = ParameterSpace(
+        [
+            ContinuousParameter("learning_rate", 0, 1),  # original space was in [1e-6, 1e-1]
+            ContinuousParameter("gamma", 0, 1),  # original space was in [0, 2]
+            ContinuousParameter("reg_alpha", 0, 1),  # original space was in [1e-5, 1e3]
+            ContinuousParameter("reg_lambda", 0, 1),  # original space was in [1e-4, 1e3]
+            ContinuousParameter("n_estimators", 0, 1),  # original space was in [10, 500]
+            ContinuousParameter("subsample", 0, 1),  # original space was in [1e-1, 1]
+            ContinuousParameter("max_depth", 0, 1),  # original space was in [1, 15]
+            ContinuousParameter("min_child_weight", 0, 1),
+        ]
+    )  # original space was in [0, 20]
 
     data = pickle.load(open(fname_objective, "rb"))
 
@@ -69,12 +74,22 @@ def meta_xgboost(fname_objective: str, fname_cost: str, noise: bool=True) -> Tup
     cost = get_default_architecture(x_mean_cost.shape[0]).float()
     cost.load_state_dict(data["state_dict"])
 
-    f = partial(objective_function, model_objective=objective, model_cost=cost,
-                task_feature_objective=task_feature_objective, task_feature_cost=task_feature_cost,
-                x_mean_objective=x_mean_objective, x_std_objective=x_std_objective,
-                x_mean_cost=x_mean_cost, x_std_cost=x_std_cost,
-                y_mean_objective=y_mean_objective, y_std_objective=y_std_objective,
-                y_mean_cost=y_mean_cost, y_std_cost=y_std_cost,
-                log_objective=True, with_noise=noise)
+    f = partial(
+        objective_function,
+        model_objective=objective,
+        model_cost=cost,
+        task_feature_objective=task_feature_objective,
+        task_feature_cost=task_feature_cost,
+        x_mean_objective=x_mean_objective,
+        x_std_objective=x_std_objective,
+        x_mean_cost=x_mean_cost,
+        x_std_cost=x_std_cost,
+        y_mean_objective=y_mean_objective,
+        y_std_objective=y_std_objective,
+        y_mean_cost=y_mean_cost,
+        y_std_cost=y_std_cost,
+        log_objective=True,
+        with_noise=noise,
+    )
 
     return f, parameter_space

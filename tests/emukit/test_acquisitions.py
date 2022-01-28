@@ -30,24 +30,26 @@ gradient_check_step_size = 1e-8
 default_grad_tol = 1e-7
 # rmse_gradient_tolerance is the maximum allowed root mean squared error as calculated by scipy.optimize.check_grad
 # before the test will fail
-acquisition_test_tuple = namedtuple('AcquisitionTest', ['name', 'has_gradients', 'rmse_gradient_tolerance'])
-acquisition_tests = [acquisition_test_tuple('negative_lower_confidence_bound_acquisition', True, default_grad_tol),
-                     acquisition_test_tuple('expected_improvement_acquisition', True, default_grad_tol),
-                     acquisition_test_tuple('cost_acquisition', True, default_grad_tol),
-                     acquisition_test_tuple('log_acquisition', True, 1e-5),
-                     acquisition_test_tuple('probability_of_improvement_acquisition', True, default_grad_tol),
-                     acquisition_test_tuple('model_variance_acquisition', True, 1e-5),
-                     acquisition_test_tuple('squared_correlation_acquisition', True, 1e-3),
-                     acquisition_test_tuple('mutual_information_acquisition', True, 1e-3),
-                     acquisition_test_tuple('uncertainty_sampling_acquisition', True, 1e-3),
-                     acquisition_test_tuple('entropy_search_acquisition', False, np.nan),
-                     acquisition_test_tuple('max_value_entropy_search_acquisition', False, np.nan),
-                     acquisition_test_tuple('multi_source_entropy_search_acquisition', False, np.nan),
-                     acquisition_test_tuple('MUMBO_acquisition', False, np.nan),
-                     acquisition_test_tuple('integrated_variance_acquisition', False, np.nan),
-                     acquisition_test_tuple('integrated_expected_improvement_acquisition', True, default_grad_tol),
-                     acquisition_test_tuple('integrated_probability_of_improvement_acquisition', False, np.nan),
-                     acquisition_test_tuple('probability_of_feasibility_acquisition', True, default_grad_tol)]
+acquisition_test_tuple = namedtuple("AcquisitionTest", ["name", "has_gradients", "rmse_gradient_tolerance"])
+acquisition_tests = [
+    acquisition_test_tuple("negative_lower_confidence_bound_acquisition", True, default_grad_tol),
+    acquisition_test_tuple("expected_improvement_acquisition", True, default_grad_tol),
+    acquisition_test_tuple("cost_acquisition", True, default_grad_tol),
+    acquisition_test_tuple("log_acquisition", True, 1e-5),
+    acquisition_test_tuple("probability_of_improvement_acquisition", True, default_grad_tol),
+    acquisition_test_tuple("model_variance_acquisition", True, 1e-5),
+    acquisition_test_tuple("squared_correlation_acquisition", True, 1e-3),
+    acquisition_test_tuple("mutual_information_acquisition", True, 1e-3),
+    acquisition_test_tuple("uncertainty_sampling_acquisition", True, 1e-3),
+    acquisition_test_tuple("entropy_search_acquisition", False, np.nan),
+    acquisition_test_tuple("max_value_entropy_search_acquisition", False, np.nan),
+    acquisition_test_tuple("multi_source_entropy_search_acquisition", False, np.nan),
+    acquisition_test_tuple("MUMBO_acquisition", False, np.nan),
+    acquisition_test_tuple("integrated_variance_acquisition", False, np.nan),
+    acquisition_test_tuple("integrated_expected_improvement_acquisition", True, default_grad_tol),
+    acquisition_test_tuple("integrated_probability_of_improvement_acquisition", False, np.nan),
+    acquisition_test_tuple("probability_of_feasibility_acquisition", True, default_grad_tol),
+]
 
 
 # Vanilla bq model used to test bq acquisition functions
@@ -136,17 +138,17 @@ def uncertainty_sampling_acquisition(vanilla_bq_model):
 
 
 @pytest.fixture
-@pytest.mark.parametrize('n_dims', [2])
+@pytest.mark.parametrize("n_dims", [2])
 def multi_source_entropy_search_acquisition(gpy_model):
-    space = ParameterSpace([ContinuousParameter('x1', 0, 1), InformationSourceParameter(2)])
+    space = ParameterSpace([ContinuousParameter("x1", 0, 1), InformationSourceParameter(2)])
     return MultiInformationSourceEntropySearch(gpy_model, space, num_representer_points=10)
 
 
 @pytest.fixture
-@pytest.mark.parametrize('n_dims', [2])
+@pytest.mark.parametrize("n_dims", [2])
 def MUMBO_acquisition(gpy_model):
-    space = ParameterSpace([ContinuousParameter('x1', 0, 1), InformationSourceParameter(2)])
-    return MUMBO(gpy_model, space, num_samples = 10, grid_size = 5000)
+    space = ParameterSpace([ContinuousParameter("x1", 0, 1), InformationSourceParameter(2)])
+    return MUMBO(gpy_model, space, num_samples=10, grid_size=5000)
 
 
 # Helpers for creating parameterized fixtures
@@ -166,7 +168,7 @@ def create_gradient_acquisition_fixtures():
 
 
 # Tests
-@pytest.mark.parametrize('acquisition', create_acquisition_fixture_parameters())
+@pytest.mark.parametrize("acquisition", create_acquisition_fixture_parameters())
 def test_acquisition_evaluate_shape(acquisition, n_dims):
     x = np.random.rand(1, n_dims)
     acquisition_value = acquisition.evaluate(x)
@@ -177,7 +179,7 @@ def test_acquisition_evaluate_shape(acquisition, n_dims):
     assert acquisition_value.shape == (10, 1)
 
 
-@pytest.mark.parametrize(('acquisition', 'tol'), create_gradient_acquisition_fixtures())
+@pytest.mark.parametrize(("acquisition", "tol"), create_gradient_acquisition_fixtures())
 def test_acquisition_gradient_computation(acquisition, n_dims, tol):
     rng = np.random.RandomState(43)
     x_test = rng.rand(10, n_dims)
@@ -190,7 +192,7 @@ def test_acquisition_gradient_computation(acquisition, n_dims, tol):
         assert err < tol
 
 
-@pytest.mark.parametrize(('acquisition', 'tol'), create_gradient_acquisition_fixtures())
+@pytest.mark.parametrize(("acquisition", "tol"), create_gradient_acquisition_fixtures())
 def test_acquisition_gradient_shapes(acquisition, n_dims, tol):
     rng = np.random.RandomState(43)
 

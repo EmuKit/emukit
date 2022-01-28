@@ -55,7 +55,7 @@ def multi_fidelity_hartmann_3d() -> Tuple[MultiSourceFunctionWrapper, ParameterS
 
     :return: Tuple of MultiSourceFunctionWrapper and ParameterSpace
     """
-    A = np.array([[3, 10, 30], [0.1, 10, 35], [3, 10, 30], [.1, 10, 35]])
+    A = np.array([[3, 10, 30], [0.1, 10, 35], [3, 10, 30], [0.1, 10, 35]])
     P = 1e-4 * np.array([[3689, 1170, 2673], [4699, 4387, 7470], [1091, 8732, 5547], [381, 5743, 8828]])
 
     alpha = np.array([1.0, 1.2, 3.0, 3.2])
@@ -98,8 +98,14 @@ def multi_fidelity_hartmann_3d() -> Tuple[MultiSourceFunctionWrapper, ParameterS
 
         return res[:, None]
 
-    space = ParameterSpace([ContinuousParameter('x1', 0., 1.), ContinuousParameter('x2', 0., 1.),
-                            ContinuousParameter('x3', 0., 1.), InformationSourceParameter(3)])
+    space = ParameterSpace(
+        [
+            ContinuousParameter("x1", 0.0, 1.0),
+            ContinuousParameter("x2", 0.0, 1.0),
+            ContinuousParameter("x3", 0.0, 1.0),
+            InformationSourceParameter(3),
+        ]
+    )
 
     fcn_wrapper = MultiSourceFunctionWrapper([low, medium, high])
 

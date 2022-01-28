@@ -40,7 +40,7 @@ def model_with_density():
 
     gpy_kernel = GPy.kern.RBF(input_dim=x_init.shape[1])
     gpy_model = GPy.models.GPRegression(X=x_init, Y=y_init, kernel=gpy_kernel)
-    measure = IsotropicGaussianMeasure(mean=np.arange(x_init.shape[1]), variance=2.)
+    measure = IsotropicGaussianMeasure(mean=np.arange(x_init.shape[1]), variance=2.0)
     qrbf = QuadratureRBFIsoGaussMeasure(RBFGPy(gpy_kernel), measure=measure)
     basegp = BaseGaussianProcessGPy(kern=qrbf, gpy_model=gpy_model)
     model = VanillaBayesianQuadrature(base_gp=basegp, X=x_init, Y=y_init)
@@ -135,6 +135,11 @@ def _compute_numerical_gradient(aq, x, eps=1e-6):
 
 def _check_grad(aq, x):
     grad, grad_num = _compute_numerical_gradient(aq, x)
-    isclose_all = 1 - np.array([isclose(grad[i, j], grad_num[i, j], rel_tol=REL_TOL, abs_tol=ABS_TOL)
-                                for i in range(grad.shape[0]) for j in range(grad.shape[1])])
+    isclose_all = 1 - np.array(
+        [
+            isclose(grad[i, j], grad_num[i, j], rel_tol=REL_TOL, abs_tol=ABS_TOL)
+            for i in range(grad.shape[0])
+            for j in range(grad.shape[1])
+        ]
+    )
     assert isclose_all.sum() == 0

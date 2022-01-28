@@ -67,7 +67,7 @@ wsabi_test_list = [lazy_fixture("wsabil_adapt"), lazy_fixture("wsabil_fixed")]
 
 
 # === tests specific to bounded BQ
-@pytest.mark.parametrize('bounded_bq', models_test_list)
+@pytest.mark.parametrize("bounded_bq", models_test_list)
 def test_bounded_bq_correct_bound(bounded_bq):
     model, bound = bounded_bq
     assert model.bound == bound
@@ -76,14 +76,22 @@ def test_bounded_bq_correct_bound(bounded_bq):
 def test_bounded_bq_raises_exception(base_gp_wrong_kernel):
     # wrong kernel embedding
     with pytest.raises(ValueError):
-        BoundedBayesianQuadrature(base_gp=base_gp_wrong_kernel, X=base_gp_wrong_kernel.X, Y=base_gp_wrong_kernel.Y,
-                                  lower_bound=np.min(base_gp_wrong_kernel.Y) - 0.5)
+        BoundedBayesianQuadrature(
+            base_gp=base_gp_wrong_kernel,
+            X=base_gp_wrong_kernel.X,
+            Y=base_gp_wrong_kernel.Y,
+            lower_bound=np.min(base_gp_wrong_kernel.Y) - 0.5,
+        )
 
     # both upper and lower bound are given
     with pytest.raises(ValueError):
-        BoundedBayesianQuadrature(base_gp=base_gp_wrong_kernel, X=base_gp_wrong_kernel.X, Y=base_gp_wrong_kernel.Y,
-                                  lower_bound=np.min(base_gp_wrong_kernel.Y) - 0.5,
-                                  upper_bound=np.min(base_gp_wrong_kernel.Y) - 0.5)
+        BoundedBayesianQuadrature(
+            base_gp=base_gp_wrong_kernel,
+            X=base_gp_wrong_kernel.X,
+            Y=base_gp_wrong_kernel.Y,
+            lower_bound=np.min(base_gp_wrong_kernel.Y) - 0.5,
+            upper_bound=np.min(base_gp_wrong_kernel.Y) - 0.5,
+        )
 
     # no bound is given
     with pytest.raises(ValueError):
@@ -153,14 +161,14 @@ def test_wsabi_adapt_integrate(wsabil_adapt):
 def test_wsabi_fixed_integrate(wsabil_fixed):
     # see test_bounded_bq_lower_integrate function on how the interval was obtained
     model, _ = wsabil_fixed
-    interval_mean =[0.2926884892017097, 0.2961003914559997]
+    interval_mean = [0.2926884892017097, 0.2961003914559997]
     integral_value, integral_variance = model.integrate()
     assert interval_mean[0] < integral_value < interval_mean[1]
     # variance not tested as it is not implemented yet
 
 
 # === tests shared by bounded BQ and WSABI
-@pytest.mark.parametrize('bounded_bq', models_test_list + wsabi_test_list)
+@pytest.mark.parametrize("bounded_bq", models_test_list + wsabi_test_list)
 def test_bounded_bq_shapes(bounded_bq):
     model, _ = bounded_bq
 
@@ -211,7 +219,7 @@ def test_bounded_bq_shapes(bounded_bq):
     assert res[1].shape == (x.shape[0], x.shape[1])
 
 
-@pytest.mark.parametrize('bounded_bq', models_test_list + wsabi_test_list)
+@pytest.mark.parametrize("bounded_bq", models_test_list + wsabi_test_list)
 def test_bounded_bq_transformations(bounded_bq):
     model, _ = bounded_bq
 
@@ -227,7 +235,7 @@ def test_bounded_bq_transformations(bounded_bq):
     assert_allclose(model.inverse_transform(Y2), Y1)
 
 
-@pytest.mark.parametrize('bounded_bq', models_test_list + wsabi_test_list)
+@pytest.mark.parametrize("bounded_bq", models_test_list + wsabi_test_list)
 def test_bounded_bq_gradients(bounded_bq):
     model, _ = bounded_bq
     D = model.X.shape[1]
@@ -261,6 +269,11 @@ def _compute_numerical_gradient(func, grad_func, x, eps=1e-6):
 
 def _check_grad(func, grad_func, x):
     grad, grad_num = _compute_numerical_gradient(func, grad_func, x)
-    isclose_all = 1 - np.array([isclose(grad[i, j], grad_num[i, j], rel_tol=REL_TOL, abs_tol=ABS_TOL)
-                                for i in range(grad.shape[0]) for j in range(grad.shape[1])])
+    isclose_all = 1 - np.array(
+        [
+            isclose(grad[i, j], grad_num[i, j], rel_tol=REL_TOL, abs_tol=ABS_TOL)
+            for i in range(grad.shape[0])
+            for j in range(grad.shape[1])
+        ]
+    )
     assert isclose_all.sum() == 0

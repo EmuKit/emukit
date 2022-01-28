@@ -40,7 +40,6 @@ def mock_model():
 
 
 def test_batch_experimental_design_loop():
-
     class MockGPyModel(GPyModelWrapper):
         def optimize(self):
             # speed up test by skipping the actual hyper-parameter optimization
@@ -48,7 +47,7 @@ def test_batch_experimental_design_loop():
 
     user_function = lambda x: x
 
-    space = ParameterSpace([ContinuousParameter('x', 0, 3)])
+    space = ParameterSpace([ContinuousParameter("x", 0, 3)])
 
     # Make model
     x_init = np.linspace(0, 3, 5)[:, None]
@@ -59,8 +58,8 @@ def test_batch_experimental_design_loop():
     loop = ExperimentalDesignLoop(space, model, batch_size=5)
     loop.run_loop(user_function, 5)
 
-    assert(loop.loop_state.iteration == 5)
-    assert(loop.loop_state.X.shape[0] == 30)
+    assert loop.loop_state.iteration == 5
+    assert loop.loop_state.X.shape[0] == 30
 
 
 def test_batch_point_calculator(mock_model):
@@ -78,7 +77,7 @@ def test_batch_point_calculator(mock_model):
 
 
 def test_zero_batch_size(mock_model):
-    space = ParameterSpace([ContinuousParameter('x', 0, 3)])
+    space = ParameterSpace([ContinuousParameter("x", 0, 3)])
 
     # Make model
     with pytest.raises(ValueError):
@@ -86,7 +85,7 @@ def test_zero_batch_size(mock_model):
 
 
 def test_non_integer_batch_size(mock_model):
-    space = ParameterSpace([ContinuousParameter('x', 0, 3)])
+    space = ParameterSpace([ContinuousParameter("x", 0, 3)])
 
     # Make model
     with pytest.raises(ValueError):

@@ -15,6 +15,7 @@ class SEIRGillespie(GillespieBase):
     The model (with birth and death rates, as opposed to ours) is described at:
     https://en.wikipedia.org/wiki/Compartmental_models_in_epidemiology#The_SEIR_model
     """
+
     def __init__(self, model: SEIR):
         """
         :param model: A SEIR model
@@ -28,7 +29,7 @@ class SEIRGillespie(GillespieBase):
         return int(2)
 
     def _get_possible_state_updates(self):
-        """ possible updates of compartment counts """
+        """possible updates of compartment counts"""
         return np.array([[-1, 1, 0], [0, -1, 1], [0, 0, -1]], dtype=np.int)
 
     def _get_current_rates(self, state):

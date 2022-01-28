@@ -8,6 +8,7 @@ class EventHandler(list):
     To subscribe to the event simply append a function to the event handler:
     ``event_handler.append(fcn_to_call_on_event)``
     """
+
     def __call__(self, *args, **kwargs):
         for f in self:
             f(*args, **kwargs)

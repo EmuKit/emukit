@@ -39,6 +39,9 @@ jobs:
     - name: Check imports with isort
       run: |
         isort --check .
+    - name: Check formatting with black
+      run: |
+        black --check .
     - name: Unit tests
       run: |
         python -m pytest tests

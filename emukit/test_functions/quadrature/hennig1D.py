@@ -19,7 +19,7 @@ def hennig1D() -> Tuple[UserFunctionWrapper, List[Tuple[float, float]]]:
 
     :return: the wrapped test function, and the integrals bounds (defaults to interval [-3, 3]).
     """
-    integral_bounds = [(-3., 3.)]
+    integral_bounds = [(-3.0, 3.0)]
     return UserFunctionWrapper(_hennig1D), integral_bounds
 
 
@@ -28,4 +28,4 @@ def _hennig1D(x: np.ndarray) -> np.ndarray:
     :param x: locations for evaluation (num_points, 1)
     :return: the function values at x, shape (num_points, 1)
     """
-    return np.exp(- x**2 - np.sin(3. * x)**2)
+    return np.exp(-(x ** 2) - np.sin(3.0 * x) ** 2)

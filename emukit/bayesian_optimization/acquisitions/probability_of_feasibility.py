@@ -12,7 +12,6 @@ from ...core.interfaces import IDifferentiable, IModel
 
 
 class ProbabilityOfFeasibility(Acquisition):
-
     def __init__(self, model: Union[IModel, IDifferentiable], jitter: float = float(0)) -> None:
         """
         This acquisition computes for a given input point the probability of satisfying the constraint
@@ -45,7 +44,7 @@ class ProbabilityOfFeasibility(Acquisition):
         """
         Computes the  probability of of satisfying the constraint C<0.
         :param x: points where the acquisition is evaluated, shape (number of points, number of dimensions).
-        :return: tuple of numpy arrays with the probability of satisfying the constraint at the points x 
+        :return: tuple of numpy arrays with the probability of satisfying the constraint at the points x
         and its gradient.
         """
         mean, variance = self.model.predict(x)
@@ -55,10 +54,10 @@ class ProbabilityOfFeasibility(Acquisition):
         dstandard_devidation_dx = dvariance_dx / (2 * standard_deviation)
 
         mean += self.jitter
-        u = - mean / standard_deviation
+        u = -mean / standard_deviation
         pdf = scipy.stats.norm.pdf(0, mean, standard_deviation)
         cdf = scipy.stats.norm.cdf(0, mean, standard_deviation)
-        dcdf_dx = - pdf * (dmean_dx + dstandard_devidation_dx * u)
+        dcdf_dx = -pdf * (dmean_dx + dstandard_devidation_dx * u)
 
         return cdf, dcdf_dx
 

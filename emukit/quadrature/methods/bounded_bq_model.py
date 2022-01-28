@@ -22,8 +22,15 @@ class BoundedBayesianQuadrature(WarpedBayesianQuadratureModel):
     :math:`\\hat{f}` by linearizing :math:`f` around the mean of :math:`g`. The approximate GP
     :math:`\\hat{f}` is implemented in the predict methods in this class, and it is also used by :math:`integrate`.
     """
-    def __init__(self, base_gp: IBaseGaussianProcess, X: np.ndarray, Y: np.ndarray,
-                 lower_bound: Optional[float]=None, upper_bound: Optional[float]=None):
+
+    def __init__(
+        self,
+        base_gp: IBaseGaussianProcess,
+        X: np.ndarray,
+        Y: np.ndarray,
+        lower_bound: Optional[float] = None,
+        upper_bound: Optional[float] = None,
+    ):
         """
         :param base_gp: The Gaussian process :math:`g`. Must use
                :class:`emukit.quadrature.kernels.QuadratureRBFIsoGaussMeasure` as kernel.
@@ -47,15 +54,14 @@ class BoundedBayesianQuadrature(WarpedBayesianQuadratureModel):
         # The integrate method is specific to QuadratureRBFIsoGaussMeasure, predict methods are only specific to
         # the approximation method used (Taylor expansion of the GP in this case).
         if not isinstance(base_gp.kern, QuadratureRBFIsoGaussMeasure):
-            raise ValueError(f"{self.__class__.__name__} can only be used with QuadratureRBFIsoGaussMeasure kernel. "
-                             f"Instead {type(base_gp.kern)} is given.")
+            raise ValueError(
+                f"{self.__class__.__name__} can only be used with QuadratureRBFIsoGaussMeasure kernel. "
+                f"Instead {type(base_gp.kern)} is given."
+            )
 
-        super(BoundedBayesianQuadrature, self).__init__(base_gp=base_gp,
-                                                        warping=SquareRootWarping(
-                                                                 offset=bound, is_inverted=not is_lower_bounded
-                                                             ),
-                                                        X=X,
-                                                        Y=Y)
+        super(BoundedBayesianQuadrature, self).__init__(
+            base_gp=base_gp, warping=SquareRootWarping(offset=bound, is_inverted=not is_lower_bounded), X=X, Y=Y
+        )
 
     @property
     def bound(self):
@@ -80,8 +86,9 @@ class BoundedBayesianQuadrature(WarpedBayesianQuadratureModel):
         var_approx = var_base * (mean_base ** 2)
         return mean_approx, var_approx, mean_base, var_base
 
-    def predict_base_with_full_covariance(self, X_pred: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray,
-                                                                             np.ndarray]:
+    def predict_base_with_full_covariance(
+        self, X_pred: np.ndarray
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """Compute predictive mean and covariance of the warped GP as well as the base GP.
 
         :param X_pred: Locations at which to predict, shape (num_points, input_dim)
@@ -111,7 +118,7 @@ class BoundedBayesianQuadrature(WarpedBayesianQuadratureModel):
 
         # kernel mean but with scaled lengthscale (multiplicative factor of 1/sqrt(2))
         X_means_vec = 0.5 * (self.X.T[:, :, None] + self.X.T[:, None, :]).reshape(n_imput_dim, -1).T
-        qK = self.base_gp.kern.qK(X_means_vec, scale_factor=1./np.sqrt(2)).reshape(n_points, n_points)
+        qK = self.base_gp.kern.qK(X_means_vec, scale_factor=1.0 / np.sqrt(2)).reshape(n_points, n_points)
 
         # integral mean
         integral_mean_second_term = 0.5 * np.sum(Weights_outer * qK * K)
@@ -145,6 +152,6 @@ class BoundedBayesianQuadrature(WarpedBayesianQuadratureModel):
 
         # the gradient of the mean of the lower bounded model is the negative gradient of the upper bounded model.
         if not self.is_lower_bounded:
-            d_mean_dx *= -1.
+            d_mean_dx *= -1.0
 
         return d_mean_dx, d_var_dx

@@ -7,7 +7,7 @@ import numpy as np
 try:
     from sobol_seq import i4_sobol_generate
 except ImportError:
-    raise ImportError('sobol_seq needs to be installed in order to use sobol design')
+    raise ImportError("sobol_seq needs to be installed in order to use sobol design")
 
 from .. import ParameterSpace
 from .base import ModelFreeDesignBase

@@ -11,7 +11,7 @@ from emukit.model_wrappers import GPyModelWrapper
 
 
 def f(x):
-    return x**2
+    return x ** 2
 
 
 def test_loop_initial_state():
@@ -20,7 +20,7 @@ def test_loop_initial_state():
 
     gpy_model = GPy.models.GPRegression(x_init, y_init)
     model = GPyModelWrapper(gpy_model)
-    space = ParameterSpace([ContinuousParameter('x', 0, 1)])
+    space = ParameterSpace([ContinuousParameter("x", 0, 1)])
 
     exp_design = ExperimentalDesignLoop(space, model)
 
@@ -39,7 +39,7 @@ def test_loop():
     gpy_model = GPy.models.GPRegression(x_init, y_init)
     model = GPyModelWrapper(gpy_model)
 
-    space = ParameterSpace([ContinuousParameter('x', 0, 1)])
+    space = ParameterSpace([ContinuousParameter("x", 0, 1)])
     acquisition = ModelVariance(model)
 
     # Make loop and collect points

@@ -13,7 +13,7 @@ from ...core.interfaces import IDifferentiable, IJointlyDifferentiable, IModel, 
 
 
 class ExpectedImprovement(Acquisition):
-    def __init__(self, model: Union[IModel, IDifferentiable], jitter: float=0.0)-> None:
+    def __init__(self, model: Union[IModel, IDifferentiable], jitter: float = 0.0) -> None:
         """
         For a given input, this acquisition computes the improvement over the current best observed value in
         expectation. For more information see:
@@ -84,7 +84,7 @@ class ExpectedImprovement(Acquisition):
 
 
 class MeanPluginExpectedImprovement(ExpectedImprovement):
-    def __init__(self, model: IModelWithNoise, jitter: float=0.0) -> None:
+    def __init__(self, model: IModelWithNoise, jitter: float = 0.0) -> None:
         """
         A variant of expected improvement that accounts for observation noise.
 
@@ -95,7 +95,7 @@ class MeanPluginExpectedImprovement(ExpectedImprovement):
         the standard Expected Improvement might behave undesirably if the noise is too large.
 
         For more information see:
-            "A benchmark of kriging-based infill criteria for noisy optimization" by Picheny et al. 
+            "A benchmark of kriging-based infill criteria for noisy optimization" by Picheny et al.
         Note: the model type should be Union[IPredictsWithNoise, Intersection[IpredictsWithNoise, IDifferentiable]].
             Support for Intersection types might be added to Python in the future (see PEP 483)
 
@@ -108,14 +108,15 @@ class MeanPluginExpectedImprovement(ExpectedImprovement):
         """Return the smallest model mean prediction at the previously observed points."""
         means_at_prev, _ = self.model.predict_noiseless(self.model.X)
         return np.min(means_at_prev, axis=0)
- 
+
     def _get_model_predictions(self, x) -> Tuple[np.ndarray, np.ndarray]:
         """Return the likelihood-free (i.e. without observation noise) prediction from the model."""
         return self.model.predict_noiseless(x)
 
 
-def get_standard_normal_pdf_cdf(x: np.array, mean: np.array, standard_deviation: np.array) \
-        -> Tuple[np.array, np.array, np.array]:
+def get_standard_normal_pdf_cdf(
+    x: np.array, mean: np.array, standard_deviation: np.array
+) -> Tuple[np.array, np.array, np.array]:
     """
     Returns pdf and cdf of standard normal evaluated at (x - mean)/sigma
 
@@ -131,8 +132,13 @@ def get_standard_normal_pdf_cdf(x: np.array, mean: np.array, standard_deviation:
 
 
 class MultipointExpectedImprovement(ExpectedImprovement):
-    def __init__(self, model: Union[IModel, IDifferentiable, IJointlyDifferentiable], jitter: float=0.0,
-                 fast_compute: bool=False, eps: float=1e-3) -> None:
+    def __init__(
+        self,
+        model: Union[IModel, IDifferentiable, IJointlyDifferentiable],
+        jitter: float = 0.0,
+        fast_compute: bool = False,
+        eps: float = 1e-3,
+    ) -> None:
         """
         This acquisition computes for a given input the improvement over the current best observed value in
         expectation for multiple points. For more information see:
@@ -191,8 +197,7 @@ class MultipointExpectedImprovement(ExpectedImprovement):
         qei, pk, symmetric_term = self._get_acquisition(mean, variance, y_minimum)
 
         mean_dx, variance_dx = self.model.get_joint_prediction_gradients(x)
-        qei_grad = self._get_acquisition_gradient(mean, variance, mean_dx, variance_dx,
-                                                  y_minimum, pk, symmetric_term)
+        qei_grad = self._get_acquisition_gradient(mean, variance, mean_dx, variance_dx, y_minimum, pk, symmetric_term)
         return -qei, -qei_grad
 
     def _get_acquisition(self, mu: np.ndarray, Sigma: np.ndarray, y_minimum: float) -> Tuple:
@@ -219,7 +224,9 @@ class MultipointExpectedImprovement(ExpectedImprovement):
             pk[k] = scipy.stats.multivariate_normal.cdf(b_k - mu_k, np.zeros((q,)), Sigma_k)
 
             first_term[k] = (y_minimum - mu[k]) * pk[k]
-            symmetric_term[k, :], non_symmetric_term[k, :] = self._get_non_symmetric_and_symmetric_term_k(b_k, mu_k, Sigma_k, pk, k)
+            symmetric_term[k, :], non_symmetric_term[k, :] = self._get_non_symmetric_and_symmetric_term_k(
+                b_k, mu_k, Sigma_k, pk, k
+            )
 
         # Symmetrify the symmetric term
         symmetric_term = symmetric_term + symmetric_term.T
@@ -231,9 +238,16 @@ class MultipointExpectedImprovement(ExpectedImprovement):
 
         return opt_val, pk, symmetric_term
 
-    def _get_acquisition_gradient(self, mu: np.ndarray, Sigma: np.ndarray, dmu_dx: np.ndarray,
-                                  dSigma_dx: np.ndarray, y_minimum: float, pk: np.ndarray,
-                                  symmetric_term: np.ndarray) -> np.ndarray:
+    def _get_acquisition_gradient(
+        self,
+        mu: np.ndarray,
+        Sigma: np.ndarray,
+        dmu_dx: np.ndarray,
+        dSigma_dx: np.ndarray,
+        y_minimum: float,
+        pk: np.ndarray,
+        symmetric_term: np.ndarray,
+    ) -> np.ndarray:
         """
         Computes the gradient of multi point Expected Improvement. A helper function for the class.
 
@@ -262,20 +276,21 @@ class MultipointExpectedImprovement(ExpectedImprovement):
             Sigk = 0.5 * (Sigk + Sigk.T)  # numerical symmetrization
 
             # Compute the first two terms of the gradient (First row of Equation (6))
-            grad_a, mk_dx, Sigk_dx, gradpk, hesspk = self._gradient_of_the_acquisition_first_term(mu, dmu_dx, dSigma_dx,
-                                                                                                  y_minimum, pk, k, bk,
-                                                                                                  mk, Sigk, Lk)
+            grad_a, mk_dx, Sigk_dx, gradpk, hesspk = self._gradient_of_the_acquisition_first_term(
+                mu, dmu_dx, dSigma_dx, y_minimum, pk, k, bk, mk, Sigk, Lk
+            )
             grad = grad + grad_a
 
             # Compute the last three terms of the gradiens (Rows 2-4 of Equation (6))
-            grad = grad + self._gradient_of_the_acquisition_second_term(mu, dmu_dx, dSigma_dx, y_minimum,
-                                                                        pk, k, bk, mk, Sigk, mk_dx, Sigk_dx,
-                                                                        symmetric_term, gradpk, hesspk)
+            grad = grad + self._gradient_of_the_acquisition_second_term(
+                mu, dmu_dx, dSigma_dx, y_minimum, pk, k, bk, mk, Sigk, mk_dx, Sigk_dx, symmetric_term, gradpk, hesspk
+            )
 
         return grad
 
-    def _get_non_symmetric_and_symmetric_term_k(self, b_k: np.ndarray, mu_k: np.ndarray,
-                                                Sigma_k: np.ndarray, pk: np.ndarray, k: int) -> Tuple[np.ndarray, np.ndarray]:
+    def _get_non_symmetric_and_symmetric_term_k(
+        self, b_k: np.ndarray, mu_k: np.ndarray, Sigma_k: np.ndarray, pk: np.ndarray, k: int
+    ) -> Tuple[np.ndarray, np.ndarray]:
         """
         Helper function for computing Second term in Equation (3) of the paper
         for computing the multipoint Expected Improvement
@@ -290,9 +305,16 @@ class MultipointExpectedImprovement(ExpectedImprovement):
         non_symmetric_term = np.zeros((q,))
         symmetric_term = np.zeros((q,))
         if self.fast_compute:
-            non_symmetric_term[k] = 1. / self.eps * (scipy.stats.multivariate_normal.cdf(b_k - mu_k
-                                                                                         + self.eps * Sigma_k[:, k].flatten(),
-                                                                                         np.zeros((q,)), Sigma_k) - pk[k])
+            non_symmetric_term[k] = (
+                1.0
+                / self.eps
+                * (
+                    scipy.stats.multivariate_normal.cdf(
+                        b_k - mu_k + self.eps * Sigma_k[:, k].flatten(), np.zeros((q,)), Sigma_k
+                    )
+                    - pk[k]
+                )
+            )
             symmetric_term[k] = 1.0
 
         else:
@@ -300,7 +322,7 @@ class MultipointExpectedImprovement(ExpectedImprovement):
                 # First item inside the second sum of Equation (3) in the paper
                 non_symmetric_term[i] = Sigma_k[i, k]
 
-                if(i >= k):
+                if i >= k:
                     mik = mu_k[i]
                     sigma_ii_k = Sigma_k[i, i]
                     bik = b_k[i]
@@ -313,10 +335,19 @@ class MultipointExpectedImprovement(ExpectedImprovement):
                     symmetric_term[i] = phi_ik * Phi_ik
         return symmetric_term, non_symmetric_term
 
-    def _gradient_of_the_acquisition_first_term(self, mu: np.ndarray, dmu_dx: np.ndarray, dSigma_dx: np.ndarray,
-                                                y_minimum: float, pk: np.ndarray, k: int, bk: np.ndarray,
-                                                mk: np.ndarray, Sigk: np.ndarray, Lk: np.ndarray) -> Tuple[np.ndarray,
-                                                np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    def _gradient_of_the_acquisition_first_term(
+        self,
+        mu: np.ndarray,
+        dmu_dx: np.ndarray,
+        dSigma_dx: np.ndarray,
+        y_minimum: float,
+        pk: np.ndarray,
+        k: int,
+        bk: np.ndarray,
+        mk: np.ndarray,
+        Sigk: np.ndarray,
+        Lk: np.ndarray,
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """
         Helper function for computing the first term of the gradient of the Acquisition (First row of Equation (6))
 
@@ -340,7 +371,7 @@ class MultipointExpectedImprovement(ExpectedImprovement):
         Dpk, Sigk_dx, mk_dx = np.zeros((q, d)), np.zeros((q, d, q, q)), np.zeros((q, d, q))
 
         # term A1: First term in Equation (6) in the paper
-        grad_a[k, :] = - dmu_dx[k, k, :] * pk[k]  # q x q x d
+        grad_a[k, :] = -dmu_dx[k, k, :] * pk[k]  # q x q x d
 
         # compute gradient and hessian matrix of the CDF term pk.
         gradpk = Phi_gradient(bk - mk, np.zeros((q, 1)), Sigk)
@@ -353,11 +384,23 @@ class MultipointExpectedImprovement(ExpectedImprovement):
         # term A2: Second term in Equation (6) in the paper
         return grad_a + (y_minimum - mu[k]) * Dpk, mk_dx, Sigk_dx, gradpk, hesspk
 
-    def _gradient_of_the_acquisition_second_term(self, mu: np.ndarray, dmu_dx: np.ndarray, dSigma_dx: np.ndarray,
-                                                 y_minimum: float, pk: np.ndarray, k: int, bk: np.ndarray,
-                                                 mk: np.ndarray, Sigk: np.ndarray, mk_dx: np.ndarray,
-                                                 Sigk_dx: np.ndarray, symmetric_term: np.ndarray,
-                                                 gradpk: np.ndarray, hesspk: np.ndarray) -> np.ndarray:
+    def _gradient_of_the_acquisition_second_term(
+        self,
+        mu: np.ndarray,
+        dmu_dx: np.ndarray,
+        dSigma_dx: np.ndarray,
+        y_minimum: float,
+        pk: np.ndarray,
+        k: int,
+        bk: np.ndarray,
+        mk: np.ndarray,
+        Sigk: np.ndarray,
+        mk_dx: np.ndarray,
+        Sigk_dx: np.ndarray,
+        symmetric_term: np.ndarray,
+        gradpk: np.ndarray,
+        hesspk: np.ndarray,
+    ) -> np.ndarray:
         """
         Helper function for computing the second term of the gradient of the Acquisition (2-4 rows of Equation (6))
 
@@ -387,9 +430,11 @@ class MultipointExpectedImprovement(ExpectedImprovement):
             gradpk1 = Phi_gradient(bk - mk + Sigk[:, k, None] * self.eps, np.zeros((q, 1)), Sigk)
             hesspk1 = Phi_hessian(bk + Sigk[:, k, None] * self.eps, mk, Sigk, gradient=gradpk1)
             for l, j in itertools.product(range(q), range(d)):
-                f1 = (-(mk_dx[None, l, j, :] @ gradpk1[:, None])
-                      + self.eps * (Sigk_dx[None, l, j, :, k] @ gradpk1)
-                      + 0.5 * np.sum(Sigk_dx[l, j, :, :] * hesspk1))
+                f1 = (
+                    -(mk_dx[None, l, j, :] @ gradpk1[:, None])
+                    + self.eps * (Sigk_dx[None, l, j, :, k] @ gradpk1)
+                    + 0.5 * np.sum(Sigk_dx[l, j, :, :] * hesspk1)
+                )
                 f = -(mk_dx[None, l, j, :] @ gradpk[:, None]) + 0.5 * np.sum(Sigk_dx[l, j, :, :] * hesspk)
                 B[l, j] = 1.0 / self.eps * (f1 - f)
         else:
@@ -404,14 +449,17 @@ class MultipointExpectedImprovement(ExpectedImprovement):
                 mk_dx_i = mk_dx[:, :, i]
                 bk_i = bk[i, 0]
                 ck_pi = (bk[ineq, 0] - mk[ineq, 0] - (bk[i, 0] - mk[i, 0]) / Sigk_ii * Sigk[ineq, :][:, i])[:, None]
-                Sigk_pi = 0.5 * (Sigk[ineq, :][:, ineq]
-                                 - 1.0 / Sigk_ii * Sigk[ineq, :][:, i, None] @ Sigk[ineq, :][:, i, None].T
-                                 + (Sigk[ineq, :][:, ineq]
-                                 - 1.0 / Sigk_ii * Sigk[ineq, :][:, i, None] @ Sigk[ineq, :][:, i, None].T).T)
+                Sigk_pi = 0.5 * (
+                    Sigk[ineq, :][:, ineq]
+                    - 1.0 / Sigk_ii * Sigk[ineq, :][:, i, None] @ Sigk[ineq, :][:, i, None].T
+                    + (
+                        Sigk[ineq, :][:, ineq] - 1.0 / Sigk_ii * Sigk[ineq, :][:, i, None] @ Sigk[ineq, :][:, i, None].T
+                    ).T
+                )
                 Sigk_dx_ii = Sigk_dx[:, :, i, i]
                 Sigk_dx_ik = Sigk_dx[:, :, i, k]
                 phi_ik = np.max([scipy.stats.multivariate_normal.pdf(bk[i, 0], mk_i, Sigk_ii), 1e-11])
-                dphi_ik_dSig = ((bk_i - mk_i)**2 / (2.0 * Sigk_ii**2) - 0.5 / Sigk_ii) * phi_ik
+                dphi_ik_dSig = ((bk_i - mk_i) ** 2 / (2.0 * Sigk_ii ** 2) - 0.5 / Sigk_ii) * phi_ik
                 dphi_ik_dm = (bk_i - mk_i) / Sigk_ii * phi_ik
                 Phi_ik = symmetric_term[k, i] / phi_ik
                 GPhi_ik = Phi_gradient(ck_pi, np.zeros((q - 1, 1)), Sigk_pi)
@@ -424,20 +472,23 @@ class MultipointExpectedImprovement(ExpectedImprovement):
                     B1[l, j] = B1[l, j] + Sigk_dx_ik[l, j] * phi_ik * Phi_ik
 
                     # B2: Third row of Equation (6) in the paper
-                    B2[l, j] = B2[l, j] + Sigk_ik * (mk_dx_i[l, j] * dphi_ik_dm
-                                                     + dphi_ik_dSig * Sigk_dx_ii[l, j]) * Phi_ik
+                    B2[l, j] = (
+                        B2[l, j] + Sigk_ik * (mk_dx_i[l, j] * dphi_ik_dm + dphi_ik_dSig * Sigk_dx_ii[l, j]) * Phi_ik
+                    )
 
                     # B3: Fourth row of Equation (6) in the paper
-                    dck_pi = (-mk_dx[l, j, ineq] + (mk_dx_i[l, j] * Sigk_ii
-                                                    + (bk_i - mk_i) * Sigk_dx_ii[l, j])
-                              / (Sigk_ii**2) * Sigk_mi[:, 0]
-                              - (bk[i, 0] - mk_i) / Sigk_ii * Sigk_dx[l, j, ineq, i])
+                    dck_pi = (
+                        -mk_dx[l, j, ineq]
+                        + (mk_dx_i[l, j] * Sigk_ii + (bk_i - mk_i) * Sigk_dx_ii[l, j]) / (Sigk_ii ** 2) * Sigk_mi[:, 0]
+                        - (bk[i, 0] - mk_i) / Sigk_ii * Sigk_dx[l, j, ineq, i]
+                    )
                     SigtCross = Sigk_dx[l, j, ineq, i, None] @ Sigk_mi.T
-                    dSigk_pi = (Sigk_dx[l, j, :, :][:, ineq][ineq, :]
-                                + Sigk_dx_ii[l, j] / (Sigk_ii**2) * (Sigk_mi @ Sigk_mi.T)
-                                - (1.0 / Sigk_ii) * (SigtCross + SigtCross.T))
-                    B3[l, j] = (B3[l, j] + Sigk_ik * phi_ik * ((GPhi_ik.T @ dck_pi)
-                                + 0.5 * np.sum(HPhi_ik * dSigk_pi)))
+                    dSigk_pi = (
+                        Sigk_dx[l, j, :, :][:, ineq][ineq, :]
+                        + Sigk_dx_ii[l, j] / (Sigk_ii ** 2) * (Sigk_mi @ Sigk_mi.T)
+                        - (1.0 / Sigk_ii) * (SigtCross + SigtCross.T)
+                    )
+                    B3[l, j] = B3[l, j] + Sigk_ik * phi_ik * ((GPhi_ik.T @ dck_pi) + 0.5 * np.sum(HPhi_ik * dSigk_pi))
             B = B1 + B2 + B3
         return B
 
@@ -505,7 +556,7 @@ def decompose_mvn(x: np.ndarray, mu: np.ndarray, Sigma: np.ndarray, k: list) -> 
     :return: Weighted probabilities of each variable being smaller than the rest.
     """
     q = Sigma.shape[0]
-    if (len(k) == q):
+    if len(k) == q:
         return scipy.stats.multivariate_normal.pdf(x.flatten(), mu.flatten(), Sigma)
     neqk = [i for i in np.arange(q) if i not in k]
     x1 = x[k, :]
@@ -519,12 +570,14 @@ def decompose_mvn(x: np.ndarray, mu: np.ndarray, Sigma: np.ndarray, k: list) -> 
     varcov = Sig22 - Sig21 @ Sig11Inv @ Sig12
     varcov = 0.5 * (varcov + varcov.T)
 
-    if (min(np.diag(varcov)) <= 0):
+    if min(np.diag(varcov)) <= 0:
         varcov[range(len(neqk)), :][:, range(len(neqk))] = np.diag(varcov) * (np.diag(varcov) >= 0) + 1e-9
     moy = mu[neqk] + Sig21 @ Sig11Inv @ (x1 - mu1)
     low = np.minimum(moy, x2) - 5.0 * np.sqrt(np.max(np.abs(varcov)))
-    return scipy.stats.multivariate_normal.pdf(x1.flatten(), mu[k].flatten(), Sig11) \
+    return (
+        scipy.stats.multivariate_normal.pdf(x1.flatten(), mu[k].flatten(), Sig11)
         * scipy.stats.mvn.mvnun(low, x2, moy, varcov, maxpts=1000 * q)[0]
+    )
 
 
 def Phi_gradient(x: np.ndarray, mu: np.ndarray, Sigma: np.ndarray) -> np.ndarray:
@@ -539,7 +592,7 @@ def Phi_gradient(x: np.ndarray, mu: np.ndarray, Sigma: np.ndarray) -> np.ndarray
     return np.array([decompose_mvn(x, mu, Sigma, [i]) for i in range(Sigma.shape[0])])
 
 
-def Phi_hessian(x: np.ndarray, mu: np.ndarray, Sigma: np.ndarray, gradient: np.ndarray=None) -> np.ndarray:
+def Phi_hessian(x: np.ndarray, mu: np.ndarray, Sigma: np.ndarray, gradient: np.ndarray = None) -> np.ndarray:
     """
     Compute hessian matrix of CDF of multivariate Gaussian distribution.
 
@@ -550,8 +603,8 @@ def Phi_hessian(x: np.ndarray, mu: np.ndarray, Sigma: np.ndarray, gradient: np.n
     :return: Hessian of the CDF of multivariate Gaussian.
     """
     q = Sigma.shape[0]
-    if (q == 1):
-        res = - (x - mu) / Sigma * scipy.stats.norm.pdf(x, mu, np.sqrt(Sigma))
+    if q == 1:
+        res = -(x - mu) / Sigma * scipy.stats.norm.pdf(x, mu, np.sqrt(Sigma))
     else:
         res = np.zeros((q, q))
     for i in range(q - 1):
@@ -561,8 +614,10 @@ def Phi_hessian(x: np.ndarray, mu: np.ndarray, Sigma: np.ndarray, gradient: np.n
     res = res + res.T  # Hessian matrix is symmetric
     # diagonal terms can be computed with the gradient of CDF and the other hessian terms
     if gradient is None:
-        res = res - np.diag(((x - mu).flatten() * Phi_gradient(x, mu, Sigma)[:, None]
-                             + np.diag(Sigma @ res).flatten()) / np.diag(Sigma).flatten())
+        res = res - np.diag(
+            ((x - mu).flatten() * Phi_gradient(x, mu, Sigma)[:, None] + np.diag(Sigma @ res).flatten())
+            / np.diag(Sigma).flatten()
+        )
     else:
         res = res - np.diag(((x - mu).flatten() * gradient + np.diag(Sigma @ res).flatten()) / np.diag(Sigma).flatten())
     return res

@@ -8,8 +8,7 @@ from emukit.model_wrappers.gpy_model_wrappers import GPyModelWrapper
 
 
 class FabolasKernel(GPy.kern.Kern):
-
-    def __init__(self, input_dim, basis_func, a=1., b=1., active_dims=None):
+    def __init__(self, input_dim, basis_func, a=1.0, b=1.0, active_dims=None):
 
         super(FabolasKernel, self).__init__(input_dim, active_dims, "fabolas_kernel")
 
@@ -23,7 +22,8 @@ class FabolasKernel(GPy.kern.Kern):
         self.link_parameters(self.a, self.b)
 
     def K(self, X, X2):
-        if X2 is None: X2 = X
+        if X2 is None:
+            X2 = X
 
         X_ = self.basis_func(X)
         X2_ = self.basis_func(X2)
@@ -32,7 +32,8 @@ class FabolasKernel(GPy.kern.Kern):
         return k
 
     def update_gradients_full(self, dL_dK, X, X2):
-        if X2 is None: X2 = X
+        if X2 is None:
+            X2 = X
         X_ = self.basis_func(X)
         X2_ = self.basis_func(X2)
         self.a.gradient = np.sum(dL_dK)
@@ -61,9 +62,9 @@ def retransform(s_transform, s_min, s_max):
 
 
 class FabolasModel(GPyModelWrapper):
-
-    def __init__(self, X_init: np.ndarray, Y_init: np.ndarray,
-                 s_min: float, s_max: float, basis_func=linear, noise: float = 1e-6):
+    def __init__(
+        self, X_init: np.ndarray, Y_init: np.ndarray, s_min: float, s_max: float, basis_func=linear, noise: float = 1e-6
+    ):
         """
         Fabolas Gaussian processes model which models the validation error / cost of
         hyperparameter configurations across training dataset subsets.
@@ -81,8 +82,12 @@ class FabolasModel(GPyModelWrapper):
         self._X[:, -1] = transform(self._X[:, -1], self.s_min, self.s_max)
         self._Y = Y_init
         self.basis_func = basis_func
-        kernel = GPy.kern.Matern52(input_dim=self._X.shape[1] - 1, active_dims=[i for i in range(self._X.shape[1] - 1)],
-                                   variance=np.var(self._Y), ARD=True)
+        kernel = GPy.kern.Matern52(
+            input_dim=self._X.shape[1] - 1,
+            active_dims=[i for i in range(self._X.shape[1] - 1)],
+            variance=np.var(self._Y),
+            ARD=True,
+        )
         kernel *= FabolasKernel(input_dim=1, active_dims=[self._X.shape[1] - 1], basis_func=basis_func)
         kernel += GPy.kern.White(input_dim=1, active_dims=[self._X.shape[1] - 1], variance=1e-6)
 
@@ -113,9 +118,12 @@ class FabolasModel(GPyModelWrapper):
         try:
             self.model.set_XY(self._X, self.Y)
         except:
-            kernel = GPy.kern.Matern52(input_dim=self._X.shape[1] - 1,
-                                       active_dims=[i for i in range(self._X.shape[1] - 1)],
-                                       variance=np.var(self.Y), ARD=True)
+            kernel = GPy.kern.Matern52(
+                input_dim=self._X.shape[1] - 1,
+                active_dims=[i for i in range(self._X.shape[1] - 1)],
+                variance=np.var(self.Y),
+                ARD=True,
+            )
             kernel *= FabolasKernel(input_dim=1, active_dims=[self._X.shape[1] - 1], basis_func=self.basis_func)
             kernel *= GPy.kern.OU(input_dim=1, active_dims=[self._X.shape[1] - 1])
 

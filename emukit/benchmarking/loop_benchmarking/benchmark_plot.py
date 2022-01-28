@@ -8,15 +8,22 @@ from .benchmark_result import BenchmarkResult
 try:
     import matplotlib.pyplot as plt
 except ImportError:
-    ImportError('matplotlib needs to be installed in order to use BenchmarkPlot')
+    ImportError("matplotlib needs to be installed in order to use BenchmarkPlot")
 
 
 class BenchmarkPlot:
     """
     Creates a plot comparing the results from the different loops used during benchmarking
     """
-    def __init__(self, benchmark_results: BenchmarkResult, loop_colours: List=None, loop_line_styles: List[str]=None,
-                 x_axis_metric_name: str=None, metrics_to_plot: List[str]=None):
+
+    def __init__(
+        self,
+        benchmark_results: BenchmarkResult,
+        loop_colours: List = None,
+        loop_line_styles: List[str] = None,
+        x_axis_metric_name: str = None,
+        metrics_to_plot: List[str] = None,
+    ):
         """
         :param benchmark_results: The output of a benchmark run
         :param loop_colours: Colours to use for each loop. Defaults to standard matplotlib colour palette
@@ -35,7 +42,7 @@ class BenchmarkPlot:
             self.loop_colours = loop_colours
 
         if loop_line_styles is None:
-            self.loop_line_styles = ['-']
+            self.loop_line_styles = ["-"]
         else:
             self.loop_line_styles = loop_line_styles
 
@@ -44,16 +51,16 @@ class BenchmarkPlot:
         else:
             for metric_name in metrics_to_plot:
                 if metric_name not in self.benchmark_results.metric_names:
-                    raise ValueError(metric_name + ' not found in saved metrics from benchmark results.')
+                    raise ValueError(metric_name + " not found in saved metrics from benchmark results.")
             self.metrics_to_plot = metrics_to_plot
 
         if x_axis_metric_name is not None:
             if x_axis_metric_name not in self.metrics_to_plot:
-                raise ValueError('x_axis ' + x_axis_metric_name + ' is not a valid metric name')
+                raise ValueError("x_axis " + x_axis_metric_name + " is not a valid metric name")
             self.metrics_to_plot.remove(x_axis_metric_name)
 
         if x_axis_metric_name is None:
-            self.x_label = 'Iteration'
+            self.x_label = "Iteration"
         else:
             self.x_label = x_axis_metric_name
 
@@ -116,7 +123,7 @@ class BenchmarkPlot:
         :param file_name:
         """
         if self.fig_handle is None:
-            raise ValueError('Please call make_plots method before saving to file')
+            raise ValueError("Please call make_plots method before saving to file")
 
         with open(file_name) as file:
             self.fig_handle.savefig(file)
@@ -127,4 +134,4 @@ def _get_metric_stats(metric):
 
 
 def _get_default_colours():
-    return plt.rcParams['axes.prop_cycle'].by_key()['color']
+    return plt.rcParams["axes.prop_cycle"].by_key()["color"]

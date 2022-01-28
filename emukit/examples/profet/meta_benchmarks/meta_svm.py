@@ -3,7 +3,7 @@ import pickle
 try:
     import torch
 except ImportError:
-    raise ImportError('pytorch is not installed. Please install it by running pip install torch torchvision')
+    raise ImportError("pytorch is not installed. Please install it by running pip install torch torchvision")
 
 from functools import partial
 from typing import Tuple
@@ -38,9 +38,12 @@ def meta_svm(fname_objective: str, fname_cost: str, noise: bool = True) -> Tuple
     :param noise: determines whether to add noise on the function value or not
     :return: Tuple of user function object and parameter space
     """
-    parameter_space = ParameterSpace([
-        ContinuousParameter('log_C', 0, 1),  # scaled to [0, 1], original space was in [-10, 10]
-        ContinuousParameter('log_gamma', 0, 1)])  # scaled to [0, 1] original space was in [-10, 10]
+    parameter_space = ParameterSpace(
+        [
+            ContinuousParameter("log_C", 0, 1),  # scaled to [0, 1], original space was in [-10, 10]
+            ContinuousParameter("log_gamma", 0, 1),
+        ]
+    )  # scaled to [0, 1] original space was in [-10, 10]
     data = pickle.load(open(fname_objective, "rb"))
 
     x_mean_objective = data["x_mean"]
@@ -59,12 +62,22 @@ def meta_svm(fname_objective: str, fname_cost: str, noise: bool = True) -> Tuple
     cost = get_default_architecture(x_mean_cost.shape[0]).float()
     cost.load_state_dict(data["state_dict"])
 
-    f = partial(objective_function, model_objective=objective, model_cost=cost,
-                task_feature_objective=task_feature_objective, task_feature_cost=task_feature_cost,
-                x_mean_objective=x_mean_objective, x_std_objective=x_std_objective,
-                x_mean_cost=x_mean_cost, x_std_cost=x_std_cost,
-                y_mean_objective=None, y_std_objective=None,
-                y_mean_cost=y_mean_cost, y_std_cost=y_std_cost,
-                log_objective=False, with_noise=noise)
+    f = partial(
+        objective_function,
+        model_objective=objective,
+        model_cost=cost,
+        task_feature_objective=task_feature_objective,
+        task_feature_cost=task_feature_cost,
+        x_mean_objective=x_mean_objective,
+        x_std_objective=x_std_objective,
+        x_mean_cost=x_mean_cost,
+        x_std_cost=x_std_cost,
+        y_mean_objective=None,
+        y_std_objective=None,
+        y_mean_cost=y_mean_cost,
+        y_std_cost=y_std_cost,
+        log_objective=False,
+        with_noise=noise,
+    )
 
     return f, parameter_space

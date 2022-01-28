@@ -18,6 +18,7 @@ class AnchorPointsGenerator(object):
     This base class is for generating such points, and the sub-classes will implement different logic of how the
     points should be selected
     """
+
     def __init__(self, space: ParameterSpace, num_samples: int):
         """
 
@@ -36,7 +37,7 @@ class AnchorPointsGenerator(object):
         :param X: (n_samples x n_inputs_dims) arrays containing the points at which to evaluate the anchor point scores
         :return: Array containing score for each input point
         """
-        raise NotImplementedError('get_anchor_point_scores is not implemented in the parent class.')
+        raise NotImplementedError("get_anchor_point_scores is not implemented in the parent class.")
 
     def get(self, num_anchor: int = 5, context_manager: ContextManager = None) -> np.ndarray:
         """
@@ -45,7 +46,9 @@ class AnchorPointsGenerator(object):
         :return: A (num_anchor x n_dims) array containing the anchor points
         """
         if num_anchor > self.num_samples:
-            raise ValueError(f"Cannot return more points than were originally sampled, got {num_anchor} num_anchor for {self.num_samples} points sampled.")
+            raise ValueError(
+                f"Cannot return more points than were originally sampled, got {num_anchor} num_anchor for {self.num_samples} points sampled."
+            )
 
         # We use the context handler to remove duplicates only over the non-context variables
         if context_manager is not None:
@@ -61,7 +64,7 @@ class AnchorPointsGenerator(object):
             X = context_manager.expand_vector(X)
         scores = self.get_anchor_point_scores(X)
         sorted_idxs = np.argsort(scores)[::-1]
-        anchor_points = X[sorted_idxs[:min(len(scores), num_anchor)], :]
+        anchor_points = X[sorted_idxs[: min(len(scores), num_anchor)], :]
 
         return anchor_points
 
@@ -70,7 +73,8 @@ class ObjectiveAnchorPointsGenerator(AnchorPointsGenerator):
     """
     This anchor points generator chooses points where the acquisition function is highest
     """
-    def __init__(self, space: ParameterSpace, acquisition: Acquisition, num_samples: int=1000):
+
+    def __init__(self, space: ParameterSpace, acquisition: Acquisition, num_samples: int = 1000):
         """
         :param space: The parameter space describing the input domain of the non-context variables
         :param acquisition: The acquisition function
@@ -84,7 +88,9 @@ class ObjectiveAnchorPointsGenerator(AnchorPointsGenerator):
         :param X: The samples at which to evaluate the criterion
         :return:
         """
-        are_constraints_satisfied = np.all([np.ones(X.shape[0])] + [c.evaluate(X) for c in self.space.constraints], axis=0)
+        are_constraints_satisfied = np.all(
+            [np.ones(X.shape[0])] + [c.evaluate(X) for c in self.space.constraints], axis=0
+        )
         scores = np.zeros((X.shape[0],))
         scores[~are_constraints_satisfied] = -np.inf
         scores[are_constraints_satisfied] = self.acquisition.evaluate(X[are_constraints_satisfied, :])[:, 0]

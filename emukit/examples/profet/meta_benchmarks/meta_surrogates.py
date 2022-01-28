@@ -2,14 +2,23 @@ import numpy as np
 import torch
 
 
-def objective_function(config, model_objective, model_cost,
-                       task_feature_objective, task_feature_cost,
-                       x_mean_objective, x_std_objective,
-                       x_mean_cost, x_std_cost,
-                       y_mean_objective=None, y_std_objective=None,
-                       y_mean_cost=None, y_std_cost=None,
-                       log_objective=False,
-                       with_noise=True):
+def objective_function(
+    config,
+    model_objective,
+    model_cost,
+    task_feature_objective,
+    task_feature_cost,
+    x_mean_objective,
+    x_std_objective,
+    x_mean_cost,
+    x_std_cost,
+    y_mean_objective=None,
+    y_std_objective=None,
+    y_mean_cost=None,
+    y_std_cost=None,
+    log_objective=False,
+    with_noise=True,
+):
 
     Ht = np.repeat(task_feature_objective[None, :], config.shape[0], axis=0)
     x = np.concatenate((config, Ht), axis=1)

@@ -33,7 +33,6 @@ class Warping(abc.ABC):
 
 
 class IdentityWarping(Warping):
-
     def transform(self, Y: np.ndarray) -> np.ndarray:
         """Transform from base-GP to integrand.
 
@@ -54,7 +53,7 @@ class IdentityWarping(Warping):
 class SquareRootWarping(Warping):
     """The square root warping"""
 
-    def __init__(self, offset: float, is_inverted: Optional[bool]=False):
+    def __init__(self, offset: float, is_inverted: Optional[bool] = False):
         """
         :param offset: The offset of the warping.
         :param is_inverted: Inverts the warping if ``True``. Default is ``False``.
@@ -80,6 +79,6 @@ class SquareRootWarping(Warping):
         :return: Transformed values, shape (n_points, 1).
         """
         if self.is_inverted:
-            return np.sqrt(2. * (self.offset - Y))
+            return np.sqrt(2.0 * (self.offset - Y))
         else:
-            return np.sqrt(2. * (Y - self.offset))
+            return np.sqrt(2.0 * (Y - self.offset))

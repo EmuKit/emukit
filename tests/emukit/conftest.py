@@ -27,24 +27,26 @@ def gpy_model(n_dims):
     gpy_model.randomize()
     return GPyModelWrapper(gpy_model)
 
+
 @pytest.fixture
 def gpy_model_mcmc(n_dims):
     rng = np.random.RandomState(42)
     x_init = rng.rand(5, n_dims)
     y_init = rng.rand(5, 1)
     gpy_model = GPy.models.GPRegression(x_init, y_init, GPy.kern.RBF(n_dims))
-    gpy_model.kern.set_prior(GPy.priors.Uniform(0,5))
+    gpy_model.kern.set_prior(GPy.priors.Uniform(0, 5))
     np.random.seed(42)
     gpy_model.randomize()
     return GPyModelWrapper(gpy_model)
 
+
 @pytest.fixture
 def continuous_space(n_dims):
-    params = [ContinuousParameter('x' + str(i), 0, 1) for i in range(n_dims)]
+    params = [ContinuousParameter("x" + str(i), 0, 1) for i in range(n_dims)]
     return ParameterSpace(params)
 
 
 @pytest.fixture
 def encoding():
     # different types of volcanoes
-    return OneHotEncoding(['strato', 'shield', 'dome'])
+    return OneHotEncoding(["strato", "shield", "dome"])

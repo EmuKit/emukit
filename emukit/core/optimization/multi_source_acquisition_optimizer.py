@@ -17,6 +17,7 @@ class MultiSourceAcquisitionOptimizer(AcquisitionOptimizerBase):
     Optimizes the acquisition function by finding the optimum input location at each information source, then picking
     the information source where the value of the acquisition at the optimum input location is highest.
     """
+
     def __init__(self, acquisition_optimizer: AcquisitionOptimizerBase, space: ParameterSpace) -> None:
         """
         :param acquisition_optimizer: Optimizer to use for optimizing the acquisition once the information source
@@ -34,7 +35,7 @@ class MultiSourceAcquisitionOptimizer(AcquisitionOptimizerBase):
         """
         source_parameter = [param for param in self.space.parameters if isinstance(param, InformationSourceParameter)]
         if len(source_parameter) == 0:
-            raise ValueError('No source parameter found')
+            raise ValueError("No source parameter found")
         return source_parameter[0]
 
     def _optimize(self, acquisition: Acquisition, context_manager: ContextManager) -> Tuple[np.ndarray, np.ndarray]:

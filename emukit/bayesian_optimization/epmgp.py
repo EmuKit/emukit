@@ -11,7 +11,7 @@ eps = np.finfo(np.float32).eps
 l2p = np.log(2) + np.log(np.pi)
 
 
-def joint_min(mu: np.ndarray, var: np.ndarray, with_derivatives: bool=False) -> np.ndarray:
+def joint_min(mu: np.ndarray, var: np.ndarray, with_derivatives: bool = False) -> np.ndarray:
     """
     Computes the probability of every given point to be the minimum
     based on the EPMGP[1] algorithm.
@@ -64,8 +64,8 @@ def joint_min(mu: np.ndarray, var: np.ndarray, with_derivatives: bool=False) -> 
     dlogPdMu = dlogPdMuold - Zm
     dlogPdSigma = dlogPdSigmaold - Zs
 
-    ff = np.einsum('ki,kj->kij', dlogPdMuold, dlogPdMuold)
-    gg = np.einsum('kij,k->ij', dlogPdMudMuold + ff, np.exp(logPold)) / Z
+    ff = np.einsum("ki,kj->kij", dlogPdMuold, dlogPdMuold)
+    gg = np.einsum("kij,k->ij", dlogPdMudMuold + ff, np.exp(logPold)) / Z
     Zij = Zm.T * Zm
     adds = np.reshape(-gg + Zij, (1, D, D))
     dlogPdMudMu = dlogPdMudMuold + adds
@@ -90,8 +90,7 @@ def min_factor(Mu, Sigma, k, gamma=1):
         for i in range(D - 1):
             l = i if i < k else i + 1  # noqa: E741 to be consistent with paper notation
             try:
-                M, V, P[i], MP[i], logS[i], d = lt_factor(k, l, M, V,
-                                                          MP[i], P[i], gamma)
+                M, V, P[i], MP[i], logS[i], d = lt_factor(k, l, M, V, MP[i], P[i], gamma)
             except Exception as e:
                 raise
 
@@ -128,12 +127,12 @@ def min_factor(Mu, Sigma, k, gamma=1):
         mpm = sum(mpm)
 
         s = sum(logS)
-        IRSR = (np.eye(D - 1) + np.dot(np.dot(R.T, Sigma), R))
+        IRSR = np.eye(D - 1) + np.dot(np.dot(R.T, Sigma), R)
         rSr = np.dot(np.dot(r.T, Sigma), r)
         A = np.dot(R, np.linalg.solve(IRSR, R.T))
 
         A = 0.5 * (A.T + A)  # ensure symmetry.
-        b = (Mu + np.dot(Sigma, r))
+        b = Mu + np.dot(Sigma, r)
         Ab = np.dot(A, b)
         try:
             cIRSR = np.linalg.cholesky(IRSR)
@@ -151,8 +150,7 @@ def min_factor(Mu, Sigma, k, gamma=1):
         yield dlogZdMu
         dlogZdMudMu = -A
         yield dlogZdMudMu
-        dlogZdSigma = -A - 2 * np.outer(r, Ab.T) + np.outer(r, r.T) \
-                      + np.outer(btA.T, Ab.T)
+        dlogZdSigma = -A - 2 * np.outer(r, Ab.T) + np.outer(r, r.T) + np.outer(btA.T, Ab.T)
         dlogZdSigma2 = np.zeros_like(dlogZdSigma)
         np.fill_diagonal(dlogZdSigma2, np.diagonal(dlogZdSigma))
         dlogZdSigma = 0.5 * (dlogZdSigma + dlogZdSigma.T - dlogZdSigma2)
@@ -192,12 +190,13 @@ def lt_factor(s, l, M, V, mp, p, gamma):
 
         Mnew = M + (dmp - cM * dp) / (1 + dp * cVc) * Vc
         if np.any(np.isnan(Vnew)):
-            raise Exception("an error occurs while running expectation "
-                            "propagation in entropy search. "
-                            "Resulting variance contains NaN")
+            raise Exception(
+                "an error occurs while running expectation "
+                "propagation in entropy search. "
+                "Resulting variance contains NaN"
+            )
         # % there is a problem here, when z is very large
-        logS = lP - 0.5 * (np.log(beta) - np.log(pnew) - np.log(cVnic)) \
-               + (alpha * alpha) / (2 * beta) * cVnic
+        logS = lP - 0.5 * (np.log(beta) - np.log(pnew) - np.log(cVnic)) + (alpha * alpha) / (2 * beta) * cVnic
 
     elif exit_flag == -1:
         d = np.NAN
@@ -233,6 +232,6 @@ def log_relative_gauss(z):
         return 0, 0, 1
     else:
         logphi = -0.5 * (z * z + l2p)
-        logPhi = np.log(.5 * special.erfc(-z / sq2))
+        logPhi = np.log(0.5 * special.erfc(-z / sq2))
         e = np.exp(logphi - logPhi)
     return e, logPhi, 0

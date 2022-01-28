@@ -66,7 +66,7 @@ def test_time_metric():
     loop_state = create_loop_state(x_observations, y_observations)
     loop_state.metrics = dict()
 
-    name = 'time'
+    name = "time"
     metric = TimeMetric(name)
     metric.reset()
     metric_value = metric.evaluate(mock_loop, loop_state)
@@ -88,7 +88,7 @@ def test_cumulative_costs():
     loop_state = create_loop_state(x_observations, y_observations, cost=c_observations)
     loop_state.metrics = dict()
 
-    name = 'cost'
+    name = "cost"
     metric = CumulativeCostMetric(name)
     metric.reset()
     metric_value = metric.evaluate(mock_loop, loop_state)

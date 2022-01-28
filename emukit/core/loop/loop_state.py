@@ -58,7 +58,7 @@ class LoopState(object):
         # check key appears in all results objects
         is_valid = all([item in res.extra_outputs for res in self.results])
         if not is_valid:
-            raise ValueError('{} not found in results object'.format(item))
+            raise ValueError("{} not found in results object".format(item))
         return np.array([result.extra_outputs[item] for result in self.results])
 
 
@@ -72,13 +72,17 @@ def create_loop_state(x_init: np.ndarray, y_init: np.ndarray, **kwargs) -> LoopS
     """
     if x_init.shape[0] != y_init.shape[0]:
         error_message = "X and Y should have the same length. Actual length x_init {}, y_init {}".format(
-            x_init.shape[0], y_init.shape[0])
+            x_init.shape[0], y_init.shape[0]
+        )
         raise ValueError(error_message)
 
     for key, value in kwargs.items():
         if value.shape[0] != x_init.shape[0]:
-            raise ValueError('Expected keyword argument {} to have length {} but actual length is {}'.format(
-                key, x_init.shape[0], value.shape[0]))
+            raise ValueError(
+                "Expected keyword argument {} to have length {} but actual length is {}".format(
+                    key, x_init.shape[0], value.shape[0]
+                )
+            )
 
     initial_results = []
     for i in range(x_init.shape[0]):

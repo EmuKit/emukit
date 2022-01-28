@@ -36,14 +36,14 @@ class DummyAcquisitionWithGradients(Acquisition):
 def test_acquisition_adding():
     acquisition_sum = DummyAcquisition() + DummyAcquisition()
     acquisition_value = acquisition_sum.evaluate(np.array([[0]]))
-    assert np.array_equal(acquisition_value, np.array([2.]))
+    assert np.array_equal(acquisition_value, np.array([2.0]))
 
 
 def test_acquisition_adding_with_gradients():
     acquisition_sum = DummyAcquisitionWithGradients() + DummyAcquisitionWithGradients()
     acquisition_value, acquisition_grads = acquisition_sum.evaluate_with_gradients(np.array([[0]]))
-    assert np.array_equal(acquisition_value, np.array([2.]))
-    assert np.array_equiv(acquisition_grads, -np.array([2.]))
+    assert np.array_equal(acquisition_value, np.array([2.0]))
+    assert np.array_equiv(acquisition_grads, -np.array([2.0]))
 
 
 def test_acquistion_adding_with_gradients_fails():
@@ -58,25 +58,25 @@ def test_acquistion_adding_with_gradients_fails():
 def test_acquisition_multiplying():
     acquisition_sum = DummyAcquisition() * DummyAcquisition()
     acquisition_value = acquisition_sum.evaluate(np.array([[0]]))
-    assert np.array_equal(acquisition_value, np.array([1.]))
+    assert np.array_equal(acquisition_value, np.array([1.0]))
 
 
 def test_acquisition_multiplying_with_gradients():
     acquisition_sum = DummyAcquisitionWithGradients() * DummyAcquisitionWithGradients()
     acquisition_value, acquisition_grads = acquisition_sum.evaluate_with_gradients(np.array([[0]]))
-    assert np.array_equal(acquisition_grads, -np.array([2.]))
+    assert np.array_equal(acquisition_grads, -np.array([2.0]))
 
 
 def test_acquisition_division():
     acquisition_sum = DummyAcquisition() / DummyAcquisition()
     acquisition_value = acquisition_sum.evaluate(np.array([[0]]))
-    assert np.array_equal(acquisition_value, np.array([1.]))
+    assert np.array_equal(acquisition_value, np.array([1.0]))
 
 
 def test_acquisition_division_with_gradients():
     acquisition_sum = DummyAcquisitionWithGradients() / DummyAcquisitionWithGradients()
     acquisition_value, acquisition_grads = acquisition_sum.evaluate_with_gradients(np.array([[0]]))
-    assert np.array_equal(acquisition_grads, np.array([0.]))
+    assert np.array_equal(acquisition_grads, np.array([0.0]))
 
 
 def test_integrated_acquisition_gradients():

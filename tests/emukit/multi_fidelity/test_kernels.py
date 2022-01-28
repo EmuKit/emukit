@@ -35,8 +35,7 @@ def test_gradidents():
     inputs_2[6:10, 1] = 1
     inputs_2[10:17, 1] = 2
     inputs_2[17:] = 3
-    assert check_kernel_gradient_functions(k, X=inputs, X2=inputs_2,
-                                           verbose=True, fixed_X_dims=-1)
+    assert check_kernel_gradient_functions(k, X=inputs, X2=inputs_2, verbose=True, fixed_X_dims=-1)
 
 
 def test_k_full_and_k_diag_are_equivalent():
@@ -79,8 +78,5 @@ def test_k():
     k.scaling_param = np.array([0.5, 0.4])
     X = np.array([[0, 0], [0, 1], [0, 2]])
     cov = k.K(X)
-    expected_result = np.array([
-        [1, 0.5, 0.2],
-        [0.5, 1.25, 0.5],
-        [0.2, 0.5, 1.2]])
-    assert (np.all(np.isclose(cov, expected_result)))
+    expected_result = np.array([[1, 0.5, 0.2], [0.5, 1.25, 0.5], [0.2, 0.5, 1.2]])
+    assert np.all(np.isclose(cov, expected_result))

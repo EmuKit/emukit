@@ -18,6 +18,6 @@ def test_sixhumpcamel_return_shape():
     Test output dimension is 2d
     """
     sixhumpcamel, _ = sixhumpcamel_function()
-    x = np.array([[7.5, 7.5], [10., 10.]])
+    x = np.array([[7.5, 7.5], [10.0, 10.0]])
     assert sixhumpcamel(x).ndim == 2
     assert sixhumpcamel(x).shape == (2, 1)

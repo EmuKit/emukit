@@ -6,7 +6,7 @@ from ..acquisition import Acquisition
 from ..interfaces import IDifferentiable, IModel
 
 
-def acquisition_per_expected_cost(acquisition: Acquisition, cost_model: IModel, min_cost: float=1e-4) -> Acquisition:
+def acquisition_per_expected_cost(acquisition: Acquisition, cost_model: IModel, min_cost: float = 1e-4) -> Acquisition:
     """
     Creates an acquisition function that is the original acquisition scaled by the expected value of the evaluation
     cost of the user function.
@@ -22,7 +22,8 @@ class CostAcquisition(Acquisition):
     """
     Acquisition that simply returns the expected value from the cost model
     """
-    def __init__(self, cost_model: IModel, min_cost: float=1e-4):
+
+    def __init__(self, cost_model: IModel, min_cost: float = 1e-4):
         """
         :param cost_model: Model of cost. Should return only positive predictions
         :param min_cost: A minimum value for the cost. The cost model prediction will be clipped to this value if

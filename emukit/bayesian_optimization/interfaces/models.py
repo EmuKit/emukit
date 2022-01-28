@@ -10,7 +10,8 @@ class IEntropySearchModel:
     Interface containing abstract methods that need to be implemented if using entropy search Bayesian optimization
     acquisition function.
     """
-    def predict_covariance(self, X: np.ndarray, with_noise: bool=True) -> np.ndarray:
+
+    def predict_covariance(self, X: np.ndarray, with_noise: bool = True) -> np.ndarray:
         """
 
         :param X: Numpy array of shape (n_points, n_features) of test input locations

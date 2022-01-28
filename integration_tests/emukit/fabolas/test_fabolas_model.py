@@ -26,8 +26,8 @@ def test_predict_shape(model):
     x_test = np.concatenate((x_test, s[:, None]), axis=1)
     m, v = model.predict(x_test)
 
-    assert(m.shape == (10, 1))
-    assert(v.shape == (10, 1))
+    assert m.shape == (10, 1)
+    assert v.shape == (10, 1)
 
 
 def test_update_data(model):
@@ -38,5 +38,5 @@ def test_update_data(model):
     y_new = rng.rand(5, 1)
     model.set_data(x_new, y_new)
 
-    assert(model.X.shape == x_new.shape)
-    assert(model.Y.shape == y_new.shape)
+    assert model.X.shape == x_new.shape
+    assert model.Y.shape == y_new.shape

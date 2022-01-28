@@ -9,7 +9,7 @@ def create_model_free_designs(space: ParameterSpace):
 
 
 def test_design_returns_correct_number_of_points():
-    p = ContinuousParameter('c', 1.0, 5.0)
+    p = ContinuousParameter("c", 1.0, 5.0)
     space = ParameterSpace([p])
     points_count = 5
 
@@ -23,9 +23,9 @@ def test_design_returns_correct_number_of_points():
 
 
 def test_design_with_mixed_domain(encoding):
-    p1 = ContinuousParameter('p1', 1.0, 5.0)
-    p2 = CategoricalParameter('p2', encoding)
-    p3 = DiscreteParameter('p3', [1, 2, 5, 6])
+    p1 = ContinuousParameter("p1", 1.0, 5.0)
+    p2 = CategoricalParameter("p2", encoding)
+    p3 = DiscreteParameter("p3", [1, 2, 5, 6])
     space = ParameterSpace([p1, p2, p3])
     points_count = 5
 

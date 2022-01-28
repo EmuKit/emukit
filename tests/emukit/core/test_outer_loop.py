@@ -51,7 +51,7 @@ def mock_user_function():
 
 
 def test_outer_loop(mock_next_point_calculator, mock_updater, mock_user_function):
-    """ Example of automatic outer loop """
+    """Example of automatic outer loop"""
 
     stopping_condition = mock.create_autospec(StoppingCondition)
     stopping_condition.should_stop.side_effect = [False, False, True]
@@ -59,12 +59,12 @@ def test_outer_loop(mock_next_point_calculator, mock_updater, mock_user_function
     loop = OuterLoop(mock_next_point_calculator, mock_updater)
     loop.run_loop(mock_user_function, stopping_condition)
 
-    assert (loop.loop_state.iteration == 2)
-    assert (np.array_equal(loop.loop_state.X, np.array([[0], [0]])))
+    assert loop.loop_state.iteration == 2
+    assert np.array_equal(loop.loop_state.X, np.array([[0], [0]]))
 
 
 def test_outer_loop_model_update(mock_next_point_calculator, mock_user_function):
-    """ Checks the model has the correct number of data points """
+    """Checks the model has the correct number of data points"""
 
     class MockModelUpdater(ModelUpdater):
         def __init__(self, model):
@@ -113,8 +113,8 @@ def test_accept_non_wrapped_function(mock_next_point_calculator, mock_updater):
     loop = OuterLoop(mock_next_point_calculator, mock_updater)
     loop.run_loop(user_function, stopping_condition)
 
-    assert (loop.loop_state.iteration == 2)
-    assert (np.array_equal(loop.loop_state.X, np.array([[0], [0]])))
+    assert loop.loop_state.iteration == 2
+    assert np.array_equal(loop.loop_state.X, np.array([[0], [0]]))
 
 
 def test_default_condition(mock_next_point_calculator, mock_updater, mock_user_function):
@@ -123,7 +123,7 @@ def test_default_condition(mock_next_point_calculator, mock_updater, mock_user_f
     loop = OuterLoop(mock_next_point_calculator, mock_updater)
     loop.run_loop(mock_user_function, n_iter)
 
-    assert (loop.loop_state.iteration == n_iter)
+    assert loop.loop_state.iteration == n_iter
 
 
 def test_condition_invalid_type(mock_next_point_calculator, mock_updater, mock_user_function):
@@ -135,7 +135,7 @@ def test_condition_invalid_type(mock_next_point_calculator, mock_updater, mock_u
 
 
 def test_iteration_end_event():
-    space = ParameterSpace([ContinuousParameter('x', 0, 1)])
+    space = ParameterSpace([ContinuousParameter("x", 0, 1)])
 
     def user_function(x):
         return x

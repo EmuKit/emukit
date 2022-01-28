@@ -21,7 +21,7 @@ def test_objective_anchor_point_generator():
     anchor_points = generator.get(1)
 
     # Check that the X that is picked corresponds to the highest acquisition value
-    assert np.array_equal(anchor_points, np.array([[num_samples-1]]))
+    assert np.array_equal(anchor_points, np.array([[num_samples - 1]]))
 
 
 def test_constrained_objective_anchor_point_generator():

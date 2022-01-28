@@ -16,9 +16,15 @@ class ContinuousFidelityEntropySearch(EntropySearch):
     it computes the information gain only for the distribution of the minimum on the highest fidelity.
     """
 
-    def __init__(self, model: Union[IModel, IEntropySearchModel], space: ParameterSpace,
-                 target_fidelity_index: int = None, num_samples: int = 100,
-                 num_representer_points: int = 50, burn_in_steps: int = 50):
+    def __init__(
+        self,
+        model: Union[IModel, IEntropySearchModel],
+        space: ParameterSpace,
+        target_fidelity_index: int = None,
+        num_samples: int = 100,
+        num_representer_points: int = 50,
+        burn_in_steps: int = 50,
+    ):
         """
         :param model: Gaussian process model of the objective function that implements IEntropySearchModel
         :param space: Parameter space of the input domain
@@ -69,7 +75,7 @@ class ContinuousFidelityEntropySearch(EntropySearch):
             x_ = np.insert(x_, self.target_fidelity_index, idx, axis=1)
 
             if space.check_points_in_domain(x_):
-                val = np.log(np.clip(ei.evaluate(x_)[0], 0., np.PINF))
+                val = np.log(np.clip(ei.evaluate(x_)[0], 0.0, np.PINF))
                 if np.any(np.isnan(val)):
                     return np.array([np.NINF])
                 else:

@@ -14,15 +14,15 @@ _log = logging.getLogger(__name__)
 
 
 class StoppingCondition(abc.ABC):
-    """ Chooses whether to stop the optimization based on the loop state """
+    """Chooses whether to stop the optimization based on the loop state"""
 
-    def __and__(self, other: 'StoppingCondition') -> 'And':
+    def __and__(self, other: "StoppingCondition") -> "And":
         """
         Overloads self & other
         """
         return And(self, other)
 
-    def __or__(self, other: 'StoppingCondition') -> 'Or':
+    def __or__(self, other: "StoppingCondition") -> "Or":
         """
         Overloads self | other
         """
@@ -41,6 +41,7 @@ class And(StoppingCondition):
     """
     Logical AND of two stopping conditions
     """
+
     def __init__(self, left: StoppingCondition, right: StoppingCondition):
         """
         :param left: One stopping condition in AND
@@ -63,6 +64,7 @@ class Or(StoppingCondition):
     """
     Logical OR of two stopping conditions
     """
+
     def __init__(self, left: StoppingCondition, right: StoppingCondition):
         """
         :param left: One stopping condition in OR
@@ -82,7 +84,8 @@ class Or(StoppingCondition):
 
 
 class FixedIterationsStoppingCondition(StoppingCondition):
-    """ Stops after a fixed number of iterations """
+    """Stops after a fixed number of iterations"""
+
     def __init__(self, i_max: int) -> None:
         """
         :param i_max: Maximum number of function
@@ -102,11 +105,12 @@ class FixedIterationsStoppingCondition(StoppingCondition):
 
 
 class ConvergenceStoppingCondition(StoppingCondition):
-    """ Stops once we choose a point within eps of a previous
-            point (with respect to euclidean norm). Close evaluations
-            can suggest convergence of the optimization for problems 
-            with low observation noise.
-            """
+    """Stops once we choose a point within eps of a previous
+    point (with respect to euclidean norm). Close evaluations
+    can suggest convergence of the optimization for problems
+    with low observation noise.
+    """
+
     def __init__(self, eps: float) -> None:
         """
         :param eps: minimum distance between
@@ -123,7 +127,7 @@ class ConvergenceStoppingCondition(StoppingCondition):
         if loop_state.iteration < 2:
             # less than 2 evaluations so cannot calculate distance
             return False
-        should_stop = np.linalg.norm(loop_state.X[-1, :]-loop_state.X[-2, :]).item() <= self.eps
+        should_stop = np.linalg.norm(loop_state.X[-1, :] - loop_state.X[-2, :]).item() <= self.eps
         if should_stop is True:
             _log.info("Stopped as consecutive evaluations are within {}".format(self.eps))
         return should_stop

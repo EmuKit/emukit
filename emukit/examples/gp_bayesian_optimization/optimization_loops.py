@@ -14,11 +14,16 @@ from ..models.random_forest import RandomForest
 from .enums import AcquisitionType, ModelType
 
 
-def create_bayesian_optimization_loop(x_init: np.ndarray, y_init: np.ndarray, parameter_space: ParameterSpace,
-                                      acquisition_type: AcquisitionType, model_type: ModelType,
-                                      cost_init: np.ndarray = None,
-                                      model_kwargs: dict=None,
-                                      acquisition_optimizer: AcquisitionOptimizerBase = None) -> OuterLoop:
+def create_bayesian_optimization_loop(
+    x_init: np.ndarray,
+    y_init: np.ndarray,
+    parameter_space: ParameterSpace,
+    acquisition_type: AcquisitionType,
+    model_type: ModelType,
+    cost_init: np.ndarray = None,
+    model_kwargs: dict = None,
+    acquisition_optimizer: AcquisitionOptimizerBase = None,
+) -> OuterLoop:
     """
     Creates Bayesian optimization loop for Bayesian neural network or random forest models.
 
@@ -43,7 +48,7 @@ def create_bayesian_optimization_loop(x_init: np.ndarray, y_init: np.ndarray, pa
     elif model_type is ModelType.BayesianNeuralNetwork:
         model = Bohamiann(x_init, y_init, **model_kwargs)
     else:
-        raise ValueError('Unrecognised model type: ' + str(model_type))
+        raise ValueError("Unrecognised model type: " + str(model_type))
 
     # Create acquisition
     if acquisition_type is AcquisitionType.EI:
@@ -53,7 +58,7 @@ def create_bayesian_optimization_loop(x_init: np.ndarray, y_init: np.ndarray, pa
     elif acquisition_type is AcquisitionType.NLCB:
         acquisition = NegativeLowerConfidenceBound(model)
     else:
-        raise ValueError('Unrecognised acquisition type: ' + str(acquisition_type))
+        raise ValueError("Unrecognised acquisition type: " + str(acquisition_type))
 
     if acquisition_optimizer is None:
         acquisition_optimizer = GradientAcquisitionOptimizer(parameter_space)

@@ -10,6 +10,7 @@ class ModelFreeDesignBase(object):
     """
     Base class for all model free experiment designs
     """
+
     def __init__(self, parameter_space: ParameterSpace):
         """
         :param parameter_space: The parameter space to generate design for.

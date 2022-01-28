@@ -24,7 +24,7 @@ def convert_x_list_to_array(x_list: List) -> np.ndarray:
     """
     # First check everything is a 2d array
     if not np.all([x.ndim == 2 for x in x_list]):
-        raise ValueError('All x arrays must have 2 dimensions')
+        raise ValueError("All x arrays must have 2 dimensions")
 
     x_array = np.concatenate(x_list, axis=0)
     indices = []
@@ -41,9 +41,9 @@ def convert_y_list_to_array(y_list: List) -> np.ndarray:
     :param y_list: A list of (n_points x n_outputs) numpy arrays representing the outputs
                    ordered from lowest to highest fidelity
     :return: An array of all outputs
-     """
+    """
     if not np.all([y.ndim == 2 for y in y_list]):
-        raise ValueError('All y arrays must have 2 dimensions')
+        raise ValueError("All y arrays must have 2 dimensions")
     return np.concatenate(y_list, axis=0)
 
 
@@ -59,12 +59,12 @@ def convert_xy_lists_to_arrays(x_list: List, y_list: List) -> Tuple[np.ndarray, 
     """
 
     if len(x_list) != len(y_list):
-        raise ValueError('Different number of fidelities between x and y')
+        raise ValueError("Different number of fidelities between x and y")
 
     # Check same number of points in each fidelity
     n_points_x = np.array([x.shape[0] for x in x_list])
     n_points_y = np.array([y.shape[0] for y in y_list])
     if not np.all(n_points_x == n_points_y):
-        raise ValueError('Different number of points in x and y at the same fidelity')
+        raise ValueError("Different number of points in x and y at the same fidelity")
 
     return convert_x_list_to_array(x_list), convert_y_list_to_array(y_list)

@@ -18,10 +18,16 @@ from ..interfaces import IEntropySearchModel
 
 
 class EntropySearch(Acquisition):
-
-    def __init__(self, model: Union[IModel, IEntropySearchModel], space: ParameterSpace, sampler: McmcSampler = None,
-                 num_samples: int = 100, num_representer_points: int = 50,
-                 proposal_function: Callable = None, burn_in_steps: int = 50) -> None:
+    def __init__(
+        self,
+        model: Union[IModel, IEntropySearchModel],
+        space: ParameterSpace,
+        sampler: McmcSampler = None,
+        num_samples: int = 100,
+        num_representer_points: int = 50,
+        proposal_function: Callable = None,
+        burn_in_steps: int = 50,
+    ) -> None:
 
         """
         Entropy Search acquisition function approximates the distribution of the global
@@ -66,7 +72,7 @@ class EntropySearch(Acquisition):
                     x_ = x
 
                 if space.check_points_in_domain(x_):
-                    return np.log(np.clip(ei.evaluate(x_)[0], 0., np.PINF))
+                    return np.log(np.clip(ei.evaluate(x_)[0], 0.0, np.PINF))
                 else:
                     return np.array([np.NINF])
 
@@ -76,9 +82,9 @@ class EntropySearch(Acquisition):
 
         # This is used later to calculate derivative of the stochastic part for the loss function
         # Derived following Ito's Lemma, see for example https://en.wikipedia.org/wiki/It%C3%B4%27s_lemma
-        self.W = scipy.stats.norm.ppf(np.linspace(1. / (num_samples + 1),
-                                                  1 - 1. / (num_samples + 1),
-                                                  num_samples))[np.newaxis, :]
+        self.W = scipy.stats.norm.ppf(np.linspace(1.0 / (num_samples + 1), 1 - 1.0 / (num_samples + 1), num_samples))[
+            np.newaxis, :
+        ]
 
         # Initialize parameters to lazily compute them once needed
         self.representer_points = None
@@ -87,14 +93,16 @@ class EntropySearch(Acquisition):
         self.p_min_entropy = None
 
     def _sample_representer_points(self) -> tuple:
-        """ Samples a new set of representer points from the proposal measurement"""
+        """Samples a new set of representer points from the proposal measurement"""
 
-        repr_points, repr_points_log = self.sampler.get_samples(self.num_representer_points, self.proposal_function,
-                                                                self.burn_in_steps)
+        repr_points, repr_points_log = self.sampler.get_samples(
+            self.num_representer_points, self.proposal_function, self.burn_in_steps
+        )
 
         if np.any(np.isnan(repr_points_log)) or np.any(np.isposinf(repr_points_log)):
             raise RuntimeError(
-                "Sampler generated representer points with invalid log values: {}".format(repr_points_log))
+                "Sampler generated representer points with invalid log values: {}".format(repr_points_log)
+            )
 
         # Removing representer points that have 0 probability of being the minimum
         idx_to_remove = np.where(np.isneginf(repr_points_log))[0]
@@ -129,8 +137,9 @@ class EntropySearch(Acquisition):
         self.logP = self.logP[:, np.newaxis]
 
         # Calculate the entropy of the distribution over the minimum given the current model
-        self.p_min_entropy = np.sum(np.multiply(np.exp(self.logP), np.add(self.logP, self.representer_points_log)),
-                                    axis=0)
+        self.p_min_entropy = np.sum(
+            np.multiply(np.exp(self.logP), np.add(self.logP, self.representer_points_log)), axis=0
+        )
 
         return self.logP
 
@@ -166,9 +175,15 @@ class EntropySearch(Acquisition):
         dVdx = dVdx[np.triu(np.ones((N, N))).T.astype(bool), np.newaxis]
 
         dMdx_squared = dMdx.dot(dMdx.T)
-        trace_term = np.sum(np.sum(
-            np.multiply(self.dlogPdMudMu, np.reshape(dMdx_squared, (1, dMdx_squared.shape[0], dMdx_squared.shape[1]))),
-            2), 1)[:, np.newaxis]
+        trace_term = np.sum(
+            np.sum(
+                np.multiply(
+                    self.dlogPdMudMu, np.reshape(dMdx_squared, (1, dMdx_squared.shape[0], dMdx_squared.shape[1]))
+                ),
+                2,
+            ),
+            1,
+        )[:, np.newaxis]
 
         # Deterministic part of change:
         deterministic_change = self.dlogPdSigma.dot(dVdx) + 0.5 * trace_term
@@ -221,9 +236,16 @@ class MultiInformationSourceEntropySearch(EntropySearch):
     Entropy search acquisition for multi-information source problems where the objective function is the output of one
     of the information sources. The other information sources provide auxiliary information about the objective function
     """
-    def __init__(self, model: Union[IModel, IEntropySearchModel], space: ParameterSpace,
-                 target_information_source_index: int=None, num_samples: int = 100,
-                 num_representer_points: int = 50, burn_in_steps: int = 50):
+
+    def __init__(
+        self,
+        model: Union[IModel, IEntropySearchModel],
+        space: ParameterSpace,
+        target_information_source_index: int = None,
+        num_samples: int = 100,
+        num_representer_points: int = 50,
+        burn_in_steps: int = 50,
+    ):
         """
         :param model: Gaussian process model of the objective function that implements IEntropySearchModel
         :param space: Parameter space of the input domain
@@ -276,7 +298,7 @@ class MultiInformationSourceEntropySearch(EntropySearch):
             x_ = np.insert(x_, self.source_idx, idx, axis=1)
 
             if space.check_points_in_domain(x_):
-                val = np.log(np.clip(ei.evaluate(x_)[0], 0., np.PINF))
+                val = np.log(np.clip(ei.evaluate(x_)[0], 0.0, np.PINF))
                 if np.any(np.isnan(val)):
                     return np.array([np.NINF])
                 else:
@@ -297,6 +319,6 @@ def _find_source_parameter(space):
             source_idx = i
 
     if info_source_parameter is None:
-        raise ValueError('No information source parameter found in the parameter space')
+        raise ValueError("No information source parameter found in the parameter space")
 
     return info_source_parameter, source_idx

@@ -29,6 +29,7 @@ def bivariate_approximate_ground_truth_integral(func, integral_bounds: List[Tupl
     :param integral_bounds: bounds of integral
     :returns: integral estimate, output of scipy.integrate.dblquad
     """
+
     def func_dblquad(x, y):
         z = np.array([x, y])
         z = np.reshape(z, [1, 2])
@@ -40,5 +41,6 @@ def bivariate_approximate_ground_truth_integral(func, integral_bounds: List[Tupl
     lower_bound_y = integral_bounds[1][0]
     upper_bound_y = integral_bounds[1][1]
 
-    return dblquad(func=func_dblquad, a=lower_bound_x, b=upper_bound_x, gfun=lambda x: lower_bound_y,
-                   hfun=lambda x: upper_bound_y)
+    return dblquad(
+        func=func_dblquad, a=lower_bound_x, b=upper_bound_x, gfun=lambda x: lower_bound_y, hfun=lambda x: upper_bound_y
+    )

@@ -13,7 +13,7 @@ def test_joint_min():
     pmin = epmgp.joint_min(m, v)
     pmin = np.exp(pmin)
 
-    uprob = 1. / n_points
+    uprob = 1.0 / n_points
 
     assert pmin.shape[0] == n_points
     assert np.any(pmin < (uprob + 0.03)) and np.any(pmin > uprob - 0.01)

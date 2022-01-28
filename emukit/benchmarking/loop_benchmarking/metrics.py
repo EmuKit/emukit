@@ -18,7 +18,7 @@ class MeanSquaredErrorMetric(Metric):
     Mean squared error metric stored in loop state metric dictionary with key "mean_squared_error".
     """
 
-    def __init__(self, x_test: np.ndarray, y_test: np.ndarray, name: str='mean_squared_error'):
+    def __init__(self, x_test: np.ndarray, y_test: np.ndarray, name: str = "mean_squared_error"):
         """
         :param x_test: Input locations of test data
         :param y_test: Test targets
@@ -45,7 +45,7 @@ class MinimumObservedValueMetric(Metric):
     The result is stored in the "metrics" dictionary in the loop state with the key "minimum_observed_value"
     """
 
-    def __init__(self, name: str='minimum_observed_value'):
+    def __init__(self, name: str = "minimum_observed_value"):
         self.name = name
 
     def evaluate(self, loop: OuterLoop, loop_state: LoopState) -> np.ndarray:
@@ -64,7 +64,7 @@ class TimeMetric(Metric):
     Time taken between each iteration of the loop
     """
 
-    def __init__(self, name: str='time'):
+    def __init__(self, name: str = "time"):
         """
         :param name: Name of the metric. Defaults to "time"
         """
@@ -93,7 +93,7 @@ class CumulativeCostMetric(Metric):
     dictionary in the loop state with the key "cumulative_costs"
     """
 
-    def __init__(self, name: str='cumulative_costs'):
+    def __init__(self, name: str = "cumulative_costs"):
         self.name = name
         self.cumulative_costs = np.array([0.0])
         self.last_observed_iter = 0
@@ -108,7 +108,7 @@ class CumulativeCostMetric(Metric):
         :return cumulative cost
         """
         if loop_state.cost[-1] is not None:
-            self.cumulative_costs += np.cumsum(loop_state.cost[self.last_observed_iter:])[-1]
+            self.cumulative_costs += np.cumsum(loop_state.cost[self.last_observed_iter :])[-1]
             self.last_observed_iter = loop_state.cost.shape[0]
 
         return self.cumulative_costs

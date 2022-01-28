@@ -16,8 +16,10 @@ def test_entropy_search_update_pmin(entropy_search_acquisition):
 
     assert logP.shape[0] == entropy_search_acquisition.num_representer_points
     # Check if representer points are inside the bounds
-    assert np.all(np.all(entropy_search_acquisition.representer_points > 0) &
-                  np.all(entropy_search_acquisition.representer_points < 1))
+    assert np.all(
+        np.all(entropy_search_acquisition.representer_points > 0)
+        & np.all(entropy_search_acquisition.representer_points < 1)
+    )
 
 
 def test_innovations(entropy_search_acquisition):

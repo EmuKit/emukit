@@ -11,8 +11,15 @@ from .acquisitions import ModelVariance
 
 
 class ExperimentalDesignLoop(OuterLoop):
-    def __init__(self, space: ParameterSpace, model: IModel, acquisition: Acquisition = None, update_interval: int = 1,
-                 batch_size: int = 1, acquisition_optimizer: AcquisitionOptimizerBase = None):
+    def __init__(
+        self,
+        space: ParameterSpace,
+        model: IModel,
+        acquisition: Acquisition = None,
+        update_interval: int = 1,
+        batch_size: int = 1,
+        acquisition_optimizer: AcquisitionOptimizerBase = None,
+    ):
         """
         An outer loop class for use with Experimental design
 
@@ -38,10 +45,11 @@ class ExperimentalDesignLoop(OuterLoop):
         if batch_size == 1:
             candidate_point_calculator = SequentialPointCalculator(acquisition, acquisition_optimizer)
         elif batch_size > 1:
-            candidate_point_calculator = \
-                GreedyBatchPointCalculator(model, acquisition, acquisition_optimizer, batch_size)
+            candidate_point_calculator = GreedyBatchPointCalculator(
+                model, acquisition, acquisition_optimizer, batch_size
+            )
         else:
-            raise ValueError('Batch size value of ' + str(batch_size) + ' is invalid.')
+            raise ValueError("Batch size value of " + str(batch_size) + " is invalid.")
 
         model_updater = FixedIntervalUpdater(model, update_interval)
         loop_state = create_loop_state(model.X, model.Y)

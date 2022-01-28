@@ -29,6 +29,7 @@ class BayesianMonteCarloPointCalculator(CandidatePointCalculator):
     used with the same interface as the active and adaptive learning schemes that depend explicitly or implicitly
     (through hyperparameters) on the previous evaluations.
     """
+
     def __init__(self, model: WarpedBayesianQuadratureModel, parameter_space: ParameterSpace):
         """
         :param model: A warped Bayesian quadrature model
@@ -39,10 +40,12 @@ class BayesianMonteCarloPointCalculator(CandidatePointCalculator):
         # if measure is probability measure, check if it has sampling capabilities
         if self.model.base_gp.kern.measure is not None:
             if not self.model.base_gp.kern.measure.can_sample:
-                raise ValueError("The given probability measure does not support sampling, but Bayesian Monte Carlo "
-                                 "requires sampling capability.")
+                raise ValueError(
+                    "The given probability measure does not support sampling, but Bayesian Monte Carlo "
+                    "requires sampling capability."
+                )
 
-    def compute_next_points(self, loop_state: LoopState, context: dict=None) -> np.ndarray:
+    def compute_next_points(self, loop_state: LoopState, context: dict = None) -> np.ndarray:
         """
         :param loop_state: Object that contains current state of the loop
         :param context: Contains variables to fix and the values to fix them to. The dictionary key is the parameter

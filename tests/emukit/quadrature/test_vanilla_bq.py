@@ -160,6 +160,11 @@ def _compute_numerical_gradient(func, grad_func, x, eps=1e-6):
 
 def _check_grad(func, grad_func, x):
     grad, grad_num = _compute_numerical_gradient(func, grad_func, x)
-    isclose_all = 1 - np.array([isclose(grad[i, j], grad_num[i, j], rel_tol=REL_TOL, abs_tol=ABS_TOL)
-                                for i in range(grad.shape[0]) for j in range(grad.shape[1])])
+    isclose_all = 1 - np.array(
+        [
+            isclose(grad[i, j], grad_num[i, j], rel_tol=REL_TOL, abs_tol=ABS_TOL)
+            for i in range(grad.shape[0])
+            for j in range(grad.shape[1])
+        ]
+    )
     assert isclose_all.sum() == 0

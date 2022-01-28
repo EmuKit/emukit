@@ -12,6 +12,7 @@ class RandomDesign(ModelFreeDesignBase):
     Random experiment design.
     Uniform random values for all variables within the given bounds.
     """
+
     def __init__(self, parameter_space: ParameterSpace) -> None:
         """
         :param parameter_space: The parameter space to generate design for.
