@@ -289,7 +289,7 @@ class NonLinearMultiFidelityModel(IModel, IDifferentiable):
         samples = self.monte_carlo_rand_numbers * np.sqrt(sample_variance) + sample_mean.T
         samples = samples.flatten()[:, None]
         # Create inputs for each sample
-        x_repeat = np.repeat(X, self.n_samples ** i_level, axis=0)
+        x_repeat = np.repeat(X, self.n_samples**i_level, axis=0)
         # Augment input with mean of previous fidelity
         x_augmented = np.concatenate([x_repeat, samples], axis=1)
         # Predict mean and variance and fidelity i
@@ -316,7 +316,7 @@ class NonLinearMultiFidelityModel(IModel, IDifferentiable):
         # This calculates a (n_samples**(i-1), n_samples, n_dims) matrix
         tmp = self.monte_carlo_rand_numbers[:, np.newaxis, :] * dsample_std_dx[:, np.newaxis, :]
         dsamples_dx = dsample_mean_dx[np.newaxis, :, :] + tmp
-        dsamples_dx_reshaped = np.reshape(dsamples_dx, (self.n_samples ** i_fidelity, dsample_std_dx.shape[1]))
+        dsamples_dx_reshaped = np.reshape(dsamples_dx, (self.n_samples**i_fidelity, dsample_std_dx.shape[1]))
 
         # Get partial derivatives of mean and variance with respect to
         # both X and output of previous fidelity

@@ -11,7 +11,7 @@ from emukit.model_wrappers import GPyModelWrapper
 
 
 def f(x):
-    return x ** 2
+    return x**2
 
 
 def test_loop_initial_state():

@@ -35,5 +35,5 @@ def _circular_gaussian(x: np.ndarray, mean: np.float, variance: np.float) -> np.
     :param variance: variance of the Gaussian (must be > 0)
     :return: the function values at x, shape (num_points, 1)
     """
-    norm_x = np.sqrt((x ** 2).sum(axis=1, keepdims=True))
-    return norm_x ** 2 * np.exp(-((norm_x - mean) ** 2) / (2.0 * variance)) / np.sqrt(2.0 * np.pi * variance)
+    norm_x = np.sqrt((x**2).sum(axis=1, keepdims=True))
+    return norm_x**2 * np.exp(-((norm_x - mean) ** 2) / (2.0 * variance)) / np.sqrt(2.0 * np.pi * variance)

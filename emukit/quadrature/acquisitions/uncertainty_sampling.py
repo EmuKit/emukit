@@ -43,7 +43,7 @@ class UncertaintySampling(Acquisition):
             return variances, variances
         else:
             weights = self.model.measure.compute_density(x).reshape(variances.shape)
-            return variances * weights ** self._measure_power, variances
+            return variances * weights**self._measure_power, variances
 
     def evaluate(self, x: np.ndarray) -> np.ndarray:
         """Evaluate the acquisition function.
@@ -74,7 +74,7 @@ class UncertaintySampling(Acquisition):
             gradient_weighted = (density * variance_gradient.T).T + (variance[:, 0] * density_gradient.T).T
             return variance_weighted, gradient_weighted
 
-        gradient_weighted = (density ** p * variance_gradient.T).T + (
+        gradient_weighted = (density**p * variance_gradient.T).T + (
             p * (variance[:, 0] * density ** (p - 1)) * density_gradient.T
         ).T
 

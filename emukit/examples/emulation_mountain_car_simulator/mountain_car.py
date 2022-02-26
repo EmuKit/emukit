@@ -173,7 +173,7 @@ class plot_control(object):
         position_contour = np.linspace(-1.2, 0.6, n_points_contour)
         velocity_contour = np.linspace(-1 / 0.07, 1 / 0.07, n_points_contour)
         x_contour_grid = np.meshgrid(position_contour, velocity_contour)
-        x_contour = np.ones((n_points_contour ** 2, 3)) * control
+        x_contour = np.ones((n_points_contour**2, 3)) * control
         for i in range(0, len(x_contour_grid)):
             x_contour[:, i] = x_contour_grid[i].flatten()
 

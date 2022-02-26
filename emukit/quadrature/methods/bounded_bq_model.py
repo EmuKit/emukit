@@ -83,7 +83,7 @@ class BoundedBayesianQuadrature(WarpedBayesianQuadratureModel):
         mean_base, var_base = self.base_gp.predict(X_pred)
 
         mean_approx = self.transform(mean_base)
-        var_approx = var_base * (mean_base ** 2)
+        var_approx = var_base * (mean_base**2)
         return mean_approx, var_approx, mean_base, var_base
 
     def predict_base_with_full_covariance(
@@ -148,7 +148,7 @@ class BoundedBayesianQuadrature(WarpedBayesianQuadratureModel):
         d_mean_dx = mean_base * d_mean_dx  # broadcasting  (num_points, 1) and (num_points, num_dim)
 
         # gradient of variance
-        d_var_dx = (mean_base ** 2) * d_var_dx_base + (2 * var_base * mean_base) * d_mean_dx_base  # broadcasting
+        d_var_dx = (mean_base**2) * d_var_dx_base + (2 * var_base * mean_base) * d_mean_dx_base  # broadcasting
 
         # the gradient of the mean of the lower bounded model is the negative gradient of the upper bounded model.
         if not self.is_lower_bounded:

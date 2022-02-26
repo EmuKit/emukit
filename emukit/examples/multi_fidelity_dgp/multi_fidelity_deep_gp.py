@@ -136,13 +136,9 @@ class DGP_Base(Model):
         Fs, Fmeans, Fvars = [], [], []
 
         F = sX
-        zs = (
-            zs
-            or [
-                None,
-            ]
-            * len(self.layers)
-        )
+        zs = zs or [
+            None,
+        ] * len(self.layers)
 
         for i, (layer, z) in enumerate(zip(self.layers, zs)):
             if i == 0:

@@ -26,7 +26,7 @@ class MockIModel(IModel):
 
 
 def deterministic_test_func(x: np.ndarray) -> np.ndarray:
-    return np.sin(x * 30 + x ** 2).sum(axis=-1, keepdims=True)
+    return np.sin(x * 30 + x**2).sum(axis=-1, keepdims=True)
 
 
 class MockNoiselessModel(MockIModel, IModelWithNoise):

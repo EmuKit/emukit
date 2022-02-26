@@ -13,7 +13,7 @@ from emukit.model_wrappers.gpy_model_wrappers import GPyModelWrapper
 
 
 def f(x):
-    return x ** 2
+    return x**2
 
 
 @pytest.mark.parametrize("batch_size", [1, 3])

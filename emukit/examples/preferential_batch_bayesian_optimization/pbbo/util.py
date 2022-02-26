@@ -223,7 +223,7 @@ def adam(
                 get_logger().error("Error in objective when optimizing with Adam. Location:\n".format(x))
             break
         mt = beta1 * mt + (1 - beta1) * grad  # update the moving averages of the gradient
-        vt = beta2 * vt + (1 - beta2) * (grad ** 2)  # updates the moving averages of the squared gradient
+        vt = beta2 * vt + (1 - beta2) * (grad**2)  # updates the moving averages of the squared gradient
         m_cap = mt / (1 - (beta1 ** (it + 1)))  # calculates the bias-corrected estimates
         v_cap = vt / (1 - (beta2 ** (it + 1)))  # calculates the bias-corrected estimates
         delta = (alpha * m_cap) / (np.sqrt(v_cap) + eps)

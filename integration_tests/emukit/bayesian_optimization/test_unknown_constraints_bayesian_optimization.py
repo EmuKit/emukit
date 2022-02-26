@@ -8,7 +8,7 @@ from emukit.examples.gp_bayesian_optimization.unknown_constraint_bayesian_optimi
 
 
 def f(x):
-    return x ** 2
+    return x**2
 
 
 def fc(x):

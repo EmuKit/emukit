@@ -30,5 +30,5 @@ def _hennig2D(x: np.ndarray, S: np.ndarray = None) -> np.ndarray:
     """
     if S is None:
         S = np.array([[1, 0.5], [0.5, 1]])
-    f = np.exp(-np.sin(3 * np.sum(x ** 2, axis=1)) - np.sum((x @ S) * x, axis=1))
+    f = np.exp(-np.sin(3 * np.sum(x**2, axis=1)) - np.sum((x @ S) * x, axis=1))
     return np.reshape(f, [x.shape[0], 1])

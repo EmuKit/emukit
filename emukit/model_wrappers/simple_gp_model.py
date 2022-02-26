@@ -95,7 +95,7 @@ class SimpleGaussianProcessModel(IModel):
         X2sq = np.sum(np.square(X2), 1)
         r2 = -2.0 * np.dot(X, X2.T) + (X1sq[:, None] + X2sq[None, :])
         r2 = np.clip(r2, 0, np.inf)
-        return self.kernel_variance * np.exp(-0.5 * r2 / self.lengthscale ** 2)
+        return self.kernel_variance * np.exp(-0.5 * r2 / self.lengthscale**2)
 
     def _negative_marginal_log_likelihood(self) -> float:
         """

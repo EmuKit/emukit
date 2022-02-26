@@ -35,7 +35,7 @@ def multi_fidelity_park_function() -> Tuple[MultiSourceFunctionWrapper, Paramete
         x3 = x[:, 2]
         x4 = x[:, 3]
 
-        tmp = 1 + (x2 + x3) * (x4 / x1 ** 2)
+        tmp = 1 + (x2 + x3) * (x4 / x1**2)
         return ((x1 / 2) * (np.sqrt(tmp) - 1) + (x1 + 3 * x4) * np.exp(1 + np.sin(x3)))[:, None]
 
     def park_low(x):
@@ -45,7 +45,7 @@ def multi_fidelity_park_function() -> Tuple[MultiSourceFunctionWrapper, Paramete
         x2 = x[:, 1]
         x3 = x[:, 2]
 
-        return ((1 + np.sin(x1) / 10) * f_high.flatten() - 2 * x1 + x2 ** 2 + x3 ** 2 + 0.5)[:, None]
+        return ((1 + np.sin(x1) / 10) * f_high.flatten() - 2 * x1 + x2**2 + x3**2 + 0.5)[:, None]
 
     space = ParameterSpace(
         [

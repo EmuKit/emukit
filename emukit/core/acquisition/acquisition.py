@@ -112,7 +112,7 @@ class Quotient(Acquisition):
         value = numerator_value / denominator_value
         # Calculate gradient of acquisition
         gradient = (numerator_gradients / denominator_value) - (
-            (denominator_gradients * numerator_value) / (denominator_value ** 2)
+            (denominator_gradients * numerator_value) / (denominator_value**2)
         )
         return value, gradient
 

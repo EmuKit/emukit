@@ -332,7 +332,7 @@ def ep_comparison(
         # check for convergence
         new_params = np.hstack((f_post_params.mu.copy(), f_post_params.Sigma_diag.copy()))
         converged = True
-        if np.mean((new_params - old_params) ** 2) / np.mean(old_params ** 2) < tol:
+        if np.mean((new_params - old_params) ** 2) / np.mean(old_params**2) < tol:
             pass
         else:
             converged = False

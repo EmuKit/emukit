@@ -5,7 +5,7 @@ from emukit.examples.gp_bayesian_optimization.single_objective_bayesian_optimiza
 
 
 def f(x):
-    return x ** 2
+    return x**2
 
 
 def test_loop():

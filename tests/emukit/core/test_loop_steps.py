@@ -83,7 +83,7 @@ def test_sequential_evaluator():
 def test_sequential_with_context():
     mock_acquisition = mock.create_autospec(Acquisition)
     mock_acquisition.has_gradients = False
-    mock_acquisition.evaluate = lambda x: np.sum(x ** 2, axis=1)[:, None]
+    mock_acquisition.evaluate = lambda x: np.sum(x**2, axis=1)[:, None]
     space = ParameterSpace([ContinuousParameter("x", 0, 1), ContinuousParameter("y", 0, 1)])
     acquisition_optimizer = GradientAcquisitionOptimizer(space)
 
@@ -100,7 +100,7 @@ def test_sequential_with_context():
 def test_sequential_with_all_parameters_fixed():
     mock_acquisition = mock.create_autospec(Acquisition)
     mock_acquisition.has_gradients = False
-    mock_acquisition.evaluate = lambda x: np.sum(x ** 2, axis=1)[:, None]
+    mock_acquisition.evaluate = lambda x: np.sum(x**2, axis=1)[:, None]
     space = ParameterSpace([ContinuousParameter("x", 0, 1), ContinuousParameter("y", 0, 1)])
     acquisition_optimizer = GradientAcquisitionOptimizer(space)
 
