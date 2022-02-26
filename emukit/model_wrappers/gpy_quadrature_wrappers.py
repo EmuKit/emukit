@@ -161,7 +161,7 @@ class RBFGPy(IRBF):
         :return: the gradient of the kernel wrt x1 evaluated at (x1, x2), shape (input_dim, N, M)
         """
         K = self.K(x1, x2)
-        scaled_vector_diff = (x1.T[:, :, None] - x2.T[:, None, :]) / self.lengthscale ** 2
+        scaled_vector_diff = (x1.T[:, :, None] - x2.T[:, None, :]) / self.lengthscale**2
         dK_dx1 = -K[None, ...] * scaled_vector_diff
         return dK_dx1
 

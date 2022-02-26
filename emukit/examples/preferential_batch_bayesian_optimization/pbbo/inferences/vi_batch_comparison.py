@@ -237,7 +237,7 @@ def recompute_posterior_fr(
     assert L.shape[0] == 1
     L = L[0, :, :]
     lam_sqrt = np.diag(L)
-    lam = lam_sqrt ** 2
+    lam = lam_sqrt**2
 
     # Compute Mean
     m = K @ alpha

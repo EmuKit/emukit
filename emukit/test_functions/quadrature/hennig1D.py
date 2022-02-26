@@ -28,4 +28,4 @@ def _hennig1D(x: np.ndarray) -> np.ndarray:
     :param x: locations for evaluation (num_points, 1)
     :return: the function values at x, shape (num_points, 1)
     """
-    return np.exp(-(x ** 2) - np.sin(3.0 * x) ** 2)
+    return np.exp(-(x**2) - np.sin(3.0 * x) ** 2)

@@ -41,7 +41,7 @@ def fmin_fabolas(
     Y_init = np.zeros([n_init, 1])
     cost_init = np.zeros([n_init])
 
-    subsets = np.array([s_max // 2 ** i for i in range(2, 10)])[::-1]
+    subsets = np.array([s_max // 2**i for i in range(2, 10)])[::-1]
     idx = np.where(subsets < s_min)[0]
 
     subsets[idx] = s_min

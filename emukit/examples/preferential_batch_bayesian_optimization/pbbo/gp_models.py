@@ -294,7 +294,7 @@ class VIComparisonGP(ComparisonGP):
         self.sigma2s = self.likelihood.variance * np.ones((X.shape[0], 1), dtype=int)
         alpha = np.zeros((self.N, 1))
         if self.vi_mode == "fr":
-            beta = np.ones((int((self.N ** 2 + self.N) / 2), 1))
+            beta = np.ones((int((self.N**2 + self.N) / 2), 1))
         else:
             beta = np.ones((self.N, 1))
         for i in range(len(self.alpha)):

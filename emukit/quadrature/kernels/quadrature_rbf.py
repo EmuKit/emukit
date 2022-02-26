@@ -155,9 +155,9 @@ class QuadratureRBFLebesgueMeasure(QuadratureRBF):
         """
         lower_bounds = self.integral_bounds.lower_bounds
         upper_bounds = self.integral_bounds.upper_bounds
-        prefac = self.variance * (2.0 * self.lengthscale ** 2) ** self.input_dim
+        prefac = self.variance * (2.0 * self.lengthscale**2) ** self.input_dim
         diff_bounds_scaled = self._scaled_vector_diff(upper_bounds, lower_bounds)
-        exp_term = np.exp(-(diff_bounds_scaled ** 2)) - 1.0
+        exp_term = np.exp(-(diff_bounds_scaled**2)) - 1.0
         erf_term = erf(diff_bounds_scaled) * diff_bounds_scaled * np.sqrt(np.pi)
 
         return float(prefac * (exp_term + erf_term).prod())
@@ -204,10 +204,10 @@ class QuadratureRBFIsoGaussMeasure(QuadratureRBF):
         :returns: kernel mean at location x2, shape (1, N)
         """
         lengthscale = scale_factor * self.lengthscale
-        det_factor = (self.measure.variance / lengthscale ** 2 + 1) ** (self.input_dim / 2)
-        scale = np.sqrt(lengthscale ** 2 + self.measure.variance)
+        det_factor = (self.measure.variance / lengthscale**2 + 1) ** (self.input_dim / 2)
+        scale = np.sqrt(lengthscale**2 + self.measure.variance)
         scaled_vector_diff = self._scaled_vector_diff(x2, self.measure.mean, scale)
-        kernel_mean = (self.variance / det_factor) * np.exp(-np.sum(scaled_vector_diff ** 2, axis=1))
+        kernel_mean = (self.variance / det_factor) * np.exp(-np.sum(scaled_vector_diff**2, axis=1))
         return kernel_mean.reshape(1, -1)
 
     def qKq(self) -> float:
@@ -216,7 +216,7 @@ class QuadratureRBFIsoGaussMeasure(QuadratureRBF):
 
         :returns: double integrated kernel
         """
-        factor = (2 * self.measure.variance / self.lengthscale ** 2 + 1) ** (self.input_dim / 2)
+        factor = (2 * self.measure.variance / self.lengthscale**2 + 1) ** (self.input_dim / 2)
         result = self.variance / factor
         return float(result)
 
@@ -228,7 +228,7 @@ class QuadratureRBFIsoGaussMeasure(QuadratureRBF):
         :return: the gradient with shape (input_dim, N)
         """
         qK_x = self.qK(x2)
-        factor = 1.0 / (self.lengthscale ** 2 + self.measure.variance)
+        factor = 1.0 / (self.lengthscale**2 + self.measure.variance)
         return -(qK_x * factor) * (x2 - self.measure.mean).T
 
 
@@ -300,12 +300,12 @@ class QuadratureRBFUniformMeasure(QuadratureRBF):
         """
         lower_bounds = np.array([b[0] for b in self._bounds_list_for_kernel_integrals])
         upper_bounds = np.array([b[1] for b in self._bounds_list_for_kernel_integrals])
-        prefac = self.variance * (2.0 * self.lengthscale ** 2) ** self.input_dim
+        prefac = self.variance * (2.0 * self.lengthscale**2) ** self.input_dim
         diff_bounds_scaled = self._scaled_vector_diff(upper_bounds, lower_bounds)
-        exp_term = np.exp(-(diff_bounds_scaled ** 2)) - 1.0
+        exp_term = np.exp(-(diff_bounds_scaled**2)) - 1.0
         erf_term = erf(diff_bounds_scaled) * diff_bounds_scaled * np.sqrt(np.pi)
 
-        return float(prefac * (exp_term + erf_term).prod()) * self.measure.density ** 2
+        return float(prefac * (exp_term + erf_term).prod()) * self.measure.density**2
 
     def dqK_dx(self, x2: np.ndarray) -> np.ndarray:
         """

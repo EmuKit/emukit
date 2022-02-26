@@ -293,7 +293,7 @@ class MUMBO(MaxValueEntropySearch):
         # build discretisation
         z = np.linspace(lower_limit, upper_limit, num=5000)
         # calculate ESG density at these points
-        minus_correlations = np.sqrt(1 - correlations ** 2)
+        minus_correlations = np.sqrt(1 - correlations**2)
         # clip below for numerical stability
         minus_correlations = np.maximum(minus_correlations, 1e-10)
         density = norm.pdf(z) * (1 - norm.cdf((gammas - correlations * z) / minus_correlations)) / minus_cdf

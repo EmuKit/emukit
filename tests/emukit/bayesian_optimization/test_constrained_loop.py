@@ -9,7 +9,7 @@ from emukit.model_wrappers import GPyModelWrapper
 
 
 def f(x):
-    return x ** 2, x - 0.5
+    return x**2, x - 0.5
 
 
 def test_loop():

@@ -27,7 +27,7 @@ def dK_dX(self, X: np.ndarray, X2: np.ndarray, dimX: int):
     r = self._scaled_dist(X, X2)
     K = self.K_of_r(r)
     dist = X[:, None, dimX] - X2[None, :, dimX]
-    lengthscale2inv = (np.ones((X.shape[1])) / (self.lengthscale ** 2))[dimX]
+    lengthscale2inv = (np.ones((X.shape[1])) / (self.lengthscale**2))[dimX]
     return -1.0 * K * dist * lengthscale2inv
 
 
@@ -344,7 +344,7 @@ class SumOfVariances(ExpectationAcquisition):
             prs = np.prod(
                 phi((f[:, mi] - y[:, i, None]) / sqrt_nu[None, mi]), axis=1
             )  # Equation 3 in the draft (or the simplified version of it at the end of Section 2.2)
-            prs2 = prs ** 2
+            prs2 = prs**2
             liks[i] = (
                 np.mean(prs2, axis=0) - np.mean(prs, axis=0) ** 2
             )  # Variance of p(y_i \leq y_j \forall i \neq j) weighted by p(y_i \leq y_j \forall i \neq j)

@@ -123,7 +123,7 @@ class BayesianOptimization:
         dim = len(bounds)
 
         lik = GPy.likelihoods.Gaussian()
-        lik.variance.constrain_fixed(self.noise ** 2, warning=False)
+        lik.variance.constrain_fixed(self.noise**2, warning=False)
         noise = self.noise
 
         X0 = np.empty((0, dim))
@@ -142,13 +142,13 @@ class BayesianOptimization:
         # Initial observations:
         if self.use_comparative_observations_in_init:
             if self.random:
-                X0 = util.random_sample(bounds, 2 ** dim)
+                X0 = util.random_sample(bounds, 2**dim)
             else:
                 X0 = util.grid_sample(dim)
             yc = util.give_comparisons(objective.f, X0)
         if self.use_direct_observations_in_init:
             if self.random:
-                Xn = util.random_sample(bounds, 2 ** dim)
+                Xn = util.random_sample(bounds, 2**dim)
             else:
                 Xn = util.grid_sample(dim)
             yn = objective.f(Xn).reshape((-1, 1))

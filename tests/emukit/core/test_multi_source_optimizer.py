@@ -44,7 +44,7 @@ def test_multi_source_sequential_with_context():
     # Check that we can fix a non-information source parameter with context
     mock_acquisition = mock.create_autospec(Acquisition)
     mock_acquisition.has_gradients = False
-    mock_acquisition.evaluate = lambda x: np.sum(x ** 2, axis=1)[:, None]
+    mock_acquisition.evaluate = lambda x: np.sum(x**2, axis=1)[:, None]
     space = ParameterSpace(
         [ContinuousParameter("x", 0, 1), ContinuousParameter("y", 0, 1), InformationSourceParameter(2)]
     )
@@ -65,7 +65,7 @@ def test_multi_source_sequential_with_source_context():
     # Check that we can fix a non-information source parameter with context
     mock_acquisition = mock.create_autospec(Acquisition)
     mock_acquisition.has_gradients = False
-    mock_acquisition.evaluate = lambda x: np.sum(x ** 2, axis=1)[:, None]
+    mock_acquisition.evaluate = lambda x: np.sum(x**2, axis=1)[:, None]
     space = ParameterSpace(
         [ContinuousParameter("x", 0, 1), ContinuousParameter("y", 0, 1), InformationSourceParameter(2)]
     )

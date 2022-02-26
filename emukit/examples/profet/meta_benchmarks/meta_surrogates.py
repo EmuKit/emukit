@@ -29,7 +29,7 @@ def objective_function(
     log_variance = output[:, 1]
     if y_mean_objective is not None or y_std_objective is not None:
         mean = mean * y_std_objective + y_mean_objective
-        log_variance *= y_std_objective ** 2
+        log_variance *= y_std_objective**2
 
     feval = mean
     if with_noise:
@@ -47,7 +47,7 @@ def objective_function(
     log_log_variance = output[:, 1]
     if y_mean_cost is not None or y_std_cost is not None:
         log_mean = log_mean * y_std_cost + y_mean_cost
-        log_log_variance *= y_std_cost ** 2
+        log_log_variance *= y_std_cost**2
 
     log_cost = log_mean
     if with_noise:

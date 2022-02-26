@@ -211,7 +211,7 @@ class IsotropicGaussianMeasure(IntegrationMeasure):
         """
         factor = (2 * np.pi * self.variance) ** (self.num_dimensions / 2)
         scaled_diff = (x - self.mean) / (np.sqrt(2 * self.variance))
-        return np.exp(-np.sum(scaled_diff ** 2, axis=1)) / factor
+        return np.exp(-np.sum(scaled_diff**2, axis=1)) / factor
 
     def compute_density_gradient(self, x: np.ndarray) -> np.ndarray:
         """

@@ -98,7 +98,7 @@ class GPyModelWrapper(
         """
         covariance = self.model.posterior_covariance_between_points(x_train_new, x_test, include_likelihood=False)
         variance_prediction = self.model.predict(x_train_new)[1]
-        return covariance ** 2 / variance_prediction
+        return covariance**2 / variance_prediction
 
     def predict_covariance(self, X: np.ndarray, with_noise: bool = True) -> np.ndarray:
         """
@@ -261,7 +261,7 @@ class GPyMultiOutputWrapper(IModel, IDifferentiable, ICalculateVarianceReduction
         y_metadata = {"output_index": fidelities_train_new.astype(int)}
         covariance = self.gpy_model.posterior_covariance_between_points(x_train_new, x_test, include_likelihood=False)
         variance_prediction = self.gpy_model.predict(x_train_new, Y_metadata=y_metadata)[1]
-        return covariance ** 2 / variance_prediction
+        return covariance**2 / variance_prediction
 
     def get_prediction_gradients(self, X: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
         """

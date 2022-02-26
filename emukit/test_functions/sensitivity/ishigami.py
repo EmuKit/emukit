@@ -27,12 +27,12 @@ class Ishigami(object):
         self.a = a
         self.b = b
 
-        self.variance_total = 0.5 + self.a ** 2 / 8 + np.pi ** 4 * self.b / 5 + np.pi ** 8 * self.b ** 2 / 18
-        self.variance_x1 = 0.5 * (1 + self.b * np.pi ** 4 / 5) ** 2
-        self.variance_x2 = self.a ** 2 / 8
+        self.variance_total = 0.5 + self.a**2 / 8 + np.pi**4 * self.b / 5 + np.pi**8 * self.b**2 / 18
+        self.variance_x1 = 0.5 * (1 + self.b * np.pi**4 / 5) ** 2
+        self.variance_x2 = self.a**2 / 8
         self.variance_x3 = 0
         self.variance_x12 = 0
-        self.variance_x13 = np.pi ** 8 * self.b ** 2 * (1 / 18 - 1 / 50)
+        self.variance_x13 = np.pi**8 * self.b**2 * (1 / 18 - 1 / 50)
         self.variance_x23 = 0
         self.variance_x123 = 0
 
@@ -104,7 +104,7 @@ class Ishigami(object):
         """
         First order effect of x_1 on high fidelity function
         """
-        return (1 + (self.b / 5) * np.pi ** 4) * np.sin(x1)
+        return (1 + (self.b / 5) * np.pi**4) * np.sin(x1)
 
     def f2(self, x2) -> np.ndarray:
         """
@@ -128,7 +128,7 @@ class Ishigami(object):
         """
         Second order effect of x_1 and x_3 on high fidelity function
         """
-        return self.b * np.sin(x13[:, 0]) * (x13[:, 1] ** 4 - np.pi ** 4 / 5)
+        return self.b * np.sin(x13[:, 0]) * (x13[:, 1] ** 4 - np.pi**4 / 5)
 
     def f23(self, x23) -> np.ndarray:
         """

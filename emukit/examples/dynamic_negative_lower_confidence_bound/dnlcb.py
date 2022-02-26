@@ -26,7 +26,7 @@ class DynamicNegativeLowerConfidenceBound(NegativeLowerConfidenceBound):
         self.iteration = 0
 
     def optimal_beta_selection(self) -> float:
-        return 2 * np.log(self.input_space_size * (self.iteration ** 2) * (np.pi ** 2) / (6 * self.delta))
+        return 2 * np.log(self.input_space_size * (self.iteration**2) * (np.pi**2) / (6 * self.delta))
 
     def update_parameters(self) -> None:
         self.iteration += 1

@@ -35,7 +35,7 @@ def multi_fidelity_currin_function() -> Tuple[MultiSourceFunctionWrapper, Parame
         return (
             1
             - np.exp(-0.5 / x2)
-            * ((2300 * x1 ** 3 + 1900 * x1 ** 2 + 2092 * x1 + 60) / (100 * x1 ** 3 + 500 * x1 ** 2 + 4 * x1 + 20))
+            * ((2300 * x1**3 + 1900 * x1**2 + 2092 * x1 + 60) / (100 * x1**3 + 500 * x1**2 + 4 * x1 + 20))
         )[:, None]
 
     def low(x):

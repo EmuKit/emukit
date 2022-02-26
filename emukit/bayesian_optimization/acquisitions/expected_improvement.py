@@ -459,7 +459,7 @@ class MultipointExpectedImprovement(ExpectedImprovement):
                 Sigk_dx_ii = Sigk_dx[:, :, i, i]
                 Sigk_dx_ik = Sigk_dx[:, :, i, k]
                 phi_ik = np.max([scipy.stats.multivariate_normal.pdf(bk[i, 0], mk_i, Sigk_ii), 1e-11])
-                dphi_ik_dSig = ((bk_i - mk_i) ** 2 / (2.0 * Sigk_ii ** 2) - 0.5 / Sigk_ii) * phi_ik
+                dphi_ik_dSig = ((bk_i - mk_i) ** 2 / (2.0 * Sigk_ii**2) - 0.5 / Sigk_ii) * phi_ik
                 dphi_ik_dm = (bk_i - mk_i) / Sigk_ii * phi_ik
                 Phi_ik = symmetric_term[k, i] / phi_ik
                 GPhi_ik = Phi_gradient(ck_pi, np.zeros((q - 1, 1)), Sigk_pi)
@@ -479,13 +479,13 @@ class MultipointExpectedImprovement(ExpectedImprovement):
                     # B3: Fourth row of Equation (6) in the paper
                     dck_pi = (
                         -mk_dx[l, j, ineq]
-                        + (mk_dx_i[l, j] * Sigk_ii + (bk_i - mk_i) * Sigk_dx_ii[l, j]) / (Sigk_ii ** 2) * Sigk_mi[:, 0]
+                        + (mk_dx_i[l, j] * Sigk_ii + (bk_i - mk_i) * Sigk_dx_ii[l, j]) / (Sigk_ii**2) * Sigk_mi[:, 0]
                         - (bk[i, 0] - mk_i) / Sigk_ii * Sigk_dx[l, j, ineq, i]
                     )
                     SigtCross = Sigk_dx[l, j, ineq, i, None] @ Sigk_mi.T
                     dSigk_pi = (
                         Sigk_dx[l, j, :, :][:, ineq][ineq, :]
-                        + Sigk_dx_ii[l, j] / (Sigk_ii ** 2) * (Sigk_mi @ Sigk_mi.T)
+                        + Sigk_dx_ii[l, j] / (Sigk_ii**2) * (Sigk_mi @ Sigk_mi.T)
                         - (1.0 / Sigk_ii) * (SigtCross + SigtCross.T)
                     )
                     B3[l, j] = B3[l, j] + Sigk_ik * phi_ik * ((GPhi_ik.T @ dck_pi) + 0.5 * np.sum(HPhi_ik * dSigk_pi))
