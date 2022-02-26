@@ -119,7 +119,12 @@ def _estimate_lipschitz_constant(space: ParameterSpace, model: IDifferentiable):
     res = scipy.optimize.minimize(
         lambda x: negative_gradient_norm(x[None, :]), x0, bounds=space.get_bounds(), options={"maxiter": MAX_ITER}
     )
-    lipschitz_constant = -res.fun[0]
+    # in Scipy 1.7.3 and below `run.fun` is a single-valued numpy array
+    # in Scipy 1.8.0 this changed to a float number
+    # Very annoying! See https://github.com/EmuKit/emukit/issues/402
+    # so here we use `np.atleast_1d` to make them the same
+    function_value = np.atleast_1d(res.fun)
+    lipschitz_constant = -function_value[0]
 
     min_lipschitz_constant = 1e-7
     fallback_lipschitz_constant = 10  # Value to use if calculated value is below minimum allowed
