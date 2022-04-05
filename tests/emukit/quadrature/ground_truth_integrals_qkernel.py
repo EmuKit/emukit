@@ -9,11 +9,12 @@ from typing import List, Tuple
 import GPy
 import numpy as np
 
-from emukit.model_wrappers.gpy_quadrature_wrappers import RBFGPy
+from emukit.model_wrappers.gpy_quadrature_wrappers import Matern32GPy, RBFGPy
 from emukit.quadrature.kernels import (
     QuadratureRBFIsoGaussMeasure,
     QuadratureRBFLebesgueMeasure,
     QuadratureRBFUniformMeasure,
+    QuadratureMatern32LebesgueMeasure,
 )
 from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure, UniformMeasure
 
@@ -99,34 +100,51 @@ if __name__ == "__main__":
     np.random.seed(0)
 
     # === Choose MEASURE BELOW ======
-    # MEASURE_INTBOUNDS = 'Lebesgue-finite'
+    MEASURE_INTBOUNDS = 'Lebesgue-finite'
     # MEASURE_INTBOUNDS = 'GaussIso-infinite'
     # MEASURE_INTBOUNDS = 'Uniform-infinite'
-    MEASURE_INTBOUNDS = "Uniform-finite"
+    # MEASURE_INTBOUNDS = "Uniform-finite"
+    # === CHOOSE MEASURE ABOVE ======
+
+    # === Choose KERNEL BELOW ======
+    # KERNEL = 'rbf'
+    KERNEL = 'matern32'
     # === CHOOSE MEASURE ABOVE ======
 
     x1 = np.array([[-1, 1], [0, 0], [-2, 0.1]])
     x2 = np.array([[-1, 1], [0, 0], [-2, 0.1], [-3, 3]])
     D = x1.shape[1]
 
-    gpy_kernel = GPy.kern.RBF(input_dim=D)
-    emukit_rbf = RBFGPy(gpy_kernel)
+    _e = "Measure-integral-bounds combination not defined"
+    if KERNEL == 'rbf':
+        gpy_kernel = GPy.kern.RBF(input_dim=D)
+        emukit_kern = RBFGPy(gpy_kernel)
 
-    if MEASURE_INTBOUNDS == "Lebesgue-finite":
-        emukit_qrbf = QuadratureRBFLebesgueMeasure(emukit_rbf, integral_bounds=[(-1, 2), (-3, 3)])
-    elif MEASURE_INTBOUNDS == "GaussIso-infinite":
-        measure = IsotropicGaussianMeasure(mean=np.arange(D), variance=2.0)
-        emukit_qrbf = QuadratureRBFIsoGaussMeasure(rbf_kernel=emukit_rbf, measure=measure)
-    elif MEASURE_INTBOUNDS == "Uniform-infinite":
-        measure = UniformMeasure(bounds=[(0, 2), (-4, 3)])
-        emukit_qrbf = QuadratureRBFUniformMeasure(emukit_rbf, integral_bounds=None, measure=measure)
-    elif MEASURE_INTBOUNDS == "Uniform-finite":
-        measure = UniformMeasure(bounds=[(1, 2), (-4, 2)])
-        emukit_qrbf = QuadratureRBFUniformMeasure(emukit_rbf, integral_bounds=[(-1, 2), (-3, 3)], measure=measure)
-    else:
-        raise ValueError("Measure-integral-bounds combination not defined")
+        if MEASURE_INTBOUNDS == "Lebesgue-finite":
+            emukit_qkern = QuadratureRBFLebesgueMeasure(emukit_kern, integral_bounds=[(-1, 2), (-3, 3)])
+        elif MEASURE_INTBOUNDS == "GaussIso-infinite":
+            measure = IsotropicGaussianMeasure(mean=np.arange(D), variance=2.0)
+            emukit_qkern = QuadratureRBFIsoGaussMeasure(rbf_kernel=emukit_kern, measure=measure)
+        elif MEASURE_INTBOUNDS == "Uniform-infinite":
+            measure = UniformMeasure(bounds=[(0, 2), (-4, 3)])
+            emukit_qkern = QuadratureRBFUniformMeasure(emukit_kern, integral_bounds=None, measure=measure)
+        elif MEASURE_INTBOUNDS == "Uniform-finite":
+            measure = UniformMeasure(bounds=[(1, 2), (-4, 2)])
+            emukit_qkern = QuadratureRBFUniformMeasure(emukit_kern, integral_bounds=[(-1, 2), (-3, 3)], measure=measure)
+        else:
+            raise ValueError(_e)
+
+    if KERNEL == 'matern32':
+        gpy_kernel = GPy.kern.Matern32(input_dim=D)
+        emukit_kern = Matern32GPy(gpy_kernel)
+
+        if MEASURE_INTBOUNDS == "Lebesgue-finite":
+            emukit_qkern = QuadratureMatern32LebesgueMeasure(emukit_kern, integral_bounds=[(-1, 2), (-3, 3)])
+        else:
+            raise ValueError(_e)
 
     print()
+    print("kernel: {}".format(KERNEL))
     print("measure: {}".format(MEASURE_INTBOUNDS))
     print("no dimensions: {}".format(D))
     print()
@@ -137,18 +155,18 @@ if __name__ == "__main__":
     num_std = 3
 
     qK_SAMPLES = np.zeros([num_runs, x2.shape[0]])
-    qK = emukit_qrbf.qK(x2)[0, :]
+    qK = emukit_qkern.qK(x2)[0, :]
     for i in range(num_runs):
         num_samples = int(num_samples)
 
         if MEASURE_INTBOUNDS == "Lebesgue-finite":
-            qK_samples = qK_lebesgue(num_samples, emukit_qrbf, x2)
+            qK_samples = qK_lebesgue(num_samples, emukit_qkern, x2)
         elif MEASURE_INTBOUNDS == "GaussIso-infinite":
-            qK_samples = qK_gauss_iso(num_samples, emukit_qrbf, x2)
+            qK_samples = qK_gauss_iso(num_samples, emukit_qkern, x2)
         elif MEASURE_INTBOUNDS == "Uniform-infinite":
-            qK_samples = qK_uniform(num_samples, emukit_qrbf, x2)
+            qK_samples = qK_uniform(num_samples, emukit_qkern, x2)
         elif MEASURE_INTBOUNDS == "Uniform-finite":
-            qK_samples = qK_uniform(num_samples, emukit_qrbf, x2)
+            qK_samples = qK_uniform(num_samples, emukit_qkern, x2)
         else:
             raise ValueError("Measure-integral-bounds combination not defined")
 
@@ -173,18 +191,18 @@ if __name__ == "__main__":
     num_std = 3
 
     qKq_SAMPLES = np.zeros(num_runs)
-    qKq = emukit_qrbf.qKq()
+    qKq = emukit_qkern.qKq()
     for i in range(num_runs):
         num_samples = int(num_samples)
 
         if MEASURE_INTBOUNDS == "Lebesgue-finite":
-            qKq_samples = qKq_lebesgue(num_samples, emukit_qrbf)
+            qKq_samples = qKq_lebesgue(num_samples, emukit_qkern)
         elif MEASURE_INTBOUNDS == "GaussIso-infinite":
-            qKq_samples = qKq_gauss_iso(num_samples, emukit_qrbf)
+            qKq_samples = qKq_gauss_iso(num_samples, emukit_qkern)
         elif MEASURE_INTBOUNDS == "Uniform-infinite":
-            qKq_samples = qKq_uniform(num_samples, emukit_qrbf)
+            qKq_samples = qKq_uniform(num_samples, emukit_qkern)
         elif MEASURE_INTBOUNDS == "Uniform-finite":
-            qKq_samples = qKq_uniform(num_samples, emukit_qrbf)
+            qKq_samples = qKq_uniform(num_samples, emukit_qkern)
         else:
             raise ValueError("Measure-integral-bounds combination not defined")
 

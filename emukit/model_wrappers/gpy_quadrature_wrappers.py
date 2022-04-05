@@ -9,7 +9,7 @@ import numpy as np
 from scipy.linalg import lapack
 
 from emukit.quadrature.interfaces import IBaseGaussianProcess
-from emukit.quadrature.interfaces.standard_kernels import IRBF
+from emukit.quadrature.interfaces.standard_kernels import IRBF, IMatern32
 from emukit.quadrature.kernels.integration_measures import IntegrationMeasure, IsotropicGaussianMeasure, UniformMeasure
 from emukit.quadrature.kernels.quadrature_kernels import QuadratureKernel
 from emukit.quadrature.kernels.quadrature_rbf import (
@@ -114,8 +114,7 @@ class BaseGaussianProcessGPy(IBaseGaussianProcess):
 
 
 class RBFGPy(IRBF):
-    """
-    Wrapper of the GPy RBF kernel
+    """Wrapper of the GPy RBF kernel.
 
     .. math::
         k(x, x') = \sigma^2 e^{-\frac{1}{2}\frac{\|x-x'\|^2}{\lambda^2}},
@@ -127,6 +126,8 @@ class RBFGPy(IRBF):
         """
         :param gpy_rbf: An RBF kernel from GPy with ARD=False
         """
+        if gpy_rbf.ARD:
+            raise ValueError("ARD of the GPy kernel must be set to False.")
         self.gpy_rbf = gpy_rbf
 
     @property
@@ -165,15 +166,76 @@ class RBFGPy(IRBF):
         dK_dx1 = -K[None, ...] * scaled_vector_diff
         return dK_dx1
 
-    def dKdiag_dx(self, x: np.ndarray) -> np.ndarray:
-        """
-        gradient of the diagonal of the kernel (the variance) v(x):=k(x, x) evaluated at x
 
-        :param x: argument of the kernel, shape (n_points M, input_dim)
-        :return: the gradient of the diagonal of the kernel evaluated at x, shape (input_dim, M)
+class Matern32GPy(IMatern32):
+    """Wrapper of the GPy Matern kernel.
+
+    .. math::
+        k(x, x') = \sigma^2 (1 + \sqrt{3}r ) e^{-\sqrt{3}r},
+
+    where :math:`r:=\sqrt{\sum_{i=1}^d\frac{(x_i - z_i)^2}{\lambda_i^2}}` and
+    :math:`\sigma^2` is the `variance' property and :math:`\lambda` is the lengthscale property.
+    """
+
+    def __init__(self, gpy_matern: GPy.kern.Matern32):
         """
-        num_points, input_dim = x.shape
-        return np.zeros((input_dim, num_points))
+        :param gpy_matern: An Matern32 kernel from GPy.
+        """
+        self.gpy_matern = gpy_matern
+
+    @property
+    def lengthscales(self) -> np.ndarray:
+        if not self.ARD:
+            return np.full((self.gpy_matern.input_dim,), self.gpy_matern.lengthscale[0])
+        return self.gpy_matern.lengthscale.values
+
+    @property
+    def variance(self) -> np.float:
+        return self.gpy_matern.variance[0]
+
+    @property
+    def ARD(self) -> bool:
+        return self.gpy_matern.ARD
+
+    def K(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
+        """
+        The kernel k(x1, x2) evaluated at x1 and x2
+
+        :param x1: first argument of the kernel
+        :param x2: second argument of the kernel
+        :returns: kernel evaluated at x1, x2
+        """
+        return self.gpy_matern.K(x1, x2)
+
+    def dK_dx1(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
+        """Gradient of the kernel wrt x1 evaluated at pair x1, x2.
+        We use the scaled squared distance defined as:
+
+        ..math::
+
+            r^2(x_1, x_2) = \sum_{d=1}^D (x_1^d - x_2^d)^2/\lambda^2
+
+        :param x1: First argument of the kernel, shape = (n_points N, input_dim).
+        :param x2: Second argument of the kernel, shape = (n_points M, input_dim).
+        :return: The gradient of the kernel wrt x1 evaluated at (x1, x2), shape (input_dim, N, M).
+        """
+        r = x1.T[:, :, None] - x2.T[:, None, :]
+        dr_dx1 = 1.0 * r
+        if self.ARD:
+            for d, ell in enumerate(self.lengthscales):
+                r[d, :, :] = r[d, :, :] ** 2 / self.lengthscales[d] ** 2
+                dr_dx1[d, :, :] /= self.lengthscales[d] ** 2
+        else:
+            r = r ** 2 / self.lengthscales ** 2
+            dr_dx1 /= self.lengthscales[0] ** 2
+
+        r = np.sqrt(r.sum(axis=0))
+
+        K = self.K(x1, x2)
+        first_term = self.variance * np.exp(-np.sqrt(3) * r)
+        first_term = first_term[None, ...] * dr_dx1
+        second_term = - np.sqrt(3) * (K[None, ...] * dr_dx1)
+        return first_term + second_term
 
 
 def create_emukit_model_from_gpy_model(
@@ -195,24 +257,48 @@ def create_emukit_model_from_gpy_model(
     :return: emukit model for quadrature with GPy backend (IBaseGaussianProcessGPy)
     """
 
-    # wrap standard kernel
-    if isinstance(gpy_model.kern, GPy.kern.RBF):
-        if gpy_model.kern.ARD:
-            raise ValueError("ARD in GPy rbf kernel must be set to False. {} given.".format(gpy_model.kern.ARD))
-        standard_kernel_emukit = RBFGPy(gpy_model.kern)
-    else:
-        raise ValueError("Only RBF kernel is supported. Got ", gpy_model.kern.name, " instead.")
-
-    # check if measure and bounds fit together and wrap combination in a quadrature kernel
-    # infinite bounds and Lebesgue measure. Can't do.
+    # neither measure nor bounds are given
     if (integral_bounds is None) and (measure is None):
         raise ValueError(
-            "integral_bounds are infinite and measure is standard Lebesgue. Choose either finite bounds "
+            "Integral_bounds are infinite and measure is standard Lebesgue. Choose either finite bounds "
             "or an appropriate integration measure."
         )
 
-    # infinite bounds: Gauss and uniform measure only
-    elif (integral_bounds is None) and (measure is not None):
+    # wrap standard kernel
+    if isinstance(gpy_model.kern, GPy.kern.RBF):
+        standard_kernel_emukit = RBFGPy(gpy_model.kern)
+        quadrature_kernel_emukit = _get_qkernel_gauss(standard_kernel_emukit, integral_bounds, measure, integral_name)
+    elif isinstance(gpy_model.kern, GPy.kern.Matern32):
+        standard_kernel_emukit = Matern32GPy(gpy_model.kern)
+    else:
+        raise ValueError("Only RBF and Matern32 kernel are supported. Got ", gpy_model.kern.name, " instead.")
+
+
+    # wrap the base-gp model
+    return BaseGaussianProcessGPy(kern=quadrature_kernel_emukit, gpy_model=gpy_model)
+
+
+def _get_qkernel_matern32(
+    standard_kernel_emukit: IRBF,
+    integral_bounds: Optional[List[Tuple[float, float]]],
+    measure: Optional[IntegrationMeasure],
+    integral_name: str,
+):
+    # we already know that either bounds or measure is given (or both)
+    # infinite bounds: Gauss or uniform measure only
+
+    return quadrature_kernel_emukit
+
+
+def _get_qkernel_gauss(
+    standard_kernel_emukit: IRBF,
+    integral_bounds: Optional[List[Tuple[float, float]]],
+    measure: Optional[IntegrationMeasure],
+    integral_name: str,
+):
+    # we already know that either bounds or measure is given (or both)
+    # infinite bounds: Gauss or uniform measure only
+    if (integral_bounds is None) and (measure is not None):
         if isinstance(measure, UniformMeasure):
             quadrature_kernel_emukit = QuadratureRBFUniformMeasure(
                 rbf_kernel=standard_kernel_emukit,
@@ -246,8 +332,7 @@ def create_emukit_model_from_gpy_model(
             )
         else:
             raise ValueError(
-                "Currently only standard Lebesgue measure (measure=None) is supported with finite " "integral bounds."
+                "Currently only standard Lebesgue measure (measure=None) is supported with finite integral bounds."
             )
 
-    # wrap the base-gp model
-    return BaseGaussianProcessGPy(kern=quadrature_kernel_emukit, gpy_model=gpy_model)
+    return quadrature_kernel_emukit

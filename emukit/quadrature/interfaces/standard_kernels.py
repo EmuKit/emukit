@@ -43,8 +43,8 @@ class IStandardKernel:
 
 
 class IRBF(IStandardKernel):
-    """
-    Interface for an RBF kernel
+    """Interface for an RBF kernel.
+
     Inherit from this class to wrap your standard rbf kernel.
 
     .. math::
@@ -68,4 +68,33 @@ class IRBF(IStandardKernel):
         :param x: argument of the kernel, shape = (n_points M, input_dim)
         :return: the gradient of the diagonal of the kernel evaluated at x, shape (input_dim, M)
         """
-        raise np.zeros((x.shape[1], x.shape[0]))
+        return np.zeros((x.shape[1], x.shape[0]))
+
+
+class IMatern32(IStandardKernel):
+    """Interface for a Matern32 kernel.
+
+    Inherit from this class to wrap your Matern32 kernel.
+
+    .. math::
+        k(x, x') = \sigma^2 (1 + \sqrt{3}r ) e^{-\sqrt{3}r},
+
+    where :math:`r:=\sqrt{\sum_{i=1}^d\frac{(x_i - z_i)^2}{\lambda_i^2}}` and
+    :math:`\sigma^2` is the `variance' property and :math:`\lambda` is the lengthscale property.
+    """
+
+    @property
+    def lengthscales(self) -> np.ndarray:
+        raise NotImplementedError
+
+    @property
+    def variance(self) -> np.float:
+        raise NotImplementedError
+
+    def dKdiag_dx(self, x: np.ndarray) -> np.ndarray:
+        """Gradient of the diagonal of the kernel v(x):=k(x, x) evaluated at x.
+
+        :param x: argument of the kernel, shape = (n_points M, input_dim)
+        :return: the gradient of the diagonal of the kernel evaluated at x, shape (input_dim, M)
+        """
+        return np.zeros((x.shape[1], x.shape[0]))
