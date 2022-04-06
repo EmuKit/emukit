@@ -108,7 +108,8 @@ if __name__ == "__main__":
 
     # === Choose KERNEL BELOW ======
     # KERNEL = 'rbf'
-    KERNEL = 'matern32'
+    KERNEL = 'matern32_noard'
+    # KERNEL = 'matern32_ard'
     # === CHOOSE MEASURE ABOVE ======
 
     x1 = np.array([[-1, 1], [0, 0], [-2, 0.1]])
@@ -134,7 +135,7 @@ if __name__ == "__main__":
         else:
             raise ValueError(_e)
 
-    if KERNEL == 'matern32':
+    if KERNEL == 'matern32_noard':
         gpy_kernel = GPy.kern.Matern32(input_dim=D)
         emukit_kern = Matern32GPy(gpy_kernel)
 

@@ -75,6 +75,7 @@ def emukit_matern32(data):
     _, _, _, _, D = data
     return Matern32GPy(GPy.kern.Matern32(input_dim=D))
 
+# Todo: add ARD
 
 @pytest.fixture
 def qmatern32_lebesgue_finite(data, emukit_matern32):

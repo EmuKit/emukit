@@ -12,6 +12,7 @@ from emukit.quadrature.interfaces import IBaseGaussianProcess
 from emukit.quadrature.interfaces.standard_kernels import IRBF, IMatern32
 from emukit.quadrature.kernels.integration_measures import IntegrationMeasure, IsotropicGaussianMeasure, UniformMeasure
 from emukit.quadrature.kernels.quadrature_kernels import QuadratureKernel
+from emukit.quadrature.kernels.quadrature_matern32 import QuadratureMatern32LebesgueMeasure
 from emukit.quadrature.kernels.quadrature_rbf import (
     QuadratureRBFIsoGaussMeasure,
     QuadratureRBFLebesgueMeasure,
@@ -207,6 +208,15 @@ class Matern32GPy(IMatern32):
         """
         return self.gpy_matern.K(x1, x2)
 
+    def _dr_dx1(self, r: np.ndarray, r_norm: np.ndarray) -> np.ndarray:
+        dr_dx1 = r / r_norm
+        if self.ARD:
+            for d, ell in enumerate(self.lengthscales):
+                dr_dx1[d, :, :] /= self.lengthscales[d] ** 2
+        else:
+            dr_dx1 /= self.lengthscales[0] ** 2
+        return dr_dx1
+
     def dK_dx1(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
         """Gradient of the kernel wrt x1 evaluated at pair x1, x2.
         We use the scaled squared distance defined as:
@@ -219,23 +229,9 @@ class Matern32GPy(IMatern32):
         :param x2: Second argument of the kernel, shape = (n_points M, input_dim).
         :return: The gradient of the kernel wrt x1 evaluated at (x1, x2), shape (input_dim, N, M).
         """
-        r = x1.T[:, :, None] - x2.T[:, None, :]
-        dr_dx1 = 1.0 * r
-        if self.ARD:
-            for d, ell in enumerate(self.lengthscales):
-                r[d, :, :] = r[d, :, :] ** 2 / self.lengthscales[d] ** 2
-                dr_dx1[d, :, :] /= self.lengthscales[d] ** 2
-        else:
-            r = r ** 2 / self.lengthscales ** 2
-            dr_dx1 /= self.lengthscales[0] ** 2
-
-        r = np.sqrt(r.sum(axis=0))
-
-        K = self.K(x1, x2)
-        first_term = self.variance * np.exp(-np.sqrt(3) * r)
-        first_term = first_term[None, ...] * dr_dx1
-        second_term = - np.sqrt(3) * (K[None, ...] * dr_dx1)
-        return first_term + second_term
+        r_norm = self.gpy_matern._scaled_dist(x1, x2)
+        dr_dx1 = self._dr_dx1(x1.T[:, :, None] - x2.T[:, None, :], r_norm)
+        return self.gpy_matern.dK_dr(r_norm) * dr_dx1
 
 
 def create_emukit_model_from_gpy_model(
@@ -270,22 +266,31 @@ def create_emukit_model_from_gpy_model(
         quadrature_kernel_emukit = _get_qkernel_gauss(standard_kernel_emukit, integral_bounds, measure, integral_name)
     elif isinstance(gpy_model.kern, GPy.kern.Matern32):
         standard_kernel_emukit = Matern32GPy(gpy_model.kern)
+        quadrature_kernel_emukit = _get_qkernel_matern32(
+            standard_kernel_emukit, integral_bounds, measure, integral_name
+        )
     else:
         raise ValueError("Only RBF and Matern32 kernel are supported. Got ", gpy_model.kern.name, " instead.")
-
 
     # wrap the base-gp model
     return BaseGaussianProcessGPy(kern=quadrature_kernel_emukit, gpy_model=gpy_model)
 
 
 def _get_qkernel_matern32(
-    standard_kernel_emukit: IRBF,
+    standard_kernel_emukit: IMatern32,
     integral_bounds: Optional[List[Tuple[float, float]]],
     measure: Optional[IntegrationMeasure],
     integral_name: str,
 ):
     # we already know that either bounds or measure is given (or both)
-    # infinite bounds: Gauss or uniform measure only
+    # finite bounds, standard Lebesgue measure
+    if (integral_bounds is not None) and (measure is None):
+        quadrature_kernel_emukit = QuadratureMatern32LebesgueMeasure(
+            matern_kernel=standard_kernel_emukit, integral_bounds=integral_bounds, variable_names=integral_name
+        )
+
+    else:
+        raise ValueError("Currently only standard Lebesgue measure (measure=None) is supported.")
 
     return quadrature_kernel_emukit
 
@@ -312,7 +317,7 @@ def _get_qkernel_gauss(
             )
         else:
             raise ValueError(
-                "Currently only IsotropicGaussianMeasure and UniformMeasure supported with infinite " "integral bounds."
+                "Currently only IsotropicGaussianMeasure and UniformMeasure supported with infinite integral bounds."
             )
 
     # finite bounds, standard Lebesgue measure
