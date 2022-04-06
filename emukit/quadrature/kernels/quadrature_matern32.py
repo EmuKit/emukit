@@ -8,9 +8,7 @@ from .quadrature_kernels import QuadratureKernel
 
 
 class QuadratureMatern32(QuadratureKernel):
-    """Augments a Matern32 kernel with integrability.
-
-    """
+    """Augments a Matern32 kernel with integrability."""
 
     def __init__(
         self,
@@ -88,7 +86,9 @@ class QuadratureMatern32LebesgueMeasure(QuadratureMatern32):
     Can only be used with finite integral bounds.
     """
 
-    def __init__(self, matern_kernel: IMatern32, integral_bounds: List[Tuple[float, float]], variable_names: str = "") -> None:
+    def __init__(
+        self, matern_kernel: IMatern32, integral_bounds: List[Tuple[float, float]], variable_names: str = ""
+    ) -> None:
         """
         :param matern_kernel: Standard emukit matern32-kernel.
         :param integral_bounds: defines the domain of the integral. List of D tuples, where D is the dimensionality
@@ -100,14 +100,13 @@ class QuadratureMatern32LebesgueMeasure(QuadratureMatern32):
             matern_kernel=matern_kernel, integral_bounds=integral_bounds, measure=None, variable_names=variable_names
         )
 
-    def qK(self, x2: np.ndarray, skip: List[int]=None) -> np.ndarray:
+    def qK(self, x2: np.ndarray, skip: List[int] = None) -> np.ndarray:
         """Matern32 kernel with the first component integrated out aka kernel mean
 
         :param x2: remaining argument of the once integrated kernel, shape (n_point N, input_dim)
         :param skip: Skip those dimensions from product.
         :returns: kernel mean at location x2, shape (1, N)
         """
-
         if skip is None:
             skip = []
         qK = np.ones(x2.shape[0])
@@ -123,8 +122,6 @@ class QuadratureMatern32LebesgueMeasure(QuadratureMatern32):
 
         :returns: double integrated kernel
         """
-
-        # Compute kernel mean via a product of one-dimensional kernel variances
         qKq = 1.0
         for dim in range(self.lengthscales.shape[0]):
             qKq *= self._qKq_1d(domain=self.integral_bounds.bounds[dim], ell=self.lengthscales[dim])
@@ -137,33 +134,23 @@ class QuadratureMatern32LebesgueMeasure(QuadratureMatern32):
         :return: the gradient with shape (input_dim, N)
         """
 
-        def _grad_term_1d(x, domain, ell):
-            s3 = np.sqrt(3)
-            a, b, = domain
-            c = s3 * ell
-            first_term = np.exp(s3 * (x - b) / ell)
-            second_term = - np.exp(s3 * (a - x) / ell)
-            third_term = - (3 * b + 2 * c - 3 * x) / c
-            forth_term = (3 * x + 2 * c - 3 * a) / c
-            return first_term + second_term + third_term + forth_term
-
         input_dim = x2.shape[1]
         dqK_dx = np.zeros([input_dim, x2.shape[0]])
         for dim in range(input_dim):
-            prod_term = self.qK(x2, skip=[dim])[0, :]
-            grad_term = _grad_term_1d(x=x2[:, dim], domain=self.integral_bounds.bounds[dim], ell=self.lengthscales[dim])
-            dqK_dx += grad_term * prod_term
-
+            grad_term = self._dqK_dx_1d(
+                x=x2[:, dim], domain=self.integral_bounds.bounds[dim], ell=self.lengthscales[dim]
+            )
+            dqK_dx[dim, :] = grad_term * self.qK(x2, skip=[dim])[0, :]
         return dqK_dx
 
     # one dimensional integrals start here
     def _qK_1d(self, x: np.ndarray, domain: Tuple[float, float], ell: float) -> np.ndarray:
-        """Kernel means for 1D Matern kernel."""
+        """Kernel mean for 1D Matern kernel."""
         (a, b) = domain
         s3 = np.sqrt(3.0)
         first_term = 4.0 * ell / s3
-        second_term = - np.exp(s3 * (x - b) / ell) / 3.0 * (3.0 * b + 2.0 * s3 * ell - 3.0 * x)
-        third_term = - np.exp(s3 * (a - x) / ell) / 3.0 * (3.0 * x + 2.0 * s3 * ell - 3.0 * a)
+        second_term = -np.exp(s3 * (x - b) / ell) / 3.0 * (3.0 * b + 2.0 * s3 * ell - 3.0 * x)
+        third_term = -np.exp(s3 * (a - x) / ell) / 3.0 * (3.0 * x + 2.0 * s3 * ell - 3.0 * a)
         return first_term + second_term + third_term
 
     def _qKq_1d(self, domain: Tuple[float, float], ell: float) -> float:
@@ -172,3 +159,13 @@ class QuadratureMatern32LebesgueMeasure(QuadratureMatern32):
         c = np.sqrt(3.0) * r
         qKq = 2.0 * ell / 3.0 * (2.0 * c - 3.0 * ell + np.exp(-c / ell) * (c + 3.0 * ell))
         return float(qKq)
+
+    def _dqK_dx_1d(self, x, domain, ell):
+        """Kernel gradient for 1D Matern kernel."""
+        s3 = np.sqrt(3)
+        a, b = domain
+        exp_term_b = np.exp(s3 * (x - b) / ell)
+        exp_term_a = np.exp(s3 * (a - x) / ell)
+        first_term = exp_term_b * (-1 + (s3 / ell) * (x - b))
+        second_term = exp_term_a * (+1 - (s3 / ell) * (a - x))
+        return first_term + second_term
