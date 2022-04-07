@@ -7,12 +7,12 @@ import numpy as np
 import pytest
 from pytest_lazyfixture import lazy_fixture
 
-from emukit.model_wrappers.gpy_quadrature_wrappers import Matern32GPy, RBFGPy
+from emukit.model_wrappers.gpy_quadrature_wrappers import ProductMatern32GPy, RBFGPy
 from emukit.quadrature.kernels import (
     QuadratureRBFIsoGaussMeasure,
     QuadratureRBFLebesgueMeasure,
     QuadratureRBFUniformMeasure,
-    QuadratureMatern32LebesgueMeasure,
+    QuadratureProductMatern32LebesgueMeasure,
 )
 from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure, UniformMeasure
 
@@ -73,7 +73,7 @@ def qrbf_uniform_finite(data, emukit_rbf):
 @pytest.fixture
 def emukit_matern32(data):
     _, _, _, _, D = data
-    return Matern32GPy(GPy.kern.Matern32(input_dim=D))
+    return ProductMatern32GPy(GPy.kern.Matern32(input_dim=D))
 
 # Todo: add ARD
 
@@ -81,7 +81,7 @@ def emukit_matern32(data):
 def qmatern32_lebesgue_finite(data, emukit_matern32):
     x1, x2, M1, M2, D = data
     bounds = [(-1, 2), (-3, 3)]
-    emukit_qkernel = QuadratureMatern32LebesgueMeasure(emukit_matern32, integral_bounds=bounds)
+    emukit_qkernel = QuadratureProductMatern32LebesgueMeasure(emukit_matern32, integral_bounds=bounds)
     return emukit_qkernel, x1, x2, M1, M2, D
 
 
@@ -195,6 +195,7 @@ def test_qkernel_qK(kernel_embedding, intervals):
     emukit_qkernel, _, x2, _, _, _ = kernel_embedding
     qK = emukit_qkernel.qK(x2)[0, :]
     for i in range(4):
+        print(qK[i])
         assert intervals[i, 0] < qK[i] < intervals[i, 1]
 
 

@@ -71,16 +71,23 @@ class IRBF(IStandardKernel):
         return np.zeros((x.shape[1], x.shape[0]))
 
 
-class IMatern32(IStandardKernel):
-    """Interface for a Matern32 kernel.
+class IProductMatern32(IStandardKernel):
+    """Interface for a Matern32 product kernel.
 
-    Inherit from this class to wrap your Matern32 kernel.
+    Inherit from this class to wrap your ProductMatern32 kernel.
+
+    The ProductMatern32 kernel is of the form
+    :math:`k(x, x') = \sigma^2 \prod_{i=1}^d k_i(x, x')` where
 
     .. math::
-        k(x, x') = \sigma^2 (1 + \sqrt{3}r ) e^{-\sqrt{3}r},
+        k_i(x, x') = (1 + \sqrt{3}r_i ) e^{-\sqrt{3} r_i}.
 
-    where :math:`r:=\sqrt{\sum_{i=1}^d\frac{(x_i - z_i)^2}{\lambda_i^2}}` and
-    :math:`\sigma^2` is the `variance' property and :math:`\lambda` is the lengthscale property.
+    :math:`d` is the input dimensionality,
+    :math:`r_i:=\frac{|x_i - z_i|}{\lambda_i}}`,
+    :math:`\sigma^2` is the ``variance`` property and :math:`\lambda_i` is the ith element
+    of the ``lengthscales`` property.
+
+    Make sure to encode only a single variance parameter, and not one for each individual :math:`k_i`.
     """
 
     @property

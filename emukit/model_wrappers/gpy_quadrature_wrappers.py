@@ -2,17 +2,17 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Union
 
 import GPy
 import numpy as np
 from scipy.linalg import lapack
 
 from emukit.quadrature.interfaces import IBaseGaussianProcess
-from emukit.quadrature.interfaces.standard_kernels import IRBF, IMatern32
+from emukit.quadrature.interfaces.standard_kernels import IRBF, IProductMatern32
 from emukit.quadrature.kernels.integration_measures import IntegrationMeasure, IsotropicGaussianMeasure, UniformMeasure
 from emukit.quadrature.kernels.quadrature_kernels import QuadratureKernel
-from emukit.quadrature.kernels.quadrature_matern32 import QuadratureMatern32LebesgueMeasure
+from emukit.quadrature.kernels.quadrature_matern32 import QuadratureProductMatern32LebesgueMeasure
 from emukit.quadrature.kernels.quadrature_rbf import (
     QuadratureRBFIsoGaussMeasure,
     QuadratureRBFLebesgueMeasure,
@@ -168,39 +168,80 @@ class RBFGPy(IRBF):
         return dK_dx1
 
 
-class Matern32GPy(IMatern32):
-    """Wrapper of the GPy Matern kernel.
+class ProductMatern32GPy(IProductMatern32):
+    """Wrapper of the GPy Matern32 product kernel.
+
+    The ProductMatern32 kernel is of the form
+    :math:`k(x, x') = \sigma^2 \prod_{i=1}^d k_i(x, x')` where
 
     .. math::
-        k(x, x') = \sigma^2 (1 + \sqrt{3}r ) e^{-\sqrt{3}r},
+        k_i(x, x') = (1 + \sqrt{3}r_i ) e^{-\sqrt{3} r_i}.
 
-    where :math:`r:=\sqrt{\sum_{i=1}^d\frac{(x_i - z_i)^2}{\lambda_i^2}}` and
-    :math:`\sigma^2` is the `variance' property and :math:`\lambda` is the lengthscale property.
+    :math:`d` is the input dimensionality,
+    :math:`r_i:=\frac{|x_i - z_i|}{\lambda_i}}`,
+    :math:`\sigma^2` is the ``variance`` property and :math:`\lambda_i` is the ith element
+    of the ``lengthscales`` property.
     """
 
-    def __init__(self, gpy_matern: GPy.kern.Matern32):
+    def __init__(
+        self,
+        gpy_matern: Optional[Union[GPy.kern.Matern32, GPy.kern.Prod]] = None,
+        lengthscales: Optional[np.ndarray] = None,
+        variance: Optional[float] = None,
+    ):
         """
-        :param gpy_matern: An Matern32 kernel from GPy.
+        :param gpy_matern: An Matern32 (product) kernel from GPy. For d > 1, this is not a d-dimensional Matern32 kernel
+                           but a product of d 1-dimensional Matern32 kernels with differing active dimensions
+                           constructed as k1 * k2 * ... .
+                           Make sure to unlink all variances except the variance of the first kernel k1 in the product
+                           as the variance of k1 will be used to represent :math:`sigma^2`.
+                           If ``gpy_matern`` is not given, the ``lengthscales`` argument is used.
+        :param lengthscales: If ``gpy_matern`` is not given, a product Matern32 kernel will be constructed with
+                           the given lengthscales. The number of elements need to be equal to the dimensionality
+                           d. If ``gpy_matern`` is given, this input is disregarded.
+        :param variance: The variance of the product kernel. Only used if ``gpy_matern`` is not given. Defaults to 1.
         """
+        if gpy_matern is None and lengthscales is None:
+            raise ValueError("Either lengthscales or a GPy product matern kernel must be given.")
+
+        # product kernel from parameters
+        if gpy_matern is None:
+
+            input_dim = len(lengthscales)
+            if input_dim < 1:
+                raise ValueError("'lengthscales' must contain at least 1 value.")
+
+            # default variance
+            if variance is None:
+                variance = 1.0
+
+            gpy_matern = GPy.kern.Matern32(input_dim=1, active_dims=[0], lengthscale=lengthscales[0], variance=variance)
+            for dim in range(1, input_dim):
+                k = GPy.kern.Matern32(input_dim=1, active_dims=[dim], lengthscale=lengthscales[dim])
+                k.unlink_parameter(k.variance)
+                gpy_matern = gpy_matern * k
+
         self.gpy_matern = gpy_matern
 
     @property
     def lengthscales(self) -> np.ndarray:
-        if not self.ARD:
-            return np.full((self.gpy_matern.input_dim,), self.gpy_matern.lengthscale[0])
-        return self.gpy_matern.lengthscale.values
+        if isinstance(self.gpy_matern, GPy.kern.Matern32):
+            return np.array([self.gpy_matern.lengthscale[0]])
+
+        lengthscales = []
+        for kern in self.gpy_matern.parameters:
+            lengthscales.append(kern.lengthscale[0])
+        return np.array(lengthscales)
 
     @property
     def variance(self) -> np.float:
-        return self.gpy_matern.variance[0]
+        if isinstance(self.gpy_matern, GPy.kern.Matern32):
+            return self.gpy_matern.variance[0]
 
-    @property
-    def ARD(self) -> bool:
-        return self.gpy_matern.ARD
+        return self.gpy_matern.parameters[0].variance[0]
 
     def K(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
-        """
-        The kernel k(x1, x2) evaluated at x1 and x2
+        """The kernel k(x1, x2) evaluated at x1 and x2
 
         :param x1: first argument of the kernel
         :param x2: second argument of the kernel
@@ -208,14 +249,27 @@ class Matern32GPy(IMatern32):
         """
         return self.gpy_matern.K(x1, x2)
 
-    def _dr_dx1(self, r: np.ndarray, r_norm: np.ndarray) -> np.ndarray:
-        dr_dx1 = r / r_norm
-        if self.ARD:
-            for d, ell in enumerate(self.lengthscales):
-                dr_dx1[d, :, :] /= self.lengthscales[d] ** 2
-        else:
-            dr_dx1 /= self.lengthscales[0] ** 2
-        return dr_dx1
+    def _K_from_prod(self, x1: np.ndarray, x2: np.ndarray, skip: List[int] = None) -> np.ndarray:
+        """The kernel k(x1, x2) evaluated at x1 and x2 computed as product from the
+        individual 1d kernels.
+
+        :param x1: first argument of the kernel
+        :param x2: second argument of the kernel
+        :param skip: skip these dimensions if specified.
+        :returns: kernel evaluated at x1, x2
+        """
+        if skip is None:
+            skip = []
+        K = np.ones([x1.shape[0], x2.shape[0]])
+        for dim, kern in enumerate(self.gpy_matern.parameters):
+            if dim in skip:
+                continue
+            K *= kern.K(x1, x2)
+
+        # correct for missing variance
+        if 0 in skip:
+            K *= self.variance
+        return K
 
     def dK_dx1(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
         """Gradient of the kernel wrt x1 evaluated at pair x1, x2.
@@ -229,9 +283,23 @@ class Matern32GPy(IMatern32):
         :param x2: Second argument of the kernel, shape = (n_points M, input_dim).
         :return: The gradient of the kernel wrt x1 evaluated at (x1, x2), shape (input_dim, N, M).
         """
-        r_norm = self.gpy_matern._scaled_dist(x1, x2)
-        dr_dx1 = self._dr_dx1(x1.T[:, :, None] - x2.T[:, None, :], r_norm)
-        return self.gpy_matern.dK_dr(r_norm) * dr_dx1
+
+        if isinstance(self.gpy_matern, GPy.kern.Matern32):
+            return self._dK_dx_1d(x1[:, 0], x2[:, 0], self.gpy_matern)[None, :, :]
+
+        # product kernel
+        dK_dx1 = np.ones([x1.shape[1], x1.shape[0], x2.shape[0]])
+        for dim, kern in enumerate(self.gpy_matern.parameters):
+            prod_term = self._K_from_prod(x1, x2, skip=[dim])  # N x M
+            grad_term = self._dK_dx_1d(x1[:, dim], x2[:, dim], kern)  # N x M
+            dK_dx1[dim, :, :] *= prod_term * grad_term
+        return dK_dx1
+
+    def _dK_dx_1d(self, x1: np.ndarray, x2: np.ndarray, kern: GPy.kern.Matern32) -> np.ndarray:
+        r = (x1.T[:, None] - x2.T[None, :]) / kern.lengthscale[0]  # N x M
+        dr_dx1 = r / (kern.lengthscale[0] * abs(r))
+        dK_dr = - 3 * abs(r) * np.exp(- np.sqrt(3) * abs(r))
+        return dK_dr * dr_dx1
 
 
 def create_emukit_model_from_gpy_model(
@@ -265,7 +333,8 @@ def create_emukit_model_from_gpy_model(
         standard_kernel_emukit = RBFGPy(gpy_model.kern)
         quadrature_kernel_emukit = _get_qkernel_gauss(standard_kernel_emukit, integral_bounds, measure, integral_name)
     elif isinstance(gpy_model.kern, GPy.kern.Matern32):
-        standard_kernel_emukit = Matern32GPy(gpy_model.kern)
+        # Todo: this is only valid for inputdim = 1
+        standard_kernel_emukit = ProductMatern32GPy(gpy_model.kern)
         quadrature_kernel_emukit = _get_qkernel_matern32(
             standard_kernel_emukit, integral_bounds, measure, integral_name
         )
@@ -277,7 +346,7 @@ def create_emukit_model_from_gpy_model(
 
 
 def _get_qkernel_matern32(
-    standard_kernel_emukit: IMatern32,
+    standard_kernel_emukit: IProductMatern32,
     integral_bounds: Optional[List[Tuple[float, float]]],
     measure: Optional[IntegrationMeasure],
     integral_name: str,
@@ -285,7 +354,7 @@ def _get_qkernel_matern32(
     # we already know that either bounds or measure is given (or both)
     # finite bounds, standard Lebesgue measure
     if (integral_bounds is not None) and (measure is None):
-        quadrature_kernel_emukit = QuadratureMatern32LebesgueMeasure(
+        quadrature_kernel_emukit = QuadratureProductMatern32LebesgueMeasure(
             matern_kernel=standard_kernel_emukit, integral_bounds=integral_bounds, variable_names=integral_name
         )
 

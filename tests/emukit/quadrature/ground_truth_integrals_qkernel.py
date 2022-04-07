@@ -9,12 +9,12 @@ from typing import List, Tuple
 import GPy
 import numpy as np
 
-from emukit.model_wrappers.gpy_quadrature_wrappers import Matern32GPy, RBFGPy
+from emukit.model_wrappers.gpy_quadrature_wrappers import ProductMatern32GPy, RBFGPy
 from emukit.quadrature.kernels import (
+    QuadratureProductMatern32LebesgueMeasure,
     QuadratureRBFIsoGaussMeasure,
     QuadratureRBFLebesgueMeasure,
     QuadratureRBFUniformMeasure,
-    QuadratureMatern32LebesgueMeasure,
 )
 from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure, UniformMeasure
 
@@ -34,63 +34,63 @@ def _sample_gauss_iso(num_samples: int, measure: IsotropicGaussianMeasure):
     return measure.mean + np.sqrt(measure.variance) * samples
 
 
-def qK_lebesgue(num_samples: int, qrbf: QuadratureRBFLebesgueMeasure, x2: np.ndarray):
-    bounds = qrbf.integral_bounds._bounds
+def qK_lebesgue(num_samples: int, qkern: QuadratureRBFLebesgueMeasure, x2: np.ndarray):
+    bounds = qkern.integral_bounds._bounds
     samples = _sample_uniform(num_samples, bounds)
-    Kx = qrbf.K(samples, x2)
+    Kx = qkern.K(samples, x2)
     differences = np.array([x[1] - x[0] for x in bounds])
     volume = np.prod(differences)
     return np.mean(Kx, axis=0) * volume
 
 
-def qKq_lebesgue(num_samples: int, qrbf: QuadratureRBFLebesgueMeasure):
-    bounds = qrbf.integral_bounds._bounds
+def qKq_lebesgue(num_samples: int, qkern: QuadratureRBFLebesgueMeasure):
+    bounds = qkern.integral_bounds._bounds
     samples = _sample_uniform(num_samples, bounds)
-    qKx = qrbf.qK(samples)
+    qKx = qkern.qK(samples)
     differences = np.array([x[1] - x[0] for x in bounds])
     volume = np.prod(differences)
     return np.mean(qKx) * volume
 
 
-def qK_gauss_iso(num_samples: int, qrbf: QuadratureRBFIsoGaussMeasure, x2: np.ndarray):
-    measure = qrbf.measure
+def qK_gauss_iso(num_samples: int, qkern: QuadratureRBFIsoGaussMeasure, x2: np.ndarray):
+    measure = qkern.measure
     samples = _sample_gauss_iso(num_samples, measure)
-    Kx = qrbf.K(samples, x2)
+    Kx = qkern.K(samples, x2)
     return np.mean(Kx, axis=0)
 
 
-def qKq_gauss_iso(num_samples: int, qrbf: QuadratureRBFIsoGaussMeasure):
-    measure = qrbf.measure
+def qKq_gauss_iso(num_samples: int, qkern: QuadratureRBFIsoGaussMeasure):
+    measure = qkern.measure
     samples = _sample_gauss_iso(num_samples, measure)
-    qKx = qrbf.qK(samples)
+    qKx = qkern.qK(samples)
     return np.mean(qKx)
 
 
-def qK_uniform(num_samples: int, qrbf: QuadratureRBFUniformMeasure, x2: np.ndarray):
-    if qrbf.integral_bounds is None:
-        bounds = qrbf.measure.bounds
+def qK_uniform(num_samples: int, qkern: QuadratureRBFUniformMeasure, x2: np.ndarray):
+    if qkern.integral_bounds is None:
+        bounds = qkern.measure.bounds
         samples = _sample_uniform(num_samples, bounds)
-        Kx = qrbf.K(samples, x2)
+        Kx = qkern.K(samples, x2)
         return np.mean(Kx, axis=0)
     else:
-        bounds = qrbf.integral_bounds._bounds
+        bounds = qkern.integral_bounds._bounds
         samples = _sample_uniform(num_samples, bounds)
-        Kx = qrbf.K(samples, x2) * qrbf.measure.compute_density(samples)[:, np.newaxis]
+        Kx = qkern.K(samples, x2) * qkern.measure.compute_density(samples)[:, np.newaxis]
         differences = np.array([x[1] - x[0] for x in bounds])
         volume = np.prod(differences)
         return np.mean(Kx, axis=0) * volume
 
 
-def qKq_uniform(num_samples: int, qrbf: QuadratureRBFUniformMeasure):
-    if qrbf.integral_bounds is None:
-        bounds = qrbf.measure.bounds
+def qKq_uniform(num_samples: int, qkern: QuadratureRBFUniformMeasure):
+    if qkern.integral_bounds is None:
+        bounds = qkern.measure.bounds
         samples = _sample_uniform(num_samples, bounds)
-        qKx = qrbf.qK(samples)
+        qKx = qkern.qK(samples)
         return np.mean(qKx)
     else:
-        bounds = qrbf.integral_bounds._bounds
+        bounds = qkern.integral_bounds._bounds
         samples = _sample_uniform(num_samples, bounds)
-        qKx = qrbf.qK(samples) * qrbf.measure.compute_density(samples)[np.newaxis, :]
+        qKx = qkern.qK(samples) * qkern.measure.compute_density(samples)[np.newaxis, :]
         differences = np.array([x[1] - x[0] for x in bounds])
         volume = np.prod(differences)
         return np.mean(qKx) * volume
@@ -108,8 +108,7 @@ if __name__ == "__main__":
 
     # === Choose KERNEL BELOW ======
     # KERNEL = 'rbf'
-    KERNEL = 'matern32_noard'
-    # KERNEL = 'matern32_ard'
+    KERNEL = 'matern32'
     # === CHOOSE MEASURE ABOVE ======
 
     x1 = np.array([[-1, 1], [0, 0], [-2, 0.1]])
@@ -135,14 +134,17 @@ if __name__ == "__main__":
         else:
             raise ValueError(_e)
 
-    if KERNEL == 'matern32_noard':
-        gpy_kernel = GPy.kern.Matern32(input_dim=D)
-        emukit_kern = Matern32GPy(gpy_kernel)
+    elif KERNEL == 'matern32':
+        gpy_kernel = GPy.kern.Matern32(input_dim=1, active_dims=[0]) * GPy.kern.Matern32(input_dim=1, active_dims=[1])
+        emukit_kern = ProductMatern32GPy(gpy_kernel)
 
         if MEASURE_INTBOUNDS == "Lebesgue-finite":
-            emukit_qkern = QuadratureMatern32LebesgueMeasure(emukit_kern, integral_bounds=[(-1, 2), (-3, 3)])
+            emukit_qkern = QuadratureProductMatern32LebesgueMeasure(emukit_kern, integral_bounds=[(-1, 2), (-3, 3)])
         else:
             raise ValueError(_e)
+
+    else:
+        raise ValueError("Kernel not found.")
 
     print()
     print("kernel: {}".format(KERNEL))
