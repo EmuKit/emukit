@@ -8,7 +8,7 @@ from .quadrature_kernels import QuadratureKernel
 
 
 class QuadratureMatern32(QuadratureKernel):
-    """Augments a Matern32 kernel with integrability."""
+    """Augments a ProductMatern32 kernel with integrability."""
 
     def __init__(
         self,
@@ -39,7 +39,7 @@ class QuadratureMatern32(QuadratureKernel):
         return self.kern.variance
 
     def qK(self, x2: np.ndarray) -> np.ndarray:
-        """Matern32 kernel with the first component integrated out aka kernel mean
+        """ProductMatern32 kernel with the first component integrated out aka kernel mean
 
         :param x2: remaining argument of the once integrated kernel, shape (n_point N, input_dim)
         :returns: kernel mean at location x2, shape (1, N)
@@ -47,8 +47,7 @@ class QuadratureMatern32(QuadratureKernel):
         raise NotImplementedError
 
     def Kq(self, x1: np.ndarray) -> np.ndarray:
-        """
-        Matern32 kernel with the second component integrated out aka kernel mean
+        """ProductMatern32 kernel with the second component integrated out aka kernel mean
 
         :param x1: remaining argument of the once integrated kernel, shape (n_point N, input_dim)
         :returns: kernel mean at location x1, shape (N, 1)
@@ -56,8 +55,7 @@ class QuadratureMatern32(QuadratureKernel):
         return self.qK(x1).T
 
     def qKq(self) -> float:
-        """
-        Matern32 kernel integrated over both arguments x1 and x2
+        """ProductMatern32 kernel integrated over both arguments x1 and x2.
 
         :returns: double integrated kernel
         """
@@ -81,7 +79,7 @@ class QuadratureMatern32(QuadratureKernel):
 
 
 class QuadratureProductMatern32LebesgueMeasure(QuadratureMatern32):
-    """A Matern32 kernel with integrability over the standard Lebesgue measure.
+    """A Matern32 product kernel with integrability over the standard Lebesgue measure.
 
     Can only be used with finite integral bounds.
     """
@@ -101,7 +99,7 @@ class QuadratureProductMatern32LebesgueMeasure(QuadratureMatern32):
         )
 
     def qK(self, x2: np.ndarray, skip: List[int] = None) -> np.ndarray:
-        """Matern32 kernel with the first component integrated out aka kernel mean
+        """Matern32 prodct kernel with the first component integrated out aka kernel mean.
 
         :param x2: remaining argument of the once integrated kernel, shape (n_point N, input_dim)
         :param skip: Skip those dimensions from product.
@@ -115,8 +113,7 @@ class QuadratureProductMatern32LebesgueMeasure(QuadratureMatern32):
             if dim in skip:
                 continue
             qK *= self._qK_1d(x=x2[:, dim], domain=self.integral_bounds.bounds[dim], ell=self.lengthscales[dim])
-        qK *= self.variance
-        return qK[None, :]
+        return qK[None, :] * self.variance
 
     def qKq(self) -> float:
         """Matern32 kernel integrated over both arguments x1 and x2
@@ -146,7 +143,7 @@ class QuadratureProductMatern32LebesgueMeasure(QuadratureMatern32):
 
     # one dimensional integrals start here
     def _qK_1d(self, x: np.ndarray, domain: Tuple[float, float], ell: float) -> np.ndarray:
-        """Kernel mean for 1D Matern kernel."""
+        """Unscaled kernel mean for 1D Matern kernel."""
         (a, b) = domain
         s3 = np.sqrt(3.0)
         first_term = 4.0 * ell / s3
@@ -155,7 +152,7 @@ class QuadratureProductMatern32LebesgueMeasure(QuadratureMatern32):
         return first_term + second_term + third_term
 
     def _qKq_1d(self, domain: Tuple[float, float], ell: float) -> float:
-        """Kernel variance for 1D Matern kernel."""
+        """Unscaled kernel variance for 1D Matern kernel."""
         a, b = domain
         r = b - a
         c = np.sqrt(3.0) * r
@@ -163,11 +160,11 @@ class QuadratureProductMatern32LebesgueMeasure(QuadratureMatern32):
         return float(qKq)
 
     def _dqK_dx_1d(self, x, domain, ell):
-        """Kernel gradient for 1D Matern kernel."""
+        """Unscaled gradient of 1D Matern kernel mean."""
         s3 = np.sqrt(3)
         a, b = domain
         exp_term_b = np.exp(s3 * (x - b) / ell)
         exp_term_a = np.exp(s3 * (a - x) / ell)
         first_term = exp_term_b * (-1 + (s3 / ell) * (x - b))
         second_term = exp_term_a * (+1 - (s3 / ell) * (a - x))
-        return (self.variance / (b - a)) * (first_term + second_term)
+        return first_term + second_term

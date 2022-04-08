@@ -298,7 +298,7 @@ class ProductMatern32GPy(IProductMatern32):
     def _dK_dx_1d(self, x1: np.ndarray, x2: np.ndarray, kern: GPy.kern.Matern32) -> np.ndarray:
         r = (x1.T[:, None] - x2.T[None, :]) / kern.lengthscale[0]  # N x M
         dr_dx1 = r / (kern.lengthscale[0] * abs(r))
-        dK_dr = - 3 * abs(r) * np.exp(- np.sqrt(3) * abs(r))
+        dK_dr = -3 * abs(r) * np.exp(-np.sqrt(3) * abs(r))
         return dK_dr * dr_dx1
 
 
@@ -328,18 +328,28 @@ def create_emukit_model_from_gpy_model(
             "or an appropriate integration measure."
         )
 
+    def _check_is_product_matern32(k):
+        is_matern = isinstance(gpy_model.kern, GPy.kern.Matern32)
+        if isinstance(k, GPy.kern.Prod):
+            all_matern = all(isinstance(kern, GPy.kern.Matern32) for kern in k.parameters)
+            all_univariante = all(kern.input_dim == 1 for kern in k.parameters)
+            if all_matern and all_univariante:
+                is_matern = True
+        return is_matern
+
     # wrap standard kernel
+    # RBF
     if isinstance(gpy_model.kern, GPy.kern.RBF):
         standard_kernel_emukit = RBFGPy(gpy_model.kern)
         quadrature_kernel_emukit = _get_qkernel_gauss(standard_kernel_emukit, integral_bounds, measure, integral_name)
-    elif isinstance(gpy_model.kern, GPy.kern.Matern32):
-        # Todo: this is only valid for inputdim = 1
+    # Univariate Matern32 or ProductMatern32
+    elif _check_is_product_matern32(gpy_model.kern):
         standard_kernel_emukit = ProductMatern32GPy(gpy_model.kern)
         quadrature_kernel_emukit = _get_qkernel_matern32(
             standard_kernel_emukit, integral_bounds, measure, integral_name
         )
     else:
-        raise ValueError("Only RBF and Matern32 kernel are supported. Got ", gpy_model.kern.name, " instead.")
+        raise ValueError("Only RBF and ProductMatern32 kernel are supported. Got ", gpy_model.kern.name, " instead.")
 
     # wrap the base-gp model
     return BaseGaussianProcessGPy(kern=quadrature_kernel_emukit, gpy_model=gpy_model)

@@ -73,9 +73,7 @@ def qrbf_uniform_finite(data, emukit_rbf):
 @pytest.fixture
 def emukit_matern32(data):
     _, _, _, _, D = data
-    return ProductMatern32GPy(GPy.kern.Matern32(input_dim=D))
-
-# Todo: add ARD
+    return ProductMatern32GPy(lengthscales=np.ones(D))
 
 @pytest.fixture
 def qmatern32_lebesgue_finite(data, emukit_matern32):
@@ -116,7 +114,7 @@ def test_qkernel_shapes(kernel_embedding):
         (embeddings_test_list[1], [0.19975038300858916, 0.20025772185633567]),
         (embeddings_test_list[2], [0.24224605771012733, 0.24251553613161855]),
         (embeddings_test_list[3], [0.26910154162464783, 0.2718773521646697]),
-        (embeddings_test_list[4], [58.75409064868934, 58.82710428355074]),
+        (embeddings_test_list[4], [58.754090648689335, 58.82710428355073]),
     ],
 )
 def test_qkernel_qKq(kernel_embedding, interval):
@@ -181,10 +179,10 @@ def test_qkernel_qKq(kernel_embedding, interval):
             embeddings_test_list[4],
             np.array(
                 [
-                    [2.8540840931792766, 2.8777497371940224],
-                    [4.5734146983456485, 4.598356434728914],
-                    [1.1403303630264245, 1.1500727643635984],
-                    [0.17795992869002905, 0.18007616126477957],
+                    [2.4844034845996594, 2.507860165597343],
+                    [4.127597709377218, 4.153127945134983],
+                    [0.84690586082328, 0.8556408968356606],
+                    [0.11194260154717957, 0.11357905744233214],
                 ]
             ),
         ),
@@ -195,7 +193,6 @@ def test_qkernel_qK(kernel_embedding, intervals):
     emukit_qkernel, _, x2, _, _, _ = kernel_embedding
     qK = emukit_qkernel.qK(x2)[0, :]
     for i in range(4):
-        print(qK[i])
         assert intervals[i, 0] < qK[i] < intervals[i, 1]
 
 
