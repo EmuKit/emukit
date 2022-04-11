@@ -58,7 +58,7 @@ class BaseGaussianProcessGPy(IBaseGaussianProcess):
         return self.gpy_model.Gaussian_noise[0]
 
     def set_data(self, X: np.ndarray, Y: np.ndarray) -> None:
-        """ Sets training data in model.
+        """Sets training data in model.
 
         :param X: New training features, shape (num_points, input_dim).
         :param Y: New training outputs, shape (num_points, 1).
