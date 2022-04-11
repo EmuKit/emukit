@@ -21,8 +21,8 @@ from emukit.quadrature.kernels.quadrature_rbf import (
 
 
 class BaseGaussianProcessGPy(IBaseGaussianProcess):
-    """
-    Wrapper for GPy GPRegression
+    """Wrapper for GPy GPRegression.
+
     An instance of this can be passed as 'base_gp' to a WarpedBayesianQuadratureModel object.
 
     Note that the GPy cannot take None as initial values for X and Y. Thus we initialize it with some values. These will

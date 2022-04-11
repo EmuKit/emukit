@@ -107,7 +107,7 @@ if __name__ == "__main__":
     np.random.seed(0)
 
     # === Choose MEASURE BELOW ======
-    MEASURE_INTBOUNDS = 'Lebesgue-finite'
+    MEASURE_INTBOUNDS = "Lebesgue-finite"
     # MEASURE_INTBOUNDS = 'GaussIso-infinite'
     # MEASURE_INTBOUNDS = 'Uniform-infinite'
     # MEASURE_INTBOUNDS = "Uniform-finite"
@@ -115,11 +115,11 @@ if __name__ == "__main__":
 
     # === Choose KERNEL BELOW ======
     # KERNEL = 'rbf'
-    KERNEL = 'matern32'
+    KERNEL = "matern32"
     # === CHOOSE KERNEL ABOVE ======
 
     _e = "Kernel embedding not implemented."
-    if KERNEL == 'rbf':
+    if KERNEL == "rbf":
         if MEASURE_INTBOUNDS == "Lebesgue-finite":
             emukit_qkern, dat = get_qrbf_lebesque()
         elif MEASURE_INTBOUNDS == "GaussIso-infinite":
@@ -130,7 +130,7 @@ if __name__ == "__main__":
             emukit_qkern, dat = get_qrbf_uniform_finite()
         else:
             raise ValueError(_e)
-    elif KERNEL == 'matern32':
+    elif KERNEL == "matern32":
         if MEASURE_INTBOUNDS == "Lebesgue-finite":
             emukit_qkern, dat = get_qmatern32_lebesque()
         else:

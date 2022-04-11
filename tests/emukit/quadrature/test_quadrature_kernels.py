@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from dataclasses import dataclass
+from math import isclose
 
 import GPy
 import numpy as np
@@ -108,7 +109,7 @@ def get_qrbf_uniform_infinite():
 
 def get_qmatern32_lebesque():
     dat = DataLebesque()
-    qkern = QuadratureRBFLebesgueMeasure(EmukitRBF().kern, integral_bounds=dat.integral_bounds)
+    qkern = QuadratureProductMatern32LebesgueMeasure(EmukitProductMatern32().kern, integral_bounds=dat.integral_bounds)
     return qkern, dat
 
 
@@ -154,17 +155,19 @@ embeddings_test_list = [
 
 @pytest.mark.parametrize("kernel_embedding", embeddings_test_list)
 def test_qkernel_shapes(kernel_embedding):
-    emukit_qkernel, x1, x2, M1, M2, D = kernel_embedding
+    emukit_qkernel, x1, x2, N, M, D = kernel_embedding
 
     # kernel shapes
-    assert emukit_qkernel.K(x1, x2).shape == (M1, M2)
-    assert emukit_qkernel.qK(x2).shape == (1, M2)
-    assert emukit_qkernel.Kq(x1).shape == (M1, 1)
+    assert emukit_qkernel.K(x1, x2).shape == (N, M)
+
+    # embedding shapes
+    assert emukit_qkernel.qK(x2).shape == (1, M)
+    assert emukit_qkernel.Kq(x1).shape == (N, 1)
+    assert np.shape(emukit_qkernel.qKq()) == ()
     assert isinstance(emukit_qkernel.qKq(), float)
 
-    # gradient shapes
-    assert emukit_qkernel.dKq_dx(x1).shape == (M1, D)
-    assert emukit_qkernel.dqK_dx(x2).shape == (D, M2)
+
+# === tests for kernel embedding start here
 
 
 @pytest.mark.parametrize(
@@ -178,11 +181,11 @@ def test_qkernel_shapes(kernel_embedding):
     ],
 )
 def test_qkernel_qKq(kernel_embedding, interval):
-    # To test the integral, we check if it lies in some confidence interval.
-    # These intervals were computed as follows: the kernel emukit_qkernel.K was integrated in the first argument by
+    # To test the integral value of the kernel embedding, we check if it lies in some confidence interval.
+    # These intervals were computed as follows: The kernel emukit_qkernel.qK was integrated by
     # simple random sampling with 1e6 samples. This was done 100 times. The intervals show mean\pm 3 std of the 100
-    # integrals obtained by sampling. There might be a small chance the true integrals lies outside the specified
-    # intervals.
+    # integrals obtained by sampling. There might be a small chance that the true integrals lies outside the
+    # specified intervals.
     emukit_qkernel = kernel_embedding[0]
     qKq = emukit_qkernel.qKq()
     assert interval[0] < qKq < interval[1]
@@ -262,3 +265,87 @@ def test_qkernel_uniform_finite_correct_box(qrbf_uniform_finite):
     # measure bounds are [(1, 2), (-4, 2)]
     # this test checks that the reasonable box is the union of those boxes
     assert emukit_qkernel.reasonable_box_bounds.bounds == [(1, 2), (-3, 2)]
+
+
+# == tests for kernel gradients start here
+
+
+@pytest.mark.parametrize("kernel_embedding", embeddings_test_list)
+def test_qkernel_gradient_shapes(kernel_embedding):
+    emukit_qkernel, x1, x2, N, M, D = kernel_embedding
+
+    # gradient of kernel
+    assert emukit_qkernel.dK_dx1(x1, x2).shape == (D, N, M)
+    assert emukit_qkernel.dK_dx2(x1, x2).shape == (D, N, M)
+    assert emukit_qkernel.dKdiag_dx(x1).shape == (D, N)
+
+    # gradient of embeddings
+    assert emukit_qkernel.dKq_dx(x1).shape == (N, D)
+    assert emukit_qkernel.dqK_dx(x2).shape == (D, M)
+
+
+@pytest.mark.parametrize("kernel_embedding", embeddings_test_list)
+def test_qkernel_gradient_values(kernel_embedding):
+    emukit_qkernel, x1, x2, N, M, D = kernel_embedding
+    np.random.seed(42)
+
+    x1 = np.random.randn(N, D)
+    x2 = np.random.randn(M, D)
+
+    # dKdiag_dx
+    in_shape = x1.shape
+    func = lambda x: np.diag(emukit_qkernel.K(x, x))
+    dfunc = lambda x: emukit_qkernel.dKdiag_dx(x1)
+    _check_grad(func, dfunc, in_shape)
+
+    # dK_dx1
+    in_shape = x1.shape
+    func = lambda x: emukit_qkernel.K(x, x2)
+    dfunc = lambda x: emukit_qkernel.dK_dx1(x, x2)
+    _check_grad(func, dfunc, in_shape)
+
+    # dK_dx2
+    in_shape = x2.shape
+    func = lambda x: emukit_qkernel.K(x1, x)
+    dfunc = lambda x: emukit_qkernel.dK_dx2(x1, x)
+    _check_grad(func, dfunc, in_shape)
+
+    # dqK_dx
+    in_shape = x2.shape
+    func = lambda x: emukit_qkernel.qK(x)
+    dfunc = lambda x: emukit_qkernel.dqK_dx(x)
+    _check_grad(func, dfunc, in_shape)
+
+    # dKq_dx
+    in_shape = x1.shape
+    func = lambda x: emukit_qkernel.Kq(x).T
+    dfunc = lambda x: emukit_qkernel.dKq_dx(x).T
+    _check_grad(func, dfunc, in_shape)
+
+
+def _compute_numerical_gradient(func, dfunc, in_shape):
+    """Dimension that is being varied must be last dimension."""
+    eps = 1e-8
+    x = np.random.randn(*in_shape)
+    f = func(x)
+    df = dfunc(x)
+    dft = np.zeros(df.shape)
+    for d in range(x.shape[-1]):
+        x_tmp = x.copy()
+        x_tmp[..., d] = x_tmp[..., d] + eps
+        f_tmp = func(x_tmp)
+        dft_d = (f_tmp - f) / eps
+        dft[d, ...] = dft_d
+    return df, dft
+
+
+def _check_grad(func, dfunc, in_shape):
+    """``func`` must return ``np.ndarray`` of shape ``s`` and ``dfunc`` must return
+    ``np.ndarray`` of shape ``s + (input_dim, )``."""
+    ABS_TOL = 1e-4
+    REL_TOL = 1e-5
+    df, dft = _compute_numerical_gradient(func, dfunc, in_shape)
+    isclose_all = np.array(
+        [isclose(grad1, grad2, rel_tol=REL_TOL, abs_tol=ABS_TOL) for grad1, grad2 in zip(df.flatten(), dft.flatten())]
+    )
+    assert (1 - isclose_all).sum() == 0
