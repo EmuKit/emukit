@@ -31,10 +31,10 @@ class BaseGaussianProcessGPy(IBaseGaussianProcess):
 
     def __init__(self, kern: QuadratureKernel, gpy_model: GPy.models.GPRegression, noise_free: bool = True):
         """
-        :param kern: a quadrature kernel
-        :param gpy_model: A GPy GP regression model, GPy.models.GPRegression
-        :param noise_free: if False, the observation noise variance will be treated as a model parameter,
-        if True it is set to 1e-10, defaults to True
+        :param kern: A quadrature kernel.
+        :param gpy_model: A GPy GP regression model.
+        :param noise_free: If False, the observation noise variance will be treated as a model parameter,
+                           if True it is set to 1e-10, defaults to True.
         """
         super().__init__(kern=kern)
         if noise_free:
@@ -51,61 +51,58 @@ class BaseGaussianProcessGPy(IBaseGaussianProcess):
 
     @property
     def observation_noise_variance(self) -> np.float:
-        """
-        Gaussian observation noise variance
+        """Gaussian observation noise variance.
+
         :return: The noise variance from some external GP model
         """
         return self.gpy_model.Gaussian_noise[0]
 
     def set_data(self, X: np.ndarray, Y: np.ndarray) -> None:
-        """
-        Sets training data in model
-        :param X: New training features
-        :param Y: New training outputs
+        """ Sets training data in model.
+
+        :param X: New training features, shape (num_points, input_dim).
+        :param Y: New training outputs, shape (num_points, 1).
         """
         self.gpy_model.set_XY(X, Y)
 
     def predict(self, X_pred: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-        """
-        Predictive mean and covariance at the locations X_pred
+        """Predictive mean and covariance at the locations X_pred.
 
-        :param X_pred: points at which to predict, with shape (number of points, dimension)
-        :return: Predictive mean, predictive variances shapes (num_points, 1) and (num_points, 1)
+        :param X_pred: Points at which to predict, with shape (number of points, input_dim).
+        :return: Predictive mean, predictive variances shapes (num_points, 1) and (num_points, 1).
         """
         return self.gpy_model.predict(X_pred, full_cov=False)
 
     def predict_with_full_covariance(self, X_pred: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-        """
-        Predictive mean and covariance at the locations X_pred
+        """Predictive mean and covariance at the locations X_pred.
 
-        :param X_pred: points at which to predict, with shape (num_points, input_dim)
-        :return: Predictive mean, predictive full covariance shapes (num_points, 1) and (num_points, num_points)
+        :param X_pred: Points at which to predict, with shape (num_points, input_dim).
+        :return: Predictive mean, predictive full covariance shapes (num_points, 1) and (num_points, num_points).
         """
         return self.gpy_model.predict(X_pred, full_cov=True)
 
     def solve_linear(self, z: np.ndarray) -> np.ndarray:
-        """
-        Solve the linear system G(X, X)x=z for x.
-        G(X, X) is the Gram matrix :math:`G(X, X) = K(X, X) + \sigma^2 I`, of shape (num_dat, num_dat) and z is a
-        matrix of shape (num_dat, num_obs).
+        """Solve the linear system :math:`G(X, X)x=z` for :math:`x`.
 
-        :param z: a matrix of shape (num_dat, num_obs)
-        :return: the solution to the linear system G(X, X)x = z, shape (num_dat, num_obs)
+        :math:`G(X, X)` is the Gram matrix :math:`G(X, X) = K(X, X) + \sigma^2 I`, of shape (num_dat, num_dat)
+        and :math:`z` is a matrix of shape (num_dat, num_points).
+
+        :param z: A matrix of shape (num_dat, num_obs).
+        :return: The solution :math:`x` of linear system, shape (num_dat, num_points).
         """
         lower_chol = self.gpy_model.posterior.woodbury_chol
         return lapack.dtrtrs(lower_chol.T, (lapack.dtrtrs(lower_chol, z, lower=1)[0]), lower=0)[0]
 
     def graminv_residual(self) -> np.ndarray:
-        """
-        The inverse Gram matrix multiplied with the mean-corrected data
+        """The inverse Gram matrix multiplied with the mean-corrected data.
 
         ..math::
 
             (K_{XX} + \sigma^2 I)^{-1} (Y - m(X))
 
-        where the data is given by {X, Y} and m is the prior mean and sigma^2 the observation noise
+        where the data is given by {X, Y} and m is the prior mean and :math:`sigma^2` the observation noise.
 
-        :return: the inverse Gram matrix multiplied with the mean-corrected data with shape: (number of datapoints, 1)
+        :return: The inverse Gram matrix multiplied with the mean-corrected, shape: (num_points, 1).
         """
         return self.gpy_model.posterior.woodbury_vector
 
@@ -140,27 +137,20 @@ class RBFGPy(IRBF):
         return self.gpy_rbf.variance.values[0]
 
     def K(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
-        """
-        The kernel k(x1, x2) evaluated at x1 and x2
+        """The kernel k(x1, x2) evaluated at x1 and x2.
 
-        :param x1: first argument of the kernel
-        :param x2: second argument of the kernel
-        :returns: kernel evaluated at x1, x2
+        :param x1: First argument of the kernel.
+        :param x2: Second argument of the kernel.
+        :returns: Kernel evaluated at x1, x2.
         """
         return self.gpy_rbf.K(x1, x2)
 
     def dK_dx1(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
-        """
-        gradient of the kernel wrt x1 evaluated at pair x1, x2.
-        We use the scaled squared distance defined as:
+        """Gradient of the kernel wrt x1 evaluated at pair x1, x2.
 
-        ..math::
-
-            r^2(x_1, x_2) = \sum_{d=1}^D (x_1^d - x_2^d)^2/\lambda^2
-
-        :param x1: first argument of the kernel, shape = (n_points N, input_dim)
-        :param x2: second argument of the kernel, shape = (n_points M, input_dim)
-        :return: the gradient of the kernel wrt x1 evaluated at (x1, x2), shape (input_dim, N, M)
+        :param x1: First argument of the kernel, shape = (n_points N, input_dim).
+        :param x2: Second argument of the kernel, shape = (n_points M, input_dim).
+        :return: The gradient of the kernel wrt x1 evaluated at (x1, x2), shape (input_dim, N, M).
         """
         K = self.K(x1, x2)
         scaled_vector_diff = (x1.T[:, :, None] - x2.T[:, None, :]) / self.lengthscale**2
@@ -177,8 +167,7 @@ class ProductMatern32GPy(IProductMatern32):
     .. math::
         k_i(x, x') = (1 + \sqrt{3}r_i ) e^{-\sqrt{3} r_i}.
 
-    :math:`d` is the input dimensionality,
-    :math:`r_i:=\frac{|x_i - z_i|}{\lambda_i}}`,
+    :math:`d` is the input dimensionality, :math:`r_i:=\frac{|x_i - z_i|}{\lambda_i}}`,
     :math:`\sigma^2` is the ``variance`` property and :math:`\lambda_i` is the ith element
     of the ``lengthscales`` property.
     """
@@ -241,11 +230,11 @@ class ProductMatern32GPy(IProductMatern32):
         return self.gpy_matern.parameters[0].variance[0]
 
     def K(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
-        """The kernel k(x1, x2) evaluated at x1 and x2
+        """The kernel k(x1, x2) evaluated at x1 and x2.
 
-        :param x1: first argument of the kernel
-        :param x2: second argument of the kernel
-        :returns: kernel evaluated at x1, x2
+        :param x1: First argument of the kernel.
+        :param x2: Second argument of the kernel.
+        :returns: Kernel evaluated at x1, x2.
         """
         return self.gpy_matern.K(x1, x2)
 
@@ -253,10 +242,10 @@ class ProductMatern32GPy(IProductMatern32):
         """The kernel k(x1, x2) evaluated at x1 and x2 computed as product from the
         individual 1d kernels.
 
-        :param x1: first argument of the kernel
-        :param x2: second argument of the kernel
-        :param skip: skip these dimensions if specified.
-        :returns: kernel evaluated at x1, x2
+        :param x1: First argument of the kernel.
+        :param x2: Second argument of the kernel.
+        :param skip: Skip these dimensions if specified.
+        :returns: Kernel evaluated at x1, x2.
         """
         if skip is None:
             skip = []
@@ -273,11 +262,6 @@ class ProductMatern32GPy(IProductMatern32):
 
     def dK_dx1(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
         """Gradient of the kernel wrt x1 evaluated at pair x1, x2.
-        We use the scaled squared distance defined as:
-
-        ..math::
-
-            r^2(x_1, x_2) = \sum_{d=1}^D (x_1^d - x_2^d)^2/\lambda^2
 
         :param x1: First argument of the kernel, shape = (n_points N, input_dim).
         :param x2: Second argument of the kernel, shape = (n_points M, input_dim).
@@ -308,16 +292,15 @@ def create_emukit_model_from_gpy_model(
     measure: Optional[IntegrationMeasure],
     integral_name: str = "",
 ) -> BaseGaussianProcessGPy:
-    """
-    Wraps a GPy model and returns an emukit quadrature model.
+    """Wraps a GPy model and returns an emukit quadrature model.
 
-    :param gpy_model: A GPy Gaussian process regression model, GPy.models.GPRegression
+    :param gpy_model: A GPy Gaussian process regression model, GPy.models.GPRegression.
     :param integral_bounds: List of D tuples, where D is the dimensionality of the integral and the tuples contain the
-    lower and upper bounds of the integral i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)]. None means infinite
-    bounds.
+                            lower and upper bounds of the integral
+                            i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)].
+                            None means infinite bounds.
     :param measure: an integration measure. None means the standard Lebesgue measure is used.
-    :param integral_name: the (variable) name(s) of the integral
-
+    :param integral_name: the (variable) name(s) of the integral.
     :return: emukit model for quadrature with GPy backend (IBaseGaussianProcessGPy)
     """
 
