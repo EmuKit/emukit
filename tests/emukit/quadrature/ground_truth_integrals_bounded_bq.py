@@ -1,7 +1,5 @@
 # Use this script for ground truth integrals of the Bounded BQ Gaussian process.
 
-from typing import List, Tuple
-
 import GPy
 import numpy as np
 
