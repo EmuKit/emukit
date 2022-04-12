@@ -3,4 +3,4 @@
 
 
 from .base_gp import IBaseGaussianProcess  # noqa: F401
-from .standard_kernels import IRBF, IStandardKernel  # noqa: F401
+from .standard_kernels import IRBF, IProductMatern32, IStandardKernel  # noqa: F401

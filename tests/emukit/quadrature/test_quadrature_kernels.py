@@ -9,8 +9,9 @@ import numpy as np
 import pytest
 from pytest_lazyfixture import lazy_fixture
 
-from emukit.model_wrappers.gpy_quadrature_wrappers import RBFGPy
+from emukit.model_wrappers.gpy_quadrature_wrappers import ProductMatern32GPy, RBFGPy
 from emukit.quadrature.kernels import (
+    QuadratureProductMatern32LebesgueMeasure,
     QuadratureRBFIsoGaussMeasure,
     QuadratureRBFLebesgueMeasure,
     QuadratureRBFUniformMeasure,
@@ -72,6 +73,13 @@ class EmukitRBF:
     kern = RBFGPy(GPy.kern.RBF(input_dim=2, lengthscale=ell, variance=var))
 
 
+@dataclass
+class EmukitProductMatern32:
+    variance = 0.7
+    lengthscales = np.array([0.4, 1.2])
+    kern = ProductMatern32GPy(lengthscales=lengthscales)
+
+
 def get_qrbf_lebesque():
     dat = DataLebesque()
     qkern = QuadratureRBFLebesgueMeasure(EmukitRBF().kern, integral_bounds=dat.integral_bounds)
@@ -96,6 +104,12 @@ def get_qrbf_uniform_infinite():
     dat = DataUniformInfinite()
     measure = UniformMeasure(bounds=dat.bounds)
     qkern = QuadratureRBFUniformMeasure(rbf_kernel=EmukitRBF.kern, integral_bounds=dat.integral_bounds, measure=measure)
+    return qkern, dat
+
+
+def get_qmatern32_lebesque():
+    dat = DataLebesque()
+    qkern = QuadratureProductMatern32LebesgueMeasure(EmukitProductMatern32().kern, integral_bounds=dat.integral_bounds)
     return qkern, dat
 
 
@@ -124,11 +138,18 @@ def qrbf_uniform_finite():
     return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D
 
 
+@pytest.fixture
+def qmatern32_lebesgue():
+    qkern, dat = get_qmatern32_lebesque()
+    return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D
+
+
 embeddings_test_list = [
     lazy_fixture("qrbf_lebesgue"),
     lazy_fixture("qrbf_gauss_iso"),
     lazy_fixture("qrbf_uniform_infinite"),
     lazy_fixture("qrbf_uniform_finite"),
+    lazy_fixture("qmatern32_lebesgue"),
 ]
 
 
@@ -156,6 +177,7 @@ def test_qkernel_shapes(kernel_embedding):
         (embeddings_test_list[1], [0.06887117418934532, 0.0690632609840969]),
         (embeddings_test_list[2], [0.13248136022581258, 0.13261016559792643]),
         (embeddings_test_list[3], [0.10728920097517262, 0.10840368292018744]),
+        (embeddings_test_list[4], [33.6816570527734, 33.726646173769595]),
     ],
 )
 def test_qkernel_qKq(kernel_embedding, interval):
@@ -213,6 +235,17 @@ def test_qkernel_qKq(kernel_embedding, interval):
                     [0.03274871262181519, 0.03329912802666011],
                     [0.1107611315779423, 0.11240486902543063],
                     [0.07555953336253515, 0.07707036213410368],
+                ]
+            ),
+        ),
+        (
+            embeddings_test_list[4],
+            np.array(
+                [
+                    [1.1759685512006572, 1.1943216573095992],
+                    [2.3867473290884305, 2.4085441010798943],
+                    [2.414541592697165, 2.435863015779601],
+                    [1.3627594837426076, 1.3814476744322477],
                 ]
             ),
         ),

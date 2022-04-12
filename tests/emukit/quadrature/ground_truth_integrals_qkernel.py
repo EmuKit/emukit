@@ -8,6 +8,7 @@ from typing import List, Tuple
 
 import numpy as np
 from test_quadrature_kernels import (
+    get_qmatern32_lebesque,
     get_qrbf_gauss_iso,
     get_qrbf_lebesque,
     get_qrbf_uniform_finite,
@@ -106,24 +107,37 @@ if __name__ == "__main__":
     np.random.seed(0)
 
     # === Choose MEASURE BELOW ======
-    # MEASURE_INTBOUNDS = 'Lebesgue-finite'
+    MEASURE_INTBOUNDS = "Lebesgue-finite"
     # MEASURE_INTBOUNDS = 'GaussIso-infinite'
     # MEASURE_INTBOUNDS = 'Uniform-infinite'
-    MEASURE_INTBOUNDS = "Uniform-finite"
+    # MEASURE_INTBOUNDS = "Uniform-finite"
     # === CHOOSE MEASURE ABOVE ======
 
-    if MEASURE_INTBOUNDS == "Lebesgue-finite":
-        emukit_qkern, dat = get_qrbf_lebesque()
-    elif MEASURE_INTBOUNDS == "GaussIso-infinite":
-        emukit_qkern, dat = get_qrbf_gauss_iso()
-    elif MEASURE_INTBOUNDS == "Uniform-infinite":
-        emukit_qkern, dat = get_qrbf_uniform_infinite()
-    elif MEASURE_INTBOUNDS == "Uniform-finite":
-        emukit_qkern, dat = get_qrbf_uniform_finite()
-    else:
-        raise ValueError("Measure-integral-bounds combination not defined")
+    # === Choose KERNEL BELOW ======
+    # KERNEL = 'rbf'
+    KERNEL = "matern32"
+    # === CHOOSE KERNEL ABOVE ======
+
+    _e = "Kernel embedding not implemented."
+    if KERNEL == "rbf":
+        if MEASURE_INTBOUNDS == "Lebesgue-finite":
+            emukit_qkern, dat = get_qrbf_lebesque()
+        elif MEASURE_INTBOUNDS == "GaussIso-infinite":
+            emukit_qkern, dat = get_qrbf_gauss_iso()
+        elif MEASURE_INTBOUNDS == "Uniform-infinite":
+            emukit_qkern, dat = get_qrbf_uniform_infinite()
+        elif MEASURE_INTBOUNDS == "Uniform-finite":
+            emukit_qkern, dat = get_qrbf_uniform_finite()
+        else:
+            raise ValueError(_e)
+    elif KERNEL == "matern32":
+        if MEASURE_INTBOUNDS == "Lebesgue-finite":
+            emukit_qkern, dat = get_qmatern32_lebesque()
+        else:
+            raise ValueError(_e)
 
     print()
+    print("kernel: {}".format(KERNEL))
     print("measure: {}".format(MEASURE_INTBOUNDS))
     print("no dimensions: {}".format(dat.D))
     print()
