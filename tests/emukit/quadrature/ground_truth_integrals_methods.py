@@ -5,23 +5,29 @@
 # Use this script for ground truth integrals of the vanilla BQ Gaussian process.
 
 import numpy as np
+from test_quadrature_models import (
+    get_bounded_bq_lower,
+    get_bounded_bq_upper,
+    get_vanilla_bq_model,
+    get_wsabil_adapt,
+    get_wsabil_fixed,
+)
 
 from emukit.quadrature.methods import WarpedBayesianQuadratureModel
-from test_quadrature_models import get_vanilla_bq_model, get_bounded_bq_upper, get_bounded_bq_lower, get_wsabil_fixed, get_wsabil_adapt
 
 
 def mc_integral_mean_from_measure(num_samples: int, model: WarpedBayesianQuadratureModel) -> float:
     """Computes the MC estimator for the integral mean of the model."""
     samples = model.measure.get_samples(num_samples=num_samples)
-    values, _ = model.predict(samples)
-    return np.mean(values)
+    gp_mean_at_samples, _ = model.predict(samples)
+    return np.mean(gp_mean_at_samples)
 
 
 def mc_integral_var_from_measure(num_samples: int, model: WarpedBayesianQuadratureModel) -> float:
     """Computes the MC estimator for the integral variance of the model."""
     samples = model.measure.get_samples(num_samples=num_samples)
-    _, values = model.predict(samples)
-    return np.mean(values)
+    _, gp_cov_at_samples = model.predict_with_full_covariance(samples)
+    return np.sum(gp_cov_at_samples) / num_samples**2
 
 
 if __name__ == "__main__":
@@ -54,6 +60,9 @@ if __name__ == "__main__":
     print()
 
     # === mean =============================================================
+    print()
+    print("=== mean =======================================================")
+
     num_runs = 100
     num_samples = 1e6
     num_std = 3
@@ -66,8 +75,8 @@ if __name__ == "__main__":
 
         mZ_samples = mc_integral_mean_from_measure(num_samples, model)
         mZ_SAMPLES[i] = mZ_samples
+        print(".", end="", flush=True)
 
-    print("=== mean =======================================================")
     print("no samples per integral: {:.1E}".format(num_samples))
     print("number of integrals: {}".format(num_runs))
     print("number of standard deviations: {}".format(num_std))
@@ -75,6 +84,9 @@ if __name__ == "__main__":
     print()
 
     # === variance ==========================================================
+    print()
+    print("=== variance ==================================================")
+
     num_runs = 100
     num_samples = int(5 * 1e3)
     num_std = 3
@@ -87,8 +99,8 @@ if __name__ == "__main__":
 
             vZ_samples = mc_integral_var_from_measure(num_samples, model)
             vZ_SAMPLES[i] = vZ_samples
+            print(".", end="", flush=True)
 
-        print("=== mean =======================================================")
         print("no samples per integral: {:.1E}".format(num_samples))
         print("number of integrals: {}".format(num_runs))
         print("number of standard deviations: {}".format(num_std))
