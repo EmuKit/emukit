@@ -8,6 +8,7 @@ import GPy
 import numpy as np
 import pytest
 from pytest_lazyfixture import lazy_fixture
+from utils import check_grad
 
 from emukit.model_wrappers.gpy_quadrature_wrappers import ProductMatern32GPy, RBFGPy
 from emukit.quadrature.kernels import (
@@ -296,56 +297,28 @@ def test_qkernel_gradient_values(kernel_embedding):
     in_shape = x1.shape
     func = lambda x: np.diag(emukit_qkernel.K(x, x))
     dfunc = lambda x: emukit_qkernel.dKdiag_dx(x1)
-    _check_grad(func, dfunc, in_shape)
+    check_grad(func, dfunc, in_shape)
 
     # dK_dx1
     in_shape = x1.shape
     func = lambda x: emukit_qkernel.K(x, x2)
     dfunc = lambda x: emukit_qkernel.dK_dx1(x, x2)
-    _check_grad(func, dfunc, in_shape)
+    check_grad(func, dfunc, in_shape)
 
     # dK_dx2
     in_shape = x2.shape
     func = lambda x: emukit_qkernel.K(x1, x)
     dfunc = lambda x: emukit_qkernel.dK_dx2(x1, x)
-    _check_grad(func, dfunc, in_shape)
+    check_grad(func, dfunc, in_shape)
 
     # dqK_dx
     in_shape = x2.shape
     func = lambda x: emukit_qkernel.qK(x)
     dfunc = lambda x: emukit_qkernel.dqK_dx(x)
-    _check_grad(func, dfunc, in_shape)
+    check_grad(func, dfunc, in_shape)
 
     # dKq_dx
     in_shape = x1.shape
     func = lambda x: emukit_qkernel.Kq(x).T
     dfunc = lambda x: emukit_qkernel.dKq_dx(x).T
-    _check_grad(func, dfunc, in_shape)
-
-
-def _compute_numerical_gradient(func, dfunc, in_shape):
-    """Dimension that is being varied must be last dimension."""
-    eps = 1e-8
-    x = np.random.randn(*in_shape)
-    f = func(x)
-    df = dfunc(x)
-    dft = np.zeros(df.shape)
-    for d in range(x.shape[-1]):
-        x_tmp = x.copy()
-        x_tmp[..., d] = x_tmp[..., d] + eps
-        f_tmp = func(x_tmp)
-        dft_d = (f_tmp - f) / eps
-        dft[d, ...] = dft_d
-    return df, dft
-
-
-def _check_grad(func, dfunc, in_shape):
-    """``func`` must return ``np.ndarray`` of shape ``s`` and ``dfunc`` must return
-    ``np.ndarray`` of shape ``s + (input_dim, )``."""
-    ABS_TOL = 1e-4
-    REL_TOL = 1e-5
-    df, dft = _compute_numerical_gradient(func, dfunc, in_shape)
-    isclose_all = np.array(
-        [isclose(grad1, grad2, rel_tol=REL_TOL, abs_tol=ABS_TOL) for grad1, grad2 in zip(df.flatten(), dft.flatten())]
-    )
-    assert (1 - isclose_all).sum() == 0
+    check_grad(func, dfunc, in_shape)
