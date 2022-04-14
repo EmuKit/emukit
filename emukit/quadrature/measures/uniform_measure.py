@@ -61,8 +61,8 @@ class UniformMeasure(IntegrationMeasure):
     def compute_density(self, x: np.ndarray) -> np.ndarray:
         """Evaluates the density at x.
 
-        :param x: Points at which density is evaluated, shape (num_points, input_dim).
-        :return: The density at x, shape (num_points, ).
+        :param x: Points at which density is evaluated, shape (n_points, input_dim).
+        :return: The density at x, shape (n_points, ).
         """
         # Compute density: (i) check if points are inside the box. (ii) multiply this bool value with density.
         bounds_lower = np.array([b[0] for b in self.bounds])
@@ -78,8 +78,8 @@ class UniformMeasure(IntegrationMeasure):
     def compute_density_gradient(self, x: np.ndarray) -> np.ndarray:
         """Evaluates the gradient of the density at x.
 
-        :param x: Points at which the gradient is evaluated, shape (num_points, input_dim).
-        :return: The gradient of the density at x, shape (num_points, input_dim).
+        :param x: Points at which the gradient is evaluated, shape (n_points, input_dim).
+        :return: The gradient of the density at x, shape (n_points, input_dim).
         """
         return np.zeros(x.shape)
 

@@ -11,13 +11,7 @@ from scipy.linalg import lapack
 from emukit.quadrature.interfaces import IBaseGaussianProcess
 from emukit.quadrature.interfaces.standard_kernels import IRBF, IProductMatern32
 from emukit.quadrature.measures import IntegrationMeasure, IsotropicGaussianMeasure, UniformMeasure
-from emukit.quadrature.kernels.quadrature_kernels import QuadratureKernel
-from emukit.quadrature.kernels.quadrature_matern32 import QuadratureProductMatern32LebesgueMeasure
-from emukit.quadrature.kernels.quadrature_rbf import (
-    QuadratureRBFIsoGaussMeasure,
-    QuadratureRBFLebesgueMeasure,
-    QuadratureRBFUniformMeasure,
-)
+from emukit.quadrature.kernels import QuadratureKernel, QuadratureProductMatern32LebesgueMeasure, QuadratureRBFIsoGaussMeasure, QuadratureRBFLebesgueMeasure, QuadratureRBFUniformMeasure
 
 
 class BaseGaussianProcessGPy(IBaseGaussianProcess):

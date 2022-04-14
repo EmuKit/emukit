@@ -62,8 +62,8 @@ class IsotropicGaussianMeasure(IntegrationMeasure):
     def compute_density(self, x: np.ndarray) -> np.ndarray:
         """Evaluates the density at x.
 
-        :param x: Points at which density is evaluated, shape (num_points, input_dim).
-        :return: The density at x, shape (num_points, ).
+        :param x: Points at which density is evaluated, shape (n_points, input_dim).
+        :return: The density at x, shape (n_points, ).
         """
         factor = (2 * np.pi * self.variance) ** (self.num_dimensions / 2)
         scaled_diff = (x - self.mean) / (np.sqrt(2 * self.variance))
@@ -72,8 +72,8 @@ class IsotropicGaussianMeasure(IntegrationMeasure):
     def compute_density_gradient(self, x: np.ndarray) -> np.ndarray:
         """Evaluates the gradient of the density at x.
 
-        :param x: Points at which the gradient is evaluated, shape (num_points, input_dim).
-        :return: The gradient of the density at x, shape (num_points, input_dim).
+        :param x: Points at which the gradient is evaluated, shape (n_points, input_dim).
+        :return: The gradient of the density at x, shape (n_points, input_dim).
         """
         values = self.compute_density(x)
         return ((-values / self.variance) * (x - self.mean).T).T

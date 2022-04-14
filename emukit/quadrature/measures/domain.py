@@ -77,7 +77,7 @@ class BoxDomain:
         return lower_bounds.T, upper_bounds.T
 
     def convert_to_list_of_continuous_parameters(self) -> List[ContinuousParameter]:
-        """Converts the box bounds into a list of ``ContinuousParameter`` objects.
+        """Converts the box bounds into a list of :class:`ContinuousParameter` objects.
 
         :return: The continuous parameters (one for each dimension of the box).
         """

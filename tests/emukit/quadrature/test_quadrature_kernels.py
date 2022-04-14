@@ -264,7 +264,7 @@ def test_qkernel_uniform_finite_correct_box(qrbf_uniform_finite):
     # integral bounds are [(-1, 2), (-3, 3)]
     # measure bounds are [(1, 2), (-4, 2)]
     # this test checks that the reasonable box is the union of those boxes
-    assert emukit_qkernel.reasonable_box_bounds.bounds == [(1, 2), (-3, 2)]
+    assert emukit_qkernel.reasonable_box.bounds == [(1, 2), (-3, 2)]
 
 
 # == tests for kernel gradients start here

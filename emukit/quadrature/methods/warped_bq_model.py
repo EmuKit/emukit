@@ -6,7 +6,7 @@ from typing import Tuple, Union
 
 import numpy as np
 
-from emukit.quadrature.measures import BoxBounds, IntegrationMeasure
+from emukit.quadrature.measures import BoxDomain, IntegrationMeasure
 
 from ...core.interfaces.models import IDifferentiable, IModel
 from ...quadrature.interfaces.base_gp import IBaseGaussianProcess
@@ -47,14 +47,14 @@ class WarpedBayesianQuadratureModel(IModel, IDifferentiable):
         return self._warping.transform(self.base_gp.Y)
 
     @property
-    def integral_bounds(self) -> Union[None, BoxBounds]:
+    def integral_bounds(self) -> Union[None, BoxDomain]:
         """The integration bounds. ``None`` if integration domain is not bounded."""
         return self.base_gp.kern.integral_bounds
 
     @property
-    def reasonable_box_bounds(self) -> BoxBounds:
+    def reasonable_box_bounds(self) -> BoxDomain:
         """Reasonable box bounds to search for observations. This box is used by the acquisition optimizer."""
-        return self.base_gp.kern.reasonable_box_bounds
+        return self.base_gp.kern.reasonable_box
 
     @property
     def measure(self) -> Union[None, IntegrationMeasure]:
