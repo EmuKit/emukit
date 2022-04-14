@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 from numpy.testing import assert_array_equal
 
-from emukit.quadrature.kernels.bounds import BoxBounds
+from emukit.quadrature.measures import BoxBounds
 
 
 @pytest.fixture
@@ -22,7 +22,7 @@ def test_integral_bounds_values():
     upper_bounds = np.array([[1, 0]])
 
     bounds = BoxBounds(name="test_name", bounds=bounds)
-    res = bounds.get_lower_and_upper_bounds()
+    res = bounds._get_lower_and_upper_bounds()
     assert len(res) == 2
     assert np.all(res[0] == lower_bounds)
     assert np.all(res[1] == upper_bounds)

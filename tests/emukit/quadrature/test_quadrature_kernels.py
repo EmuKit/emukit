@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from dataclasses import dataclass
-from math import isclose
 
 import GPy
 import numpy as np
@@ -17,7 +16,7 @@ from emukit.quadrature.kernels import (
     QuadratureRBFLebesgueMeasure,
     QuadratureRBFUniformMeasure,
 )
-from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure, UniformMeasure
+from emukit.quadrature.measures import IsotropicGaussianMeasure, UniformMeasure
 
 
 # the following classes and functions are also used to compute the ground truth integrals with MC

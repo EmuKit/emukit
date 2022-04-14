@@ -16,7 +16,7 @@ from test_quadrature_kernels import (
 )
 
 from emukit.quadrature.kernels import QuadratureKernel
-from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure
+from emukit.quadrature.measures import IsotropicGaussianMeasure
 
 
 def _sample_uniform(num_samples: int, bounds: List[Tuple[float, float]]) -> np.ndarray:

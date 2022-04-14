@@ -8,7 +8,7 @@ import pytest
 from pytest_lazyfixture import lazy_fixture
 from utils import check_grad
 
-from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure, UniformMeasure
+from emukit.quadrature.measures import IsotropicGaussianMeasure, UniformMeasure
 
 REL_TOL = 1e-5
 ABS_TOL = 1e-4

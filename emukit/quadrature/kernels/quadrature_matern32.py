@@ -1,9 +1,12 @@
+"""The product Matern32 kernel embeddings."""
+
 from typing import List, Optional, Tuple
 
 import numpy as np
 
+from emukit.quadrature.measures import IntegrationMeasure
+
 from ...quadrature.interfaces.standard_kernels import IProductMatern32
-from ...quadrature.kernels.integration_measures import IntegrationMeasure
 from .quadrature_kernels import QuadratureKernel
 
 

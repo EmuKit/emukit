@@ -1,3 +1,5 @@
+"""Base class for kernel embeddings."""
+
 # Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
@@ -6,9 +8,8 @@ from typing import List, Optional, Tuple
 
 import numpy as np
 
-from ...quadrature.interfaces.standard_kernels import IStandardKernel
-from .bounds import BoxBounds
-from .integration_measures import IntegrationMeasure
+from emukit.quadrature.interfaces.standard_kernels import IStandardKernel
+from emukit.quadrature.measures import BoxBounds, IntegrationMeasure
 
 
 class QuadratureKernel:

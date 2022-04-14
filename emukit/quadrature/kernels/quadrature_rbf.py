@@ -1,3 +1,5 @@
+"""The RBF kernel embeddings."""
+
 # Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
@@ -7,9 +9,9 @@ from typing import List, Optional, Tuple
 import numpy as np
 from scipy.special import erf
 
+from emukit.quadrature.measures import BoxBounds, IntegrationMeasure, IsotropicGaussianMeasure, UniformMeasure
+
 from ...quadrature.interfaces.standard_kernels import IRBF
-from ...quadrature.kernels.bounds import BoxBounds
-from ...quadrature.kernels.integration_measures import IntegrationMeasure, IsotropicGaussianMeasure, UniformMeasure
 from .quadrature_kernels import QuadratureKernel
 
 
@@ -290,7 +292,7 @@ class QuadratureRBFUniformMeasure(QuadratureRBF):
         erf_up = erf(self._scaled_vector_diff(upper_bounds, x2))
         kernel_mean = self.variance * (self.lengthscale * np.sqrt(np.pi / 2.0) * (erf_up - erf_lo)).prod(axis=1)
 
-        return kernel_mean.reshape(1, -1) * self.measure.density
+        return kernel_mean.reshape(1, -1) * self.measure._density
 
     def qKq(self) -> float:
         """
@@ -305,7 +307,7 @@ class QuadratureRBFUniformMeasure(QuadratureRBF):
         exp_term = np.exp(-(diff_bounds_scaled**2)) - 1.0
         erf_term = erf(diff_bounds_scaled) * diff_bounds_scaled * np.sqrt(np.pi)
 
-        return float(prefac * (exp_term + erf_term).prod()) * self.measure.density**2
+        return float(prefac * (exp_term + erf_term).prod()) * self.measure._density**2
 
     def dqK_dx(self, x2: np.ndarray) -> np.ndarray:
         """
