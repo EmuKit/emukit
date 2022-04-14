@@ -29,6 +29,7 @@ class SquaredCorrelation(Acquisition):
         :class:`emukit.quadrature.acquisitions.IntegralVarianceReduction`
 
     :param model: A vanilla Bayesian quadrature model.
+
     """
 
     def __init__(self, model: VanillaBayesianQuadrature):

@@ -18,14 +18,13 @@ class UniformMeasure(IntegrationMeasure):
     .. math::
         p(x)=\begin{cases} p & x\in\text{bounds}\\0 &\text{otherwise}\end{cases}.
 
+    :param bounds: List of D tuples [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)], where D is
+                   the input dimensionality and the tuple (lb_d, ub_d) contains the lower and upper bound
+                   of the uniform measure in dimension d.
+
     """
 
     def __init__(self, bounds: List[Tuple[float, float]]):
-        """
-        :param bounds: List of D tuples [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)], where D is
-                       the input dimensionality and the tuple (lb_d, ub_d) contains the lower and upper bound
-                       of the uniform measure in dimension d.
-        """
         super().__init__("UniformMeasure")
 
         # checks if lower bounds are smaller than upper bounds.

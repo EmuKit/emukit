@@ -23,6 +23,7 @@ class UncertaintySampling(Acquisition):
 
     :param model: A warped Bayesian quadrature model that has gradients.
     :param measure_power: The power :math:`q` of the measure. Default is 2.
+
     """
 
     def __init__(self, model: Union[WarpedBayesianQuadratureModel, IDifferentiable], measure_power: float = 2):

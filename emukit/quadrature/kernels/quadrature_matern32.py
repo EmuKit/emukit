@@ -30,6 +30,15 @@ class QuadratureProductMatern32(QuadratureKernel):
        * :class:`emukit.quadrature.interfaces.IProductMatern32`
        * :class:`emukit.quadrature.kernels.QuadratureKernel`
 
+    :param matern_kernel: The standard emukit product Matern32 kernel.
+    :param integral_bounds: The integral bounds.
+                            List of D tuples, where D is the dimensionality
+                            of the integral and the tuples contain the lower and upper bounds of the integral
+                            i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)].
+                            ``None`` if bounds are infinite.
+    :param measure: The integration measure. ``None`` implies the standard Lebesgue measure.
+    :param variable_names: The (variable) name(s) of the integral.
+
     """
 
     def __init__(
@@ -39,17 +48,6 @@ class QuadratureProductMatern32(QuadratureKernel):
         measure: Optional[IntegrationMeasure],
         variable_names: str = "",
     ) -> None:
-        """
-        :param matern_kernel: The standard emukit product Matern32 kernel.
-        :param integral_bounds: The integral bounds.
-                                List of D tuples, where D is the dimensionality
-                                of the integral and the tuples contain the lower and upper bounds of the integral
-                                i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)].
-                                ``None`` if bounds are infinite.
-        :param measure: The integration measure. ``None`` implies the standard Lebesgue measure.
-        :param variable_names: The (variable) name(s) of the integral.
-        """
-
         super().__init__(
             kern=matern_kernel, integral_bounds=integral_bounds, measure=measure, variable_names=variable_names
         )
@@ -92,20 +90,19 @@ class QuadratureProductMatern32LebesgueMeasure(QuadratureProductMatern32):
        * :class:`emukit.quadrature.interfaces.IProductMatern32`
        * :class:`emukit.quadrature.kernels.QuadratureProductMatern32`
 
+    :param matern_kernel: The standard emukit product Matern32 kernel.
+    :param integral_bounds: The integral bounds.
+                            List of D tuples, where D is the dimensionality
+                            of the integral and the tuples contain the lower and upper bounds of the integral
+                            i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)].
+                            ``None`` if bounds are infinite.
+    :param variable_names: The (variable) name(s) of the integral.
+
     """
 
     def __init__(
         self, matern_kernel: IProductMatern32, integral_bounds: List[Tuple[float, float]], variable_names: str = ""
     ) -> None:
-        """
-        :param matern_kernel: The standard emukit product Matern32 kernel.
-        :param integral_bounds: The integral bounds.
-                                List of D tuples, where D is the dimensionality
-                                of the integral and the tuples contain the lower and upper bounds of the integral
-                                i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)].
-                                ``None`` if bounds are infinite.
-        :param variable_names: The (variable) name(s) of the integral.
-        """
         super().__init__(
             matern_kernel=matern_kernel, integral_bounds=integral_bounds, measure=None, variable_names=variable_names
         )

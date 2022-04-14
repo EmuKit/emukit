@@ -10,12 +10,13 @@ from emukit.core.optimization.context_manager import ContextManager
 
 
 class IntegrationMeasure:
-    """An abstract class for an integration measure defined by a density."""
+    """An abstract class for an integration measure defined by a density.
+
+    :param name: Name of the integration measure
+
+    """
 
     def __init__(self, name: str):
-        """
-        :param name: Name of the integration measure
-        """
         self.name = name
 
     def compute_density(self, x: np.ndarray) -> np.ndarray:

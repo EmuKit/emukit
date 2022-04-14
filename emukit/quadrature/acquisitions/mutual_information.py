@@ -27,6 +27,7 @@ class MutualInformation(Acquisition):
         :class:`emukit.quadrature.acquisitions.SquaredCorrelation`
 
     :param model: A vanilla Bayesian quadrature model.
+
     """
 
     def __init__(self, model: VanillaBayesianQuadrature):

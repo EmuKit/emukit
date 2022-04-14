@@ -20,13 +20,12 @@ class IsotropicGaussianMeasure(IntegrationMeasure):
     where :math:`\mu` is the mean vector and :math:`\sigma^2` is the scalar variance
     parametrizing the measure.
 
+    :param mean: The mean of the Gaussian measure, shape (num_dimensions, ).
+    :param variance: The scalar variance of the Gaussian measure.
+
     """
 
     def __init__(self, mean: np.ndarray, variance: float):
-        """
-        :param mean: The mean of the Gaussian measure, shape (num_dimensions, ).
-        :param variance: The scalar variance of the Gaussian measure.
-        """
         super().__init__("IsotropicGaussianMeasure")
         # check mean
         if not isinstance(mean, np.ndarray):

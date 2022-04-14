@@ -10,15 +10,18 @@ from emukit.core.continuous_parameter import ContinuousParameter
 
 
 class BoxDomain:
-    """A box domain defined by a hyper-cube."""
+    """A box domain defined by a hyper-cube.
+
+    :param name: Name of parameter.
+    :param bounds: The bounds defining the box.
+                   List of D tuples [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)], where D is
+                   the input dimensionality and the tuple (lb_d, ub_d) contains the lower and upper bound
+                   of dimension d defining the box.
+
+    """
 
     def __init__(self, name: str, bounds: List[Tuple[float, float]]):
         """
-        :param name: Name of parameter.
-        :param bounds: The bounds defining the box.
-                       List of D tuples [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)], where D is
-                       the input dimensionality and the tuple (lb_d, ub_d) contains the lower and upper bound
-                       of dimension d defining the box.
         """
 
         self.name = name

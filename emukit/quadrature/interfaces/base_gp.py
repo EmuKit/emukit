@@ -26,12 +26,10 @@ class IBaseGaussianProcess(IModel, IDifferentiable):
        * :class:`emukit.quadrature.interfaces.IStandardKernel`
        * :class:`emukit.quadrature.methods.WarpedBayesianQuadratureModel`
 
+    :param kern: An instance of a quadrature kernel.
     """
 
     def __init__(self, kern: QuadratureKernel) -> None:
-        """
-        :param kern: An instance of a quadrature kernel.
-        """
         self.kern = kern
 
     @property

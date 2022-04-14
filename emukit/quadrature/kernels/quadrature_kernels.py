@@ -24,6 +24,15 @@ class QuadratureKernel:
         :class:`IStandardKernel` is :class:`QuadratureRBF` and :class:`IRBF`. The kernel embeddings are
         implemented w.r.t. a specific integration measure, for example the :class:`LebesgueMeasure`.
 
+    :param kern: Standard emukit kernel.
+    :param integral_bounds: The integral bounds.
+                            List of D tuples, where D is the dimensionality
+                            of the integral and the tuples contain the lower and upper bounds of the integral
+                            i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)].
+                            ``None`` if bounds are infinite.
+    :param measure: The integration measure. ``None`` implies the standard Lebesgue measure.
+    :param variable_names: The (variable) name(s) of the integral
+
     """
 
     def __init__(
@@ -33,17 +42,6 @@ class QuadratureKernel:
         measure: Optional[IntegrationMeasure],
         variable_names: str = "",
     ) -> None:
-        """
-        :param kern: Standard emukit kernel.
-        :param integral_bounds: The integral bounds.
-                                List of D tuples, where D is the dimensionality
-                                of the integral and the tuples contain the lower and upper bounds of the integral
-                                i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)].
-                                ``None`` if bounds are infinite.
-        :param measure: The integration measure. ``None`` implies the standard Lebesgue measure.
-        :param variable_names: The (variable) name(s) of the integral
-        """
-
         # we define reasonable box bounds for the integral because e.g., the optimizer of the acquisition function
         # requires finite bounds. The box is defined by the integration measure. See each integration measure for
         # details. Note that this only affects methods that use this box, e.g. the acqusition optimizers. The integrals

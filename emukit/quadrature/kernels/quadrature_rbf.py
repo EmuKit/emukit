@@ -32,6 +32,15 @@ class QuadratureRBF(QuadratureKernel):
        * :class:`emukit.quadrature.interfaces.IRBF`
        * :class:`emukit.quadrature.kernels.QuadratureKernel`
 
+    :param rbf_kernel: The standard emukit rbf-kernel.
+    :param integral_bounds: The integral bounds.
+                            List of D tuples, where D is the dimensionality
+                            of the integral and the tuples contain the lower and upper bounds of the integral
+                            i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)].
+                            ``None`` if bounds are infinite.
+    :param measure: The integration measure. ``None`` implies the standard Lebesgue measure.
+    :param variable_names: The (variable) name(s) of the integral.
+
     """
 
     def __init__(
@@ -41,17 +50,6 @@ class QuadratureRBF(QuadratureKernel):
         measure: Optional[IntegrationMeasure],
         variable_names: str = "",
     ) -> None:
-        """
-        :param rbf_kernel: The standard emukit rbf-kernel.
-        :param integral_bounds: The integral bounds.
-                                List of D tuples, where D is the dimensionality
-                                of the integral and the tuples contain the lower and upper bounds of the integral
-                                i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)].
-                                ``None`` if bounds are infinite.
-        :param measure: The integration measure. ``None`` implies the standard Lebesgue measure.
-        :param variable_names: The (variable) name(s) of the integral.
-        """
-
         super().__init__(
             kern=rbf_kernel, integral_bounds=integral_bounds, measure=measure, variable_names=variable_names
         )
@@ -108,18 +106,17 @@ class QuadratureRBFLebesgueMeasure(QuadratureRBF):
        * :class:`emukit.quadrature.interfaces.IRBF`
        * :class:`emukit.quadrature.kernels.QuadratureRBF`
 
+    :param rbf_kernel: The standard emukit rbf-kernel.
+    :param integral_bounds: The integral bounds.
+                            List of D tuples, where D is the dimensionality
+                            of the integral and the tuples contain the lower and upper bounds of the integral
+                            i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)].
+                            ``None`` if bounds are infinite.
+    :param variable_names: The (variable) name(s) of the integral.
+
     """
 
     def __init__(self, rbf_kernel: IRBF, integral_bounds: List[Tuple[float, float]], variable_names: str = "") -> None:
-        """
-        :param rbf_kernel: The standard emukit rbf-kernel.
-        :param integral_bounds: The integral bounds.
-                                List of D tuples, where D is the dimensionality
-                                of the integral and the tuples contain the lower and upper bounds of the integral
-                                i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)].
-                                ``None`` if bounds are infinite.
-        :param variable_names: The (variable) name(s) of the integral.
-        """
         super().__init__(
             rbf_kernel=rbf_kernel, integral_bounds=integral_bounds, measure=None, variable_names=variable_names
         )
@@ -164,14 +161,13 @@ class QuadratureRBFIsoGaussMeasure(QuadratureRBF):
        * :class:`emukit.quadrature.kernels.QuadratureRBF`
        * :class:`emukit.quadrature.measures.IsotropicGaussianMeasure`
 
+    :param rbf_kernel: The standard emukit rbf-kernel.
+    :param measure: A Gaussian measure.
+    :param variable_names: The (variable) name(s) of the integral.
+
     """
 
     def __init__(self, rbf_kernel: IRBF, measure: IsotropicGaussianMeasure, variable_names: str = "") -> None:
-        """
-        :param rbf_kernel: The standard emukit rbf-kernel.
-        :param measure: A Gaussian measure.
-        :param variable_names: The (variable) name(s) of the integral.
-        """
         super().__init__(rbf_kernel=rbf_kernel, integral_bounds=None, measure=measure, variable_names=variable_names)
 
     def qK(self, x2: np.ndarray, scale_factor: float = 1.0) -> np.ndarray:
@@ -201,6 +197,15 @@ class QuadratureRBFUniformMeasure(QuadratureRBF):
        * :class:`emukit.quadrature.kernels.QuadratureRBF`
        * :class:`emukit.quadrature.measures.UniformMeasure`
 
+    :param rbf_kernel: The standard emukit rbf-kernel.
+    :param integral_bounds: The integral bounds.
+                            List of D tuples, where D is the dimensionality
+                            of the integral and the tuples contain the lower and upper bounds of the integral
+                            i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)].
+                            ``None`` if bounds are infinite.
+    :param measure: A D-dimensional uniform measure.
+    :param variable_names: The (variable) name(s) of the integral.
+
     """
 
     def __init__(
@@ -210,16 +215,6 @@ class QuadratureRBFUniformMeasure(QuadratureRBF):
         measure: UniformMeasure,
         variable_names: str = "",
     ):
-        """
-        :param rbf_kernel: The standard emukit rbf-kernel.
-        :param integral_bounds: The integral bounds.
-                                List of D tuples, where D is the dimensionality
-                                of the integral and the tuples contain the lower and upper bounds of the integral
-                                i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)].
-                                ``None`` if bounds are infinite.
-        :param measure: A D-dimensional uniform measure.
-        :param variable_names: The (variable) name(s) of the integral.
-        """
         super().__init__(
             rbf_kernel=rbf_kernel, integral_bounds=integral_bounds, measure=measure, variable_names=variable_names
         )
