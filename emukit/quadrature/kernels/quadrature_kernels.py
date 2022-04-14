@@ -15,12 +15,14 @@ from emukit.quadrature.measures import BoxDomain, IntegrationMeasure
 class QuadratureKernel:
     """Abstract class for a kernel augmented with integrability.
 
-    Note that each specific implementation of this class must go with a specific standard kernel as input which
-    inherits from :class:`IStandardKernel`. This is because we both want the :class:`QuadratureKernel` to be backend
-    agnostic but at the same time :class:`QuadratureKernel` needs access to specifics of the standard kernel.
-    For example a specific pair of :class:`QuadratureKernel` and :class:`IStandardKernel` is :class:`QuadratureRBF`
-    and :class:`IRBF`. The kernel embeddings are implemented w.r.t. a specific integration measure, for example
-    the :class:`LebesgueMeasure`.
+    .. note::
+
+        Each specific implementation of this class must go with a specific standard kernel as input which
+        inherits from :class:`IStandardKernel`. This is because we both want the :class:`QuadratureKernel`
+        to be backend agnostic but at the same time :class:`QuadratureKernel` needs access to specifics
+        of the standard kernel. For example a specific pair of :class:`QuadratureKernel` and
+        :class:`IStandardKernel` is :class:`QuadratureRBF` and :class:`IRBF`. The kernel embeddings are
+        implemented w.r.t. a specific integration measure, for example the :class:`LebesgueMeasure`.
 
     """
 

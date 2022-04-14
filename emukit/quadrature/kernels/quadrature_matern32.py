@@ -11,14 +11,26 @@ from .quadrature_kernels import QuadratureKernel
 
 
 class QuadratureProductMatern32(QuadratureKernel):
-    """A product Matern32 kernel augmented with integrability.
+    r"""A product Matern32 kernel augmented with integrability.
 
-    This class is compatible with the standard kernel :class:`IProductMatern32`.
-    Each child of this class implements an embedding w.r.t. a specific integration measure.
+    The kernel is of the form :math:`k(x, x') = \sigma^2 \prod_{i=1}^d k_i(x, x')` where
+
+    .. math::
+        k_i(x, x') = (1 + \sqrt{3}r_i ) e^{-\sqrt{3} r_i}.
+
+    Above, :math:`d` is the input dimensionality, :math:`r_i =\frac{|x_i - z_i|}{\lambda_i}`,
+    is the scaled distance, :math:`\sigma^2` is the ``variance`` property and :math:`\lambda_i`
+    is the ith element of the ``lengthscales`` property.
+
+    .. note::
+        This class is compatible with the standard kernel :class:`IProductMatern32`.
+        Each child of this class implements an embedding w.r.t. a specific integration measure.
+
+    .. seealso::
+       * :class:`emukit.quadrature.interfaces.IProductMatern32`
+       * :class:`emukit.quadrature.kernels.QuadratureKernel`
 
     """
-
-    """Augments a ProductMatern32 kernel with integrability."""
 
     def __init__(
         self,
@@ -74,7 +86,13 @@ class QuadratureProductMatern32(QuadratureKernel):
 
 
 class QuadratureProductMatern32LebesgueMeasure(QuadratureProductMatern32):
-    """An product Matern32 kernel augmented with integrability w.r.t. the standard Lebesgue measure."""
+    """An product Matern32 kernel augmented with integrability w.r.t. the standard Lebesgue measure.
+
+    .. seealso::
+       * :class:`emukit.quadrature.interfaces.IProductMatern32`
+       * :class:`emukit.quadrature.kernels.QuadratureProductMatern32`
+
+    """
 
     def __init__(
         self, matern_kernel: IProductMatern32, integral_bounds: List[Tuple[float, float]], variable_names: str = ""

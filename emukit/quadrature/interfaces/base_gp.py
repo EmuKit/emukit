@@ -11,12 +11,15 @@ from ..kernels.quadrature_kernels import QuadratureKernel
 
 
 class IBaseGaussianProcess(IModel, IDifferentiable):
-    """Interface for the quadrature base-GP model
+    """Interface for a Gaussian process as used by quadrature models.
 
-    An instance of this can be passed as 'base_gp' to an
-    :class:`emukit.quadrature.methods.warped_bq_model.WarpedBayesianQuadratureModel` instance.
+    Implementations of this class can be used by Gaussian process based quadrature models
+    such as :class:`WarpedBayesianQuadratureModel`.
 
-    If this GP is initialized with data, use the raw evaluations Y of the integrand and not the transformed values.
+    .. note::
+        When this class is initialized with data, use the raw evaluations Y of the integrand and
+        not the transformed values as used by :class:`WarpedBayesianQuadratureModel`.
+
     """
 
     def __init__(self, kern: QuadratureKernel) -> None:

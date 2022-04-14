@@ -16,10 +16,21 @@ from .quadrature_kernels import QuadratureKernel
 
 
 class QuadratureRBF(QuadratureKernel):
-    """An RBF kernel augmented with integrability.
+    r"""An RBF kernel augmented with integrability.
 
-    This class is compatible with the standard kernel :class:`IRBF`.
-    Each child of this class implements an embedding w.r.t. a specific integration measure.
+    .. math::
+        k(x, x') = \sigma^2 e^{-\frac{1}{2}\frac{\|x-x'\|^2}{\lambda^2}},
+
+    where :math:`\sigma^2` is the ``variance`` property and :math:`\lambda` is the
+    ``lengthscale`` property.
+
+    .. note::
+        This class is compatible with the standard kernel :class:`IRBF`.
+        Each child of this class implements an embedding w.r.t. a specific integration measure.
+
+    .. seealso::
+       * :class:`emukit.quadrature.interfaces.IRBF`
+       * :class:`emukit.quadrature.kernels.QuadratureKernel`
 
     """
 
@@ -91,7 +102,13 @@ class QuadratureRBF(QuadratureKernel):
 
 
 class QuadratureRBFLebesgueMeasure(QuadratureRBF):
-    """An RBF kernel augmented with integrability w.r.t. the standard Lebesgue measure."""
+    """An RBF kernel augmented with integrability w.r.t. the standard Lebesgue measure.
+
+    .. seealso::
+       * :class:`emukit.quadrature.interfaces.IRBF`
+       * :class:`emukit.quadrature.kernels.QuadratureRBF`
+
+    """
 
     def __init__(self, rbf_kernel: IRBF, integral_bounds: List[Tuple[float, float]], variable_names: str = "") -> None:
         """
@@ -140,7 +157,14 @@ class QuadratureRBFLebesgueMeasure(QuadratureRBF):
 
 
 class QuadratureRBFIsoGaussMeasure(QuadratureRBF):
-    """An RBF kernel augmented with integrability w.r.t. an isotropic Gaussian measure."""
+    """An RBF kernel augmented with integrability w.r.t. an isotropic Gaussian measure.
+
+    .. seealso::
+       * :class:`emukit.quadrature.interfaces.IRBF`
+       * :class:`emukit.quadrature.kernels.QuadratureRBF`
+       * :class:`emukit.quadrature.measures.IsotropicGaussianMeasure`
+
+    """
 
     def __init__(self, rbf_kernel: IRBF, measure: IsotropicGaussianMeasure, variable_names: str = "") -> None:
         """
@@ -170,7 +194,14 @@ class QuadratureRBFIsoGaussMeasure(QuadratureRBF):
 
 
 class QuadratureRBFUniformMeasure(QuadratureRBF):
-    """An RBF kernel augmented with integrability w.r.t. a uniform measure."""
+    """An RBF kernel augmented with integrability w.r.t. a uniform measure.
+
+    .. seealso::
+       * :class:`emukit.quadrature.interfaces.IRBF`
+       * :class:`emukit.quadrature.kernels.QuadratureRBF`
+       * :class:`emukit.quadrature.measures.UniformMeasure`
+
+    """
 
     def __init__(
         self,
