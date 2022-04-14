@@ -4,11 +4,16 @@
 
 import numpy as np
 
+import emukit.quadrature.kernels.quadrature_kernels
+
 
 class IStandardKernel:
     """Interface for a standard kernel k(x, x') that in principle can be integrated.
 
-    Inherit from this class to construct wrappers for specific kernels e.g., the RBF kernel.
+    .. seealso::
+       * :class:`emukit.quadrature.interfaces.IRBF`
+       * :class:`emukit.quadrature.interfaces.IProductMatern32`
+
     """
 
     def K(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
@@ -31,10 +36,10 @@ class IStandardKernel:
         raise NotImplementedError
 
     def dKdiag_dx(self, x: np.ndarray) -> np.ndarray:
-        """Gradient of the diagonal of the kernel (the variance) v(x):=k(x, x) evaluated at x.
+        """The gradient of the diagonal of the kernel (the variance) v(x):=k(x, x) evaluated at x.
 
-        :param x: Argument of the kernel, shape = (n_points M, input_dim).
-        :return: The gradient of the diagonal of the kernel evaluated at x, shape (input_dim, M).
+        :param x: The locations where the gradient is evaluated, shape (n_points, input_dim).
+        :return: The gradient of the diagonal of the kernel evaluated at x, shape (input_dim, n_points).
         """
         raise NotImplementedError
 
@@ -42,28 +47,36 @@ class IStandardKernel:
 class IRBF(IStandardKernel):
     r"""Interface for an RBF kernel.
 
-    Inherit from this class to wrap your standard rbf kernel.
 
     .. math::
         k(x, x') = \sigma^2 e^{-\frac{1}{2}\frac{\|x-x'\|^2}{\lambda^2}},
 
-    where :math:`\sigma^2` is the `variance' property and :math:`\lambda` is the lengthscale property.
+    where :math:`\sigma^2` is the ``variance`` property and :math:`\lambda` is the
+    ``lengthscale`` property.
+
+    .. note::
+        Inherit from this class to wrap your standard RBF kernel. The wrapped kernel can then be
+        handed to a quadrature RBF kernel that augments it with integrability.
+
+    .. seealso::
+       * :class:`emukit.quadrature.kernels.QuadratureRBF`
+       * :class:`emukit.quadrature.kernels.QuadratureRBFLebesgueMeasure`
+       * :class:`emukit.quadrature.kernels.QuadratureRBFIsoGaussMeasure`
+       * :class:`emukit.quadrature.kernels.QuadratureRBFUniformMeasure`
+
     """
 
     @property
     def lengthscale(self) -> np.float:
+        """The lengthscale of the RBF kernel."""
         raise NotImplementedError
 
     @property
     def variance(self) -> np.float:
+        """The scale of the RBF kernel."""
         raise NotImplementedError
 
     def dKdiag_dx(self, x: np.ndarray) -> np.ndarray:
-        """Gradient of the diagonal of the kernel :math:`v(x):=k(x, x)` evaluated at x.
-
-        :param x: Argument of the kernel, shape = (n_points M, input_dim).
-        :return: The gradient of the diagonal of the kernel evaluated at x, shape (input_dim, M).
-        """
         return np.zeros((x.shape[1], x.shape[0]))
 
 
@@ -84,20 +97,31 @@ class IProductMatern32(IStandardKernel):
     of the ``lengthscales`` property.
 
     Make sure to encode only a single variance parameter, and not one for each individual :math:`k_i`.
+
+    .. note::
+        Inherit from this class to wrap your standard product Matern32 kernel. The wrapped kernel can then be
+        handed to a quadrature RBF kernel that augments it with integrability.
+
+    .. seealso::
+       * :class:`emukit.quadrature.kernels.QuadratureProductMatern32`
+       * :class:`emukit.quadrature.kernels.QuadratureProductMatern32LebesgueMeasure`
+
     """
 
     @property
+    def nu(self):
+        """The smoothness parameter of the product Matern32 kernel."""
+        return 1.5
+
+    @property
     def lengthscales(self) -> np.ndarray:
+        """The lengthscales of the product Matern32 kernel."""
         raise NotImplementedError
 
     @property
     def variance(self) -> np.float:
+        """The scale of the product Matern32 kernel."""
         raise NotImplementedError
 
     def dKdiag_dx(self, x: np.ndarray) -> np.ndarray:
-        """Gradient of the diagonal of the kernel v(x):=k(x, x) evaluated at x.
-
-        :param x: argument of the kernel, shape = (n_points M, input_dim)
-        :return: the gradient of the diagonal of the kernel evaluated at x, shape (input_dim, M)
-        """
         return np.zeros((x.shape[1], x.shape[0]))

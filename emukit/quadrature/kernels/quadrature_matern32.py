@@ -57,7 +57,7 @@ class QuadratureProductMatern32(QuadratureKernel):
     @property
     def nu(self):
         """The smoothness parameter of the product Matern32 kernel."""
-        return 1.5
+        return self.kern.nu
 
     @property
     def lengthscales(self):
