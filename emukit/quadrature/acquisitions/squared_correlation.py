@@ -11,55 +11,60 @@ from ..methods import VanillaBayesianQuadrature
 
 
 class SquaredCorrelation(Acquisition):
-    """
-    This acquisition function is the correlation between the integral and the new point(s) under a GP-model.
-
-    SquaredCorrelation is identical to the integral-variance-reduction acquisition up to a global normalizing constant!
+    r"""The squared correlation between the integral value and integrand evaluations
+    under a Gaussian process model.
 
     .. math::
-        \rho^2(x) = \frac{(\int k_N(x_1, x)\mathrm{d}x_1)^2}{\mathfrac{v}_N v_N(x)}\in [0, 1]
+        a(x) = \frac{(\int k_N(s, x)p(s)\mathrm{d}s)^2}{\mathfrak{v}_N v_N(x)}\in [0, 1]
 
-    where :math:`\mathfrac{v}_N` is the current integral variance given N observations X, :math:`v_N(x)` is the
-    predictive integral variance if point x was added newly, and :math:`k_N(x_1, x)` is the posterior kernel function.
+    where :math:`\mathfrak{v}_N` is the current integral variance given :math:`N` observations,
+    :math:`v_N(x)` is the predictive integral variance if point :math:`x` was added newly,
+    and :math:`k_N(s, x)` is the posterior kernel function.
+
+    .. note::
+        The squared correlation is identical to the integral-variance-reduction acquisition up to a
+        global normalizing constant under a standard Gaussian process model.
+
+    .. seealso::
+        :class:`emukit.quadrature.acquisitions.IntegralVarianceReduction`
+
+    :param model: A vanilla Bayesian quadrature model.
     """
 
     def __init__(self, model: VanillaBayesianQuadrature):
-        """
-        :param model: The vanilla Bayesian quadrature model
-        """
         self.model = model
 
     def has_gradients(self) -> bool:
+        """Whether acquisition value has analytical gradient calculation available."""
         return True
 
     def evaluate(self, x: np.ndarray) -> np.ndarray:
-        """
-        Evaluates the acquisition function at x.
+        """Evaluates the acquisition function at x.
 
-        :param x: (n_points x input_dim) locations where to evaluate
-        :return: (n_points x 1) the acquisition function value at x
+        :param x: The locations where to evaluate, shape (n_points, input_dim) .
+        :return: The acquisition values at x, shape (n_points, 1).
         """
         return self._evaluate(x)[0]
 
     def _evaluate(self, x: np.ndarray) -> Tuple[np.ndarray, np.float, np.ndarray, np.ndarray]:
-        """
-        Evaluates the acquisition function at x.
+        """Evaluates the acquisition function at x.
 
-        :param x: (n_points x input_dim) locations where to evaluate
-        :return: the acquisition function value at x, shape (n_points x 1), current integral variance,
-        predictive variance + noise, predictive covariance between integral and x, shapes of the latter
-        two (n_points, 1).
+        :param x: The locations where to evaluate, shape (n_points, input_dim) .
+        :return: The acquisition values at x (n_points, 1),
+                 the current integral variance (float),
+                 the predictive variance + noise at x (n_points, 1),
+                 the predictive covariance between integral and x (n_points, 1).
         """
         integral_current_var, y_predictive_var, predictive_cov = self._value_terms(x)
         squared_correlation = predictive_cov**2 / (integral_current_var * y_predictive_var)
         return squared_correlation, integral_current_var, y_predictive_var, predictive_cov
 
     def evaluate_with_gradients(self, x: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-        """
-        Evaluate the acquisition function with gradient
+        """Evaluate the acquisition function and its gradient.
 
-        :param x: (n_points x input_dim) locations where to evaluate
-        :return: acquisition value and corresponding gradient at x, shapes (n_points, 1) and (n_points, input_dim)
+        :param x: The locations where to evaluate, shape (n_points, input_dim).
+        :return: The acquisition values and corresponding gradients at x,
+                 shapes (n_points, 1) and (n_points, input_dim)
         """
         # value
         squared_correlation, integral_current_var, y_predictive_var, predictive_cov = self._evaluate(x)
@@ -74,12 +79,12 @@ class SquaredCorrelation(Acquisition):
         return squared_correlation, squared_correlation_gradient
 
     def _value_terms(self, x: np.ndarray) -> Tuple[np.float, np.ndarray, np.ndarray]:
-        """
-        computes the terms needed for the squared correlation
+        """Computes the terms needed for the squared correlation.
 
-        :param x: (n_points x input_dim) locations where to evaluate
-        :return: current integral variance, predictive variance + noise, predictive covariance between integral and x,
-           shapes of the latter two arrays are (n_points, 1).
+        :param x: The locations where to evaluate, shape (n_points, input_dim).
+        :return: The current integral variance (float),
+                 predictive variance + noise at x (n_points, 1),
+                 predictive covariance between integral and x (n_points, 1).
         """
         integral_current_var = self.model.integrate()[1]
         y_predictive_var = self.model.predict(x)[1] + self.model.base_gp.observation_noise_variance
@@ -92,11 +97,10 @@ class SquaredCorrelation(Acquisition):
         return integral_current_var, y_predictive_var, predictive_cov
 
     def _gradient_terms(self, x: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-        """
-        Computes the terms needed for the gradient of the squared correlation
+        """Computes the terms needed for the gradient of the squared correlation.
 
-        :param x: (n_points x input_dim) locations where to evaluate
-        :return: the gradient of (y_predictive_var, predictive_cov) wrt. x at param x, shapes (n_points, input_dim)
+        :param x: The locations where to evaluate, shape (n_points, input_dim).
+        :return: The gradient of y_predictive_var and predictive_cov wrt. x at x, shapes (n_points, input_dim).
         """
         # gradient of predictive variance of y
         d_y_predictive_var_dx = self.model.get_prediction_gradients(x)[1].T
