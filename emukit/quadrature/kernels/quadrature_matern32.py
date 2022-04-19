@@ -53,18 +53,18 @@ class QuadratureProductMatern32(QuadratureKernel):
         )
 
     @property
-    def nu(self):
-        """The smoothness parameter of the product Matern32 kernel."""
+    def nu(self) -> float:
+        """The smoothness parameter of the kernel."""
         return self.kern.nu
 
     @property
-    def lengthscales(self):
-        """The lengthscales of the product Matern32 kernel."""
+    def lengthscales(self) -> np.ndarray:
+        r"""The lengthscales :math:`\lambda` of the kernel."""
         return self.kern.lengthscales
 
     @property
     def variance(self):
-        """The scale of the product Matern32 kernel."""
+        r"""The scale :math:`\sigma^2` of the kernel."""
         return self.kern.variance
 
     def qK(self, x2: np.ndarray) -> np.ndarray:

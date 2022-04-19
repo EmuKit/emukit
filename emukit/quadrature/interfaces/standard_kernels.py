@@ -73,7 +73,7 @@ class IRBF(IStandardKernel):
 
     @property
     def variance(self) -> np.float:
-        """The scale of the RBF kernel."""
+        r"""The scale :math:`\sigma^2` of the product Matern32 kernel."""
         raise NotImplementedError
 
     def dKdiag_dx(self, x: np.ndarray) -> np.ndarray:
@@ -81,7 +81,7 @@ class IRBF(IStandardKernel):
 
 
 class IProductMatern32(IStandardKernel):
-    """Interface for a Matern32 product kernel.
+    r"""Interface for a Matern32 product kernel.
 
     Inherit from this class to wrap your ProductMatern32 kernel.
 
@@ -92,7 +92,7 @@ class IProductMatern32(IStandardKernel):
         k_i(x, x') = (1 + \sqrt{3}r_i ) e^{-\sqrt{3} r_i}.
 
     :math:`d` is the input dimensionality,
-    :math:`r_i:=\frac{|x_i - z_i|}{\lambda_i}}`,
+    :math:`r_i:=\frac{|x_i - z_i|}{\lambda_i}`,
     :math:`\sigma^2` is the ``variance`` property and :math:`\lambda_i` is the ith element
     of the ``lengthscales`` property.
 
@@ -109,18 +109,18 @@ class IProductMatern32(IStandardKernel):
     """
 
     @property
-    def nu(self):
-        """The smoothness parameter of the product Matern32 kernel."""
+    def nu(self) -> float:
+        """The smoothness parameter of the kernel."""
         return 1.5
 
     @property
     def lengthscales(self) -> np.ndarray:
-        """The lengthscales of the product Matern32 kernel."""
+        r"""The lengthscales :math:`\lambda` of the kernel."""
         raise NotImplementedError
 
     @property
     def variance(self) -> np.float:
-        """The scale of the product Matern32 kernel."""
+        r"""The scale :math:`\sigma^2` of the kernel."""
         raise NotImplementedError
 
     def dKdiag_dx(self, x: np.ndarray) -> np.ndarray:

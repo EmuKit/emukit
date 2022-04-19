@@ -128,6 +128,7 @@ class RBFGPy(IRBF):
 
     @property
     def variance(self) -> np.float:
+        r"""The scale :math:`\sigma^2` of the kernel."""
         return self.gpy_rbf.variance.values[0]
 
     def K(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
@@ -218,6 +219,7 @@ class ProductMatern32GPy(IProductMatern32):
 
     @property
     def variance(self) -> np.float:
+        r"""The scale :math:`\sigma^2` of the kernel."""
         if isinstance(self.gpy_matern, GPy.kern.Matern32):
             return self.gpy_matern.variance[0]
 

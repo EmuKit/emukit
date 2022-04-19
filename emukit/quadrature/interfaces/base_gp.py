@@ -61,10 +61,10 @@ class IBaseGaussianProcess(IModel, IDifferentiable):
 
         .. math::
 
-            (K_{XX} + \sigma^2 I) z = (Y - m(X))
+            (K_{XX} + \zeta^2 I) z = (Y - m(X))
 
         where :math:`X` and :math:`Y` are the available nodes and function evaluation, :math:`m(X)`
-        is the predictive mean at :math:`X`, and :math:`\sigma^2` the observation noise variance.
+        is the predictive mean at :math:`X`, and :math:`\zeta^2` the observation noise variance.
 
         :return: The solution :math:`z` of the linear system, shape (num_dat, 1).
         """

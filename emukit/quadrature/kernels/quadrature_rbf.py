@@ -56,12 +56,12 @@ class QuadratureRBF(QuadratureKernel):
 
     @property
     def lengthscale(self) -> Union[np.ndarray, float]:
-        """The lengthscale(s) of the RBF kernel."""
+        r"""The lengthscale(s) :math:`\lambda` of the kernel."""
         return self.kern.lengthscale
 
     @property
     def variance(self) -> float:
-        """The scale of the RBF kernel."""
+        r"""The scale :math:`\sigma^2` of the kernel."""
         return self.kern.variance
 
     def qK(self, x2: np.ndarray) -> np.ndarray:
