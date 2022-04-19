@@ -14,16 +14,19 @@ from .warpings import Warping
 
 
 class WarpedBayesianQuadratureModel(IModel, IDifferentiable):
-    """The general class for Bayesian quadrature (BQ) with a warped Gaussian process.
+    r"""The general class for Bayesian quadrature (BQ) with a warped Gaussian process model.
 
-    Inference is performed with the warped GP, but the integral is computed on a Gaussian approximation.
-    The warping of the base GP is encoded in the methods 'transform' and 'inverse_transform'
+    The model is of the form :math:`f = w(g(x))` where :math:`g\sim\mathcal{GP}` is a Gaussian process
+    and :math:`w:\mathbb{R}\rightarrow\mathbb{R}` is a deterministic warping function.
 
-    Examples of warping-approximation pairs:
-    - a moment matched squared GP (wsabi-m)
-    - a linear approximation to a squared GP (wsabi-l)
-    - no approximation if there is no warping (Vanilla BQ)
-    - ...
+    Inherit from this class to create new warped Bayesian quadrature models.
+
+    .. seealso::
+        * :class:`emukit.quadrature.methods.warpings.Warping`
+        * :class:`emukit.quadrature.methods.VanillaBayesianQuadrature`
+        * :class:`emukit.quadrature.methods.BoundedBayesianQuadrature`
+        * :class:`emukit.quadrature.methods.WSABIL`
+
     """
 
     def __init__(self, base_gp: IBaseGaussianProcess, warping: Warping, X: np.ndarray, Y: np.ndarray):
@@ -40,10 +43,12 @@ class WarpedBayesianQuadratureModel(IModel, IDifferentiable):
 
     @property
     def X(self) -> np.ndarray:
+        """The data nodes."""
         return self.base_gp.X
 
     @property
     def Y(self) -> np.ndarray:
+        """The data evaluations at the nodes."""
         return self._warping.transform(self.base_gp.Y)
 
     @property
@@ -53,20 +58,29 @@ class WarpedBayesianQuadratureModel(IModel, IDifferentiable):
 
     @property
     def reasonable_box_bounds(self) -> BoxDomain:
-        """Reasonable box bounds to search for observations. This box is used by the acquisition optimizer."""
+        """Reasonable box bounds.
+
+        This box is used by the acquisition optimizer even when ``integral_bounds`` is ``None``.
+        By default it is set to :meth:`get_box()` of the integration measure used, or, if not available,
+        to the ``integral_bounds``.
+
+        .. seealso::
+            :class:`emukit.quadrature.measures.IntegrationMeasure.get_box`
+
+        """
         return self.base_gp.kern.reasonable_box
 
     @property
     def measure(self) -> Union[None, IntegrationMeasure]:
-        """Probability measure used for integration. ``None`` for standard Lebesgue measure."""
+        """The measure used for integration. ``None`` for standard Lebesgue measure."""
         return self.base_gp.kern.measure
 
     def transform(self, Y: np.ndarray) -> np.ndarray:
-        """Transform from base-GP to integrand"""
+        """The transform from base-GP to integrand implicitly defined by the warping used."""
         return self._warping.transform(Y)
 
     def inverse_transform(self, Y: np.ndarray) -> np.ndarray:
-        """Transform from integrand to base-GP"""
+        """The transform from integrand to base-GP implicitly defined by the warping used."""
         return self._warping.inverse_transform(Y)
 
     def predict_base(self, X_pred: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
@@ -108,27 +122,34 @@ class WarpedBayesianQuadratureModel(IModel, IDifferentiable):
     def set_data(self, X: np.ndarray, Y: np.ndarray) -> None:
         """Set the new data in the model.
 
-        First, the model parameters that are not being optimized are updated, as they may depend on the new data,
-        then new data is set in the model.
+        First, potential warping parameters that are not being optimized but do depend on the data
+        in an analytic way are updated. This is done via the method :meth:`compute_warping_params`.
+        Then, the new data is automatically transformed and set in the model.
 
-        :param X: Observation locations, shape (n_points, input_dim)
-        :param Y: Integrand observations at X, shape (n_points, 1)
+        :param X: Observation locations, shape (n_points, input_dim).
+        :param Y: Integrand observations at X, shape (n_points, 1).
         """
         self._warping.update_parameters(**self.compute_warping_params(X, Y))
         self.base_gp.set_data(X, self._warping.inverse_transform(Y))
 
     def compute_warping_params(self, X: np.ndarray, Y: np.ndarray) -> dict:
-        """Compute parameters of the warping that are dependent on data, and that are not being optimized.
-        Override this method on case parameters are data dependent.
+        """Compute new parameters of the warping that are dependent on data, and that are not being optimized.
 
-        :param X: Observation locations, shape (n_points, input_dim)
-        :param Y: Integrand observations at X, shape (n_points, 1)
+        This method is called by default when new data is being set in :meth:`set_data`.
+        By default, this method returns an empty dict (no warping params need to be updated).
+        Override this method in case warping parameters are data dependent.
+
+        .. seealso::
+            :class:`emukit.quadrature.methods.warpings.Warping.update_parameters`
+
+        :param X: Observation locations, shape (n_points, input_dim).
+        :param Y: Integrand observations at X, shape (n_points, 1).
         :returns : Dictionary containing new warping parameters. Names of parameters are the keys.
         """
         return {}
 
     def optimize(self) -> None:
-        """Optimizes the hyperparameters of the base GP"""
+        """Optimizes the hyperparameters of the base GP."""
         self.base_gp.optimize()
 
     def integrate(self) -> Tuple[float, float]:
@@ -140,11 +161,11 @@ class WarpedBayesianQuadratureModel(IModel, IDifferentiable):
 
     @staticmethod
     def symmetrize_matrix(A: np.ndarray) -> np.ndarray:
-        """Symmetrize a matrix.
+        r"""Symmetrize a matrix.
 
-        The symmetrized matrix is computed as 0.5 (A + A.T).
+        The symmetrized matrix is computed as :math:`A_{sym} = \frac{1}{2} (A + A^{\intercal})`.
 
-        :param A: A square matrix, shape (N, N)
-        :return: The symmetrized matrix, shape (N, N).
+        :param A: The square matrix :math:`A`, shape (N, N)
+        :return: The symmetrized matrix :math:`A_{sym}`, shape (N, N).
         """
         return 0.5 * (A + A.T)

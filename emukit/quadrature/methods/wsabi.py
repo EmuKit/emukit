@@ -8,7 +8,7 @@ from . import BoundedBayesianQuadrature
 
 
 class WSABIL(BoundedBayesianQuadrature):
-    """WSABI-L Warped Sequential Active Bayesian Integration with linear approximation [1].
+    r"""WSABI-L Warped Sequential Active Bayesian Integration with linear approximation [1].
 
     WSABI-L must be used with the RBF kernel and the Gaussian integration measure. This means that the kernel of
     :attr:`base_gp` must be of type :class:`emukit.quadrature.kernels.QuadratureRBFIsoGaussMeasure`.
@@ -24,19 +24,19 @@ class WSABIL(BoundedBayesianQuadrature):
     .. [1]  Gunter et al. 2014 *Sampling for Inference in Probabilistic Models with Fast Bayesian Quadrature*,
             Advances in Neural Information Processing Systems (NeurIPS), 27, pp. 2789–2797.
 
-    .. seealso:: :class:`emukit.quadrature.methods.bounded_bq_model.BoundedBQModel`.
+    .. seealso::
+        :class:`emukit.quadrature.methods.bounded_bq_model.BoundedBQModel`
+
+    :param base_gp: A model derived from :class:`emukit.quadrature.interfaces.IBaseGaussianProcess`.
+                    Must use :class:`emukit.quadrature.kernels.QuadratureRBFIsoGaussMeasure` as kernel.
+    :param X: The initial locations of integrand evaluations, shape (num_points, input_dim).
+    :param Y: The values of the integrand at X, shape (num_points, 1).
+    :param adapt_alpha: If ``True``, the offset :math:`\alpha` will be adapted. If ``False`` :math:`\alpha` will be
+           fixed to a small value for numerical stability. Default is ``True``.
 
     """
 
     def __init__(self, base_gp: IBaseGaussianProcess, X: np.ndarray, Y: np.ndarray, adapt_alpha: bool = True):
-        """
-        :param base_gp: A model derived from :class:`emukit.quadrature.interfaces.IBaseGaussianProcess`.
-                        Must use :class:`emukit.quadrature.kernels.QuadratureRBFIsoGaussMeasure` as kernel.
-        :param X: The initial locations of integrand evaluations, shape (num_points, input_dim).
-        :param Y: The values of the integrand at X, shape (num_points, 1).
-        :param adapt_alpha: If ``True``, the offset :math:`\alpha` will be adapted. If ``False`` :math:`\alpha` will be
-               fixed to a small value for numerical stability. Default is ``True``.
-        """
         self.adapt_alpha = adapt_alpha
         self._small_alpha = 1e-8  # only used if alpha is not adapted
         alpha = self._compute_alpha(X, Y)

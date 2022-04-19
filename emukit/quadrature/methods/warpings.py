@@ -37,8 +37,6 @@ class Warping(abc.ABC):
     def update_parameters(self, **new_parameters) -> None:
         """Update the warping parameters.
 
-        The keyword arguments ``new_parameters`` contain
-
         :param new_parameters: Contains the parameter names as keys with the new values.
                                An empty dictionary will do nothing.
         """
