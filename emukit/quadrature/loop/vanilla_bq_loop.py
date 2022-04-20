@@ -1,6 +1,7 @@
 # Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 import emukit.quadrature.methods
+
 from ...core.acquisition import Acquisition
 from ...core.loop import FixedIntervalUpdater, ModelUpdater, OuterLoop, SequentialPointCalculator
 from ...core.loop.loop_state import create_loop_state
@@ -24,6 +25,7 @@ class VanillaBayesianQuadratureLoop(OuterLoop):
     :param acquisition_optimizer: Optimizer selecting next evaluation points by maximizing acquisition.
                                   Gradient based optimizer is used if None. Defaults to None.
     """
+
     def __init__(
         self,
         model: VanillaBayesianQuadrature,

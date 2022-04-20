@@ -26,6 +26,7 @@ class WSABILLoop(OuterLoop):
     :param acquisition_optimizer: Optimizer selecting next evaluation points by maximizing acquisition.
                                   Gradient based optimizer is used if None. Defaults to None.
     """
+
     def __init__(
         self, model: WSABIL, model_updater: ModelUpdater = None, acquisition_optimizer: AcquisitionOptimizerBase = None
     ):

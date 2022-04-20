@@ -21,8 +21,7 @@ class BoxDomain:
     """
 
     def __init__(self, name: str, bounds: List[Tuple[float, float]]):
-        """
-        """
+        """ """
 
         self.name = name
         self.dim = len(bounds)

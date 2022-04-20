@@ -1,10 +1,11 @@
 # Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
-import emukit.core.loop.model_updaters
+
+from emukit.quadrature.loop.point_calculators.quadrature_point_calculators import BayesianMonteCarloPointCalculator
+
 from ...core.loop import FixedIntervalUpdater, ModelUpdater, OuterLoop
 from ...core.loop.loop_state import create_loop_state
 from ...core.parameter_space import ParameterSpace
-from emukit.quadrature.loop.point_calculators.quadrature_point_calculators import BayesianMonteCarloPointCalculator
 from ..methods import WarpedBayesianQuadratureModel
 
 

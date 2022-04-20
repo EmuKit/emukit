@@ -51,6 +51,7 @@ class IdentityWarping(Warping):
         w(y) = y.
 
     """
+
     def transform(self, Y: np.ndarray) -> np.ndarray:
         return Y
 
