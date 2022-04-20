@@ -8,8 +8,8 @@ import GPy
 import numpy as np
 
 from emukit.model_wrappers.gpy_quadrature_wrappers import create_emukit_model_from_gpy_model
-from emukit.quadrature.measures import IntegrationMeasure
 from emukit.quadrature.loop import VanillaBayesianQuadratureLoop
+from emukit.quadrature.measures import IntegrationMeasure
 from emukit.quadrature.methods.vanilla_bq import VanillaBayesianQuadrature
 
 
