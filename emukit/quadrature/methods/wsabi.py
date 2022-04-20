@@ -8,14 +8,14 @@ from . import BoundedBayesianQuadrature
 
 
 class WSABIL(BoundedBayesianQuadrature):
-    r"""Warped Sequential Active Bayesian Integration with linear approximation (WSABI-L) `[1]`_.
+    r"""Warped Sequential Active Bayesian Integration with linear approximation (WSABI-L).
 
-    - The linear approximation is described in `[1]`_ in section 3.1, Eq (9) and (10).
+    The linear approximation is described in `[1]`_ in section 3.1, Eq (9) and (10).
 
-    - The offset :math:`\alpha` (notation from paper) will either be set to a small value if
-      ``adapt_alpha`` is ``False``. Else it will be adapted according to
-      :math:`0.8 \operatorname{min}(Y)` as in Gunter et al. 2014, page 3, footnote,
-      where :math:`Y` are the collected integrand evaluations so far.
+    The offset :math:`\alpha` (notation from paper) will either be set to a small value if
+    ``adapt_alpha`` is ``False``. Else it will be adapted according to
+    :math:`0.8 \operatorname{min}(Y)` as in Gunter et al. 2014, page 3, footnote,
+    where :math:`Y` are the collected integrand evaluations so far.
 
     .. _[1]:
 
