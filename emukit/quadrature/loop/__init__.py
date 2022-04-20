@@ -1,4 +1,4 @@
-"""Point acquisition loops for Bayesian quadrature."""
+"""Loops for Bayesian quadrature."""
 
 # Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0

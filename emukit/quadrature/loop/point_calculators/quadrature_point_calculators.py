@@ -23,13 +23,8 @@ class BayesianMonteCarloPointCalculator(CandidatePointCalculator):
     [1] C.E. Rasmussen and Z. Ghahramani, Bayesian Monte Carlo,
     Advances in Neural Information Processing Systems 15 (NeurIPS) 2003
 
-    .. note::
-        The point calculator does not depend on past observations. Thus, running a BQ loop with
-        this point calculator should be equivalent to sampling all points with MC from the measure,
-        evaluating them as batch and then fit a model to them.
-        The purpose of the point calculator is convenience, as it can be used with the same interface
-        as the active and adaptive learning schemes that depend explicitly or implicitly
-        (through hyperparameters) on the previous evaluations.
+    .. seealso::
+        :class:`emukit.quadrature.loop.BayesianMonteCarlo`
 
     :param model: A warped Bayesian quadrature model.
     :param parameter_space: The parameter space.

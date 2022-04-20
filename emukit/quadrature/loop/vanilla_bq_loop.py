@@ -1,7 +1,6 @@
 # Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
-
-
+import emukit.quadrature.methods
 from ...core.acquisition import Acquisition
 from ...core.loop import FixedIntervalUpdater, ModelUpdater, OuterLoop, SequentialPointCalculator
 from ...core.loop.loop_state import create_loop_state
@@ -12,6 +11,19 @@ from ..methods import VanillaBayesianQuadrature
 
 
 class VanillaBayesianQuadratureLoop(OuterLoop):
+    """The loop for standard ('vanilla') Bayesian Quadrature.
+
+    .. seealso::
+        :class:`emukit.quadrature.methods.VanillaBayesianQuadrature`
+
+    :param model: The vanilla Bayesian quadrature model.
+    :param acquisition: The acquisition function that is used to collect new points,
+                        defaults to integral-variance-reduction.
+    :param model_updater: Defines how and when the BQ model is updated if new data arrives.
+                          Defaults to updating hyper-parameters after every iteration.
+    :param acquisition_optimizer: Optimizer selecting next evaluation points by maximizing acquisition.
+                                  Gradient based optimizer is used if None. Defaults to None.
+    """
     def __init__(
         self,
         model: VanillaBayesianQuadrature,
@@ -19,18 +31,6 @@ class VanillaBayesianQuadratureLoop(OuterLoop):
         model_updater: ModelUpdater = None,
         acquisition_optimizer: AcquisitionOptimizerBase = None,
     ):
-        """
-        The loop for vanilla Bayesian Quadrature
-
-        :param model: the vanilla Bayesian quadrature method
-        :param acquisition: The acquisition function that is used to collect new points.
-        default, IntegralVarianceReduction
-        :param model_updater: Defines how and when the quadrature model is updated if new data arrives.
-                              Defaults to updating hyper-parameters every iteration.
-        :param acquisition_optimizer: Optimizer selecting next evaluation points by maximizing acquisition.
-                                      Gradient based optimizer is used if None. Defaults to None.
-        """
-
         if acquisition is None:
             acquisition = IntegralVarianceReduction(model)
 
