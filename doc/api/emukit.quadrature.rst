@@ -1,6 +1,14 @@
 emukit.quadrature package
 =========================
 
+Module contents
+---------------
+
+.. automodule:: emukit.quadrature
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 Subpackages
 -----------
 
@@ -12,11 +20,3 @@ Subpackages
     emukit.quadrature.loop
     emukit.quadrature.measures
     emukit.quadrature.methods
-
-Module contents
----------------
-
-.. automodule:: emukit.quadrature
-    :members:
-    :undoc-members:
-    :show-inheritance:
