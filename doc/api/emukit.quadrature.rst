@@ -10,6 +10,7 @@ Subpackages
     emukit.quadrature.interfaces
     emukit.quadrature.kernels
     emukit.quadrature.loop
+    emukit.quadrature.measures
     emukit.quadrature.methods
 
 Module contents

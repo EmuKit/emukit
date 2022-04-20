@@ -144,7 +144,7 @@ class WarpedBayesianQuadratureModel(IModel, IDifferentiable):
 
         :param X: Observation locations, shape (n_points, input_dim).
         :param Y: Integrand observations at X, shape (n_points, 1).
-        :returns : Dictionary containing new warping parameters. Names of parameters are the keys.
+        :return: Dictionary containing new warping parameters. Names of parameters are the keys.
         """
         return {}
 
