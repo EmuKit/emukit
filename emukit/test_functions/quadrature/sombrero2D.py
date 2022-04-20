@@ -10,15 +10,16 @@ from emukit.core.loop.user_function import UserFunctionWrapper
 
 
 def sombrero2D(freq: float = 1.0) -> Tuple[UserFunctionWrapper, List[Tuple[float, float]]]:
-    """
-    2D Sombrero function
+    r"""2D Sombrero function.
 
     .. math::
+        f(x) = \frac{\operatorname{sin}(\pi r \omega)}{\pi r \omega}
 
-        \frac{\sin(\pi r freq)}{\pi r freq}
+    where :math:`\omega` is the :attr:`freq` parameter and :math:`r=\|x\|` is the length
+    of the input vector :math:`x`.
 
-    :param freq: frequency of the sombrero (must be > 0, defaults to 1)
-    :return: the wrapped test function, and the integrals bounds (defaults to area [-3, 3]^2).
+    :param freq: The frequency of the sombrero (must be > 0, defaults to 1).
+    :return: The wrapped test function, and the integrals bounds (the latter defaults to [-3, 3]^2).
     """
     func = lambda x: _sombrero2D(x, freq)
     integral_bounds = 2 * [(-3.0, 3.0)]
@@ -27,9 +28,9 @@ def sombrero2D(freq: float = 1.0) -> Tuple[UserFunctionWrapper, List[Tuple[float
 
 def _sombrero2D(x: np.ndarray, freq: float) -> np.ndarray:
     """
-    :param x: locations for evaluation (num_points, 2)
-    :param freq: frequency of the sombrero (must be > 0)
-    :return: the function values at x, shape (num_points, 1)
+    :param x: Locations for evaluation (num_points, 2).
+    :param freq: The frequency of the sombrero (must be > 0).
+    :return: The function values at x, shape (num_points, 1).
     """
     r = np.sqrt((x * x).sum(axis=1))
     r_scaled = (np.pi * freq) * r
