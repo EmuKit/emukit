@@ -6,8 +6,8 @@ from pytest_lazyfixture import lazy_fixture
 
 from emukit.core.loop.user_function import UserFunctionWrapper
 from emukit.model_wrappers.gpy_quadrature_wrappers import BaseGaussianProcessGPy, QuadratureRBFIsoGaussMeasure, RBFGPy
-from emukit.quadrature.measures import IsotropicGaussianMeasure
 from emukit.quadrature.loop import WSABILLoop
+from emukit.quadrature.measures import IsotropicGaussianMeasure
 from emukit.quadrature.methods import WSABIL
 
 
