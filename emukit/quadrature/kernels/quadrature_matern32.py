@@ -24,7 +24,7 @@ class QuadratureProductMatern32(QuadratureKernel):
 
     .. note::
         This class is compatible with the standard kernel :class:`IProductMatern32`.
-        Each child of this class implements an embedding w.r.t. a specific integration measure.
+        Each subclass of this class implements an embedding w.r.t. a specific integration measure.
 
     .. seealso::
        * :class:`emukit.quadrature.interfaces.IProductMatern32`
