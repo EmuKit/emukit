@@ -20,7 +20,7 @@ class QuadratureProductMatern32(QuadratureKernel):
 
     Above, :math:`d` is the input dimensionality, :math:`r_i =\frac{|x_i - z_i|}{\lambda_i}`,
     is the scaled distance, :math:`\sigma^2` is the ``variance`` property and :math:`\lambda_i`
-    is the ith element of the ``lengthscales`` property.
+    is the :math:`i`th element of the ``lengthscales`` property.
 
     .. note::
         This class is compatible with the standard kernel :class:`IProductMatern32`.
