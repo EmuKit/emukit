@@ -12,6 +12,9 @@ from emukit.core.loop.user_function import UserFunctionWrapper
 def hennig1D() -> Tuple[UserFunctionWrapper, List[Tuple[float, float]]]:
     r"""1D toy integrand coined by Philipp Hennig.
 
+    One of the earlier mentions e.g., in `this talk <https://youtu.be/tZ9CP-kQAVI?t=704>`_
+    (external link).
+
     .. math::
         f(x) = e^{-x^2 -\sin^2(3x)}
 
