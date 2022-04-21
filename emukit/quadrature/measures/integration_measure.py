@@ -2,11 +2,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import List, Tuple
-
 import numpy as np
 
-from emukit.core.optimization.context_manager import ContextManager
+from ...core.optimization.context_manager import ContextManager
+from ..typing import BoundsType
 
 
 class IntegrationMeasure:
@@ -35,7 +34,7 @@ class IntegrationMeasure:
         """
         raise NotImplementedError
 
-    def get_box(self) -> List[Tuple[float, float]]:
+    def get_box(self) -> BoundsType:
         """A meaningful box containing the measure.
 
         Outside this box, the measure should be zero or virtually zero.

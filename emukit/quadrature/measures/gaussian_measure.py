@@ -1,11 +1,9 @@
 """The Gaussian measure."""
 
-from typing import List, Tuple
-
 import numpy as np
 
-from emukit.core.optimization.context_manager import ContextManager
-
+from ...core.optimization.context_manager import ContextManager
+from ..typing import BoundsType
 from .integration_measure import IntegrationMeasure
 
 
@@ -77,7 +75,7 @@ class IsotropicGaussianMeasure(IntegrationMeasure):
         values = self.compute_density(x)
         return ((-values / self.variance) * (x - self.mean).T).T
 
-    def get_box(self) -> List[Tuple[float, float]]:
+    def get_box(self) -> BoundsType:
         """A meaningful box containing the measure.
 
         Outside this box, the measure should be zero or virtually zero.

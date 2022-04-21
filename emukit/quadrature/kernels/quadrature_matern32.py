@@ -4,9 +4,9 @@ from typing import List, Optional, Tuple
 
 import numpy as np
 
-from emukit.quadrature.measures import IntegrationMeasure
-
 from ...quadrature.interfaces.standard_kernels import IProductMatern32
+from ..measures import IntegrationMeasure
+from ..typing import BoundsType
 from .quadrature_kernels import QuadratureKernel
 
 
@@ -20,7 +20,7 @@ class QuadratureProductMatern32(QuadratureKernel):
 
     Above, :math:`d` is the input dimensionality, :math:`r_i =\frac{|x_i - z_i|}{\lambda_i}`,
     is the scaled distance, :math:`\sigma^2` is the ``variance`` property and :math:`\lambda_i`
-    is the :math:`i`th element of the ``lengthscales`` property.
+    is the :math:`i` th element of the ``lengthscales`` property.
 
     .. note::
         This class is compatible with the standard kernel :class:`IProductMatern32`.
@@ -44,7 +44,7 @@ class QuadratureProductMatern32(QuadratureKernel):
     def __init__(
         self,
         matern_kernel: IProductMatern32,
-        integral_bounds: Optional[List[Tuple[float, float]]],
+        integral_bounds: Optional[BoundsType],
         measure: Optional[IntegrationMeasure],
         variable_names: str = "",
     ) -> None:
@@ -101,7 +101,7 @@ class QuadratureProductMatern32LebesgueMeasure(QuadratureProductMatern32):
     """
 
     def __init__(
-        self, matern_kernel: IProductMatern32, integral_bounds: List[Tuple[float, float]], variable_names: str = ""
+        self, matern_kernel: IProductMatern32, integral_bounds: BoundsType, variable_names: str = ""
     ) -> None:
         super().__init__(
             matern_kernel=matern_kernel, integral_bounds=integral_bounds, measure=None, variable_names=variable_names

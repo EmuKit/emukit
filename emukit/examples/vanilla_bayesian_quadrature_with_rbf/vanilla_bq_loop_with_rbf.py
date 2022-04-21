@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import List, Optional, Tuple
+from typing import Optional
 
 import GPy
 import numpy as np
@@ -11,12 +11,13 @@ from emukit.model_wrappers.gpy_quadrature_wrappers import create_emukit_model_fr
 from emukit.quadrature.loop import VanillaBayesianQuadratureLoop
 from emukit.quadrature.measures import IntegrationMeasure
 from emukit.quadrature.methods.vanilla_bq import VanillaBayesianQuadrature
+from emukit.quadrature.typing import BoundsType
 
 
 def create_vanilla_bq_loop_with_rbf_kernel(
     X: np.ndarray,
     Y: np.ndarray,
-    integral_bounds: Optional[List[Tuple[float, float]]],
+    integral_bounds: Optional[BoundsType],
     measure: Optional[IntegrationMeasure],
     rbf_lengthscale: float = 1.0,
     rbf_variance: float = 1.0,
