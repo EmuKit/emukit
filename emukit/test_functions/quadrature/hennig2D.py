@@ -10,14 +10,13 @@ from emukit.core.loop.user_function import UserFunctionWrapper
 
 
 def hennig2D() -> Tuple[UserFunctionWrapper, List[Tuple[float, float]]]:
-    """
-    2D toy integrand coined by Philipp Hennig
+    r"""2D toy integrand coined by Philipp Hennig.
 
     .. math::
+        f(x) = e^{-x'Sx -\sin(3\|x\|^2)}
 
-        e^{-x'Sx -\sin(3\|x\|^2)}
-
-    :return: the wrapped test function, and the integrals bounds (defaults to interval [-3, 3]).
+    :return: The wrapped test function, and the integrals bounds
+             (the latter default to [-3, 3]^2).
     """
     integral_bounds = 2 * [(-3.0, 3.0)]
     return UserFunctionWrapper(_hennig2D), integral_bounds
@@ -25,8 +24,8 @@ def hennig2D() -> Tuple[UserFunctionWrapper, List[Tuple[float, float]]]:
 
 def _hennig2D(x: np.ndarray, S: np.ndarray = None) -> np.ndarray:
     """
-    :param x: locations for evaluation (num_points, 2)
-    :return: the function values at x, shape (num_points, 2)
+    :param x: Locations for evaluation (num_points, 2).
+    :return: The function values at x, shape (num_points, 2).
     """
     if S is None:
         S = np.array([[1, 0.5], [0.5, 1]])

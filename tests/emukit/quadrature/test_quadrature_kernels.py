@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 from dataclasses import dataclass
-from math import isclose
 
 import GPy
 import numpy as np
@@ -17,7 +16,7 @@ from emukit.quadrature.kernels import (
     QuadratureRBFLebesgueMeasure,
     QuadratureRBFUniformMeasure,
 )
-from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure, UniformMeasure
+from emukit.quadrature.measures import IsotropicGaussianMeasure, UniformMeasure
 
 
 # the following classes and functions are also used to compute the ground truth integrals with MC
@@ -265,7 +264,7 @@ def test_qkernel_uniform_finite_correct_box(qrbf_uniform_finite):
     # integral bounds are [(-1, 2), (-3, 3)]
     # measure bounds are [(1, 2), (-4, 2)]
     # this test checks that the reasonable box is the union of those boxes
-    assert emukit_qkernel.reasonable_box_bounds.bounds == [(1, 2), (-3, 2)]
+    assert emukit_qkernel.reasonable_box.bounds == [(1, 2), (-3, 2)]
 
 
 # == tests for kernel gradients start here

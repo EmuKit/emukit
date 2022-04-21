@@ -9,8 +9,8 @@ from numpy.testing import assert_array_equal
 
 from emukit.core.loop.user_function import UserFunctionWrapper
 from emukit.model_wrappers.gpy_quadrature_wrappers import BaseGaussianProcessGPy, QuadratureRBFLebesgueMeasure, RBFGPy
-from emukit.quadrature.loop.bayesian_monte_carlo_loop import BayesianMonteCarlo
-from emukit.quadrature.methods.vanilla_bq import VanillaBayesianQuadrature
+from emukit.quadrature.loop import BayesianMonteCarlo
+from emukit.quadrature.methods import VanillaBayesianQuadrature
 
 
 def func(x):

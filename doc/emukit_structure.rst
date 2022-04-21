@@ -1,5 +1,5 @@
 Emukit Structure
-============
+================
 
 .. contents::
     :local:
@@ -19,14 +19,14 @@ If you are a machine learning researcher interested implemented in your method i
 which parts you need to implement!
 
 Loop
-________
+____
 The ``emukit.core.loop.OuterLoop`` class is the abstract loop where the different components come together.
 There are more specific loops for Bayesian optimization and experimental design that construct some of the component 
 parts for you.
 
 
 Model
-________
+_____
 All ``Emukit`` loops need a probabilistic model of the underlying system.
 Emukit does not provide functionality to build models as there are already many good modelling frameworks available in python.
 Instead, we provide a way of interfacing third part modelling libraries with Emukit. 

@@ -6,13 +6,13 @@ import numpy as np
 import pytest
 from numpy.testing import assert_array_equal
 
-from emukit.quadrature.kernels.bounds import BoxBounds
+from emukit.quadrature.measures import BoxDomain
 
 
 @pytest.fixture
 def integral_bounds():
     bounds = 3 * [(-4, 4)]
-    integral_bounds = BoxBounds(name="test_name", bounds=bounds)
+    integral_bounds = BoxDomain(name="test_name", bounds=bounds)
     return integral_bounds
 
 
@@ -21,8 +21,8 @@ def test_integral_bounds_values():
     lower_bounds = np.array([[-1, -2]])
     upper_bounds = np.array([[1, 0]])
 
-    bounds = BoxBounds(name="test_name", bounds=bounds)
-    res = bounds.get_lower_and_upper_bounds()
+    bounds = BoxDomain(name="test_name", bounds=bounds)
+    res = bounds._get_lower_and_upper_bounds()
     assert len(res) == 2
     assert np.all(res[0] == lower_bounds)
     assert np.all(res[1] == upper_bounds)
@@ -35,11 +35,11 @@ def test_integral_bounds_wrong_bounds_init():
     bounds_wrong = [(-1, 1), (0, -2)]
 
     with pytest.raises(ValueError):
-        BoxBounds(name="test_name", bounds=bounds_wrong)
+        BoxDomain(name="test_name", bounds=bounds_wrong)
 
     bounds_empty = []
     with pytest.raises(ValueError):
-        BoxBounds(name="test_name", bounds=bounds_empty)
+        BoxDomain(name="test_name", bounds=bounds_empty)
 
 
 def test_integral_bounds_set(integral_bounds):

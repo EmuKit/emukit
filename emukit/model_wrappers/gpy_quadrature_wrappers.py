@@ -10,14 +10,14 @@ from scipy.linalg import lapack
 
 from emukit.quadrature.interfaces import IBaseGaussianProcess
 from emukit.quadrature.interfaces.standard_kernels import IRBF, IProductMatern32
-from emukit.quadrature.kernels.integration_measures import IntegrationMeasure, IsotropicGaussianMeasure, UniformMeasure
-from emukit.quadrature.kernels.quadrature_kernels import QuadratureKernel
-from emukit.quadrature.kernels.quadrature_matern32 import QuadratureProductMatern32LebesgueMeasure
-from emukit.quadrature.kernels.quadrature_rbf import (
+from emukit.quadrature.kernels import (
+    QuadratureKernel,
+    QuadratureProductMatern32LebesgueMeasure,
     QuadratureRBFIsoGaussMeasure,
     QuadratureRBFLebesgueMeasure,
     QuadratureRBFUniformMeasure,
 )
+from emukit.quadrature.measures import IntegrationMeasure, IsotropicGaussianMeasure, UniformMeasure
 
 
 class BaseGaussianProcessGPy(IBaseGaussianProcess):
@@ -134,6 +134,7 @@ class RBFGPy(IRBF):
 
     @property
     def variance(self) -> np.float:
+        r"""The scale :math:`\sigma^2` of the kernel."""
         return self.gpy_rbf.variance.values[0]
 
     def K(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
@@ -224,6 +225,7 @@ class ProductMatern32GPy(IProductMatern32):
 
     @property
     def variance(self) -> np.float:
+        r"""The scale :math:`\sigma^2` of the kernel."""
         if isinstance(self.gpy_matern, GPy.kern.Matern32):
             return self.gpy_matern.variance[0]
 

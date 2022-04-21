@@ -10,8 +10,8 @@ from utils import check_grad
 
 from emukit.model_wrappers.gpy_quadrature_wrappers import BaseGaussianProcessGPy, RBFGPy
 from emukit.quadrature.acquisitions import IntegralVarianceReduction, MutualInformation, UncertaintySampling
-from emukit.quadrature.kernels.integration_measures import IsotropicGaussianMeasure
 from emukit.quadrature.kernels.quadrature_rbf import QuadratureRBFIsoGaussMeasure, QuadratureRBFLebesgueMeasure
+from emukit.quadrature.measures import IsotropicGaussianMeasure
 from emukit.quadrature.methods import VanillaBayesianQuadrature
 
 

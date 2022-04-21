@@ -10,22 +10,26 @@ from ..methods import WSABIL
 
 
 class WSABILLoop(OuterLoop):
+    """The loop for WSABI-L.
+
+    .. rubric:: References
+
+    Gunter et al. 2014 *Sampling for Inference in Probabilistic Models with Fast Bayesian Quadrature*,
+    Advances in Neural Information Processing Systems (NeurIPS), 27, pp. 2789–2797.
+
+    .. seealso::
+        :class:`emukit.quadrature.methods.WSABIL`
+
+    :param model: The WSABI-L model.
+    :param model_updater: Defines how and when the quadrature model is updated if new data arrives.
+                          Defaults to updating hyper-parameters every iteration.
+    :param acquisition_optimizer: Optimizer selecting next evaluation points by maximizing acquisition.
+                                  Gradient based optimizer is used if None. Defaults to None.
+    """
+
     def __init__(
         self, model: WSABIL, model_updater: ModelUpdater = None, acquisition_optimizer: AcquisitionOptimizerBase = None
     ):
-        """The loop for WSABI-L [1].
-
-        :param model: The WSABI-L model.
-        :param model_updater: Defines how and when the quadrature model is updated if new data arrives.
-                              Defaults to updating hyper-parameters every iteration.
-        :param acquisition_optimizer: Optimizer selecting next evaluation points by maximizing acquisition.
-                                      Gradient based optimizer is used if None. Defaults to None.
-
-        .. [1]  Gunter et al. 2014 *Sampling for Inference in Probabilistic Models with Fast Bayesian Quadrature*,
-                Advances in Neural Information Processing Systems (NeurIPS), 27, pp. 2789–2797.
-
-        .. seealso:: :class:`emukit.quadrature.methods.WSABIL`.
-        """
 
         # WSABI-L is used with uncertainty sampling.
         acquisition = UncertaintySampling(model, measure_power=1)
