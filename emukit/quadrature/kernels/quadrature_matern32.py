@@ -100,9 +100,7 @@ class QuadratureProductMatern32LebesgueMeasure(QuadratureProductMatern32):
 
     """
 
-    def __init__(
-        self, matern_kernel: IProductMatern32, integral_bounds: BoundsType, variable_names: str = ""
-    ) -> None:
+    def __init__(self, matern_kernel: IProductMatern32, integral_bounds: BoundsType, variable_names: str = "") -> None:
         super().__init__(
             matern_kernel=matern_kernel, integral_bounds=integral_bounds, measure=None, variable_names=variable_names
         )

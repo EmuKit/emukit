@@ -103,6 +103,7 @@ class RBFGPy(IRBF):
 
     :param gpy_rbf: An RBF kernel from GPy with ARD=False.
     """
+
     def __init__(self, gpy_rbf: GPy.kern.RBF):
         if gpy_rbf.ARD:
             raise ValueError("ARD of the GPy kernel must be set to False.")
