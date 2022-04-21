@@ -1,12 +1,10 @@
 """The uniform measure."""
 
 
-from typing import List, Tuple
-
 import numpy as np
 
-from emukit.core.optimization.context_manager import ContextManager
-
+from ...core.optimization.context_manager import ContextManager
+from ..typing import BoundsType
 from .integration_measure import IntegrationMeasure
 
 
@@ -24,7 +22,7 @@ class UniformMeasure(IntegrationMeasure):
 
     """
 
-    def __init__(self, bounds: List[Tuple[float, float]]):
+    def __init__(self, bounds: BoundsType):
         super().__init__("UniformMeasure")
 
         # checks if lower bounds are smaller than upper bounds.
@@ -82,7 +80,7 @@ class UniformMeasure(IntegrationMeasure):
         """
         return np.zeros(x.shape)
 
-    def get_box(self) -> List[Tuple[float, float]]:
+    def get_box(self) -> BoundsType:
         """A meaningful box containing the measure.
 
         Outside this box, the measure should be zero or virtually zero.

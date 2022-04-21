@@ -4,12 +4,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import List, Optional, Tuple
+from typing import Optional
 
 import numpy as np
 
-from emukit.quadrature.interfaces.standard_kernels import IStandardKernel
-from emukit.quadrature.measures import BoxDomain, IntegrationMeasure
+from ..interfaces.standard_kernels import IStandardKernel
+from ..measures import BoxDomain, IntegrationMeasure
+from ..typing import BoundsType
 
 
 class QuadratureKernel:
@@ -38,7 +39,7 @@ class QuadratureKernel:
     def __init__(
         self,
         kern: IStandardKernel,
-        integral_bounds: Optional[List[Tuple[float, float]]],
+        integral_bounds: Optional[BoundsType],
         measure: Optional[IntegrationMeasure],
         variable_names: str = "",
     ) -> None:

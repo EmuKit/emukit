@@ -18,24 +18,25 @@ from emukit.quadrature.kernels import (
     QuadratureRBFUniformMeasure,
 )
 from emukit.quadrature.measures import IntegrationMeasure, IsotropicGaussianMeasure, UniformMeasure
+from emukit.quadrature.typing import BoundsType
 
 
 class BaseGaussianProcessGPy(IBaseGaussianProcess):
-    """Wrapper for GPy GPRegression.
+    """Wrapper for GPy's :class:`GPRegression` as required for some EmuKit quadrature methods.
 
-    An instance of this can be passed as 'base_gp' to a WarpedBayesianQuadratureModel object.
+    An instance of this class can be passed as :attr:`base_gp` to a :class:`WarpedBayesianQuadratureModel` object.
 
-    Note that the GPy cannot take None as initial values for X and Y. Thus we initialize it with some values. These will
-    be re-set in the WarpedBayesianQuadratureModel.
+    .. note::
+        GPy's :class:`GPRegression` cannot take ``None`` as initial values for X and Y. Thus, we initialize
+        them with some arbitrary values. These will be re-set in the :class:`WarpedBayesianQuadratureModel`.
+
+    :param kern: An EmuKit quadrature kernel.
+    :param gpy_model: A GPy GP regression model.
+    :param noise_free: If ``False``, the observation noise variance will be treated as a model parameter,
+                       if ``True`` the noise is set to 1e-10, defaults to ``True``.
     """
 
     def __init__(self, kern: QuadratureKernel, gpy_model: GPy.models.GPRegression, noise_free: bool = True):
-        """
-        :param kern: A quadrature kernel.
-        :param gpy_model: A GPy GP regression model.
-        :param noise_free: If False, the observation noise variance will be treated as a model parameter,
-                           if True it is set to 1e-10, defaults to True.
-        """
         super().__init__(kern=kern)
         if noise_free:
             gpy_model.Gaussian_noise.constrain_fixed(1.0e-10)
@@ -43,18 +44,16 @@ class BaseGaussianProcessGPy(IBaseGaussianProcess):
 
     @property
     def X(self) -> np.ndarray:
+        """The data nodes."""
         return self.gpy_model.X
 
     @property
     def Y(self) -> np.ndarray:
+        """The data evaluations at the nodes."""
         return self.gpy_model.Y
 
     @property
     def observation_noise_variance(self) -> np.float:
-        """Gaussian observation noise variance.
-
-        :return: The noise variance from some external GP model
-        """
         return self.gpy_model.Gaussian_noise[0]
 
     def set_data(self, X: np.ndarray, Y: np.ndarray) -> None:
@@ -82,48 +81,30 @@ class BaseGaussianProcessGPy(IBaseGaussianProcess):
         return self.gpy_model.predict(X_pred, full_cov=True)
 
     def solve_linear(self, z: np.ndarray) -> np.ndarray:
-        """Solve the linear system :math:`G(X, X)x=z` for :math:`x`.
-
-        :math:`G(X, X)` is the Gram matrix :math:`G(X, X) = K(X, X) + \sigma^2 I`, of shape (num_dat, num_dat)
-        and :math:`z` is a matrix of shape (num_dat, num_points).
-
-        :param z: A matrix of shape (num_dat, num_obs).
-        :return: The solution :math:`x` of linear system, shape (num_dat, num_points).
-        """
         lower_chol = self.gpy_model.posterior.woodbury_chol
         return lapack.dtrtrs(lower_chol.T, (lapack.dtrtrs(lower_chol, z, lower=1)[0]), lower=0)[0]
 
     def graminv_residual(self) -> np.ndarray:
-        """The inverse Gram matrix multiplied with the mean-corrected data.
-
-        ..math::
-
-            (K_{XX} + \sigma^2 I)^{-1} (Y - m(X))
-
-        where the data is given by {X, Y} and m is the prior mean and :math:`sigma^2` the observation noise.
-
-        :return: The inverse Gram matrix multiplied with the mean-corrected, shape: (num_points, 1).
-        """
         return self.gpy_model.posterior.woodbury_vector
 
     def optimize(self) -> None:
-        """Optimize the hyperparameters of the GP"""
+        """Optimize the hyperparameters of the GP."""
         self.gpy_model.optimize()
 
 
 class RBFGPy(IRBF):
-    """Wrapper of the GPy RBF kernel.
+    r"""Wrapper of the GPy RBF kernel as required for some EmuKit quadrature methods.
 
     .. math::
         k(x, x') = \sigma^2 e^{-\frac{1}{2}\frac{\|x-x'\|^2}{\lambda^2}},
 
-    where :math:`\sigma^2` is the `variance' property and :math:`\lambda` is the lengthscale property.
+    where :math:`\sigma^2` is the ``variance`` property and :math:`\lambda` is the
+    ``lengthscale`` property.
+
+    :param gpy_rbf: An RBF kernel from GPy with ARD=False.
     """
 
     def __init__(self, gpy_rbf: GPy.kern.RBF):
-        """
-        :param gpy_rbf: An RBF kernel from GPy with ARD=False
-        """
         if gpy_rbf.ARD:
             raise ValueError("ARD of the GPy kernel must be set to False.")
         self.gpy_rbf = gpy_rbf
@@ -134,25 +115,12 @@ class RBFGPy(IRBF):
 
     @property
     def variance(self) -> np.float:
-        r"""The scale :math:`\sigma^2` of the kernel."""
         return self.gpy_rbf.variance.values[0]
 
     def K(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
-        """The kernel k(x1, x2) evaluated at x1 and x2.
-
-        :param x1: First argument of the kernel.
-        :param x2: Second argument of the kernel.
-        :returns: Kernel evaluated at x1, x2.
-        """
         return self.gpy_rbf.K(x1, x2)
 
     def dK_dx1(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
-        """Gradient of the kernel wrt x1 evaluated at pair x1, x2.
-
-        :param x1: First argument of the kernel, shape = (n_points N, input_dim).
-        :param x2: Second argument of the kernel, shape = (n_points M, input_dim).
-        :return: The gradient of the kernel wrt x1 evaluated at (x1, x2), shape (input_dim, N, M).
-        """
         K = self.K(x1, x2)
         scaled_vector_diff = (x1.T[:, :, None] - x2.T[:, None, :]) / self.lengthscale**2
         dK_dx1 = -K[None, ...] * scaled_vector_diff
@@ -160,17 +128,31 @@ class RBFGPy(IRBF):
 
 
 class ProductMatern32GPy(IProductMatern32):
-    """Wrapper of the GPy Matern32 product kernel.
+    r"""Wrapper of the GPy Matern32 product kernel as required for some EmuKit quadrature methods.
 
-    The ProductMatern32 kernel is of the form
+    The product kernel is of the form
     :math:`k(x, x') = \sigma^2 \prod_{i=1}^d k_i(x, x')` where
 
     .. math::
         k_i(x, x') = (1 + \sqrt{3}r_i ) e^{-\sqrt{3} r_i}.
 
-    :math:`d` is the input dimensionality, :math:`r_i:=\frac{|x_i - z_i|}{\lambda_i}}`,
-    :math:`\sigma^2` is the ``variance`` property and :math:`\lambda_i` is the ith element
+    :math:`d` is the input dimensionality,
+    :math:`r_i:=\frac{|x_i - z_i|}{\lambda_i}`,
+    :math:`\sigma^2` is the ``variance`` property and :math:`\lambda_i` is the :math:`i` th element
     of the ``lengthscales`` property.
+
+    :param gpy_matern: A Matern32 product kernel from GPy. For :math:`d=1` this is equivalent to a
+                       Matern32 kernel. For :math:`d>1`, this is *not* a :math:`d`-dimensional
+                       Matern32 kernel but a product of :math:`d` 1-dimensional Matern32 kernels with differing
+                       active dimensions constructed as k1 * k2 * ... .
+                       Make sure to unlink all variances except the variance of the first kernel k1 in the product
+                       as the variance of k1 will be used to represent :math:`\sigma^2`. If you are unsure what
+                       to do, use the :attr:`lengthscales` and :attr:`variance` parameter instead.
+                       If :attr:`gpy_matern` is not given, the :attr:`lengthscales` argument is used.
+    :param lengthscales: If :attr:`gpy_matern` is not given, a product Matern32 kernel will be constructed with
+                       the given lengthscales. The number of elements need to be equal to the dimensionality
+                       :math:`d`. If :attr:`gpy_matern` is given, this input is disregarded.
+    :param variance: The variance of the product kernel. Only used if :attr:`gpy_matern` is not given. Defaults to 1.
     """
 
     def __init__(
@@ -179,18 +161,6 @@ class ProductMatern32GPy(IProductMatern32):
         lengthscales: Optional[np.ndarray] = None,
         variance: Optional[float] = None,
     ):
-        """
-        :param gpy_matern: An Matern32 (product) kernel from GPy. For d > 1, this is not a d-dimensional Matern32 kernel
-                           but a product of d 1-dimensional Matern32 kernels with differing active dimensions
-                           constructed as k1 * k2 * ... .
-                           Make sure to unlink all variances except the variance of the first kernel k1 in the product
-                           as the variance of k1 will be used to represent :math:`sigma^2`.
-                           If ``gpy_matern`` is not given, the ``lengthscales`` argument is used.
-        :param lengthscales: If ``gpy_matern`` is not given, a product Matern32 kernel will be constructed with
-                           the given lengthscales. The number of elements need to be equal to the dimensionality
-                           d. If ``gpy_matern`` is given, this input is disregarded.
-        :param variance: The variance of the product kernel. Only used if ``gpy_matern`` is not given. Defaults to 1.
-        """
         if gpy_matern is None and lengthscales is None:
             raise ValueError("Either lengthscales or a GPy product matern kernel must be given.")
 
@@ -225,19 +195,12 @@ class ProductMatern32GPy(IProductMatern32):
 
     @property
     def variance(self) -> np.float:
-        r"""The scale :math:`\sigma^2` of the kernel."""
         if isinstance(self.gpy_matern, GPy.kern.Matern32):
             return self.gpy_matern.variance[0]
 
         return self.gpy_matern.parameters[0].variance[0]
 
     def K(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
-        """The kernel k(x1, x2) evaluated at x1 and x2.
-
-        :param x1: First argument of the kernel.
-        :param x2: Second argument of the kernel.
-        :returns: Kernel evaluated at x1, x2.
-        """
         return self.gpy_matern.K(x1, x2)
 
     def _K_from_prod(self, x1: np.ndarray, x2: np.ndarray, skip: List[int] = None) -> np.ndarray:
@@ -263,13 +226,6 @@ class ProductMatern32GPy(IProductMatern32):
         return K
 
     def dK_dx1(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
-        """Gradient of the kernel wrt x1 evaluated at pair x1, x2.
-
-        :param x1: First argument of the kernel, shape = (n_points N, input_dim).
-        :param x2: Second argument of the kernel, shape = (n_points M, input_dim).
-        :return: The gradient of the kernel wrt x1 evaluated at (x1, x2), shape (input_dim, N, M).
-        """
-
         if isinstance(self.gpy_matern, GPy.kern.Matern32):
             return self._dK_dx_1d(x1[:, 0], x2[:, 0], self.gpy_matern)[None, :, :]
 
@@ -290,20 +246,20 @@ class ProductMatern32GPy(IProductMatern32):
 
 def create_emukit_model_from_gpy_model(
     gpy_model: GPy.models.GPRegression,
-    integral_bounds: Optional[List[Tuple[float, float]]],
+    integral_bounds: Optional[BoundsType],
     measure: Optional[IntegrationMeasure],
     integral_name: str = "",
 ) -> BaseGaussianProcessGPy:
-    """Wraps a GPy model and returns an emukit quadrature model.
+    """Wraps a GPy model and returns an EmuKit quadrature model.
 
-    :param gpy_model: A GPy Gaussian process regression model, GPy.models.GPRegression.
+    :param gpy_model: A GPy Gaussian process regression model ``GPy.models.GPRegression``.
     :param integral_bounds: List of D tuples, where D is the dimensionality of the integral and the tuples contain the
                             lower and upper bounds of the integral
                             i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)].
-                            None means infinite bounds.
-    :param measure: an integration measure. None means the standard Lebesgue measure is used.
-    :param integral_name: the (variable) name(s) of the integral.
-    :return: emukit model for quadrature with GPy backend (IBaseGaussianProcessGPy)
+                            ``None`` means infinite bounds.
+    :param measure: An integration measure. ``None`` means the standard Lebesgue measure is used.
+    :param integral_name: The (variable) name(s) of the integral.
+    :return: An EmuKit GP model for quadrature with GPy backend.
     """
 
     # neither measure nor bounds are given
@@ -342,7 +298,7 @@ def create_emukit_model_from_gpy_model(
 
 def _get_qkernel_matern32(
     standard_kernel_emukit: IProductMatern32,
-    integral_bounds: Optional[List[Tuple[float, float]]],
+    integral_bounds: Optional[BoundsType],
     measure: Optional[IntegrationMeasure],
     integral_name: str,
 ):
@@ -361,7 +317,7 @@ def _get_qkernel_matern32(
 
 def _get_qkernel_gauss(
     standard_kernel_emukit: IRBF,
-    integral_bounds: Optional[List[Tuple[float, float]]],
+    integral_bounds: Optional[BoundsType],
     measure: Optional[IntegrationMeasure],
     integral_name: str,
 ):

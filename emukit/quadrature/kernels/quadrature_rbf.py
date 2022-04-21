@@ -4,15 +4,15 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import List, Optional, Tuple, Union
+from typing import Optional, Union
 
 import numpy as np
 from scipy.special import erf
 
-from emukit.quadrature.measures import BoxDomain, IntegrationMeasure, IsotropicGaussianMeasure, UniformMeasure
-
 from ...quadrature.interfaces.standard_kernels import IRBF
-from .quadrature_kernels import QuadratureKernel
+from ..kernels import QuadratureKernel
+from ..measures import BoxDomain, IntegrationMeasure, IsotropicGaussianMeasure, UniformMeasure
+from ..typing import BoundsType
 
 
 class QuadratureRBF(QuadratureKernel):
@@ -46,7 +46,7 @@ class QuadratureRBF(QuadratureKernel):
     def __init__(
         self,
         rbf_kernel: IRBF,
-        integral_bounds: Optional[List[Tuple[float, float]]],
+        integral_bounds: Optional[BoundsType],
         measure: Optional[IntegrationMeasure],
         variable_names: str = "",
     ) -> None:
@@ -116,7 +116,7 @@ class QuadratureRBFLebesgueMeasure(QuadratureRBF):
 
     """
 
-    def __init__(self, rbf_kernel: IRBF, integral_bounds: List[Tuple[float, float]], variable_names: str = "") -> None:
+    def __init__(self, rbf_kernel: IRBF, integral_bounds: BoundsType, variable_names: str = "") -> None:
         super().__init__(
             rbf_kernel=rbf_kernel, integral_bounds=integral_bounds, measure=None, variable_names=variable_names
         )
@@ -211,7 +211,7 @@ class QuadratureRBFUniformMeasure(QuadratureRBF):
     def __init__(
         self,
         rbf_kernel: IRBF,
-        integral_bounds: Optional[List[Tuple[float, float]]],
+        integral_bounds: Optional[BoundsType],
         measure: UniformMeasure,
         variable_names: str = "",
     ):

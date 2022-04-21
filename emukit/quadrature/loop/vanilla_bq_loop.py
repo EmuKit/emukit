@@ -1,6 +1,5 @@
 # Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
-import emukit.quadrature.methods
 
 from ...core.acquisition import Acquisition
 from ...core.loop import FixedIntervalUpdater, ModelUpdater, OuterLoop, SequentialPointCalculator

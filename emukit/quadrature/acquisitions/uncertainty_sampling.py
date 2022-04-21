@@ -15,10 +15,10 @@ class UncertaintySampling(Acquisition):
     r"""Uncertainty sampling.
 
     .. math::
-        a(x) = var(f(x)) p(x)^q
+        a(x) = \operatorname{var}(f(x)) p(x)^q
 
     where :math:`p(x)` is the density of the integration measure (:math:`p(x)\equiv 1` for Lebesgue),
-    :math:`var(f(x))` is the predictive variance of the model and :math:`q` is a power that defaults to
+    :math:`\operatorname{var}(f(x))` is the predictive variance of the model and :math:`q` is a power that defaults to
     :math:`q=2`.
 
     :param model: A warped Bayesian quadrature model that has gradients.

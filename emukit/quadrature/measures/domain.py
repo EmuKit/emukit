@@ -6,7 +6,8 @@ from typing import List, Tuple
 
 import numpy as np
 
-from emukit.core.continuous_parameter import ContinuousParameter
+from ...core.continuous_parameter import ContinuousParameter
+from ..typing import BoundsType
 
 
 class BoxDomain:
@@ -20,7 +21,7 @@ class BoxDomain:
 
     """
 
-    def __init__(self, name: str, bounds: List[Tuple[float, float]]):
+    def __init__(self, name: str, bounds: BoundsType):
         """ """
 
         self.name = name
@@ -32,12 +33,12 @@ class BoxDomain:
         self._upper_bounds = None
 
     @property
-    def bounds(self) -> List[Tuple[float, float]]:
+    def bounds(self) -> BoundsType:
         """The bounds defining the hypercube."""
         return self._bounds
 
     @bounds.setter
-    def bounds(self, new_bounds: List[Tuple[float, float]]) -> None:
+    def bounds(self, new_bounds: BoundsType) -> None:
         """Sets new box bounds and checks their validity.
 
         :param new_bounds: The new bounds.
@@ -49,7 +50,7 @@ class BoxDomain:
         self._bounds = new_bounds
         self.lower_bounds, self.upper_bounds = self._get_lower_and_upper_bounds()
 
-    def _check_bound_validity(self, bounds: List[Tuple[float, float]]) -> None:
+    def _check_bound_validity(self, bounds: BoundsType) -> None:
         """Checks if domain is not empty.
 
         :param bounds: The bounds to be checked.

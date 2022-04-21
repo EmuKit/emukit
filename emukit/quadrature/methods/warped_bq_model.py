@@ -6,10 +6,9 @@ from typing import Tuple, Union
 
 import numpy as np
 
-from emukit.quadrature.measures import BoxDomain, IntegrationMeasure
-
 from ...core.interfaces.models import IDifferentiable, IModel
 from ...quadrature.interfaces.base_gp import IBaseGaussianProcess
+from ..measures import BoxDomain, IntegrationMeasure
 from .warpings import Warping
 
 
