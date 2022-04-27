@@ -10,8 +10,10 @@ from pytest_lazyfixture import lazy_fixture
 from utils import check_grad, sample_uniform
 
 from emukit.model_wrappers.gpy_quadrature_wrappers import BrownianGPy, ProductMatern32GPy, RBFGPy
+from emukit.quadrature.interfaces import IStandardKernel
 from emukit.quadrature.kernels import (
     QuadratureBrownianLebesgueMeasure,
+    QuadratureKernel,
     QuadratureProductMatern32LebesgueMeasure,
     QuadratureRBFIsoGaussMeasure,
     QuadratureRBFLebesgueMeasure,
@@ -369,6 +371,15 @@ def test_qkernel_gradient_values(kernel_embedding):
     func = lambda x: emukit_qkernel.Kq(x).T
     dfunc = lambda x: emukit_qkernel.dKq_dx(x).T
     check_grad(func, dfunc, in_shape, dat_bounds)
+
+
+# == tests specific to base class start here
+
+
+def test_qkernel_raises():
+    # must provide either measure or bounds
+    with pytest.raises(ValueError):
+        QuadratureKernel(IStandardKernel(), integral_bounds=None, measure=None)
 
 
 # == tests specific to Brownian motion kernel starts here

@@ -49,16 +49,17 @@ class QuadratureKernel:
         # in this kernel will have infinite bounds still.
         if (integral_bounds is None) and (measure is None):
             raise ValueError("integral_bounds and measure are both None. At least one of them must be given.")
-        if integral_bounds is None:
-            reasonable_box_bounds = measure.get_box()
-            self.integral_bounds = None
-        else:
-            reasonable_box_bounds = integral_bounds
-            self.integral_bounds = BoxDomain(name=variable_names, bounds=integral_bounds)
 
-        self.reasonable_box = BoxDomain(name=variable_names, bounds=reasonable_box_bounds)
+        if integral_bounds is not None:
+            reasonable_box = BoxDomain(name=variable_names, bounds=integral_bounds)
+            integral_bounds = BoxDomain(name=variable_names, bounds=integral_bounds)
+        else:
+            reasonable_box = BoxDomain(name=variable_names, bounds=measure.get_box())
+
         self.kern = kern
         self.measure = measure
+        self.integral_bounds = integral_bounds
+        self.reasonable_box = reasonable_box
         self.input_dim = self.reasonable_box.dim
 
     def K(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
