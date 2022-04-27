@@ -18,7 +18,7 @@ class QuadratureBrownian(QuadratureKernel):
     r"""A Brownian motion kernel augmented with integrability.
 
     .. math::
-        k(x, x') = \sigma^2 \operatorname{min}(x, x'),
+        k(x, x') = \sigma^2 \operatorname{min}(x, x')\quad\text{with}\quad x, x' \geq 0,
 
     where :math:`\sigma^2` is the ``variance`` property.
 

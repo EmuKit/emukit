@@ -238,7 +238,7 @@ class BrownianGPy(IBrownian):
     r"""Wrapper of the GPy Brownian motion kernel as required for some EmuKit quadrature methods.
 
     .. math::
-        k(x, x') = \sigma^2 \operatorname{min}(x, x'),
+        k(x, x') = \sigma^2 \operatorname{min}(x, x')\quad\text{with}\quad x, x' \geq 0,
 
     where :math:`\sigma^2` is the ``variance`` property.
 
