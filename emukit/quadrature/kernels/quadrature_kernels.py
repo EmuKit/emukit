@@ -25,7 +25,7 @@ class QuadratureKernel:
         :class:`IStandardKernel` is :class:`QuadratureRBF` and :class:`IRBF`. The kernel embeddings are
         implemented w.r.t. a specific integration measure, for example the :class:`LebesgueMeasure`.
 
-    :param kern: Standard emukit kernel.
+    :param kern: Standard EmuKit kernel.
     :param integral_bounds: The integral bounds.
                             List of D tuples, where D is the dimensionality
                             of the integral and the tuples contain the lower and upper bounds of the integral

@@ -7,10 +7,11 @@ import GPy
 import numpy as np
 import pytest
 from pytest_lazyfixture import lazy_fixture
-from utils import check_grad
+from utils import check_grad, sample_uniform
 
-from emukit.model_wrappers.gpy_quadrature_wrappers import ProductMatern32GPy, RBFGPy
+from emukit.model_wrappers.gpy_quadrature_wrappers import BrownianGPy, ProductMatern32GPy, RBFGPy
 from emukit.quadrature.kernels import (
+    QuadratureBrownianLebesgueMeasure,
     QuadratureProductMatern32LebesgueMeasure,
     QuadratureRBFIsoGaussMeasure,
     QuadratureRBFLebesgueMeasure,
@@ -29,6 +30,19 @@ class DataLebesque:
     x2 = np.array([[-1, 1], [0, 0.2], [0.8, -0.1], [1.3, 2.8]])
     N = 3
     M = 4
+    dat_bounds = integral_bounds
+
+
+@dataclass
+class DataLebesqueSDElike:
+    D = 1
+    integral_bounds = [(0.2, 1.6)]
+    # x1 and x2 must lay inside domain
+    x1 = np.array([[0.3], [0.8], [1.5]])
+    x2 = np.array([[0.25], [0.5], [1.0], [1.2]])
+    N = 3
+    M = 4
+    dat_bounds = integral_bounds
 
 
 @dataclass
@@ -40,6 +54,7 @@ class DataGaussIso:
     x2 = np.array([[-1, 1], [0, 0.2], [0.8, -0.1], [1.3, 2.8]])
     N = 3
     M = 4
+    dat_bounds = [(m - 2 * np.sqrt(2), m + 2 * np.sqrt(2)) for m in measure_mean]
 
 
 @dataclass
@@ -47,11 +62,12 @@ class DataUniformFinite:
     D = 2
     integral_bounds = [(-1, 2), (-3, 3)]
     bounds = [(1, 2), (-4, 2)]
-    # x1 and x2 must lay inside domain
+    # x1 and x2 must lay inside dat_bounds
     x1 = np.array([[0.1, 1], [0, 0.1], [0.5, -1.5]])
     x2 = np.array([[0.1, 1], [0, 0.1], [0.8, -0.1], [1.3, 2]])
     N = 3
     M = 4
+    dat_bounds = [(-1, 2), (-2, 3)]
 
 
 @dataclass
@@ -64,6 +80,7 @@ class DataUniformInfinite:
     x2 = np.array([[-1, 1], [0, 0.2], [1.8, -0.1], [1.3, 1.8]])
     N = 3
     M = 4
+    dat_bounds = bounds
 
 
 @dataclass
@@ -78,6 +95,12 @@ class EmukitProductMatern32:
     variance = 0.7
     lengthscales = np.array([0.4, 1.2])
     kern = ProductMatern32GPy(lengthscales=lengthscales)
+
+
+@dataclass
+class EmukitBrownian:
+    var = 0.5
+    kern = BrownianGPy(GPy.kern.Brownian(input_dim=1, variance=var))
 
 
 def get_qrbf_lebesque():
@@ -113,35 +136,47 @@ def get_qmatern32_lebesque():
     return qkern, dat
 
 
+def get_qbrownian_lebesque():
+    dat = DataLebesqueSDElike()
+    qkern = QuadratureBrownianLebesgueMeasure(EmukitBrownian().kern, integral_bounds=dat.integral_bounds)
+    return qkern, dat
+
+
 # == fixtures start here
 @pytest.fixture
 def qrbf_lebesgue():
     qkern, dat = get_qrbf_lebesque()
-    return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D
+    return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D, dat.dat_bounds
 
 
 @pytest.fixture
 def qrbf_gauss_iso():
     qkern, dat = get_qrbf_gauss_iso()
-    return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D
+    return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D, dat.dat_bounds
 
 
 @pytest.fixture
 def qrbf_uniform_infinite():
     qkern, dat = get_qrbf_uniform_infinite()
-    return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D
+    return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D, dat.dat_bounds
 
 
 @pytest.fixture
 def qrbf_uniform_finite():
     qkern, dat = get_qrbf_uniform_finite()
-    return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D
+    return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D, dat.dat_bounds
 
 
 @pytest.fixture
 def qmatern32_lebesgue():
     qkern, dat = get_qmatern32_lebesque()
-    return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D
+    return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D, dat.dat_bounds
+
+
+@pytest.fixture
+def qbrownian_lebesgue():
+    qkern, dat = get_qbrownian_lebesque()
+    return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D, dat.dat_bounds
 
 
 embeddings_test_list = [
@@ -150,12 +185,13 @@ embeddings_test_list = [
     lazy_fixture("qrbf_uniform_infinite"),
     lazy_fixture("qrbf_uniform_finite"),
     lazy_fixture("qmatern32_lebesgue"),
+    lazy_fixture("qbrownian_lebesgue"),
 ]
 
 
 @pytest.mark.parametrize("kernel_embedding", embeddings_test_list)
 def test_qkernel_shapes(kernel_embedding):
-    emukit_qkernel, x1, x2, N, M, D = kernel_embedding
+    emukit_qkernel, x1, x2, N, M, D, _ = kernel_embedding
 
     # kernel shapes
     assert emukit_qkernel.K(x1, x2).shape == (N, M)
@@ -178,6 +214,7 @@ def test_qkernel_shapes(kernel_embedding):
         (embeddings_test_list[2], [0.13248136022581258, 0.13261016559792643]),
         (embeddings_test_list[3], [0.10728920097517262, 0.10840368292018744]),
         (embeddings_test_list[4], [33.6816570527734, 33.726646173769595]),
+        (embeddings_test_list[5], [0.6528048146871609, 0.653858667201299]),
     ],
 )
 def test_qkernel_qKq(kernel_embedding, interval):
@@ -249,11 +286,22 @@ def test_qkernel_qKq(kernel_embedding, interval):
                 ]
             ),
         ),
+        (
+            embeddings_test_list[5],
+            np.array(
+                [
+                    [0.17436285054037512, 0.1743870565968362],
+                    [0.3273488543068163, 0.3276377242105884],
+                    [0.5394358272402537, 0.5405072045782628],
+                    [0.5892821601114948, 0.5906529816223602],
+                ]
+            ),
+        ),
     ],
 )
 def test_qkernel_qK(kernel_embedding, intervals):
     # See test_qkernel_qKq on how the intervals were computed.
-    emukit_qkernel, _, x2, _, _, _ = kernel_embedding
+    emukit_qkernel, _, x2, _, _, _, _ = kernel_embedding
     qK = emukit_qkernel.qK(x2)[0, :]
     for i in range(4):
         assert intervals[i, 0] < qK[i] < intervals[i, 1]
@@ -272,7 +320,7 @@ def test_qkernel_uniform_finite_correct_box(qrbf_uniform_finite):
 
 @pytest.mark.parametrize("kernel_embedding", embeddings_test_list)
 def test_qkernel_gradient_shapes(kernel_embedding):
-    emukit_qkernel, x1, x2, N, M, D = kernel_embedding
+    emukit_qkernel, x1, x2, N, M, D, _ = kernel_embedding
 
     # gradient of kernel
     assert emukit_qkernel.dK_dx1(x1, x2).shape == (D, N, M)
@@ -286,38 +334,38 @@ def test_qkernel_gradient_shapes(kernel_embedding):
 
 @pytest.mark.parametrize("kernel_embedding", embeddings_test_list)
 def test_qkernel_gradient_values(kernel_embedding):
-    emukit_qkernel, x1, x2, N, M, D = kernel_embedding
-    np.random.seed(42)
+    emukit_qkernel, x1, x2, N, M, D, dat_bounds = kernel_embedding
 
-    x1 = np.random.randn(N, D)
-    x2 = np.random.randn(M, D)
+    np.random.seed(42)
+    x1 = sample_uniform(in_shape=(N, D), bounds=dat_bounds)
+    x2 = sample_uniform(in_shape=(M, D), bounds=dat_bounds)
 
     # dKdiag_dx
     in_shape = x1.shape
     func = lambda x: np.diag(emukit_qkernel.K(x, x))
     dfunc = lambda x: emukit_qkernel.dKdiag_dx(x1)
-    check_grad(func, dfunc, in_shape)
+    check_grad(func, dfunc, in_shape, dat_bounds)
 
     # dK_dx1
     in_shape = x1.shape
     func = lambda x: emukit_qkernel.K(x, x2)
     dfunc = lambda x: emukit_qkernel.dK_dx1(x, x2)
-    check_grad(func, dfunc, in_shape)
+    check_grad(func, dfunc, in_shape, dat_bounds)
 
     # dK_dx2
     in_shape = x2.shape
     func = lambda x: emukit_qkernel.K(x1, x)
     dfunc = lambda x: emukit_qkernel.dK_dx2(x1, x)
-    check_grad(func, dfunc, in_shape)
+    check_grad(func, dfunc, in_shape, dat_bounds)
 
     # dqK_dx
     in_shape = x2.shape
     func = lambda x: emukit_qkernel.qK(x)
     dfunc = lambda x: emukit_qkernel.dqK_dx(x)
-    check_grad(func, dfunc, in_shape)
+    check_grad(func, dfunc, in_shape, dat_bounds)
 
     # dKq_dx
     in_shape = x1.shape
     func = lambda x: emukit_qkernel.Kq(x).T
     dfunc = lambda x: emukit_qkernel.dKq_dx(x).T
-    check_grad(func, dfunc, in_shape)
+    check_grad(func, dfunc, in_shape, dat_bounds)

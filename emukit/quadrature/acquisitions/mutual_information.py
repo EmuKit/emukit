@@ -31,6 +31,7 @@ class MutualInformation(Acquisition):
     """
 
     def __init__(self, model: VanillaBayesianQuadrature):
+        self.model = model
         self.rho2 = SquaredCorrelation(model)
 
     def has_gradients(self) -> bool:

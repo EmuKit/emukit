@@ -8,6 +8,7 @@ from typing import List, Tuple
 
 import numpy as np
 from test_quadrature_kernels import (
+    get_qbrownian_lebesque,
     get_qmatern32_lebesque,
     get_qrbf_gauss_iso,
     get_qrbf_lebesque,
@@ -115,7 +116,8 @@ if __name__ == "__main__":
 
     # === Choose KERNEL BELOW ======
     # KERNEL = 'rbf'
-    KERNEL = "matern32"
+    # KERNEL = "matern32"
+    KERNEL = "brownian"
     # === CHOOSE KERNEL ABOVE ======
 
     _e = "Kernel embedding not implemented."
@@ -133,6 +135,9 @@ if __name__ == "__main__":
     elif KERNEL == "matern32":
         if MEASURE_INTBOUNDS == "Lebesgue-finite":
             emukit_qkern, dat = get_qmatern32_lebesque()
+    elif KERNEL == "brownian":
+        if MEASURE_INTBOUNDS == "Lebesgue-finite":
+            emukit_qkern, dat = get_qbrownian_lebesque()
         else:
             raise ValueError(_e)
 

@@ -32,7 +32,7 @@ class QuadratureRBF(QuadratureKernel):
        * :class:`emukit.quadrature.interfaces.IRBF`
        * :class:`emukit.quadrature.kernels.QuadratureKernel`
 
-    :param rbf_kernel: The standard emukit rbf-kernel.
+    :param rbf_kernel: The standard EmuKit rbf-kernel.
     :param integral_bounds: The integral bounds.
                             List of D tuples, where D is the dimensionality
                             of the integral and the tuples contain the lower and upper bounds of the integral
@@ -106,7 +106,7 @@ class QuadratureRBFLebesgueMeasure(QuadratureRBF):
        * :class:`emukit.quadrature.interfaces.IRBF`
        * :class:`emukit.quadrature.kernels.QuadratureRBF`
 
-    :param rbf_kernel: The standard emukit rbf-kernel.
+    :param rbf_kernel: The standard EmuKit rbf-kernel.
     :param integral_bounds: The integral bounds.
                             List of D tuples, where D is the dimensionality
                             of the integral and the tuples contain the lower and upper bounds of the integral
@@ -161,7 +161,7 @@ class QuadratureRBFIsoGaussMeasure(QuadratureRBF):
        * :class:`emukit.quadrature.kernels.QuadratureRBF`
        * :class:`emukit.quadrature.measures.IsotropicGaussianMeasure`
 
-    :param rbf_kernel: The standard emukit rbf-kernel.
+    :param rbf_kernel: The standard EmuKit rbf-kernel.
     :param measure: A Gaussian measure.
     :param variable_names: The (variable) name(s) of the integral.
 
@@ -197,7 +197,7 @@ class QuadratureRBFUniformMeasure(QuadratureRBF):
        * :class:`emukit.quadrature.kernels.QuadratureRBF`
        * :class:`emukit.quadrature.measures.UniformMeasure`
 
-    :param rbf_kernel: The standard emukit rbf-kernel.
+    :param rbf_kernel: The standard EmuKit rbf-kernel.
     :param integral_bounds: The integral bounds.
                             List of D tuples, where D is the dimensionality
                             of the integral and the tuples contain the lower and upper bounds of the integral
