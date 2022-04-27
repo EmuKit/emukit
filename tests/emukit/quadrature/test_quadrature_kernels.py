@@ -369,3 +369,12 @@ def test_qkernel_gradient_values(kernel_embedding):
     func = lambda x: emukit_qkernel.Kq(x).T
     dfunc = lambda x: emukit_qkernel.dKq_dx(x).T
     check_grad(func, dfunc, in_shape, dat_bounds)
+
+
+# == tests specific to Brownian motion kernel starts here
+
+
+def test_brownian_qkernel_raises():
+    wrong_bounds = [(1, 2), (1, 2)]
+    with pytest.raises(ValueError):
+        QuadratureBrownianLebesgueMeasure(BrownianGPy(GPy.kern.Brownian()), integral_bounds=wrong_bounds)
