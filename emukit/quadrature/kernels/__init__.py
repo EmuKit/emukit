@@ -7,6 +7,7 @@
 from .quadrature_kernels import QuadratureKernel  # isort:skip
 from .quadrature_brownian import QuadratureBrownian, QuadratureBrownianLebesgueMeasure
 from .quadrature_matern32 import QuadratureProductMatern32, QuadratureProductMatern32LebesgueMeasure
+from .quadrature_matern52 import QuadratureProductMatern52, QuadratureProductMatern52LebesgueMeasure
 from .quadrature_rbf import (
     QuadratureRBF,
     QuadratureRBFIsoGaussMeasure,
@@ -24,4 +25,6 @@ __all__ = [
     "QuadratureRBFIsoGaussMeasure",
     "QuadratureProductMatern32",
     "QuadratureProductMatern32LebesgueMeasure",
+    "QuadratureProductMatern52",
+    "QuadratureProductMatern52LebesgueMeasure",
 ]

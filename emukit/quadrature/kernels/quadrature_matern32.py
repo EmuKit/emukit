@@ -63,7 +63,7 @@ class QuadratureProductMatern32(QuadratureKernel):
         return self.kern.lengthscales
 
     @property
-    def variance(self):
+    def variance(self) -> float:
         r"""The scale :math:`\sigma^2` of the kernel."""
         return self.kern.variance
 
