@@ -19,6 +19,7 @@ class DataUniformMeasure:
     D = 2
     measure_bounds = [(-1, 2), (0, 1)]
     measure = UniformMeasure(bounds=measure_bounds)
+    dat_bounds = measure_bounds
 
 
 @dataclass
@@ -27,6 +28,7 @@ class DataGaussIsoMeasure:
     mean = np.arange(D)
     variance = 0.5
     measure = IsotropicGaussianMeasure(mean=mean, variance=variance)
+    dat_bounds = [(m - 2 * np.sqrt(0.5), m + 2 * np.sqrt(0.5)) for m in mean]
 
 
 @pytest.fixture()
@@ -50,10 +52,10 @@ measure_test_list = [
 
 @pytest.mark.parametrize("measure", measure_test_list)
 def test_measure_gradient_values(measure):
-    D, measure = measure.D, measure.measure
+    D, measure, dat_bounds = measure.D, measure.measure, measure.dat_bounds
     func = lambda x: measure.compute_density(x)
     dfunc = lambda x: measure.compute_density_gradient(x).T
-    check_grad(func, dfunc, in_shape=(3, D))
+    check_grad(func, dfunc, in_shape=(3, D), bounds=dat_bounds)
 
 
 @pytest.mark.parametrize("measure", measure_test_list)

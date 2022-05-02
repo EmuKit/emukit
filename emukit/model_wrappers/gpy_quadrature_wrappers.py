@@ -1,3 +1,5 @@
+"""GPy wrappers for the quadrature package."""
+
 # Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
@@ -8,17 +10,17 @@ import GPy
 import numpy as np
 from scipy.linalg import lapack
 
-from emukit.quadrature.interfaces import IBaseGaussianProcess
-from emukit.quadrature.interfaces.standard_kernels import IRBF, IProductMatern32
-from emukit.quadrature.kernels import (
+from ..quadrature.interfaces import IRBF, IBaseGaussianProcess, IBrownian, IProductMatern32
+from ..quadrature.kernels import (
+    QuadratureBrownianLebesgueMeasure,
     QuadratureKernel,
     QuadratureProductMatern32LebesgueMeasure,
     QuadratureRBFIsoGaussMeasure,
     QuadratureRBFLebesgueMeasure,
     QuadratureRBFUniformMeasure,
 )
-from emukit.quadrature.measures import IntegrationMeasure, IsotropicGaussianMeasure, UniformMeasure
-from emukit.quadrature.typing import BoundsType
+from ..quadrature.measures import IntegrationMeasure, IsotropicGaussianMeasure, UniformMeasure
+from ..quadrature.typing import BoundsType
 
 
 class BaseGaussianProcessGPy(IBaseGaussianProcess):
@@ -119,12 +121,6 @@ class RBFGPy(IRBF):
 
     def K(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
         return self.gpy_rbf.K(x1, x2)
-
-    def dK_dx1(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
-        K = self.K(x1, x2)
-        scaled_vector_diff = (x1.T[:, :, None] - x2.T[:, None, :]) / self.lengthscale**2
-        dK_dx1 = -K[None, ...] * scaled_vector_diff
-        return dK_dx1
 
 
 class ProductMatern32GPy(IProductMatern32):
@@ -227,21 +223,37 @@ class ProductMatern32GPy(IProductMatern32):
 
     def dK_dx1(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
         if isinstance(self.gpy_matern, GPy.kern.Matern32):
-            return self._dK_dx_1d(x1[:, 0], x2[:, 0], self.gpy_matern)[None, :, :]
+            return self._dK_dx1_1d(x1[:, 0], x2[:, 0], self.gpy_matern.lengthscale[0])[None, :, :]
 
         # product kernel
         dK_dx1 = np.ones([x1.shape[1], x1.shape[0], x2.shape[0]])
         for dim, kern in enumerate(self.gpy_matern.parameters):
             prod_term = self._K_from_prod(x1, x2, skip=[dim])  # N x M
-            grad_term = self._dK_dx_1d(x1[:, dim], x2[:, dim], kern)  # N x M
+            grad_term = self._dK_dx1_1d(x1[:, dim], x2[:, dim], kern.lengthscale[0])  # N x M
             dK_dx1[dim, :, :] *= prod_term * grad_term
         return dK_dx1
 
-    def _dK_dx_1d(self, x1: np.ndarray, x2: np.ndarray, kern: GPy.kern.Matern32) -> np.ndarray:
-        r = (x1.T[:, None] - x2.T[None, :]) / kern.lengthscale[0]  # N x M
-        dr_dx1 = r / (kern.lengthscale[0] * abs(r))
-        dK_dr = -3 * abs(r) * np.exp(-np.sqrt(3) * abs(r))
-        return dK_dr * dr_dx1
+
+class BrownianGPy(IBrownian):
+    r"""Wrapper of the GPy Brownian motion kernel as required for some EmuKit quadrature methods.
+
+    .. math::
+        k(x, x') = \sigma^2 \operatorname{min}(x, x')\quad\text{with}\quad x, x' \geq 0,
+
+    where :math:`\sigma^2` is the ``variance`` property.
+
+    :param gpy_brownian: A Brownian motion kernel from GPy.
+    """
+
+    def __init__(self, gpy_brownian: GPy.kern.Brownian):
+        self.gpy_brownian = gpy_brownian
+
+    @property
+    def variance(self) -> np.float:
+        return self.gpy_brownian.variance[0]
+
+    def K(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
+        return self.gpy_brownian.K(x1, x2)
 
 
 def create_emukit_model_from_gpy_model(
@@ -289,11 +301,36 @@ def create_emukit_model_from_gpy_model(
         quadrature_kernel_emukit = _get_qkernel_matern32(
             standard_kernel_emukit, integral_bounds, measure, integral_name
         )
+    # Brownian
+    elif isinstance(gpy_model.kern, GPy.kern.Brownian):
+        standard_kernel_emukit = BrownianGPy(gpy_model.kern)
+        quadrature_kernel_emukit = _get_qkernel_brownian(
+            standard_kernel_emukit, integral_bounds, measure, integral_name
+        )
     else:
-        raise ValueError("Only RBF and ProductMatern32 kernel are supported. Got ", gpy_model.kern.name, " instead.")
+        raise ValueError(f"There is no GPy wrapper for the provided kernel ({gpy_model.kern.name}).")
 
     # wrap the base-gp model
     return BaseGaussianProcessGPy(kern=quadrature_kernel_emukit, gpy_model=gpy_model)
+
+
+def _get_qkernel_brownian(
+    standard_kernel_emukit: IBrownian,
+    integral_bounds: Optional[BoundsType],
+    measure: Optional[IntegrationMeasure],
+    integral_name: str,
+):
+    # we already know that either bounds or measure is given (or both)
+    # finite bounds, standard Lebesgue measure
+    if (integral_bounds is not None) and (measure is None):
+        quadrature_kernel_emukit = QuadratureBrownianLebesgueMeasure(
+            brownian_kernel=standard_kernel_emukit, integral_bounds=integral_bounds, variable_names=integral_name
+        )
+
+    else:
+        raise ValueError("Currently only standard Lebesgue measure (measure=None) is supported.")
+
+    return quadrature_kernel_emukit
 
 
 def _get_qkernel_matern32(

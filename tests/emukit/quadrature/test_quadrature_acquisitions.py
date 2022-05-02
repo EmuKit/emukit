@@ -91,4 +91,4 @@ def test_quadrature_acquisition_shapes(aq):
 def test_quadrature_acquisition_gradient_values(aq):
     func = lambda x: aq.evaluate(x)[:, 0]
     dfunc = lambda x: aq.evaluate_with_gradients(x)[1].T
-    check_grad(func, dfunc, in_shape=(3, 2))
+    check_grad(func, dfunc, in_shape=(3, 2), bounds=aq.model.X.shape[1] * [(-3, 3)])

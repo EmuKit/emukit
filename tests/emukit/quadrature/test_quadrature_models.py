@@ -26,6 +26,7 @@ class DataGaussIso:
     # for bounded methods
     bound_lower = np.min(Y) - 0.5  # make sure bound is lower than the Y values
     bound_upper = np.max(Y) + 0.5  # make sure bound is larger than the Y values
+    dat_bounds = [(m - 2 * np.sqrt(2), m + 2 * np.sqrt(2)) for m in measure_mean]
 
 
 def get_gpy_model():
@@ -220,12 +221,12 @@ def test_warped_model_gradient_values(model, data):
     # gradient of mean
     func = lambda z: model.predict(z)[0][:, 0]
     dfunc = lambda z: model.get_prediction_gradients(z)[0].T
-    check_grad(func, dfunc, in_shape=(5, data.D))
+    check_grad(func, dfunc, in_shape=(5, data.D), bounds=data.dat_bounds)
 
     # gradient of var
     func = lambda z: model.predict(z)[1][:, 0]
     dfunc = lambda z: model.get_prediction_gradients(z)[1].T
-    check_grad(func, dfunc, in_shape=(5, data.D))
+    check_grad(func, dfunc, in_shape=(5, data.D), bounds=data.dat_bounds)
 
 
 @pytest.mark.parametrize(

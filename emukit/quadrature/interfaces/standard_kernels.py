@@ -17,9 +17,9 @@ class IStandardKernel:
     def K(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
         """The kernel k(x1, x2) evaluated at x1 and x2.
 
-        :param x1: First argument of the kernel.
-        :param x2: Second argument of the kernel.
-        :returns: Kernel evaluated at x1, x2.
+        :param x1: First argument of the kernel, shape (n_points N, input_dim)
+        :param x2: Second argument of the kernel, shape (n_points M, input_dim)
+        :returns: Kernel evaluated at x1, x2, shape (N, M).
         """
         raise NotImplementedError
 
@@ -27,8 +27,8 @@ class IStandardKernel:
     def dK_dx1(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
         """Gradient of the kernel wrt x1 evaluated at pair x1, x2.
 
-        :param x1: First argument of the kernel, shape = (n_points N, input_dim)
-        :param x2: Second argument of the kernel, shape = (n_points M, input_dim)
+        :param x1: First argument of the kernel, shape (n_points N, input_dim)
+        :param x2: Second argument of the kernel, shape (n_points M, input_dim)
         :return: The gradient of the kernel wrt x1 evaluated at (x1, x2), shape (input_dim, N, M)
         """
         raise NotImplementedError
@@ -73,6 +73,12 @@ class IRBF(IStandardKernel):
     def variance(self) -> np.float:
         r"""The scale :math:`\sigma^2` of the kernel."""
         raise NotImplementedError
+
+    def dK_dx1(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
+        K = self.K(x1, x2)
+        scaled_vector_diff = (x1.T[:, :, None] - x2.T[:, None, :]) / self.lengthscale**2
+        dK_dx1 = -K[None, ...] * scaled_vector_diff
+        return dK_dx1
 
     def dKdiag_dx(self, x: np.ndarray) -> np.ndarray:
         return np.zeros((x.shape[1], x.shape[0]))
@@ -121,5 +127,53 @@ class IProductMatern32(IStandardKernel):
         r"""The scale :math:`\sigma^2` of the kernel."""
         raise NotImplementedError
 
+    def _dK_dx1_1d(self, x1: np.ndarray, x2: np.ndarray, ell: float) -> np.ndarray:
+        """Unscaled gradient of 1D Matern32 where ``ell`` is the lengthscale parameter.
+
+        This method can be used in case the product Matern32 is implemented via a List of univariate Matern32.
+
+        :param x1: First argument of the kernel, shape = (n_points N,)
+        :param x2: Second argument of the kernel, shape = (n_points M,)
+        :param ell: The lengthscale of the 1D Matern32.
+        :return: The gradient of the kernel wrt x1 evaluated at (x1, x2), shape (N, M).
+        """
+        r = (x1.T[:, None] - x2.T[None, :]) / ell  # N x M
+        dr_dx1 = r / (ell * abs(r))
+        dK_dr = -3 * abs(r) * np.exp(-np.sqrt(3) * abs(r))
+        return dK_dr * dr_dx1
+
     def dKdiag_dx(self, x: np.ndarray) -> np.ndarray:
         return np.zeros((x.shape[1], x.shape[0]))
+
+
+class IBrownian(IStandardKernel):
+    r"""Interface for a Brownian motion kernel.
+
+    .. math::
+        k(x, x') = \sigma^2 \operatorname{min}(x, x')\quad\text{with}\quad x, x' \geq 0,
+
+    where :math:`\sigma^2` is the ``variance`` property.
+
+    .. note::
+        Inherit from this class to wrap your standard Brownian motion kernel.
+        The wrapped kernel can then be handed to a quadrature Brownian motion kernel that
+        augments it with integrability.
+
+    .. seealso::
+       * :class:`emukit.quadrature.kernels.QuadratureBrownian`
+       * :class:`emukit.quadrature.kernels.QuadratureBrownianLebesgueMeasure`
+
+    """
+
+    @property
+    def variance(self) -> np.float:
+        r"""The scale :math:`\sigma^2` of the kernel."""
+        raise NotImplementedError
+
+    def dK_dx1(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
+        x1_rep = np.repeat(x1[:, 0][np.newaxis, ...], x2.shape[0], axis=0).T
+        x2_rep = np.repeat(x2[:, 0][np.newaxis, ...], x1.shape[0], axis=0)
+        return self.variance * (x1_rep < x2_rep)[np.newaxis, :, :]
+
+    def dKdiag_dx(self, x: np.ndarray) -> np.ndarray:
+        return self.variance * np.ones((x.shape[1], x.shape[0]))

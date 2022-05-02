@@ -30,7 +30,7 @@ class QuadratureProductMatern32(QuadratureKernel):
        * :class:`emukit.quadrature.interfaces.IProductMatern32`
        * :class:`emukit.quadrature.kernels.QuadratureKernel`
 
-    :param matern_kernel: The standard emukit product Matern32 kernel.
+    :param matern_kernel: The standard EmuKit product Matern32 kernel.
     :param integral_bounds: The integral bounds.
                             List of D tuples, where D is the dimensionality
                             of the integral and the tuples contain the lower and upper bounds of the integral
@@ -90,7 +90,7 @@ class QuadratureProductMatern32LebesgueMeasure(QuadratureProductMatern32):
        * :class:`emukit.quadrature.interfaces.IProductMatern32`
        * :class:`emukit.quadrature.kernels.QuadratureProductMatern32`
 
-    :param matern_kernel: The standard emukit product Matern32 kernel.
+    :param matern_kernel: The standard EmuKit product Matern32 kernel.
     :param integral_bounds: The integral bounds.
                             List of D tuples, where D is the dimensionality
                             of the integral and the tuples contain the lower and upper bounds of the integral
