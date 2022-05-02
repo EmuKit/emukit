@@ -130,10 +130,11 @@ class IProductMatern32(IStandardKernel):
     def _dK_dx1_1d(self, x1: np.ndarray, x2: np.ndarray, ell: float) -> np.ndarray:
         """Unscaled gradient of 1D Matern32 where ``ell`` is the lengthscale parameter.
 
-        This method can be used in case the product Matern32 is implemented via a List of univariate Matern32.
+        This method can be used in case the product Matern32 is implemented via a List of
+        univariate Matern32 kernels.
 
-        :param x1: First argument of the kernel, shape = (n_points N,)
-        :param x2: Second argument of the kernel, shape = (n_points M,)
+        :param x1: First argument of the kernel, shape = (n_points N,).
+        :param x2: Second argument of the kernel, shape = (n_points M,).
         :param ell: The lengthscale of the 1D Matern32.
         :return: The gradient of the kernel wrt x1 evaluated at (x1, x2), shape (N, M).
         """
@@ -190,13 +191,14 @@ class IProductMatern52(IStandardKernel):
         raise NotImplementedError
 
     def _dK_dx1_1d(self, x1: np.ndarray, x2: np.ndarray, ell: float) -> np.ndarray:
-        """Unscaled gradient of 1D Matern32 where ``ell`` is the lengthscale parameter.
+        """Unscaled gradient of 1D Matern52 where ``ell`` is the lengthscale parameter.
 
-        This method can be used in case the product Matern32 is implemented via a List of univariate Matern32.
+        This method can be used in case the product Matern52 is implemented via a List of
+        univariate Matern52 kernels.
 
-        :param x1: First argument of the kernel, shape = (n_points N,)
-        :param x2: Second argument of the kernel, shape = (n_points M,)
-        :param ell: The lengthscale of the 1D Matern32.
+        :param x1: First argument of the kernel, shape = (n_points N,).
+        :param x2: Second argument of the kernel, shape = (n_points M,).
+        :param ell: The lengthscale of the 1D Matern52.
         :return: The gradient of the kernel wrt x1 evaluated at (x1, x2), shape (N, M).
         """
         r = (x1.T[:, None] - x2.T[None, :]) / ell  # N x M
