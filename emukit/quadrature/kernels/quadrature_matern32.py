@@ -18,7 +18,7 @@ class QuadratureProductMatern32(QuadratureKernel):
     .. math::
         k_i(x, x') = (1 + \sqrt{3}r_i ) e^{-\sqrt{3} r_i}.
 
-    Above, :math:`d` is the input dimensionality, :math:`r_i =\frac{|x_i - z_i|}{\lambda_i}`,
+    Above, :math:`d` is the input dimensionality, :math:`r_i =\frac{|x_i - x'_i|}{\lambda_i}`,
     is the scaled distance, :math:`\sigma^2` is the ``variance`` property and :math:`\lambda_i`
     is the :math:`i` th element of the ``lengthscales`` property.
 

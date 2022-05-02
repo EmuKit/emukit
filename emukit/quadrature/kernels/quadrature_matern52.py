@@ -18,7 +18,7 @@ class QuadratureProductMatern52(QuadratureKernel):
     .. math::
         k_i(x, x') = (1 + \sqrt{5} r_i + \frac{5}{3} r_i^2) \exp(- \sqrt{5} r_i).
 
-    Above, :math:`d` is the input dimensionality, :math:`r_i =\frac{|x_i - z_i|}{\lambda_i}`,
+    Above, :math:`d` is the input dimensionality, :math:`r_i =\frac{|x_i - x'_i|}{\lambda_i}`,
     is the scaled distance, :math:`\sigma^2` is the ``variance`` property and :math:`\lambda_i`
     is the :math:`i` th element of the ``lengthscales`` property.
 
