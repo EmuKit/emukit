@@ -33,7 +33,7 @@ class IBaseGaussianProcess(IModel, IDifferentiable):
         self.kern = kern
 
     @property
-    def observation_noise_variance(self) -> np.float:
+    def observation_noise_variance(self) -> float:
         """The variance of the Gaussian observation noise."""
         raise NotImplementedError
 

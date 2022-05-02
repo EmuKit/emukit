@@ -1,36 +1,36 @@
-"""The product Matern32 kernel embeddings."""
+"""The product Matern52 kernel embeddings."""
 
 from typing import List, Optional, Tuple
 
 import numpy as np
 
-from ...quadrature.interfaces.standard_kernels import IProductMatern32
+from ...quadrature.interfaces.standard_kernels import IProductMatern52
 from ..measures import IntegrationMeasure
 from ..typing import BoundsType
 from .quadrature_kernels import QuadratureKernel
 
 
-class QuadratureProductMatern32(QuadratureKernel):
-    r"""A product Matern32 kernel augmented with integrability.
+class QuadratureProductMatern52(QuadratureKernel):
+    r"""A product Matern52 kernel augmented with integrability.
 
     The kernel is of the form :math:`k(x, x') = \sigma^2 \prod_{i=1}^d k_i(x, x')` where
 
     .. math::
-        k_i(x, x') = (1 + \sqrt{3}r_i ) e^{-\sqrt{3} r_i}.
+        k_i(x, x') = (1 + \sqrt{5} r_i + \frac{5}{3} r_i^2) \exp(- \sqrt{5} r_i).
 
     Above, :math:`d` is the input dimensionality, :math:`r_i =\frac{|x_i - x'_i|}{\lambda_i}`,
     is the scaled distance, :math:`\sigma^2` is the ``variance`` property and :math:`\lambda_i`
     is the :math:`i` th element of the ``lengthscales`` property.
 
     .. note::
-        This class is compatible with the standard kernel :class:`IProductMatern32`.
+        This class is compatible with the standard kernel :class:`IProductMatern52`.
         Each subclass of this class implements an embedding w.r.t. a specific integration measure.
 
     .. seealso::
-       * :class:`emukit.quadrature.interfaces.IProductMatern32`
+       * :class:`emukit.quadrature.interfaces.IProductMatern52`
        * :class:`emukit.quadrature.kernels.QuadratureKernel`
 
-    :param matern_kernel: The standard EmuKit product Matern32 kernel.
+    :param matern_kernel: The standard EmuKit product Matern52 kernel.
     :param integral_bounds: The integral bounds.
                             List of D tuples, where D is the dimensionality
                             of the integral and the tuples contain the lower and upper bounds of the integral
@@ -43,7 +43,7 @@ class QuadratureProductMatern32(QuadratureKernel):
 
     def __init__(
         self,
-        matern_kernel: IProductMatern32,
+        matern_kernel: IProductMatern52,
         integral_bounds: Optional[BoundsType],
         measure: Optional[IntegrationMeasure],
         variable_names: str = "",
@@ -83,14 +83,14 @@ class QuadratureProductMatern32(QuadratureKernel):
         return self.dqK_dx(x1).T
 
 
-class QuadratureProductMatern32LebesgueMeasure(QuadratureProductMatern32):
-    """An product Matern32 kernel augmented with integrability w.r.t. the standard Lebesgue measure.
+class QuadratureProductMatern52LebesgueMeasure(QuadratureProductMatern52):
+    """An product Matern52 kernel augmented with integrability w.r.t. the standard Lebesgue measure.
 
     .. seealso::
-       * :class:`emukit.quadrature.interfaces.IProductMatern32`
-       * :class:`emukit.quadrature.kernels.QuadratureProductMatern32`
+       * :class:`emukit.quadrature.interfaces.IProductMatern52`
+       * :class:`emukit.quadrature.kernels.QuadratureProductMatern52`
 
-    :param matern_kernel: The standard EmuKit product Matern32 kernel.
+    :param matern_kernel: The standard EmuKit product Matern52 kernel.
     :param integral_bounds: The integral bounds.
                             List of D tuples, where D is the dimensionality
                             of the integral and the tuples contain the lower and upper bounds of the integral
@@ -100,7 +100,7 @@ class QuadratureProductMatern32LebesgueMeasure(QuadratureProductMatern32):
 
     """
 
-    def __init__(self, matern_kernel: IProductMatern32, integral_bounds: BoundsType, variable_names: str = "") -> None:
+    def __init__(self, matern_kernel: IProductMatern52, integral_bounds: BoundsType, variable_names: str = "") -> None:
         super().__init__(
             matern_kernel=matern_kernel, integral_bounds=integral_bounds, measure=None, variable_names=variable_names
         )
@@ -134,28 +134,32 @@ class QuadratureProductMatern32LebesgueMeasure(QuadratureProductMatern32):
 
     # one dimensional integrals start here
     def _qK_1d(self, x: np.ndarray, domain: Tuple[float, float], ell: float) -> np.ndarray:
-        """Unscaled kernel mean for 1D Matern32 kernel."""
+        """Unscaled kernel mean for 1D Matern52 kernel."""
         (a, b) = domain
-        s3 = np.sqrt(3.0)
-        first_term = 4.0 * ell / s3
-        second_term = -np.exp(s3 * (x - b) / ell) * (b + 2.0 * ell / s3 - x)
-        third_term = -np.exp(s3 * (a - x) / ell) * (x + 2.0 * ell / s3 - a)
+        s5 = np.sqrt(5)
+        first_term = 16 * ell / (3 * s5)
+        second_term = (
+            -np.exp(s5 * (x - b) / ell) / (15 * ell) * (8 * s5 * ell**2 + 25 * ell * (b - x) + 5 * s5 * (b - x) ** 2)
+        )
+        third_term = (
+            -np.exp(s5 * (a - x) / ell) / (15 * ell) * (8 * s5 * ell**2 + 25 * ell * (x - a) + 5 * s5 * (a - x) ** 2)
+        )
         return first_term + second_term + third_term
 
     def _qKq_1d(self, domain: Tuple[float, float], ell: float) -> float:
-        """Unscaled kernel variance for 1D Matern32 kernel."""
+        """Unscaled kernel variance for 1D Matern52 kernel."""
         a, b = domain
-        r = b - a
-        c = np.sqrt(3.0) * r
-        qKq = 2.0 * ell / 3.0 * (2.0 * c - 3.0 * ell + np.exp(-c / ell) * (c + 3.0 * ell))
+        c = np.sqrt(5) * (b - a)
+        bracket_term = 5 * a**2 - 10 * a * b + 5 * b**2 + 7 * c * ell + 15 * ell**2
+        qKq = (2 * ell * (8 * c - 15 * ell) + 2 * np.exp(-c / ell) * bracket_term) / 15
         return float(qKq)
 
-    def _dqK_dx_1d(self, x, domain, ell):
-        """Unscaled gradient of 1D Matern32 kernel mean."""
-        s3 = np.sqrt(3)
+    def _dqK_dx_1d(self, x, domain, ell) -> np.ndarray:
+        """Unscaled gradient of 1D Matern52 kernel mean."""
         a, b = domain
-        exp_term_b = np.exp(s3 * (x - b) / ell)
-        exp_term_a = np.exp(s3 * (a - x) / ell)
-        first_term = exp_term_b * (-1 + (s3 / ell) * (x - b))
-        second_term = exp_term_a * (+1 - (s3 / ell) * (a - x))
+        s5 = np.sqrt(5)
+        first_exp = -np.exp(s5 * (x - b) / ell) / (15 * ell)
+        first_term = first_exp * (15 * ell - 15 * s5 * (x - b) + 25 / ell * (x - b) ** 2)
+        second_exp = -np.exp(s5 * (a - x) / ell) / (15 * ell)
+        second_term = second_exp * (-15 * ell + 15 * s5 * (a - x) - 25 / ell * (a - x) ** 2)
         return first_term + second_term
