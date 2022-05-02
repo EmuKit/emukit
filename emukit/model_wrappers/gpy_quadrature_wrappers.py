@@ -10,7 +10,11 @@ import GPy
 import numpy as np
 from scipy.linalg import lapack
 
+<<<<<<< HEAD
 from ..quadrature.interfaces import IRBF, IBaseGaussianProcess, IBrownian, IProductMatern32, IProductMatern52
+=======
+from ..quadrature.interfaces import IRBF, IBaseGaussianProcess, IBrownian, IProductMatern32
+>>>>>>> main
 from ..quadrature.kernels import (
     QuadratureBrownianLebesgueMeasure,
     QuadratureKernel,
@@ -224,6 +228,7 @@ class ProductMatern32GPy(IProductMatern32):
     def dK_dx1(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
         if isinstance(self.gpy_matern, GPy.kern.Matern32):
             return self._dK_dx1_1d(x1[:, 0], x2[:, 0], self.gpy_matern.lengthscale[0])[None, :, :]
+<<<<<<< HEAD
 
         # product kernel
         dK_dx1 = np.ones([x1.shape[1], x1.shape[0], x2.shape[0]])
@@ -335,6 +340,8 @@ class ProductMatern52GPy(IProductMatern52):
     def dK_dx1(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
         if isinstance(self.gpy_matern, GPy.kern.Matern52):
             return self._dK_dx1_1d(x1[:, 0], x2[:, 0], self.gpy_matern.lengthscale[0])[None, :, :]
+=======
+>>>>>>> main
 
         # product kernel
         dK_dx1 = np.ones([x1.shape[1], x1.shape[0], x2.shape[0]])
@@ -360,7 +367,11 @@ class BrownianGPy(IBrownian):
         self.gpy_brownian = gpy_brownian
 
     @property
+<<<<<<< HEAD
     def variance(self) -> float:
+=======
+    def variance(self) -> np.float:
+>>>>>>> main
         return self.gpy_brownian.variance[0]
 
     def K(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
