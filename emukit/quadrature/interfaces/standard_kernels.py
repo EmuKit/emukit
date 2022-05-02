@@ -201,11 +201,7 @@ class IProductMatern52(IStandardKernel):
         """
         r = (x1.T[:, None] - x2.T[None, :]) / ell  # N x M
         dr_dx1 = r / (ell * abs(r))
-<<<<<<< HEAD
         dK_dr = (-5 / 3) * np.exp(-np.sqrt(5) * abs(r)) * (abs(r) + np.sqrt(5) * r**2)
-=======
-        dK_dr = -3 * abs(r) * np.exp(-np.sqrt(3) * abs(r))
->>>>>>> main
         return dK_dr * dr_dx1
 
     def dKdiag_dx(self, x: np.ndarray) -> np.ndarray:
@@ -232,11 +228,7 @@ class IBrownian(IStandardKernel):
     """
 
     @property
-<<<<<<< HEAD
     def variance(self) -> float:
-=======
-    def variance(self) -> np.float:
->>>>>>> main
         r"""The scale :math:`\sigma^2` of the kernel."""
         raise NotImplementedError
 
