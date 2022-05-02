@@ -15,6 +15,7 @@ from ..quadrature.kernels import (
     QuadratureBrownianLebesgueMeasure,
     QuadratureKernel,
     QuadratureProductMatern32LebesgueMeasure,
+    QuadratureProductMatern52LebesgueMeasure,
     QuadratureRBFIsoGaussMeasure,
     QuadratureRBFLebesgueMeasure,
     QuadratureRBFUniformMeasure,
@@ -367,6 +368,9 @@ class BrownianGPy(IBrownian):
         return self.gpy_brownian.K(x1, x2)
 
 
+# === convenience functions start here
+
+
 def create_emukit_model_from_gpy_model(
     gpy_model: GPy.models.GPRegression,
     integral_bounds: Optional[BoundsType],
@@ -392,14 +396,14 @@ def create_emukit_model_from_gpy_model(
             "or an appropriate integration measure."
         )
 
-    def _check_is_product_matern32(k):
-        is_matern = isinstance(gpy_model.kern, GPy.kern.Matern32)
+    def _check_is_gpy_product_kernel(k, k_type):
+        is_type = isinstance(gpy_model.kern, k_type)
         if isinstance(k, GPy.kern.Prod):
-            all_matern = all(isinstance(kern, GPy.kern.Matern32) for kern in k.parameters)
+            all_type = all(isinstance(kern, k_type) for kern in k.parameters)
             all_univariante = all(kern.input_dim == 1 for kern in k.parameters)
-            if all_matern and all_univariante:
-                is_matern = True
-        return is_matern
+            if all_type and all_univariante:
+                is_type = True
+        return is_type
 
     # wrap standard kernel
     # RBF
@@ -407,9 +411,15 @@ def create_emukit_model_from_gpy_model(
         standard_kernel_emukit = RBFGPy(gpy_model.kern)
         quadrature_kernel_emukit = _get_qkernel_gauss(standard_kernel_emukit, integral_bounds, measure, integral_name)
     # Univariate Matern32 or ProductMatern32
-    elif _check_is_product_matern32(gpy_model.kern):
+    elif _check_is_gpy_product_kernel(gpy_model.kern, GPy.kern.Matern32):
         standard_kernel_emukit = ProductMatern32GPy(gpy_model.kern)
         quadrature_kernel_emukit = _get_qkernel_matern32(
+            standard_kernel_emukit, integral_bounds, measure, integral_name
+        )
+    # Univariate Matern52 or ProductMatern52
+    elif _check_is_gpy_product_kernel(gpy_model.kern, GPy.kern.Matern52):
+        standard_kernel_emukit = ProductMatern52GPy(gpy_model.kern)
+        quadrature_kernel_emukit = _get_qkernel_matern52(
             standard_kernel_emukit, integral_bounds, measure, integral_name
         )
     # Brownian
@@ -454,6 +464,25 @@ def _get_qkernel_matern32(
     # finite bounds, standard Lebesgue measure
     if (integral_bounds is not None) and (measure is None):
         quadrature_kernel_emukit = QuadratureProductMatern32LebesgueMeasure(
+            matern_kernel=standard_kernel_emukit, integral_bounds=integral_bounds, variable_names=integral_name
+        )
+
+    else:
+        raise ValueError("Currently only standard Lebesgue measure (measure=None) is supported.")
+
+    return quadrature_kernel_emukit
+
+
+def _get_qkernel_matern52(
+    standard_kernel_emukit: IProductMatern52,
+    integral_bounds: Optional[BoundsType],
+    measure: Optional[IntegrationMeasure],
+    integral_name: str,
+):
+    # we already know that either bounds or measure is given (or both)
+    # finite bounds, standard Lebesgue measure
+    if (integral_bounds is not None) and (measure is None):
+        quadrature_kernel_emukit = QuadratureProductMatern52LebesgueMeasure(
             matern_kernel=standard_kernel_emukit, integral_bounds=integral_bounds, variable_names=integral_name
         )
 
