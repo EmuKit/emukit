@@ -5,13 +5,14 @@
 
 
 from .base_gp import IBaseGaussianProcess  # noqa: F401
-from .standard_kernels import IRBF, IBrownian, IProductMatern32, IProductMatern52, IStandardKernel  # noqa: F401
+from .standard_kernels import IRBF, IBrownian, IProductMatern32, IProductMatern52, IProductBrownian, IStandardKernel  # noqa: F401
 
 __all__ = [
     "IBaseGaussianProcess",
     "IStandardKernel",
     "IBrownian",
     "IRBF",
+    "IProductBrownian",
     "IProductMatern32",
     "IProductMatern52",
 ]
