@@ -87,8 +87,6 @@ class IRBF(IStandardKernel):
 class IProductMatern32(IStandardKernel):
     r"""Interface for a Matern32 product kernel.
 
-    Inherit from this class to wrap your ProductMatern32 kernel.
-
     The product kernel is of the form
     :math:`k(x, x') = \sigma^2 \prod_{i=1}^d k_i(x, x')` where
 
@@ -149,8 +147,6 @@ class IProductMatern32(IStandardKernel):
 
 class IProductMatern52(IStandardKernel):
     r"""Interface for a Matern52 product kernel.
-
-    Inherit from this class to wrap your ProductMatern52 kernel.
 
     The product kernel is of the form
     :math:`k(x, x') = \sigma^2 \prod_{i=1}^d k_i(x, x')` where
@@ -246,8 +242,6 @@ class IBrownian(IStandardKernel):
 class IProductBrownian(IStandardKernel):
     r"""Interface for a Brownian product kernel.
 
-    Inherit from this class to wrap your ProductBrownian kernel.
-
     The product kernel is of the form
     :math:`k(x, x') = \sigma^2 \prod_{i=1}^d k_i(x, x')` where
 
@@ -284,9 +278,6 @@ class IProductBrownian(IStandardKernel):
         :param x2: Second argument of the kernel, shape = (n_points M,).
         :return: The gradient of the kernel wrt x1 evaluated at (x1, x2), shape (N, M).
         """
-        x1_rep = np.repeat(x1[:, 0][np.newaxis, ...], x2.shape[0], axis=0).T
-        x2_rep = np.repeat(x2[:, 0][np.newaxis, ...], x1.shape[0], axis=0)
-        return (x1_rep < x2_rep)[np.newaxis, :, :]
-
-    def dKdiag_dx(self, x: np.ndarray) -> np.ndarray:
-        return self.variance * np.ones((x.shape[1], x.shape[0]))
+        x1_rep = np.repeat(x1[np.newaxis, ...], x2.shape[0], axis=0).T
+        x2_rep = np.repeat(x2[np.newaxis, ...], x1.shape[0], axis=0)
+        return x1_rep < x2_rep

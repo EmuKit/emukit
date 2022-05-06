@@ -9,10 +9,18 @@ import GPy
 import numpy as np
 from scipy.linalg import lapack
 
-from ..quadrature.interfaces import IRBF, IBaseGaussianProcess, IBrownian, IProductMatern32, IProductMatern52, IProductBrownian
+from ..quadrature.interfaces import (
+    IRBF,
+    IBaseGaussianProcess,
+    IBrownian,
+    IProductBrownian,
+    IProductMatern32,
+    IProductMatern52,
+)
 from ..quadrature.kernels import (
     QuadratureBrownianLebesgueMeasure,
     QuadratureKernel,
+    QuadratureProductBrownianLebesgueMeasure,
     QuadratureProductMatern32LebesgueMeasure,
     QuadratureProductMatern52LebesgueMeasure,
     QuadratureRBFIsoGaussMeasure,
@@ -391,13 +399,21 @@ class ProductBrownianGPy(IProductBrownian):
     :param input_dim: The input dimension. Only used if :attr:`gpy_brownian` is not given.
     """
 
-    def __init__(self,
+    def __init__(
+        self,
         gpy_brownian: Optional[Union[GPy.kern.Brownian, GPy.kern.Prod]] = None,
-        variance: Optional[float] = None, input_dim: Optional[int]=None):
+        variance: Optional[float] = None,
+        input_dim: Optional[int] = None,
+    ):
 
-        if gpy_brownian is None:
-        if gpy_brownian is not None and variance is not None:
-            warnings.warn("Both, gpy_brownian and variance is given. The variance will be ignore.")
+        if gpy_brownian is not None:
+            if input_dim is not None or variance is not None:
+                warnings.warn("gpy_brownian and variance is given. The variance will be ignore.")
+        else:
+            if input_dim is None or variance is None:
+                raise ValueError(
+                    "Please provide a GPy product Brownian kernel or alternitvely the the variance and input_dim."
+                )
 
         # default variance
         if variance is None:
@@ -405,7 +421,6 @@ class ProductBrownianGPy(IProductBrownian):
 
         # product kernel from parameters
         if gpy_brownian is None:
-
             gpy_brownian = GPy.kern.Brownian(input_dim=1, active_dims=[0], variance=variance)
             for dim in range(1, input_dim):
                 k = GPy.kern.Brownian(input_dim=1, active_dims=[dim])
@@ -415,18 +430,8 @@ class ProductBrownianGPy(IProductBrownian):
         self.gpy_brownian = gpy_brownian
 
     @property
-    def lengthscales(self) -> np.ndarray:
-        if isinstance(self.gpy_brownian, GPy.kern.Matern52):
-            return np.array([self.gpy_brownian.lengthscale[0]])
-
-        lengthscales = []
-        for kern in self.gpy_brownian.parameters:
-            lengthscales.append(kern.lengthscale[0])
-        return np.array(lengthscales)
-
-    @property
     def variance(self) -> float:
-        if isinstance(self.gpy_brownian, GPy.kern.Matern52):
+        if isinstance(self.gpy_brownian, GPy.kern.Brownian):
             return self.gpy_brownian.variance[0]
 
         return self.gpy_brownian.parameters[0].variance[0]
@@ -457,16 +462,32 @@ class ProductBrownianGPy(IProductBrownian):
         return K
 
     def dK_dx1(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
-        if isinstance(self.gpy_brownian, GPy.kern.Matern52):
-            return self._dK_dx1_1d(x1[:, 0], x2[:, 0], self.gpy_brownian.lengthscale[0])[None, :, :]
+        if isinstance(self.gpy_brownian, GPy.kern.Brownian):
+            return self._dK_dx1_1d(x1[:, 0], x2[:, 0])[None, :, :]
 
         # product kernel
         dK_dx1 = np.ones([x1.shape[1], x1.shape[0], x2.shape[0]])
         for dim, kern in enumerate(self.gpy_brownian.parameters):
             prod_term = self._K_from_prod(x1, x2, skip=[dim])  # N x M
-            grad_term = self._dK_dx1_1d(x1[:, dim], x2[:, dim], kern.lengthscale[0])  # N x M
+            grad_term = self._dK_dx1_1d(x1[:, dim], x2[:, dim])  # N x M
             dK_dx1[dim, :, :] *= prod_term * grad_term
         return dK_dx1
+
+    def dKdiag_dx(self, x: np.ndarray) -> np.ndarray:
+        """The gradient of the diagonal of the kernel (the variance) v(x):=k(x, x) evaluated at x.
+
+        :param x: The locations where the gradient is evaluated, shape (n_points, input_dim).
+        :return: The gradient of the diagonal of the kernel evaluated at x, shape (input_dim, n_points).
+        """
+        if isinstance(self.gpy_brownian, GPy.kern.Brownian):
+            return self.variance * np.ones((x.shape[1], x.shape[0]))
+
+        dKdiag_dx = np.ones((x.shape[1], x.shape[0]))
+        for dim, kern in enumerate(self.gpy_brownian.parameters):
+            prod_term = np.prod(x, axis=1) / x[:, dim]  # N,
+            grad_term = 1.0
+            dKdiag_dx[dim, :] *= prod_term * grad_term
+        return self.variance * dKdiag_dx
 
 
 # === convenience functions start here
@@ -529,6 +550,12 @@ def create_emukit_model_from_gpy_model(
         quadrature_kernel_emukit = _get_qkernel_brownian(
             standard_kernel_emukit, integral_bounds, measure, integral_name
         )
+    # ProductBrownian
+    elif _check_is_gpy_product_kernel(gpy_model.kern, GPy.kern.Brownian):
+        standard_kernel_emukit = ProductBrownianGPy(gpy_model.kern)
+        quadrature_kernel_emukit = _get_qkernel_prodbrownian(
+            standard_kernel_emukit, integral_bounds, measure, integral_name
+        )
     else:
         raise ValueError(f"There is no GPy wrapper for the provided kernel ({gpy_model.kern.name}).")
 
@@ -546,6 +573,25 @@ def _get_qkernel_brownian(
     # finite bounds, standard Lebesgue measure
     if (integral_bounds is not None) and (measure is None):
         quadrature_kernel_emukit = QuadratureBrownianLebesgueMeasure(
+            brownian_kernel=standard_kernel_emukit, integral_bounds=integral_bounds, variable_names=integral_name
+        )
+
+    else:
+        raise ValueError("Currently only standard Lebesgue measure (measure=None) is supported.")
+
+    return quadrature_kernel_emukit
+
+
+def _get_qkernel_prodbrownian(
+    standard_kernel_emukit: IProductBrownian,
+    integral_bounds: Optional[BoundsType],
+    measure: Optional[IntegrationMeasure],
+    integral_name: str,
+):
+    # we already know that either bounds or measure is given (or both)
+    # finite bounds, standard Lebesgue measure
+    if (integral_bounds is not None) and (measure is None):
+        quadrature_kernel_emukit = QuadratureProductBrownianLebesgueMeasure(
             brownian_kernel=standard_kernel_emukit, integral_bounds=integral_bounds, variable_names=integral_name
         )
 
