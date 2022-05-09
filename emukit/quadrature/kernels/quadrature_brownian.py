@@ -128,10 +128,11 @@ class QuadratureProductBrownian(QuadratureKernel):
     The kernel is of the form :math:`k(x, x') = \sigma^2 \prod_{i=1}^d k_i(x, x')` where
 
     .. math::
-        k_i(x, x') = \operatorname{min}(x_i, x_i')\quad\text{with}\quad x_i, x_i' \geq 0,
+        k_i(x, x') = \operatorname{min}(x_i-c, x_i'-c)\quad\text{with}\quad x_i, x_i' \geq c,
 
     :math:`d` is the input dimensionality,
-    and :math:`\sigma^2` is the ``variance`` property.
+    :math:`\sigma^2` is the ``variance`` property
+    and :math:`c` is the ``offset`` property.
 
     .. note::
         This class is compatible with the standard kernel :class:`IProductBrownian`.
@@ -166,6 +167,11 @@ class QuadratureProductBrownian(QuadratureKernel):
     def variance(self) -> float:
         r"""The scale :math:`\sigma^2` of the kernel."""
         return self.kern.variance
+
+    @property
+    def offset(self) -> float:
+        r"""The offset :math:`c` of the kernel."""
+        return self.kern.offset
 
     def qK(self, x2: np.ndarray) -> np.ndarray:
         raise NotImplementedError
@@ -240,13 +246,13 @@ class QuadratureProductBrownianLebesgueMeasure(QuadratureProductBrownian):
         """Unscaled kernel mean for 1D Brownian kernel."""
         (a, b) = domain
         kernel_mean = b * x - 0.5 * x**2 - 0.5 * a**2
-        return kernel_mean.T
+        return kernel_mean.T - self.offset * (b - a)
 
     def _qKq_1d(self, domain: Tuple[float, float]) -> float:
         """Unscaled kernel variance for 1D Brownian kernel."""
         a, b = domain
         qKq = 0.5 * b * (b**2 - a**2) - (b**3 - a**3) / 6 - 0.5 * a**2 * (b - a)
-        return float(qKq)
+        return float(qKq - self.offset * (b - a)**2)
 
     def _dqK_dx_1d(self, x, domain):
         """Unscaled gradient of 1D Brownian kernel mean."""
