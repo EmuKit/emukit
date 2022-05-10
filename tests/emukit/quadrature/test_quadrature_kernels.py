@@ -469,6 +469,18 @@ def test_qkernel_raises():
 
 
 def test_brownian_qkernel_raises():
+
+    # bounds have wrong dimensionality
     wrong_bounds = [(1, 2), (1, 2)]
     with pytest.raises(ValueError):
         QuadratureBrownianLebesgueMeasure(BrownianGPy(GPy.kern.Brownian()), integral_bounds=wrong_bounds)
+
+    # bounds are negative
+    wrong_bounds = [(-1, 2)]
+    with pytest.raises(ValueError):
+        QuadratureBrownianLebesgueMeasure(BrownianGPy(GPy.kern.Brownian()), integral_bounds=wrong_bounds)
+
+    # bounds are negative (product kernel)
+    wrong_bounds = [(-1, 2), (1, 2)]
+    with pytest.raises(ValueError):
+        QuadratureProductBrownianLebesgueMeasure(ProductBrownianGPy(input_dim=2), integral_bounds=wrong_bounds)

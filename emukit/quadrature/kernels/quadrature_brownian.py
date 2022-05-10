@@ -59,6 +59,13 @@ class QuadratureBrownian(QuadratureKernel):
             kern=brownian_kernel, integral_bounds=integral_bounds, measure=measure, variable_names=variable_names
         )
 
+        lower_bounds_x = self.reasonable_box.lower_bounds[0, :]
+        if any(lower_bounds_x < 0):
+            raise ValueError(
+                "The domain defined by the reasonable box seems to allow negative values. "
+                "Brownian motion is only defined for positive input values."
+            )
+
     @property
     def variance(self) -> float:
         r"""The scale :math:`\sigma^2` of the kernel."""
@@ -161,6 +168,13 @@ class QuadratureProductBrownian(QuadratureKernel):
         super().__init__(
             kern=brownian_kernel, integral_bounds=integral_bounds, measure=measure, variable_names=variable_names
         )
+
+        lower_bounds_x = self.reasonable_box.lower_bounds[0, :]
+        if any(lower_bounds_x < 0):
+            raise ValueError(
+                "The domain defined by the reasonable box seems to allow negative values. "
+                "Brownian motion is only defined for positive input values."
+            )
 
     @property
     def variance(self) -> float:
