@@ -135,7 +135,8 @@ class EmukitBrownian:
 @dataclass
 class EmukitProductBrownian:
     variance = 0.7
-    kern = ProductBrownianGPy(variance=variance, input_dim=2)
+    offset = -1.8
+    kern = ProductBrownianGPy(variance=variance, input_dim=2, offset=offset)
 
 
 def get_qrbf_lebesque():
@@ -277,7 +278,7 @@ def test_qkernel_shapes(kernel_embedding):
         (embeddings_test_list[4], [33.6816570527734, 33.726646173769595]),
         (embeddings_test_list[5], [36.311780552275614, 36.36134818184079]),
         (embeddings_test_list[6], [0.6528048146871609, 0.653858667201299]),
-        (embeddings_test_list[7], [16.435165116047134, 16.495812322522422]),
+        (embeddings_test_list[7], [147.1346099151547, 147.3099172678195]),
     ],
 )
 def test_qkernel_qKq(kernel_embedding, interval):
@@ -375,10 +376,10 @@ def test_qkernel_qKq(kernel_embedding, interval):
             embeddings_test_list[7],
             np.array(
                 [
-                    [0.8676427638843673, 0.8690939535336577],
-                    [0.5081408814743865, 0.5088751098284771],
-                    [3.17133629344498, 3.1805415930787873],
-                    [3.3478871560376082, 3.3584198980953057],
+                    [20.968328255845666, 20.979953254056394],
+                    [17.64001267572194, 17.645133556673045],
+                    [27.768537209548015, 27.794406087839107],
+                    [28.16022039838578, 28.189287432609166],
                 ]
             ),
         ),
@@ -480,7 +481,10 @@ def test_brownian_qkernel_raises():
     with pytest.raises(ValueError):
         QuadratureBrownianLebesgueMeasure(BrownianGPy(GPy.kern.Brownian()), integral_bounds=wrong_bounds)
 
-    # bounds are negative (product kernel)
-    wrong_bounds = [(-1, 2), (1, 2)]
+    # bounds are smaller thn offset (product kernel)
+    offset = -2
+    wrong_bounds = [(offset - 1, offset + 1), (offset + 1, offset + 2)]
     with pytest.raises(ValueError):
-        QuadratureProductBrownianLebesgueMeasure(ProductBrownianGPy(input_dim=2), integral_bounds=wrong_bounds)
+        QuadratureProductBrownianLebesgueMeasure(
+            ProductBrownianGPy(input_dim=2, offset=offset), integral_bounds=wrong_bounds
+        )

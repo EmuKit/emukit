@@ -246,10 +246,11 @@ class IProductBrownian(IStandardKernel):
     :math:`k(x, x') = \sigma^2 \prod_{i=1}^d k_i(x, x')` where
 
     .. math::
-        k_i(x, x') = \operatorname{min}(x_i, x_i')\quad\text{with}\quad x_i, x_i' \geq 0,
+        k_i(x, x') = \operatorname{min}(x_i-c, x_i'-c)\quad\text{with}\quad x_i, x_i' \geq c,
 
     :math:`d` is the input dimensionality,
-    and :math:`\sigma^2` is the ``variance`` property.
+    :math:`\sigma^2` is the ``variance`` property
+    and :math:`c` is the ``offset`` property.
 
     Make sure to encode only a single variance parameter, and not one for each individual :math:`k_i`.
 
@@ -266,6 +267,11 @@ class IProductBrownian(IStandardKernel):
     @property
     def variance(self) -> float:
         r"""The scale :math:`\sigma^2` of the kernel."""
+        raise NotImplementedError
+
+    @property
+    def offset(self) -> float:
+        r"""The offset :math:`c` of the kernel."""
         raise NotImplementedError
 
     def _dK_dx1_1d(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
