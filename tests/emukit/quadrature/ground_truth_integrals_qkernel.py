@@ -11,6 +11,7 @@ from test_quadrature_kernels import (
     get_qbrownian_lebesque,
     get_qmatern32_lebesque,
     get_qmatern52_lebesque,
+    get_qprodbrownian_lebesque,
     get_qrbf_gauss_iso,
     get_qrbf_lebesque,
     get_qrbf_uniform_finite,
@@ -118,8 +119,9 @@ if __name__ == "__main__":
     # === Choose KERNEL BELOW ======
     # KERNEL = 'rbf'
     # KERNEL = "matern32"
-    KERNEL = "matern52"
+    # KERNEL = "matern52"
     # KERNEL = "brownian"
+    KERNEL = "prodbrownian"
     # === CHOOSE KERNEL ABOVE ======
 
     _e = "Kernel embedding not implemented."
@@ -143,6 +145,9 @@ if __name__ == "__main__":
     elif KERNEL == "brownian":
         if MEASURE_INTBOUNDS == "Lebesgue-finite":
             emukit_qkern, dat = get_qbrownian_lebesque()
+    elif KERNEL == "prodbrownian":
+        if MEASURE_INTBOUNDS == "Lebesgue-finite":
+            emukit_qkern, dat = get_qprodbrownian_lebesque()
         else:
             raise ValueError(_e)
 

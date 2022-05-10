@@ -2,18 +2,25 @@
 
 # Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
-
-
+import warnings
 from typing import List, Optional, Tuple, Union
 
 import GPy
 import numpy as np
 from scipy.linalg import lapack
 
-from ..quadrature.interfaces import IRBF, IBaseGaussianProcess, IBrownian, IProductMatern32, IProductMatern52
+from ..quadrature.interfaces import (
+    IRBF,
+    IBaseGaussianProcess,
+    IBrownian,
+    IProductBrownian,
+    IProductMatern32,
+    IProductMatern52,
+)
 from ..quadrature.kernels import (
     QuadratureBrownianLebesgueMeasure,
     QuadratureKernel,
+    QuadratureProductBrownianLebesgueMeasure,
     QuadratureProductMatern32LebesgueMeasure,
     QuadratureProductMatern52LebesgueMeasure,
     QuadratureRBFIsoGaussMeasure,
@@ -368,6 +375,121 @@ class BrownianGPy(IBrownian):
         return self.gpy_brownian.K(x1, x2)
 
 
+class ProductBrownianGPy(IProductBrownian):
+    r"""Wrapper of the GPy Brownian product kernel as required for some EmuKit quadrature methods.
+
+    The product kernel is of the form
+    :math:`k(x, x') = \sigma^2 \prod_{i=1}^d k_i(x, x')` where
+
+    .. math::
+        k_i(x, x') = \operatorname{min}(x_i, x_i')\quad\text{with}\quad x_i, x_i' \geq 0,
+
+    :math:`d` is the input dimensionality,
+    and :math:`\sigma^2` is the ``variance`` property.
+
+    :param gpy_brownian: A Brownian product kernel from GPy. For :math:`d=1` this is equivalent to a
+                         Brownian kernel. For :math:`d>1`, this is a product of :math:`d` 1-dimensional Brownian
+                         kernels with differing active dimensions constructed as k1 * k2 * ... .
+                         Make sure to unlink all variances except the variance of the first kernel k1 in the product
+                         as the variance of k1 will be used to represent :math:`\sigma^2`. If you are unsure what
+                         to do, use the :attr:`input_dim` and :attr:`variance` parameter instead.
+                         If :attr:`gpy_brownian` is not given, the :attr:`variance` and :attr:`input_dim`
+                         argument is used.
+    :param variance: The variance of the product kernel. Only used if :attr:`gpy_brownian` is not given. Defaults to 1.
+    :param input_dim: The input dimension. Only used if :attr:`gpy_brownian` is not given.
+    """
+
+    def __init__(
+        self,
+        gpy_brownian: Optional[Union[GPy.kern.Brownian, GPy.kern.Prod]] = None,
+        variance: Optional[float] = None,
+        input_dim: Optional[int] = None,
+    ):
+
+        if gpy_brownian is not None:
+            if input_dim is not None or variance is not None:
+                warnings.warn("gpy_brownian and variance is given. The variance will be ignore.")
+        else:
+            if input_dim is None or variance is None:
+                raise ValueError(
+                    "Please provide a GPy product Brownian kernel or alternitvely the the variance and input_dim."
+                )
+
+        # default variance
+        if variance is None:
+            variance = 1.0
+
+        # product kernel from parameters
+        if gpy_brownian is None:
+            gpy_brownian = GPy.kern.Brownian(input_dim=1, active_dims=[0], variance=variance)
+            for dim in range(1, input_dim):
+                k = GPy.kern.Brownian(input_dim=1, active_dims=[dim])
+                k.unlink_parameter(k.variance)
+                gpy_brownian = gpy_brownian * k
+
+        self.gpy_brownian = gpy_brownian
+
+    @property
+    def variance(self) -> float:
+        if isinstance(self.gpy_brownian, GPy.kern.Brownian):
+            return self.gpy_brownian.variance[0]
+
+        return self.gpy_brownian.parameters[0].variance[0]
+
+    def K(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
+        return self.gpy_brownian.K(x1, x2)
+
+    def _K_from_prod(self, x1: np.ndarray, x2: np.ndarray, skip: List[int] = None) -> np.ndarray:
+        """The kernel k(x1, x2) evaluated at x1 and x2 computed as product from the
+        individual 1d kernels.
+
+        :param x1: First argument of the kernel.
+        :param x2: Second argument of the kernel.
+        :param skip: Skip these dimensions if specified.
+        :returns: Kernel evaluated at x1, x2.
+        """
+        if skip is None:
+            skip = []
+        K = np.ones([x1.shape[0], x2.shape[0]])
+        for dim, kern in enumerate(self.gpy_brownian.parameters):
+            if dim in skip:
+                continue
+            K *= kern.K(x1, x2)
+
+        # correct for missing variance
+        if 0 in skip:
+            K *= self.variance
+        return K
+
+    def dK_dx1(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
+        if isinstance(self.gpy_brownian, GPy.kern.Brownian):
+            return self._dK_dx1_1d(x1[:, 0], x2[:, 0])[None, :, :]
+
+        # product kernel
+        dK_dx1 = np.ones([x1.shape[1], x1.shape[0], x2.shape[0]])
+        for dim, kern in enumerate(self.gpy_brownian.parameters):
+            prod_term = self._K_from_prod(x1, x2, skip=[dim])  # N x M
+            grad_term = self._dK_dx1_1d(x1[:, dim], x2[:, dim])  # N x M
+            dK_dx1[dim, :, :] *= prod_term * grad_term
+        return dK_dx1
+
+    def dKdiag_dx(self, x: np.ndarray) -> np.ndarray:
+        """The gradient of the diagonal of the kernel (the variance) v(x):=k(x, x) evaluated at x.
+
+        :param x: The locations where the gradient is evaluated, shape (n_points, input_dim).
+        :return: The gradient of the diagonal of the kernel evaluated at x, shape (input_dim, n_points).
+        """
+        if isinstance(self.gpy_brownian, GPy.kern.Brownian):
+            return self.variance * np.ones((x.shape[1], x.shape[0]))
+
+        dKdiag_dx = np.ones((x.shape[1], x.shape[0]))
+        for dim, kern in enumerate(self.gpy_brownian.parameters):
+            prod_term = np.prod(x, axis=1) / x[:, dim]  # N,
+            grad_term = 1.0
+            dKdiag_dx[dim, :] *= prod_term * grad_term
+        return self.variance * dKdiag_dx
+
+
 # === convenience functions start here
 
 
@@ -428,6 +550,12 @@ def create_emukit_model_from_gpy_model(
         quadrature_kernel_emukit = _get_qkernel_brownian(
             standard_kernel_emukit, integral_bounds, measure, integral_name
         )
+    # ProductBrownian
+    elif _check_is_gpy_product_kernel(gpy_model.kern, GPy.kern.Brownian):
+        standard_kernel_emukit = ProductBrownianGPy(gpy_model.kern)
+        quadrature_kernel_emukit = _get_qkernel_prodbrownian(
+            standard_kernel_emukit, integral_bounds, measure, integral_name
+        )
     else:
         raise ValueError(f"There is no GPy wrapper for the provided kernel ({gpy_model.kern.name}).")
 
@@ -445,6 +573,25 @@ def _get_qkernel_brownian(
     # finite bounds, standard Lebesgue measure
     if (integral_bounds is not None) and (measure is None):
         quadrature_kernel_emukit = QuadratureBrownianLebesgueMeasure(
+            brownian_kernel=standard_kernel_emukit, integral_bounds=integral_bounds, variable_names=integral_name
+        )
+
+    else:
+        raise ValueError("Currently only standard Lebesgue measure (measure=None) is supported.")
+
+    return quadrature_kernel_emukit
+
+
+def _get_qkernel_prodbrownian(
+    standard_kernel_emukit: IProductBrownian,
+    integral_bounds: Optional[BoundsType],
+    measure: Optional[IntegrationMeasure],
+    integral_name: str,
+):
+    # we already know that either bounds or measure is given (or both)
+    # finite bounds, standard Lebesgue measure
+    if (integral_bounds is not None) and (measure is None):
+        quadrature_kernel_emukit = QuadratureProductBrownianLebesgueMeasure(
             brownian_kernel=standard_kernel_emukit, integral_bounds=integral_bounds, variable_names=integral_name
         )
 

@@ -9,11 +9,18 @@ import pytest
 from pytest_lazyfixture import lazy_fixture
 from utils import check_grad, sample_uniform
 
-from emukit.model_wrappers.gpy_quadrature_wrappers import BrownianGPy, ProductMatern32GPy, ProductMatern52GPy, RBFGPy
+from emukit.model_wrappers.gpy_quadrature_wrappers import (
+    BrownianGPy,
+    ProductBrownianGPy,
+    ProductMatern32GPy,
+    ProductMatern52GPy,
+    RBFGPy,
+)
 from emukit.quadrature.interfaces import IStandardKernel
 from emukit.quadrature.kernels import (
     QuadratureBrownianLebesgueMeasure,
     QuadratureKernel,
+    QuadratureProductBrownianLebesgueMeasure,
     QuadratureProductMatern32LebesgueMeasure,
     QuadratureProductMatern52LebesgueMeasure,
     QuadratureRBFIsoGaussMeasure,
@@ -43,6 +50,18 @@ class DataLebesqueSDElike:
     # x1 and x2 must lay inside domain
     x1 = np.array([[0.3], [0.8], [1.5]])
     x2 = np.array([[0.25], [0.5], [1.0], [1.2]])
+    N = 3
+    M = 4
+    dat_bounds = integral_bounds
+
+
+@dataclass
+class DataPositiveDomain:
+    D = 2
+    integral_bounds = [(0.1, 2), (0.2, 3)]
+    # x1 and x2 must lay inside domain
+    x1 = np.array([[0.3, 1], [0.8, 0.5], [1.5, 2.8]])
+    x2 = np.array([[0.25, 1.1], [0.5, 0.3], [1.0, 1.3], [1.2, 1.2]])
     N = 3
     M = 4
     dat_bounds = integral_bounds
@@ -113,6 +132,12 @@ class EmukitBrownian:
     kern = BrownianGPy(GPy.kern.Brownian(input_dim=1, variance=var))
 
 
+@dataclass
+class EmukitProductBrownian:
+    variance = 0.7
+    kern = ProductBrownianGPy(variance=variance, input_dim=2)
+
+
 def get_qrbf_lebesque():
     dat = DataLebesque()
     qkern = QuadratureRBFLebesgueMeasure(EmukitRBF().kern, integral_bounds=dat.integral_bounds)
@@ -155,6 +180,12 @@ def get_qmatern52_lebesque():
 def get_qbrownian_lebesque():
     dat = DataLebesqueSDElike()
     qkern = QuadratureBrownianLebesgueMeasure(EmukitBrownian().kern, integral_bounds=dat.integral_bounds)
+    return qkern, dat
+
+
+def get_qprodbrownian_lebesque():
+    dat = DataPositiveDomain()
+    qkern = QuadratureProductBrownianLebesgueMeasure(EmukitProductBrownian().kern, integral_bounds=dat.integral_bounds)
     return qkern, dat
 
 
@@ -201,6 +232,12 @@ def qbrownian_lebesgue():
     return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D, dat.dat_bounds
 
 
+@pytest.fixture
+def qprodbrownian_lebesque():
+    qkern, dat = get_qprodbrownian_lebesque()
+    return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D, dat.dat_bounds
+
+
 embeddings_test_list = [
     lazy_fixture("qrbf_lebesgue"),
     lazy_fixture("qrbf_gauss_iso"),
@@ -209,6 +246,7 @@ embeddings_test_list = [
     lazy_fixture("qmatern32_lebesgue"),
     lazy_fixture("qmatern52_lebesgue"),
     lazy_fixture("qbrownian_lebesgue"),
+    lazy_fixture("qprodbrownian_lebesque"),
 ]
 
 
@@ -239,6 +277,7 @@ def test_qkernel_shapes(kernel_embedding):
         (embeddings_test_list[4], [33.6816570527734, 33.726646173769595]),
         (embeddings_test_list[5], [36.311780552275614, 36.36134818184079]),
         (embeddings_test_list[6], [0.6528048146871609, 0.653858667201299]),
+        (embeddings_test_list[7], [16.435165116047134, 16.495812322522422]),
     ],
 )
 def test_qkernel_qKq(kernel_embedding, interval):
@@ -332,6 +371,17 @@ def test_qkernel_qKq(kernel_embedding, interval):
                 ]
             ),
         ),
+        (
+            embeddings_test_list[7],
+            np.array(
+                [
+                    [0.8676427638843673, 0.8690939535336577],
+                    [0.5081408814743865, 0.5088751098284771],
+                    [3.17133629344498, 3.1805415930787873],
+                    [3.3478871560376082, 3.3584198980953057],
+                ]
+            ),
+        ),
     ],
 )
 def test_qkernel_qK(kernel_embedding, intervals):
@@ -378,7 +428,7 @@ def test_qkernel_gradient_values(kernel_embedding):
     # dKdiag_dx
     in_shape = x1.shape
     func = lambda x: np.diag(emukit_qkernel.K(x, x))
-    dfunc = lambda x: emukit_qkernel.dKdiag_dx(x1)
+    dfunc = lambda x: emukit_qkernel.dKdiag_dx(x)
     check_grad(func, dfunc, in_shape, dat_bounds)
 
     # dK_dx1
@@ -419,6 +469,18 @@ def test_qkernel_raises():
 
 
 def test_brownian_qkernel_raises():
+
+    # bounds have wrong dimensionality
     wrong_bounds = [(1, 2), (1, 2)]
     with pytest.raises(ValueError):
         QuadratureBrownianLebesgueMeasure(BrownianGPy(GPy.kern.Brownian()), integral_bounds=wrong_bounds)
+
+    # bounds are negative
+    wrong_bounds = [(-1, 2)]
+    with pytest.raises(ValueError):
+        QuadratureBrownianLebesgueMeasure(BrownianGPy(GPy.kern.Brownian()), integral_bounds=wrong_bounds)
+
+    # bounds are negative (product kernel)
+    wrong_bounds = [(-1, 2), (1, 2)]
+    with pytest.raises(ValueError):
+        QuadratureProductBrownianLebesgueMeasure(ProductBrownianGPy(input_dim=2), integral_bounds=wrong_bounds)
