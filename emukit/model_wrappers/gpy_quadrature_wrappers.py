@@ -404,7 +404,7 @@ class ProductBrownianGPy(IProductBrownian):
     def __init__(
         self,
         gpy_brownian: Optional[Union[GPy.kern.Brownian, GPy.kern.Prod]] = None,
-        offset: float = 0.,
+        offset: float = 0.0,
         variance: Optional[float] = None,
         input_dim: Optional[int] = None,
     ):
@@ -470,12 +470,12 @@ class ProductBrownianGPy(IProductBrownian):
         return K
 
     def dK_dx1(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
-        x1 += - self.offset
-        x2 += - self.offset
         if isinstance(self.gpy_brownian, GPy.kern.Brownian):
             return self._dK_dx1_1d(x1[:, 0], x2[:, 0])[None, :, :]
 
         # product kernel
+        x1 = x1 - self.offset
+        x2 = x2 - self.offset
         dK_dx1 = np.ones([x1.shape[1], x1.shape[0], x2.shape[0]])
         for dim, kern in enumerate(self.gpy_brownian.parameters):
             prod_term = self._K_from_prod(x1, x2, skip=[dim])  # N x M
@@ -492,7 +492,7 @@ class ProductBrownianGPy(IProductBrownian):
         if isinstance(self.gpy_brownian, GPy.kern.Brownian):
             return self.variance * np.ones((x.shape[1], x.shape[0]))
 
-        x += - self.offset
+        x = x - self.offset
         dKdiag_dx = np.ones((x.shape[1], x.shape[0]))
         for dim, kern in enumerate(self.gpy_brownian.parameters):
             prod_term = np.prod(x, axis=1) / x[:, dim]  # N,

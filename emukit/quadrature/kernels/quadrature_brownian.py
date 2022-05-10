@@ -59,6 +59,13 @@ class QuadratureBrownian(QuadratureKernel):
             kern=brownian_kernel, integral_bounds=integral_bounds, measure=measure, variable_names=variable_names
         )
 
+        lower_bounds_x = self.reasonable_box.lower_bounds[0, :]
+        if any(lower_bounds_x < 0):
+            raise ValueError(
+                "The domain defined by the reasonable box seems to allow negative values. "
+                "Brownian motion is only defined for positive input values."
+            )
+
     @property
     def variance(self) -> float:
         r"""The scale :math:`\sigma^2` of the kernel."""
@@ -163,6 +170,13 @@ class QuadratureProductBrownian(QuadratureKernel):
             kern=brownian_kernel, integral_bounds=integral_bounds, measure=measure, variable_names=variable_names
         )
 
+        lower_bounds_x = self.reasonable_box.lower_bounds[0, :]
+        if any(lower_bounds_x < self.offset):
+            raise ValueError(
+                "The domain defined by the reasonable box seems allow to for values smaller than theoffset. "
+                "Brownian motion is only defined for input values larger than the offset."
+            )
+
     @property
     def variance(self) -> float:
         r"""The scale :math:`\sigma^2` of the kernel."""
@@ -252,7 +266,7 @@ class QuadratureProductBrownianLebesgueMeasure(QuadratureProductBrownian):
         """Unscaled kernel variance for 1D Brownian kernel."""
         a, b = domain
         qKq = 0.5 * b * (b**2 - a**2) - (b**3 - a**3) / 6 - 0.5 * a**2 * (b - a)
-        return float(qKq - self.offset * (b - a)**2)
+        return float(qKq) - self.offset * (b - a) ** 2
 
     def _dqK_dx_1d(self, x, domain):
         """Unscaled gradient of 1D Brownian kernel mean."""
