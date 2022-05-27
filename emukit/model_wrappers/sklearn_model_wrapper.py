@@ -25,6 +25,8 @@ class SklearnGPRWrapper(IModel):
         :return: Tuple of mean and variance which are 2d arrays of shape (n_points x n_outputs)
         """
         mean, std = self.model.predict(X, return_std=True)
+        if mean.ndim == 1:
+            mean = mean[:, None]
         return mean, np.power(std, 2.0).reshape(-1, 1)
 
     def set_data(self, X: np.ndarray, Y: np.ndarray) -> None:
