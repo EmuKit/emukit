@@ -173,8 +173,8 @@ class QuadratureProductBrownian(QuadratureKernel):
         lower_bounds_x = self.reasonable_box.lower_bounds[0, :]
         if any(lower_bounds_x < self.offset):
             raise ValueError(
-                "The domain defined by the reasonable box seems allow to for values smaller than theoffset. "
-                "Brownian motion is only defined for input values larger than the offset."
+                f"The domain defined by the reasonable box seems allow to for values smaller than the offset "
+                f"({self.offset}). Brownian motion is only defined for input values larger than the offset."
             )
 
     @property
