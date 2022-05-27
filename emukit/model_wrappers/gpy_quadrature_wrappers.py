@@ -18,9 +18,9 @@ from ..quadrature.interfaces import (
     IProductMatern52,
 )
 from ..quadrature.kernels import (
-    QuadratureProductBrownian,
     QuadratureBrownianLebesgueMeasure,
     QuadratureKernel,
+    QuadratureProductBrownian,
     QuadratureProductBrownianLebesgueMeasure,
     QuadratureProductMatern32LebesgueMeasure,
     QuadratureProductMatern52LebesgueMeasure,
@@ -55,8 +55,10 @@ class BaseGaussianProcessGPy(IBaseGaussianProcess):
 
         if isinstance(kern, QuadratureProductBrownian):
             if kern.offset != 0:
-                raise ValueError("The wrapper BaseGaussianProcessGPy does not support EmuKit product Brownian "
-                                 "motion kernels with non-zero offset as these are not supported in GPy.")
+                raise ValueError(
+                    "The wrapper BaseGaussianProcessGPy does not support EmuKit product Brownian "
+                    "motion kernels with non-zero offset as these are not supported in GPy."
+                )
 
     @property
     def X(self) -> np.ndarray:
