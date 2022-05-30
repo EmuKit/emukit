@@ -67,17 +67,11 @@ class QuadratureRBF(QuadratureKernel):
     def qK(self, x2: np.ndarray) -> np.ndarray:
         raise NotImplementedError
 
-    def Kq(self, x1: np.ndarray) -> np.ndarray:
-        return self.qK(x1).T
-
     def qKq(self) -> float:
         raise NotImplementedError
 
     def dqK_dx(self, x2: np.ndarray) -> np.ndarray:
         raise NotImplementedError
-
-    def dKq_dx(self, x1: np.ndarray) -> np.ndarray:
-        return self.dqK_dx(x1).T
 
     # rbf-kernel specific helper
     def _scaled_vector_diff(self, v1: np.ndarray, v2: np.ndarray, scale: float = None) -> np.ndarray:
