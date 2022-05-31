@@ -11,6 +11,7 @@ from scipy.linalg import lapack
 
 from ..quadrature.interfaces import (
     IRBF,
+    IProdRBF,
     IBaseGaussianProcess,
     IBrownian,
     IProductBrownian,
@@ -137,6 +138,91 @@ class RBFGPy(IRBF):
 
     def K(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
         return self.gpy_rbf.K(x1, x2)
+
+
+class ProductRBFGPy(IProdRBF):
+
+    def __init__(
+        self,
+        gpy_rbf: Optional[Union[GPy.kern.RBF, GPy.kern.Prod]] = None,
+        lengthscales: Optional[np.ndarray] = None,
+        variance: Optional[float] = None,
+    ):
+        if gpy_rbf is None and lengthscales is None:
+            raise ValueError("Either lengthscales or a GPy product matern kernel must be given.")
+
+        # product kernel from parameters
+        if gpy_rbf is None:
+
+            input_dim = len(lengthscales)
+            if input_dim < 1:
+                raise ValueError("'lengthscales' must contain at least 1 value.")
+
+            # default variance
+            if variance is None:
+                variance = 1.0
+
+            gpy_rbf = GPy.kern.RBF(input_dim=1, active_dims=[0], lengthscale=lengthscales[0], variance=variance)
+            for dim in range(1, input_dim):
+                k = GPy.kern.RBF(input_dim=1, active_dims=[dim], lengthscale=lengthscales[dim])
+                k.unlink_parameter(k.variance)
+                gpy_rbf = gpy_rbf * k
+
+        self.gpy_rbf = gpy_rbf
+
+    @property
+    def lengthscales(self) -> np.ndarray:
+        if isinstance(self.gpy_rbf, GPy.kern.RBF):
+            return np.array([self.gpy_rbf.lengthscale[0]])
+
+        lengthscales = []
+        for kern in self.gpy_rbf.parameters:
+            lengthscales.append(kern.lengthscale[0])
+        return np.array(lengthscales)
+
+    @property
+    def variance(self) -> float:
+        if isinstance(self.gpy_rbf, GPy.kern.RBF):
+            return self.gpy_rbf.variance[0]
+
+        return self.gpy_rbf.parameters[0].variance[0]
+
+    def K(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
+        return self.gpy_rbf.K(x1, x2)
+
+    def _K_from_prod(self, x1: np.ndarray, x2: np.ndarray, skip: List[int] = None) -> np.ndarray:
+        """The kernel k(x1, x2) evaluated at x1 and x2 computed as product from the
+        individual 1d kernels.
+
+        :param x1: First argument of the kernel.
+        :param x2: Second argument of the kernel.
+        :param skip: Skip these dimensions if specified.
+        :returns: Kernel evaluated at x1, x2.
+        """
+        if skip is None:
+            skip = []
+        K = np.ones([x1.shape[0], x2.shape[0]])
+        for dim, kern in enumerate(self.gpy_rbf.parameters):
+            if dim in skip:
+                continue
+            K *= kern.K(x1, x2)
+
+        # correct for missing variance
+        if 0 in skip:
+            K *= self.variance
+        return K
+
+    def dK_dx1(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
+        if isinstance(self.gpy_rbf, GPy.kern.RBF):
+            return self._dK_dx1_1d(x1[:, 0], x2[:, 0], self.gpy_rbf.lengthscale[0])[None, :, :]
+
+        # product kernel
+        dK_dx1 = np.ones([x1.shape[1], x1.shape[0], x2.shape[0]])
+        for dim, kern in enumerate(self.gpy_rbf.parameters):
+            prod_term = self._K_from_prod(x1, x2, skip=[dim])  # N x M
+            grad_term = self._dK_dx1_1d(x1[:, dim], x2[:, dim], kern.lengthscale[0])  # N x M
+            dK_dx1[dim, :, :] *= prod_term * grad_term
+        return dK_dx1
 
 
 class ProductMatern32GPy(IProductMatern32):

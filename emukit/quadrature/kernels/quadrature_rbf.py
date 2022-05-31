@@ -9,8 +9,8 @@ from typing import Optional, Union
 import numpy as np
 from scipy.special import erf
 
-from ...quadrature.interfaces.standard_kernels import IRBF
-from ..kernels import QuadratureKernel
+from ...quadrature.interfaces.standard_kernels import IRBF, IProdRBF
+from ..kernels import QuadratureKernel, QuadratureProductKernel
 from ..measures import BoxDomain, IntegrationMeasure, IsotropicGaussianMeasure, UniformMeasure
 from ..typing import BoundsType
 
@@ -252,3 +252,74 @@ class QuadratureRBFUniformMeasure(QuadratureRBF):
         fraction = ((exp_lo - exp_up) / (self.lengthscale * np.sqrt(np.pi / 2.0) * (erf_up - erf_lo))).T
 
         return self.qK(x2) * fraction
+
+
+
+
+# =================================================================
+
+class QuadratureProductRBF(QuadratureProductKernel):
+
+    def __init__(
+            self,
+            rbf_kernel: IProdRBF,
+            integral_bounds: Optional[BoundsType],
+            measure: Optional[IntegrationMeasure],
+            variable_names: str = "",
+    ) -> None:
+        super().__init__(
+            kern=rbf_kernel, integral_bounds=integral_bounds, measure=measure,
+            variable_names=variable_names
+        )
+
+    @property
+    def lengthscales(self) -> Union[np.ndarray, float]:
+        return self.kern.lengthscales
+
+    @property
+    def variance(self) -> float:
+        return self.kern.variance
+
+    # rbf-kernel specific helper
+    def _scaled_vector_diff(self, v1: np.ndarray, v2: np.ndarray, scale: float) -> np.ndarray:
+        return (v1 - v2) / (scale * np.sqrt(2))
+
+
+class QuadratureProductRBFLebesgueMeasure(QuadratureProductRBF):
+
+    def __init__(self, rbf_kernel: IProdRBF, integral_bounds: BoundsType, variable_names: str = "") -> None:
+        super().__init__(rbf_kernel=rbf_kernel, integral_bounds=integral_bounds, measure=None, variable_names=variable_names)
+
+    def _scale(self, z: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
+        return self.variance * z
+
+    def _get_univariate_parameters(self, dim: int) -> dict:
+        return {"domain": self.integral_bounds.bounds[dim], "ell": self.lengthscales[dim]}
+
+    def _qK_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
+        a, b = parameters["domain"]
+        ell = parameters["ell"]
+        erf_lo = erf(self._scaled_vector_diff(a, x, ell))
+        erf_up = erf(self._scaled_vector_diff(b, x, ell))
+        return (ell * np.sqrt(np.pi / 2.0)) * (erf_up - erf_lo)
+
+    def _qKq_1d(self, **parameters) -> float:
+        a, b = parameters["domain"]
+        ell = parameters["ell"]
+        diff_bounds_scaled = self._scaled_vector_diff(b, a, ell)
+        exp_term = np.exp(-(diff_bounds_scaled**2)) - 1.0
+        erf_term = erf(diff_bounds_scaled) * diff_bounds_scaled * np.sqrt(np.pi)
+        return float(2.0 * ell**2 * (exp_term + erf_term))
+
+    def _dqK_dx_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
+        a, b = parameters["domain"]
+        ell = parameters["ell"]
+        exp_lo = np.exp(-self._scaled_vector_diff(x, a, ell) ** 2)
+        exp_up = np.exp(-self._scaled_vector_diff(x, b, ell) ** 2)
+        erf_lo = erf(self._scaled_vector_diff(a, x, ell))
+        erf_up = erf(self._scaled_vector_diff(b, x, ell))
+
+        fraction = ((exp_lo - exp_up) / (ell * np.sqrt(np.pi / 2.0) * (erf_up - erf_lo))).T
+
+        # Todo: remove first term?
+        return self._qK_1d(x, **parameters) * fraction
