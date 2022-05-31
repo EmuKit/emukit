@@ -16,7 +16,7 @@ from ..typing import BoundsType
 
 
 class QuadratureRBF(QuadratureKernel):
-    r"""An RBF kernel augmented with integrability.
+    r"""Base class for an RBF kernel augmented with integrability.
 
     .. math::
         k(x, x') = \sigma^2 e^{-\frac{1}{2}\frac{\|x-x'\|^2}{\lambda^2}},
@@ -63,21 +63,6 @@ class QuadratureRBF(QuadratureKernel):
     def variance(self) -> float:
         r"""The scale :math:`\sigma^2` of the kernel."""
         return self.kern.variance
-
-    def qK(self, x2: np.ndarray) -> np.ndarray:
-        raise NotImplementedError
-
-    def Kq(self, x1: np.ndarray) -> np.ndarray:
-        return self.qK(x1).T
-
-    def qKq(self) -> float:
-        raise NotImplementedError
-
-    def dqK_dx(self, x2: np.ndarray) -> np.ndarray:
-        raise NotImplementedError
-
-    def dKq_dx(self, x1: np.ndarray) -> np.ndarray:
-        return self.dqK_dx(x1).T
 
     # rbf-kernel specific helper
     def _scaled_vector_diff(self, v1: np.ndarray, v2: np.ndarray, scale: float = None) -> np.ndarray:

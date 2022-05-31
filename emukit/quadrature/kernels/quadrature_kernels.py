@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import Optional
+from typing import List, Optional, Union
 
 import numpy as np
 
@@ -86,7 +86,7 @@ class QuadratureKernel:
         :param x1: The locations where the kernel mean is evaluated, shape (n_points, input_dim).
         :returns: The kernel mean at x1, shape (n_points, 1).
         """
-        raise NotImplementedError
+        return self.qK(x1).T
 
     def qKq(self) -> np.float:
         """The kernel integrated over both arguments x1 and x2.
@@ -138,5 +138,102 @@ class QuadratureKernel:
 
         :param x1: The locations where the gradient is evaluated, shape (n_points N, N, input_dim).
         :return: The gradient with shape (N, input_dim).
+        """
+        return self.dqK_dx(x1).T
+
+
+class QuadratureProductKernel(QuadratureKernel):
+    """Abstract class for a product kernel augmented with integrability.
+
+    The product kernel is of the form :math:`k(x, x') = \sigma^2 \prod_{i=1}^d k_i(x, x')`
+    where :math:`k_i(x, x')` is a univariate kernel acting on dimension :math:`i`.
+
+    :param kern: Standard EmuKit kernel (must be a product kernel).
+    :param integral_bounds: The integral bounds.
+                            List of D tuples, where D is the dimensionality
+                            of the integral and the tuples contain the lower and upper bounds of the integral
+                            i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)].
+                            ``None`` if bounds are infinite.
+    :param measure: The integration measure. ``None`` implies the standard Lebesgue measure.
+    :param variable_names: The (variable) name(s) of the integral
+
+    """
+
+    def __init__(
+        self,
+        kern: IStandardKernel,
+        integral_bounds: Optional[BoundsType],
+        measure: Optional[IntegrationMeasure],
+        variable_names: str = "",
+    ) -> None:
+
+        super().__init__(kern=kern, integral_bounds=integral_bounds, measure=measure, variable_names=variable_names)
+
+    def qK(self, x2: np.ndarray, skip: List[int] = None) -> np.ndarray:
+        if skip is None:
+            skip = []
+
+        qK = np.ones(x2.shape[0])
+        for dim in range(x2.shape[1]):
+            if dim in skip:
+                continue
+            qK *= self._qK_1d(x2[:, dim], **self._get_univariate_parameters(dim))
+        return self._scale(qK[None, :])
+
+    def qKq(self) -> float:
+        qKq = 1.0
+        for dim in range(self.input_dim):
+            qKq *= self._qKq_1d(**self._get_univariate_parameters(dim))
+        return self._scale(qKq)
+
+    def dqK_dx(self, x2: np.ndarray) -> np.ndarray:
+        input_dim = x2.shape[1]
+        dqK_dx = np.zeros([input_dim, x2.shape[0]])
+        for dim in range(input_dim):
+            grad_term = self._dqK_dx_1d(x2[:, dim], **self._get_univariate_parameters(dim))
+            dqK_dx[dim, :] = grad_term * self.qK(x2, skip=[dim])[0, :]
+        return dqK_dx
+
+    def _scale(self, z: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
+        """Scales the input ``z`` with a scalar value specific to the kernel.
+
+        :param z: The value to be scaled.
+        :return: The scaled value.
+        """
+        raise NotImplementedError
+
+    def _get_univariate_parameters(self, dim: int) -> dict:
+        """Keywords arguments used by methods related to the univariate, unscaled version
+         of the kernel of dimension ``dim``.
+
+        :param dim: The dimension.
+        :return: The parameters of dimension ``dim``.
+        """
+        raise NotImplementedError
+
+    # methods related to the univariate version of the kernel
+    def _qK_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
+        """Unscaled kernel mean for univariate version of kernel.
+
+        :param x: The locations where the kernel mean is evaluated, shape (n_points, ).
+        :param parameters: The parameters of the univariate kernel.
+        :return: The kernel mean of the univariate kernel evaluated at x, shape (n_points, ).
+        """
+        raise NotImplementedError
+
+    def _qKq_1d(self, **parameters) -> float:
+        """Unscaled kernel integrated over both arguments for univariate version of kernel.
+
+        :param parameters: The parameters of the univariate kernel.
+        :returns: Double integrated univariate kernel.
+        """
+        raise NotImplementedError
+
+    def _dqK_dx_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
+        """Unscaled gradient of univariate version of the kernel mean.
+
+        :param x: The locations where the kernel mean is evaluated, shape (n_points, ).
+        :param parameters: The parameters of the univariate kernel.
+        :return: The gradient with shape (n_points, ).
         """
         raise NotImplementedError

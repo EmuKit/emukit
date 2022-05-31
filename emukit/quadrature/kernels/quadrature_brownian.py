@@ -4,18 +4,18 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import List, Optional, Tuple
+from typing import Optional, Union
 
 import numpy as np
 
 from ...quadrature.interfaces.standard_kernels import IBrownian, IProductBrownian
-from ..kernels import QuadratureKernel
+from ..kernels import QuadratureKernel, QuadratureProductKernel
 from ..measures import IntegrationMeasure
 from ..typing import BoundsType
 
 
 class QuadratureBrownian(QuadratureKernel):
-    r"""A Brownian motion kernel augmented with integrability.
+    r"""Base class for a Brownian motion kernel augmented with integrability.
 
     .. math::
         k(x, x') = \sigma^2 \operatorname{min}(x, x')\quad\text{with}\quad x, x' \geq 0,
@@ -71,21 +71,6 @@ class QuadratureBrownian(QuadratureKernel):
         r"""The scale :math:`\sigma^2` of the kernel."""
         return self.kern.variance
 
-    def qK(self, x2: np.ndarray) -> np.ndarray:
-        raise NotImplementedError
-
-    def Kq(self, x1: np.ndarray) -> np.ndarray:
-        return self.qK(x1).T
-
-    def qKq(self) -> float:
-        raise NotImplementedError
-
-    def dqK_dx(self, x2: np.ndarray) -> np.ndarray:
-        raise NotImplementedError
-
-    def dKq_dx(self, x1: np.ndarray) -> np.ndarray:
-        return self.dqK_dx(x1).T
-
 
 class QuadratureBrownianLebesgueMeasure(QuadratureBrownian):
     """A Brownian motion kernel augmented with integrability w.r.t. the standard Lebesgue measure.
@@ -129,8 +114,8 @@ class QuadratureBrownianLebesgueMeasure(QuadratureBrownian):
         return self.variance * (ub - x2).T
 
 
-class QuadratureProductBrownian(QuadratureKernel):
-    r"""A product Brownian kernel augmented with integrability.
+class QuadratureProductBrownian(QuadratureProductKernel):
+    r"""Base class for a product Brownian kernel augmented with integrability.
 
     The kernel is of the form :math:`k(x, x') = \sigma^2 \prod_{i=1}^d k_i(x, x')` where
 
@@ -147,7 +132,7 @@ class QuadratureProductBrownian(QuadratureKernel):
 
     .. seealso::
        * :class:`emukit.quadrature.interfaces.IProductBrownian`
-       * :class:`emukit.quadrature.kernels.QuadratureKernel`
+       * :class:`emukit.quadrature.kernels.QuadratureProductKernel`
 
     :param brownian_kernel: The standard EmuKit product Brownian kernel.
     :param integral_bounds: The integral bounds.
@@ -187,21 +172,6 @@ class QuadratureProductBrownian(QuadratureKernel):
         r"""The offset :math:`c` of the kernel."""
         return self.kern.offset
 
-    def qK(self, x2: np.ndarray) -> np.ndarray:
-        raise NotImplementedError
-
-    def Kq(self, x1: np.ndarray) -> np.ndarray:
-        return self.qK(x1).T
-
-    def qKq(self) -> float:
-        raise NotImplementedError
-
-    def dqK_dx(self, x2: np.ndarray) -> np.ndarray:
-        raise NotImplementedError
-
-    def dKq_dx(self, x1: np.ndarray) -> np.ndarray:
-        return self.dqK_dx(x1).T
-
 
 class QuadratureProductBrownianLebesgueMeasure(QuadratureProductBrownian):
     """An product Brownian kernel augmented with integrability w.r.t. the standard Lebesgue measure.
@@ -230,45 +200,24 @@ class QuadratureProductBrownianLebesgueMeasure(QuadratureProductBrownian):
             variable_names=variable_names,
         )
 
-    def qK(self, x2: np.ndarray, skip: List[int] = None) -> np.ndarray:
-        if skip is None:
-            skip = []
+    def _scale(self, z: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
+        return self.variance * z
 
-        qK = np.ones(x2.shape[0])
-        for dim in range(x2.shape[1]):
-            if dim in skip:
-                continue
-            qK *= self._qK_1d(x=x2[:, dim], domain=self.integral_bounds.bounds[dim])
-        return qK[None, :] * self.variance
+    def _get_univariate_parameters(self, dim: int) -> dict:
+        return {"domain": self.integral_bounds.bounds[dim], "offset": self.offset}
 
-    def qKq(self) -> float:
-        qKq = 1.0
-        for dim in range(self.input_dim):
-            qKq *= self._qKq_1d(domain=self.integral_bounds.bounds[dim])
-        return self.variance * qKq
-
-    def dqK_dx(self, x2: np.ndarray) -> np.ndarray:
-        input_dim = x2.shape[1]
-        dqK_dx = np.zeros([input_dim, x2.shape[0]])
-        for dim in range(input_dim):
-            grad_term = self._dqK_dx_1d(x=x2[:, dim], domain=self.integral_bounds.bounds[dim])
-            dqK_dx[dim, :] = grad_term * self.qK(x2, skip=[dim])[0, :]
-        return dqK_dx
-
-    # one dimensional integrals start here
-    def _qK_1d(self, x: np.ndarray, domain: Tuple[float, float]) -> np.ndarray:
-        """Unscaled kernel mean for 1D Brownian kernel."""
-        (a, b) = domain
+    def _qK_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
+        a, b = parameters["domain"]
+        offset = parameters["offset"]
         kernel_mean = b * x - 0.5 * x**2 - 0.5 * a**2
-        return kernel_mean.T - self.offset * (b - a)
+        return kernel_mean.T - offset * (b - a)
 
-    def _qKq_1d(self, domain: Tuple[float, float]) -> float:
-        """Unscaled kernel variance for 1D Brownian kernel."""
-        a, b = domain
+    def _qKq_1d(self, **parameters) -> float:
+        a, b = parameters["domain"]
+        offset = parameters["offset"]
         qKq = 0.5 * b * (b**2 - a**2) - (b**3 - a**3) / 6 - 0.5 * a**2 * (b - a)
-        return float(qKq) - self.offset * (b - a) ** 2
+        return float(qKq) - offset * (b - a) ** 2
 
-    def _dqK_dx_1d(self, x, domain):
-        """Unscaled gradient of 1D Brownian kernel mean."""
-        _, b = domain
+    def _dqK_dx_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
+        _, b = parameters["domain"]
         return (b - x).T
