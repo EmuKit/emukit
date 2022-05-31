@@ -16,7 +16,7 @@ from ..typing import BoundsType
 
 
 class QuadratureRBF(QuadratureKernel):
-    r"""An RBF kernel augmented with integrability.
+    r"""Base class for an RBF kernel augmented with integrability.
 
     .. math::
         k(x, x') = \sigma^2 e^{-\frac{1}{2}\frac{\|x-x'\|^2}{\lambda^2}},

@@ -11,7 +11,7 @@ from .quadrature_kernels import QuadratureProductKernel
 
 
 class QuadratureProductMatern32(QuadratureProductKernel):
-    r"""A product Matern32 kernel augmented with integrability.
+    r"""Base class for a product Matern32 kernel augmented with integrability.
 
     The kernel is of the form :math:`k(x, x') = \sigma^2 \prod_{i=1}^d k_i(x, x')` where
 

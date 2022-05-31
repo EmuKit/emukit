@@ -15,7 +15,7 @@ from ..typing import BoundsType
 
 
 class QuadratureBrownian(QuadratureKernel):
-    r"""A Brownian motion kernel augmented with integrability.
+    r"""Base class for a Brownian motion kernel augmented with integrability.
 
     .. math::
         k(x, x') = \sigma^2 \operatorname{min}(x, x')\quad\text{with}\quad x, x' \geq 0,
@@ -115,7 +115,7 @@ class QuadratureBrownianLebesgueMeasure(QuadratureBrownian):
 
 
 class QuadratureProductBrownian(QuadratureProductKernel):
-    r"""A product Brownian kernel augmented with integrability.
+    r"""Base class for a product Brownian kernel augmented with integrability.
 
     The kernel is of the form :math:`k(x, x') = \sigma^2 \prod_{i=1}^d k_i(x, x')` where
 
