@@ -71,15 +71,6 @@ class QuadratureBrownian(QuadratureKernel):
         r"""The scale :math:`\sigma^2` of the kernel."""
         return self.kern.variance
 
-    def qK(self, x2: np.ndarray) -> np.ndarray:
-        raise NotImplementedError
-
-    def qKq(self) -> float:
-        raise NotImplementedError
-
-    def dqK_dx(self, x2: np.ndarray) -> np.ndarray:
-        raise NotImplementedError
-
 
 class QuadratureBrownianLebesgueMeasure(QuadratureBrownian):
     """A Brownian motion kernel augmented with integrability w.r.t. the standard Lebesgue measure.

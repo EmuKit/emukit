@@ -197,7 +197,7 @@ class QuadratureProductKernel(QuadratureKernel):
     def _scale(self, z: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
         """Scales the input ``z`` with a scalar value specific to the kernel.
 
-        :param z: The value to be scales.
+        :param z: The value to be scaled.
         :return: The scaled value.
         """
         raise NotImplementedError
@@ -211,20 +211,21 @@ class QuadratureProductKernel(QuadratureKernel):
         """
         raise NotImplementedError
 
+    # methods related to the univariate version of the kernel
     def _qK_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
         """Unscaled kernel mean for univariate version of kernel.
 
         :param x: The locations where the kernel mean is evaluated, shape (n_points, ).
         :param parameters: The parameters of the univariate kernel.
-        :return: The kernel mean of the univariate kernel evaluated at a, shape (n_points, ).
+        :return: The kernel mean of the univariate kernel evaluated at x, shape (n_points, ).
         """
         raise NotImplementedError
 
     def _qKq_1d(self, **parameters) -> float:
-        """Unscaled kernel variance for univariate version of kernel.
+        """Unscaled kernel integrated over both arguments for univariate version of kernel.
 
         :param parameters: The parameters of the univariate kernel.
-        :return:
+        :returns: Double integrated univariate kernel.
         """
         raise NotImplementedError
 
@@ -233,6 +234,6 @@ class QuadratureProductKernel(QuadratureKernel):
 
         :param x: The locations where the kernel mean is evaluated, shape (n_points, ).
         :param parameters: The parameters of the univariate kernel.
-        :return:
+        :return: The gradient with shape (n_points, ).
         """
         raise NotImplementedError

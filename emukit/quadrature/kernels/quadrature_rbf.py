@@ -64,15 +64,6 @@ class QuadratureRBF(QuadratureKernel):
         r"""The scale :math:`\sigma^2` of the kernel."""
         return self.kern.variance
 
-    def qK(self, x2: np.ndarray) -> np.ndarray:
-        raise NotImplementedError
-
-    def qKq(self) -> float:
-        raise NotImplementedError
-
-    def dqK_dx(self, x2: np.ndarray) -> np.ndarray:
-        raise NotImplementedError
-
     # rbf-kernel specific helper
     def _scaled_vector_diff(self, v1: np.ndarray, v2: np.ndarray, scale: float = None) -> np.ndarray:
         r"""Scaled element-wise vector difference between vectors v1 and v2.
