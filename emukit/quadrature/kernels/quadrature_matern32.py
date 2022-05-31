@@ -93,28 +93,29 @@ class QuadratureProductMatern32LebesgueMeasure(QuadratureProductMatern32):
     def _scale(self, z: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
         return self.variance * z
 
-    def _get_univariate_kwargs(self, dim: int) -> dict:
+    def _get_univariate_parameters(self, dim: int) -> dict:
         return {"domain": self.integral_bounds.bounds[dim], "ell": self.lengthscales[dim]}
 
-    def _qK_1d(self, x: np.ndarray, **kwargs) -> np.ndarray:
-        a, b = kwargs["domain"]
-        ell = kwargs["ell"]
+    def _qK_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
+        a, b = parameters["domain"]
+        ell = parameters["ell"]
         s3 = np.sqrt(3.0)
         first_term = 4.0 * ell / s3
         second_term = -np.exp(s3 * (x - b) / ell) * (b + 2.0 * ell / s3 - x)
         third_term = -np.exp(s3 * (a - x) / ell) * (x + 2.0 * ell / s3 - a)
         return first_term + second_term + third_term
 
-    def _qKq_1d(self, domain: Tuple[float, float], ell: float) -> float:
-        a, b = domain
+    def _qKq_1d(self, **parameters) -> float:
+        a, b = parameters["domain"]
+        ell = parameters["ell"]
         r = b - a
         c = np.sqrt(3.0) * r
         qKq = 2.0 * ell / 3.0 * (2.0 * c - 3.0 * ell + np.exp(-c / ell) * (c + 3.0 * ell))
         return float(qKq)
 
-    def _dqK_dx_1d(self, x: np.ndarray, **kwargs) -> np.ndarray:
-        a, b = kwargs["domain"]
-        ell = kwargs["ell"]
+    def _dqK_dx_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
+        a, b = parameters["domain"]
+        ell = parameters["ell"]
         s3 = np.sqrt(3)
         exp_term_b = np.exp(s3 * (x - b) / ell)
         exp_term_a = np.exp(s3 * (a - x) / ell)

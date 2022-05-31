@@ -212,21 +212,21 @@ class QuadratureProductBrownianLebesgueMeasure(QuadratureProductBrownian):
     def _scale(self, z: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
         return self.variance * z
 
-    def _get_univariate_kwargs(self, dim: int) -> dict:
+    def _get_univariate_parameters(self, dim: int) -> dict:
         return {"domain": self.integral_bounds.bounds[dim], "offset": self.offset}
 
-    def _qK_1d(self, x: np.ndarray, **kwargs) -> np.ndarray:
-        a, b = kwargs["domain"]
-        offset = kwargs["offset"]
+    def _qK_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
+        a, b = parameters["domain"]
+        offset = parameters["offset"]
         kernel_mean = b * x - 0.5 * x**2 - 0.5 * a**2
         return kernel_mean.T - offset * (b - a)
 
-    def _qKq_1d(self, **kwargs) -> float:
-        a, b = kwargs["domain"]
-        offset = kwargs["offset"]
+    def _qKq_1d(self, **parameters) -> float:
+        a, b = parameters["domain"]
+        offset = parameters["offset"]
         qKq = 0.5 * b * (b**2 - a**2) - (b**3 - a**3) / 6 - 0.5 * a**2 * (b - a)
         return float(qKq) - offset * (b - a) ** 2
 
-    def _dqK_dx_1d(self, x: np.ndarray, **kwargs) -> np.ndarray:
-        _, b = kwargs["domain"]
+    def _dqK_dx_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
+        _, b = parameters["domain"]
         return (b - x).T

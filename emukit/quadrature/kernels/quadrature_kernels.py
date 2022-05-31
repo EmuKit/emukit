@@ -177,39 +177,62 @@ class QuadratureProductKernel(QuadratureKernel):
         for dim in range(x2.shape[1]):
             if dim in skip:
                 continue
-            qK *= self._qK_1d(x2[:, dim], **self._get_univariate_kwargs(dim))
+            qK *= self._qK_1d(x2[:, dim], **self._get_univariate_parameters(dim))
         return self._scale(qK[None, :])
 
     def qKq(self) -> float:
         qKq = 1.0
         for dim in range(self.input_dim):
-            qKq *= self._qKq_1d(**self._get_univariate_kwargs(dim))
+            qKq *= self._qKq_1d(**self._get_univariate_parameters(dim))
         return self._scale(qKq)
 
     def dqK_dx(self, x2: np.ndarray) -> np.ndarray:
         input_dim = x2.shape[1]
         dqK_dx = np.zeros([input_dim, x2.shape[0]])
         for dim in range(input_dim):
-            grad_term = self._dqK_dx_1d(x2[:, dim], **self._get_univariate_kwargs(dim))
+            grad_term = self._dqK_dx_1d(x2[:, dim], **self._get_univariate_parameters(dim))
             dqK_dx[dim, :] = grad_term * self.qK(x2, skip=[dim])[0, :]
         return dqK_dx
 
     def _scale(self, z: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
-        """Scales the input ``z`` with a scalar value, for example the variance of the kernel."""
+        """Scales the input ``z`` with a scalar value specific to the kernel.
+
+        :param z: The value to be scales.
+        :return: The scaled value.
+        """
         raise NotImplementedError
 
-    def _get_univariate_kwargs(self, dim: int) -> dict:
-        """Keywords arguments used my the methods related to the univariate kernel of dimension ``dim``."""
+    def _get_univariate_parameters(self, dim: int) -> dict:
+        """Keywords arguments used by methods related to the univariate, unscaled version
+         of the kernel of dimension ``dim``.
+
+        :param dim: The dimension.
+        :return: The parameters of dimension ``dim``.
+        """
         raise NotImplementedError
 
-    def _qK_1d(self, x: np.ndarray, **kwargs) -> np.ndarray:
-        """Unscaled kernel mean for univariate version of kernel kernel."""
+    def _qK_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
+        """Unscaled kernel mean for univariate version of kernel.
+
+        :param x: The locations where the kernel mean is evaluated, shape (n_points, ).
+        :param parameters: The parameters of the univariate kernel.
+        :return: The kernel mean of the univariate kernel evaluated at a, shape (n_points, ).
+        """
         raise NotImplementedError
 
-    def _qKq_1d(self, **kwargs) -> float:
-        """Unscaled kernel variance for univariate version of kernel."""
+    def _qKq_1d(self, **parameters) -> float:
+        """Unscaled kernel variance for univariate version of kernel.
+
+        :param parameters: The parameters of the univariate kernel.
+        :return:
+        """
         raise NotImplementedError
 
-    def _dqK_dx_1d(self, x: np.ndarray, **kwargs) -> np.ndarray:
-        """Unscaled gradient of univariate version of kernel mean."""
+    def _dqK_dx_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
+        """Unscaled gradient of univariate version of the kernel mean.
+
+        :param x: The locations where the kernel mean is evaluated, shape (n_points, ).
+        :param parameters: The parameters of the univariate kernel.
+        :return:
+        """
         raise NotImplementedError
