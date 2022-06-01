@@ -114,22 +114,24 @@ class RBFGPy(IRBF):
     r"""Wrapper of the GPy RBF kernel as required for some EmuKit quadrature methods.
 
     .. math::
-        k(x, x') = \sigma^2 e^{-\frac{1}{2}\frac{\|x-x'\|^2}{\lambda^2}},
+        k(x, x') = \sigma^2 e^{-\frac{1}{2}\sum_{i=1}^{d}r_i^2},
 
-    where :math:`\sigma^2` is the ``variance`` property and :math:`\lambda` is the
-    ``lengthscale`` property.
+    where :math:`d` is the input dimensionality,
+    :math:`r_i = \frac{x_i-x_i'}{\lambda_i}` is the scaled vector difference of dimension :math:`i`,
+    :math:`\lambda_i` is the :math:`i` th element of the ``lengthscales`` property
+    and :math:`\sigma^2` is the ``variance`` property.
 
-    :param gpy_rbf: An RBF kernel from GPy with ARD=False.
+    :param gpy_rbf: An RBF kernel from GPy.
     """
 
     def __init__(self, gpy_rbf: GPy.kern.RBF):
-        if gpy_rbf.ARD:
-            raise ValueError("ARD of the GPy kernel must be set to False.")
         self.gpy_rbf = gpy_rbf
 
     @property
-    def lengthscale(self) -> float:
-        return self.gpy_rbf.lengthscale[0]
+    def lengthscales(self) -> np.ndarray:
+        if self.gpy_rbf.ARD:
+            return self.gpy_rbf.lengthscale.values
+        return np.full((self.gpy_rbf.input_dim,), self.gpy_rbf.lengthscale[0])
 
     @property
     def variance(self) -> float:

@@ -45,12 +45,13 @@ class IStandardKernel:
 class IRBF(IStandardKernel):
     r"""Interface for an RBF kernel.
 
-
     .. math::
-        k(x, x') = \sigma^2 e^{-\frac{1}{2}\frac{\|x-x'\|^2}{\lambda^2}},
+        k(x, x') = \sigma^2 e^{-\frac{1}{2}\sum_{i=1}^{d}r_i^2},
 
-    where :math:`\sigma^2` is the ``variance`` property and :math:`\lambda` is the
-    ``lengthscale`` property.
+    where :math:`d` is the input dimensionality,
+    :math:`r_i = \frac{x_i-x_i'}{\lambda_i}` is the scaled vector difference of dimension :math:`i`,
+    :math:`\lambda_i` is the :math:`i` th element of the ``lengthscales`` property
+    and :math:`\sigma^2` is the ``variance`` property.
 
     .. note::
         Inherit from this class to wrap your standard RBF kernel. The wrapped kernel can then be
@@ -65,8 +66,8 @@ class IRBF(IStandardKernel):
     """
 
     @property
-    def lengthscale(self) -> float:
-        r"""The lengthscale :math:`\lambda` of the kernel."""
+    def lengthscales(self) -> np.ndarray:
+        r"""The lengthscales :math:`\lambda` of the kernel."""
         raise NotImplementedError
 
     @property
@@ -75,10 +76,8 @@ class IRBF(IStandardKernel):
         raise NotImplementedError
 
     def dK_dx1(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
-        K = self.K(x1, x2)
-        scaled_vector_diff = (x1.T[:, :, None] - x2.T[:, None, :]) / self.lengthscale**2
-        dK_dx1 = -K[None, ...] * scaled_vector_diff
-        return dK_dx1
+        scaled_vector_diff = np.swapaxes((x1[None, :, :] - x2[:, None, :]) / self.lengthscales**2, 0, -1)
+        return -self.K(x1, x2)[None, ...] * scaled_vector_diff
 
     def dKdiag_dx(self, x: np.ndarray) -> np.ndarray:
         return np.zeros((x.shape[1], x.shape[0]))

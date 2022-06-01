@@ -19,10 +19,12 @@ class QuadratureRBF(QuadratureKernel):
     r"""Base class for an RBF kernel augmented with integrability.
 
     .. math::
-        k(x, x') = \sigma^2 e^{-\frac{1}{2}\frac{\|x-x'\|^2}{\lambda^2}},
+        k(x, x') = \sigma^2 e^{-\frac{1}{2}\sum_{i=1}^{d}r_i^2},
 
-    where :math:`\sigma^2` is the ``variance`` property and :math:`\lambda` is the
-    ``lengthscale`` property.
+    where :math:`d` is the input dimensionality,
+    :math:`r_i = \frac{x_i-x_i'}{\lambda_i}` is the scaled vector difference of dimension :math:`i`,
+    :math:`\lambda_i` is the :math:`i` th element of the ``lengthscales`` property
+    and :math:`\sigma^2` is the ``variance`` property.
 
     .. note::
         This class is compatible with the standard kernel :class:`IRBF`.
@@ -55,9 +57,9 @@ class QuadratureRBF(QuadratureKernel):
         )
 
     @property
-    def lengthscale(self) -> Union[np.ndarray, float]:
-        r"""The lengthscale(s) :math:`\lambda` of the kernel."""
-        return self.kern.lengthscale
+    def lengthscales(self) -> np.ndarray:
+        r"""The lengthscales :math:`\lambda` of the kernel."""
+        return self.kern.lengthscales
 
     @property
     def variance(self) -> float:
@@ -65,23 +67,24 @@ class QuadratureRBF(QuadratureKernel):
         return self.kern.variance
 
     # rbf-kernel specific helper
-    def _scaled_vector_diff(self, v1: np.ndarray, v2: np.ndarray, scale: float = None) -> np.ndarray:
+    def _scaled_vector_diff(
+        self, v1: np.ndarray, v2: np.ndarray, scales: Union[float, np.ndarray] = None
+    ) -> np.ndarray:
         r"""Scaled element-wise vector difference between vectors v1 and v2.
 
         .. math::
-            \frac{v_1 - v_2}{\lambda \sqrt{2}}
+            \frac{v_1 - v_2}{\ell \sqrt{2}}
 
-        name mapping:
-            \lambda: self.kern.lengthscale
+        where :math:`\ell` is the ``scales`` parameter.
 
         :param v1: First vector.
         :param v2: Second vector, must have same second dimensions as v1.
-        :param scale: The scale, default is the lengthscale of the kernel
+        :param scales: The scales, default is the lengthscales of the kernel.
         :return: Scaled difference between v1 and v2, same shape as v1 and v2.
         """
-        if scale is None:
-            scale = self.lengthscale
-        return (v1 - v2) / (scale * np.sqrt(2))
+        if scales is None:
+            scales = self.lengthscales
+        return (v1 - v2) / (scales * np.sqrt(2))
 
 
 class QuadratureRBFLebesgueMeasure(QuadratureRBF):
@@ -111,19 +114,17 @@ class QuadratureRBFLebesgueMeasure(QuadratureRBF):
         upper_bounds = self.integral_bounds.upper_bounds
         erf_lo = erf(self._scaled_vector_diff(lower_bounds, x2))
         erf_up = erf(self._scaled_vector_diff(upper_bounds, x2))
-        kernel_mean = self.variance * (self.lengthscale * np.sqrt(np.pi / 2.0) * (erf_up - erf_lo)).prod(axis=1)
-
-        return kernel_mean.reshape(1, -1)
+        kernel_mean = (np.sqrt(np.pi / 2.0) * self.lengthscales * (erf_up - erf_lo)).prod(axis=1)
+        return self.variance * kernel_mean.reshape(1, -1)
 
     def qKq(self) -> float:
         lower_bounds = self.integral_bounds.lower_bounds
         upper_bounds = self.integral_bounds.upper_bounds
-        prefac = self.variance * (2.0 * self.lengthscale**2) ** self.input_dim
         diff_bounds_scaled = self._scaled_vector_diff(upper_bounds, lower_bounds)
-        exp_term = np.exp(-(diff_bounds_scaled**2)) - 1.0
-        erf_term = erf(diff_bounds_scaled) * diff_bounds_scaled * np.sqrt(np.pi)
-
-        return float(prefac * (exp_term + erf_term).prod())
+        exp_term = (np.exp(-(diff_bounds_scaled**2)) - 1.0) / np.sqrt(np.pi)
+        erf_term = erf(diff_bounds_scaled) * diff_bounds_scaled
+        qKq = ((2 * np.sqrt(np.pi) * self.lengthscales**2) * (exp_term + erf_term)).prod()
+        return self.variance * float(qKq)
 
     def dqK_dx(self, x2: np.ndarray) -> np.ndarray:
         lower_bounds = self.integral_bounds.lower_bounds
@@ -133,7 +134,7 @@ class QuadratureRBFLebesgueMeasure(QuadratureRBF):
         erf_lo = erf(self._scaled_vector_diff(lower_bounds, x2))
         erf_up = erf(self._scaled_vector_diff(upper_bounds, x2))
 
-        fraction = ((exp_lo - exp_up) / (self.lengthscale * np.sqrt(np.pi / 2.0) * (erf_up - erf_lo))).T
+        fraction = ((exp_lo - exp_up) / (self.lengthscales * np.sqrt(np.pi / 2.0) * (erf_up - erf_lo))).T
 
         return self.qK(x2) * fraction
 
@@ -156,22 +157,21 @@ class QuadratureRBFIsoGaussMeasure(QuadratureRBF):
         super().__init__(rbf_kernel=rbf_kernel, integral_bounds=None, measure=measure, variable_names=variable_names)
 
     def qK(self, x2: np.ndarray, scale_factor: float = 1.0) -> np.ndarray:
-        lengthscale = scale_factor * self.lengthscale
-        det_factor = (self.measure.variance / lengthscale**2 + 1) ** (self.input_dim / 2)
-        scale = np.sqrt(lengthscale**2 + self.measure.variance)
-        scaled_vector_diff = self._scaled_vector_diff(x2, self.measure.mean, scale)
-        kernel_mean = (self.variance / det_factor) * np.exp(-np.sum(scaled_vector_diff**2, axis=1))
-        return kernel_mean.reshape(1, -1)
+        ells = scale_factor * self.lengthscales
+        sigma2 = self.measure.variance
+        mu = self.measure.mean
+        factor = np.sqrt(ells**2 / (ells**2 + sigma2)).prod()
+        scaled_norm_sq = np.power(self._scaled_vector_diff(x2, mu, np.sqrt(ells**2 + sigma2)), 2).sum(axis=1)
+        return (self.variance * factor) * np.exp(-scaled_norm_sq).reshape(1, -1)
 
     def qKq(self) -> float:
-        factor = (2 * self.measure.variance / self.lengthscale**2 + 1) ** (self.input_dim / 2)
-        result = self.variance / factor
-        return float(result)
+        ells = self.lengthscales
+        qKq = np.sqrt(ells**2 / (ells**2 + 2 * self.measure.variance)).prod()
+        return self.variance * float(qKq)
 
     def dqK_dx(self, x2: np.ndarray) -> np.ndarray:
-        qK_x = self.qK(x2)
-        factor = 1.0 / (self.lengthscale**2 + self.measure.variance)
-        return -(qK_x * factor) * (x2 - self.measure.mean).T
+        scaled_diff = (x2 - self.measure.mean) / (self.lengthscales**2 + self.measure.variance)
+        return -self.qK(x2) * scaled_diff.T
 
 
 class QuadratureRBFUniformMeasure(QuadratureRBF):
@@ -227,19 +227,17 @@ class QuadratureRBFUniformMeasure(QuadratureRBF):
         upper_bounds = np.array([b[1] for b in self._bounds_list_for_kernel_integrals])
         erf_lo = erf(self._scaled_vector_diff(lower_bounds, x2))
         erf_up = erf(self._scaled_vector_diff(upper_bounds, x2))
-        kernel_mean = self.variance * (self.lengthscale * np.sqrt(np.pi / 2.0) * (erf_up - erf_lo)).prod(axis=1)
-
-        return kernel_mean.reshape(1, -1) * self.measure._density
+        kernel_mean = (np.sqrt(np.pi / 2.0) * self.lengthscales * (erf_up - erf_lo)).prod(axis=1)
+        return (self.variance * self.measure._density) * kernel_mean.reshape(1, -1)
 
     def qKq(self) -> float:
         lower_bounds = np.array([b[0] for b in self._bounds_list_for_kernel_integrals])
         upper_bounds = np.array([b[1] for b in self._bounds_list_for_kernel_integrals])
-        prefac = self.variance * (2.0 * self.lengthscale**2) ** self.input_dim
         diff_bounds_scaled = self._scaled_vector_diff(upper_bounds, lower_bounds)
-        exp_term = np.exp(-(diff_bounds_scaled**2)) - 1.0
-        erf_term = erf(diff_bounds_scaled) * diff_bounds_scaled * np.sqrt(np.pi)
-
-        return float(prefac * (exp_term + erf_term).prod()) * self.measure._density**2
+        exp_term = (np.exp(-(diff_bounds_scaled**2)) - 1.0) / np.sqrt(np.pi)
+        erf_term = erf(diff_bounds_scaled) * diff_bounds_scaled
+        qKq = ((2 * np.sqrt(np.pi) * self.lengthscales**2) * (exp_term + erf_term)).prod()
+        return (self.variance * self.measure._density**2) * float(qKq)
 
     def dqK_dx(self, x2: np.ndarray) -> np.ndarray:
         lower_bounds = np.array([b[0] for b in self._bounds_list_for_kernel_integrals])
@@ -249,6 +247,6 @@ class QuadratureRBFUniformMeasure(QuadratureRBF):
         erf_lo = erf(self._scaled_vector_diff(lower_bounds, x2))
         erf_up = erf(self._scaled_vector_diff(upper_bounds, x2))
 
-        fraction = ((exp_lo - exp_up) / (self.lengthscale * np.sqrt(np.pi / 2.0) * (erf_up - erf_lo))).T
+        fraction = ((exp_lo - exp_up) / (self.lengthscales * np.sqrt(np.pi / 2.0) * (erf_up - erf_lo))).T
 
         return self.qK(x2) * fraction
