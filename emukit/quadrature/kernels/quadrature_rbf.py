@@ -157,22 +157,19 @@ class QuadratureRBFIsoGaussMeasure(QuadratureRBF):
         super().__init__(rbf_kernel=rbf_kernel, integral_bounds=None, measure=measure, variable_names=variable_names)
 
     def qK(self, x2: np.ndarray, scale_factor: float = 1.0) -> np.ndarray:
-        lengthscale = scale_factor * self.lengthscale
-        det_factor = (self.measure.variance / lengthscale**2 + 1) ** (self.input_dim / 2)
-        scale = np.sqrt(lengthscale**2 + self.measure.variance)
-        scaled_vector_diff = self._scaled_vector_diff(x2, self.measure.mean, scale)
-        kernel_mean = (self.variance / det_factor) * np.exp(-np.sum(scaled_vector_diff**2, axis=1))
-        return kernel_mean.reshape(1, -1)
+        ells = scale_factor * self.lengthscales
+        scales = np.sqrt(ells**2 + self.measure.variance)
+        kernel_mean = (np.sqrt(ells**2 / scales**2) * np.exp(-self._scaled_vector_diff(x2, self.measure.mean, scales)**2)).prod(axis=1)
+        return self.variance * kernel_mean.reshape(1, -1)
 
     def qKq(self) -> float:
-        factor = (2 * self.measure.variance / self.lengthscale**2 + 1) ** (self.input_dim / 2)
-        result = self.variance / factor
-        return float(result)
+        ells = self.lengthscales
+        qKq = np.sqrt(ells**2 / (ells**2 + 2 * self.measure.variance)).prod()
+        return self.variance * float(qKq)
 
     def dqK_dx(self, x2: np.ndarray) -> np.ndarray:
-        qK_x = self.qK(x2)
-        factor = 1.0 / (self.lengthscale**2 + self.measure.variance)
-        return -(qK_x * factor) * (x2 - self.measure.mean).T
+        factor = 1.0 / (self.lengthscales**2 + self.measure.variance)
+        return -(self.qK(x2) * factor) * (x2 - self.measure.mean).T
 
 
 class QuadratureRBFUniformMeasure(QuadratureRBF):
