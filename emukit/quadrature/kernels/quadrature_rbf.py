@@ -158,11 +158,11 @@ class QuadratureRBFIsoGaussMeasure(QuadratureRBF):
 
     def qK(self, x2: np.ndarray, scale_factor: float = 1.0) -> np.ndarray:
         ells = scale_factor * self.lengthscales
-        scales = np.sqrt(ells**2 + self.measure.variance)
-        kernel_mean = (
-            np.sqrt(ells**2 / scales**2) * np.exp(-self._scaled_vector_diff(x2, self.measure.mean, scales) ** 2)
-        ).prod(axis=1)
-        return self.variance * kernel_mean.reshape(1, -1)
+        sigma2 = self.measure.variance
+        mu = self.measure.mean
+        factor = np.sqrt(ells**2 / (ells**2 + sigma2)).prod()
+        scaled_norm_sq = np.power(self._scaled_vector_diff(x2, mu, np.sqrt(ells**2 + sigma2)), 2).sum(axis=1)
+        return (self.variance * factor) * np.exp(-scaled_norm_sq).reshape(1, -1)
 
     def qKq(self) -> float:
         ells = self.lengthscales
