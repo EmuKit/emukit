@@ -131,7 +131,7 @@ class RBFGPy(IRBF):
     def lengthscales(self) -> np.ndarray:
         if self.gpy_rbf.ARD:
             return self.gpy_rbf.lengthscale.values
-        return np.full((self.gpy_rbf.input_dim, ), self.gpy_rbf.lengthscale[0])
+        return np.full((self.gpy_rbf.input_dim,), self.gpy_rbf.lengthscale[0])
 
     @property
     def variance(self) -> float:
@@ -582,6 +582,7 @@ def create_emukit_model_from_gpy_model(
 
     # wrap the base-gp model
     return BaseGaussianProcessGPy(kern=quadrature_kernel_emukit, gpy_model=gpy_model)
+
 
 def _get_qkernel_brownian(
     standard_kernel_emukit: IBrownian,

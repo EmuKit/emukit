@@ -67,7 +67,9 @@ class QuadratureRBF(QuadratureKernel):
         return self.kern.variance
 
     # rbf-kernel specific helper
-    def _scaled_vector_diff(self, v1: np.ndarray, v2: np.ndarray, scales: Union[float, np.ndarray] = None) -> np.ndarray:
+    def _scaled_vector_diff(
+        self, v1: np.ndarray, v2: np.ndarray, scales: Union[float, np.ndarray] = None
+    ) -> np.ndarray:
         r"""Scaled element-wise vector difference between vectors v1 and v2.
 
         .. math::
@@ -226,9 +228,7 @@ class QuadratureRBFUniformMeasure(QuadratureRBF):
         upper_bounds = np.array([b[1] for b in self._bounds_list_for_kernel_integrals])
         erf_lo = erf(self._scaled_vector_diff(lower_bounds, x2))
         erf_up = erf(self._scaled_vector_diff(upper_bounds, x2))
-        kernel_mean = (
-                    np.sqrt(np.pi / 2.0) * self.lengthscales * (erf_up - erf_lo)).prod(
-            axis=1)
+        kernel_mean = (np.sqrt(np.pi / 2.0) * self.lengthscales * (erf_up - erf_lo)).prod(axis=1)
         return (self.variance * self.measure._density) * kernel_mean.reshape(1, -1)
 
     def qKq(self) -> float:

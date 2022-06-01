@@ -8,11 +8,11 @@ from .base_gp import IBaseGaussianProcess  # noqa: F401
 from .standard_kernels import (  # noqa: F401
     IRBF,
     IBrownian,
+    IProdRBF,
     IProductBrownian,
     IProductMatern32,
     IProductMatern52,
     IStandardKernel,
-    IProdRBF,
 )
 
 __all__ = [
