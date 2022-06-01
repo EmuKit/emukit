@@ -18,8 +18,6 @@ from .quadrature_rbf import (
     QuadratureRBFIsoGaussMeasure,
     QuadratureRBFLebesgueMeasure,
     QuadratureRBFUniformMeasure,
-    QuadratureProductRBF,
-    QuadratureProductRBFLebesgueMeasure,
 )
 
 __all__ = [
@@ -28,7 +26,6 @@ __all__ = [
     "QuadratureBrownianLebesgueMeasure",
     "QuadratureRBF",
     "QuadratureRBFLebesgueMeasure",
-    "QuadratureProductRBFLebesgueMeasure",
     "QuadratureRBFUniformMeasure",
     "QuadratureRBFIsoGaussMeasure",
     "QuadratureProductKernel",
