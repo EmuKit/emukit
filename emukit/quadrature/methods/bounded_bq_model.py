@@ -29,9 +29,9 @@ class BoundedBayesianQuadrature(WarpedBayesianQuadratureModel):
         :class:`emukit.quadrature.methods.warpings.SquareRootWarping`
 
     :param base_gp: The Gaussian process :math:`g`. Must use
-           :class:`emukit.quadrature.kernels.QuadratureRBFIsoGaussMeasure` as kernel.
-    :param X: The initial locations of integrand evaluations, shape (num_point, input_dim).
-    :param Y: The values of the integrand at X, shape (num_points, 1).
+           :class:`emukit.quadrature.kernels.QuadratureRBFGaussianMeasure` as kernel.
+    :param X: The initial locations of integrand evaluations, shape (n_point, input_dim).
+    :param Y: The values of the integrand at X, shape (n_points, 1).
     :param lower_bound: The lower bound  :math:`f_*` if the function is lower bounded.
     :param upper_bound: The upper bound :math:`f^*` if the function is lower bounded.
 
@@ -60,11 +60,11 @@ class BoundedBayesianQuadrature(WarpedBayesianQuadratureModel):
             bound = upper_bound
             is_lower_bounded = False
 
-        # The integrate method is specific to QuadratureRBFIsoGaussMeasure, predict methods are only specific to
+        # The integrate method is specific to QuadratureRBFGaussianMeasure, predict methods are only specific to
         # the approximation method used (Taylor expansion of the GP in this case).
         if not isinstance(base_gp.kern, QuadratureRBFGaussianMeasure):
             raise ValueError(
-                f"{self.__class__.__name__} can only be used with QuadratureRBFIsoGaussMeasure kernel. "
+                f"{self.__class__.__name__} can only be used with QuadratureRBFGaussianMeasure kernel. "
                 f"Instead {type(base_gp.kern)} is given."
             )
 
@@ -100,7 +100,7 @@ class BoundedBayesianQuadrature(WarpedBayesianQuadratureModel):
         return mean_approx, cov_approx, mean_base, cov_base
 
     def integrate(self) -> Tuple[float, float]:
-        n_points, n_imput_dim = self.X.shape
+        n_points, input_dim = self.X.shape
 
         # weights and kernel
         X = self.X / np.sqrt(2)  # this is equivalent to scaling the lengthscale with sqrt(2)
@@ -109,7 +109,7 @@ class BoundedBayesianQuadrature(WarpedBayesianQuadratureModel):
         Weights_outer = np.outer(weights, weights)
 
         # kernel mean but with scaled lengthscale (multiplicative factor of 1/sqrt(2))
-        X_means_vec = 0.5 * (self.X.T[:, :, None] + self.X.T[:, None, :]).reshape(n_imput_dim, -1).T
+        X_means_vec = 0.5 * (self.X.T[:, :, None] + self.X.T[:, None, :]).reshape(input_dim, -1).T
         qK = self.base_gp.kern.qK(X_means_vec, scale_factor=1.0 / np.sqrt(2)).reshape(n_points, n_points)
 
         # integral mean
@@ -132,7 +132,7 @@ class BoundedBayesianQuadrature(WarpedBayesianQuadratureModel):
 
         # gradient of mean
         d_mean_dx = (self.base_gp.kern.dK_dx1(X, self.X) @ self.base_gp.graminv_residual())[:, :, 0].T
-        d_mean_dx = mean_base * d_mean_dx  # broadcasting  (num_points, 1) and (num_points, num_dim)
+        d_mean_dx = mean_base * d_mean_dx  # broadcasting  (n_points, 1) and (n_points, input_dim)
 
         # gradient of variance
         d_var_dx = (mean_base**2) * d_var_dx_base + (2 * var_base * mean_base) * d_mean_dx_base  # broadcasting
