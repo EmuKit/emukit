@@ -9,7 +9,7 @@ from pytest_lazyfixture import lazy_fixture
 from utils import check_grad
 
 from emukit.model_wrappers.gpy_quadrature_wrappers import BaseGaussianProcessGPy, RBFGPy
-from emukit.quadrature.kernels import QuadratureRBFIsoGaussMeasure, QuadratureRBFLebesgueMeasure
+from emukit.quadrature.kernels import QuadratureRBFGaussianMeasure, QuadratureRBFLebesgueMeasure
 from emukit.quadrature.measures import GaussianMeasure
 from emukit.quadrature.methods import WSABIL, BoundedBayesianQuadrature
 from emukit.quadrature.methods.vanilla_bq import VanillaBayesianQuadrature
@@ -38,7 +38,7 @@ def get_gpy_model():
 def get_base_gp():
     gpy_model, dat = get_gpy_model()
     measure = GaussianMeasure(mean=dat.measure_mean, variance=dat.measure_var)
-    qrbf = QuadratureRBFIsoGaussMeasure(RBFGPy(gpy_model.kern), measure=measure)
+    qrbf = QuadratureRBFGaussianMeasure(RBFGPy(gpy_model.kern), measure=measure)
     return BaseGaussianProcessGPy(kern=qrbf, gpy_model=gpy_model), dat
 
 

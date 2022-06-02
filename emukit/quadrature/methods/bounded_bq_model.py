@@ -5,7 +5,7 @@ from typing import Optional, Tuple
 import numpy as np
 
 from ..interfaces.base_gp import IBaseGaussianProcess
-from ..kernels.quadrature_rbf import QuadratureRBFIsoGaussMeasure
+from ..kernels.quadrature_rbf import QuadratureRBFGaussianMeasure
 from .warped_bq_model import WarpedBayesianQuadratureModel
 from .warpings import SquareRootWarping
 
@@ -62,7 +62,7 @@ class BoundedBayesianQuadrature(WarpedBayesianQuadratureModel):
 
         # The integrate method is specific to QuadratureRBFIsoGaussMeasure, predict methods are only specific to
         # the approximation method used (Taylor expansion of the GP in this case).
-        if not isinstance(base_gp.kern, QuadratureRBFIsoGaussMeasure):
+        if not isinstance(base_gp.kern, QuadratureRBFGaussianMeasure):
             raise ValueError(
                 f"{self.__class__.__name__} can only be used with QuadratureRBFIsoGaussMeasure kernel. "
                 f"Instead {type(base_gp.kern)} is given."

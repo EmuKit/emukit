@@ -139,13 +139,13 @@ class QuadratureRBFLebesgueMeasure(QuadratureRBF):
         return self.qK(x2) * fraction
 
 
-class QuadratureRBFIsoGaussMeasure(QuadratureRBF):
-    """An RBF kernel augmented with integrability w.r.t. an isotropic Gaussian measure.
+class QuadratureRBFGaussianMeasure(QuadratureRBF):
+    """An RBF kernel augmented with integrability w.r.t. a Gaussian measure.
 
     .. seealso::
        * :class:`emukit.quadrature.interfaces.IRBF`
        * :class:`emukit.quadrature.kernels.QuadratureRBF`
-       * :class:`emukit.quadrature.measures.IsotropicGaussianMeasure`
+       * :class:`emukit.quadrature.measures.GaussianMeasure`
 
     :param rbf_kernel: The standard EmuKit rbf-kernel.
     :param measure: A Gaussian measure.

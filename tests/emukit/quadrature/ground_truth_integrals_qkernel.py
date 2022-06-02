@@ -12,7 +12,7 @@ from test_quadrature_kernels import (
     get_qmatern32_lebesque,
     get_qmatern52_lebesque,
     get_qprodbrownian_lebesque,
-    get_qrbf_gauss_iso,
+    get_qrbf_gaussian,
     get_qrbf_lebesque,
     get_qrbf_uniform_finite,
     get_qrbf_uniform_infinite,
@@ -31,8 +31,8 @@ def _sample_uniform(num_samples: int, bounds: List[Tuple[float, float]]) -> np.n
     return samples_shifted
 
 
-def _sample_gauss_iso(num_samples: int, measure: GaussianMeasure) -> np.ndarray:
-    D = measure.num_dimensions
+def _sample_gaussian(num_samples: int, measure: GaussianMeasure) -> np.ndarray:
+    D = measure.input_dim
     samples = np.reshape(np.random.randn(num_samples * D), [num_samples, D])
     return measure.mean + np.sqrt(measure.variance) * samples
 
@@ -58,18 +58,18 @@ def qKq_lebesgue(num_samples: int, qkern: QuadratureKernel) -> float:
     return np.mean(qKx) * volume
 
 
-def qK_gauss_iso(num_samples: int, qkern: QuadratureKernel, x2: np.ndarray) -> np.ndarray:
-    """MC estimator for kernel mean qK on isotropic Gaussian measure."""
+def qK_gaussian(num_samples: int, qkern: QuadratureKernel, x2: np.ndarray) -> np.ndarray:
+    """MC estimator for kernel mean qK on Gaussian measure."""
     measure = qkern.measure
-    samples = _sample_gauss_iso(num_samples, measure)
+    samples = _sample_gaussian(num_samples, measure)
     Kx = qkern.K(samples, x2)
     return np.mean(Kx, axis=0)
 
 
-def qKq_gauss_iso(num_samples: int, qkern: QuadratureKernel) -> float:
-    """MC estimator for initial error qKq on isotropic Gaussian measure."""
+def qKq_gaussian(num_samples: int, qkern: QuadratureKernel) -> float:
+    """MC estimator for initial error qKq on Gaussian measure."""
     measure = qkern.measure
-    samples = _sample_gauss_iso(num_samples, measure)
+    samples = _sample_gaussian(num_samples, measure)
     qKx = qkern.qK(samples)
     return np.mean(qKx)
 
@@ -110,26 +110,26 @@ if __name__ == "__main__":
     np.random.seed(0)
 
     # === Choose MEASURE BELOW ======
-    MEASURE_INTBOUNDS = "Lebesgue-finite"
-    # MEASURE_INTBOUNDS = 'GaussIso-infinite'
+    # MEASURE_INTBOUNDS = "Lebesgue-finite"
+    MEASURE_INTBOUNDS = 'Gaussian-infinite'
     # MEASURE_INTBOUNDS = 'Uniform-infinite'
     # MEASURE_INTBOUNDS = "Uniform-finite"
     # === CHOOSE MEASURE ABOVE ======
 
     # === Choose KERNEL BELOW ======
-    # KERNEL = 'rbf'
+    KERNEL = 'rbf'
     # KERNEL = "matern32"
     # KERNEL = "matern52"
     # KERNEL = "brownian"
-    KERNEL = "prodbrownian"
+    # KERNEL = "prodbrownian"
     # === CHOOSE KERNEL ABOVE ======
 
     _e = "Kernel embedding not implemented."
     if KERNEL == "rbf":
         if MEASURE_INTBOUNDS == "Lebesgue-finite":
             emukit_qkern, dat = get_qrbf_lebesque()
-        elif MEASURE_INTBOUNDS == "GaussIso-infinite":
-            emukit_qkern, dat = get_qrbf_gauss_iso()
+        elif MEASURE_INTBOUNDS == "Gaussian-infinite":
+            emukit_qkern, dat = get_qrbf_gaussian()
         elif MEASURE_INTBOUNDS == "Uniform-infinite":
             emukit_qkern, dat = get_qrbf_uniform_infinite()
         elif MEASURE_INTBOUNDS == "Uniform-finite":
@@ -169,8 +169,8 @@ if __name__ == "__main__":
 
         if MEASURE_INTBOUNDS == "Lebesgue-finite":
             qK_samples = qK_lebesgue(num_samples, emukit_qkern, dat.x2)
-        elif MEASURE_INTBOUNDS == "GaussIso-infinite":
-            qK_samples = qK_gauss_iso(num_samples, emukit_qkern, dat.x2)
+        elif MEASURE_INTBOUNDS == "Gaussian-infinite":
+            qK_samples = qK_gaussian(num_samples, emukit_qkern, dat.x2)
         elif MEASURE_INTBOUNDS == "Uniform-infinite":
             qK_samples = qK_uniform(num_samples, emukit_qkern, dat.x2)
         elif MEASURE_INTBOUNDS == "Uniform-finite":
@@ -205,8 +205,8 @@ if __name__ == "__main__":
 
         if MEASURE_INTBOUNDS == "Lebesgue-finite":
             qKq_samples = qKq_lebesgue(num_samples, emukit_qkern)
-        elif MEASURE_INTBOUNDS == "GaussIso-infinite":
-            qKq_samples = qKq_gauss_iso(num_samples, emukit_qkern)
+        elif MEASURE_INTBOUNDS == "Gaussian-infinite":
+            qKq_samples = qKq_gaussian(num_samples, emukit_qkern)
         elif MEASURE_INTBOUNDS == "Uniform-infinite":
             qKq_samples = qKq_uniform(num_samples, emukit_qkern)
         elif MEASURE_INTBOUNDS == "Uniform-finite":

@@ -24,7 +24,7 @@ from ..quadrature.kernels import (
     QuadratureProductBrownianLebesgueMeasure,
     QuadratureProductMatern32LebesgueMeasure,
     QuadratureProductMatern52LebesgueMeasure,
-    QuadratureRBFIsoGaussMeasure,
+    QuadratureRBFGaussianMeasure,
     QuadratureRBFLebesgueMeasure,
     QuadratureRBFUniformMeasure,
 )
@@ -677,7 +677,7 @@ def _get_qkernel_gauss(
                 variable_names=integral_name,
             )
         elif isinstance(measure, GaussianMeasure):
-            quadrature_kernel_emukit = QuadratureRBFIsoGaussMeasure(
+            quadrature_kernel_emukit = QuadratureRBFGaussianMeasure(
                 rbf_kernel=standard_kernel_emukit, measure=measure, variable_names=integral_name
             )
         else:

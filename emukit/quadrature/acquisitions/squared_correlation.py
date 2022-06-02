@@ -47,7 +47,7 @@ class SquaredCorrelation(Acquisition):
         """
         return self._evaluate(x)[0]
 
-    def _evaluate(self, x: np.ndarray) -> Tuple[np.ndarray, np.float, np.ndarray, np.ndarray]:
+    def _evaluate(self, x: np.ndarray) -> Tuple[np.ndarray, float, np.ndarray, np.ndarray]:
         """Evaluates the acquisition function at x.
 
         :param x: The locations where to evaluate, shape (n_points, input_dim) .
@@ -79,7 +79,7 @@ class SquaredCorrelation(Acquisition):
 
         return squared_correlation, squared_correlation_gradient
 
-    def _value_terms(self, x: np.ndarray) -> Tuple[np.float, np.ndarray, np.ndarray]:
+    def _value_terms(self, x: np.ndarray) -> Tuple[float, np.ndarray, np.ndarray]:
         """Computes the terms needed for the squared correlation.
 
         :param x: The locations where to evaluate, shape (n_points, input_dim).

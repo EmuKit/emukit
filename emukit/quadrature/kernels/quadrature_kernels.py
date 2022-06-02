@@ -88,7 +88,7 @@ class QuadratureKernel:
         """
         return self.qK(x1).T
 
-    def qKq(self) -> np.float:
+    def qKq(self) -> float:
         """The kernel integrated over both arguments x1 and x2.
 
         :returns: Double integrated kernel.
