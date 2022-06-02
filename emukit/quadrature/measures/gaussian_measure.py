@@ -1,5 +1,7 @@
 """The Gaussian measure."""
 
+from typing import Union
+
 import numpy as np
 
 from ...core.optimization.context_manager import ContextManager
@@ -7,24 +9,25 @@ from ..typing import BoundsType
 from .integration_measure import IntegrationMeasure
 
 
-class IsotropicGaussianMeasure(IntegrationMeasure):
-    r"""The isotropic Gaussian measure.
+class GaussianMeasure(IntegrationMeasure):
+    r"""The Gaussian measure.
 
-    The isotropic Gaussian measure has density
+    The Gaussian measure has density
 
     .. math::
-        p(x)=(2\pi\sigma^2)^{-\frac{D}{2}} e^{-\frac{1}{2}\frac{\|x-\mu\|^2}{\sigma^2}}
+        p(x)=(2\pi)^{-\frac{d}{2}} \left(\prod_{j=1}^d \sigma_j^2\right)^{-\frac{1}{2}} e^{-\frac{1}{2}\sum_{i=1}^d\frac{(x_i-\mu_i)^2}{\sigma_i^2}}
 
-    where :math:`\mu` is the mean vector and :math:`\sigma^2` is the scalar variance
-    parametrizing the measure.
+    where :math:`\mu_i` is the :math:`i` th element of the ``mean`` parameter and
+    :math:`\sigma_i^2` is :math:`i` th element of the ``variance`` parameter.
 
-    :param mean: The mean of the Gaussian measure, shape (num_dimensions, ).
-    :param variance: The scalar variance of the Gaussian measure.
+    :param mean: The mean of the Gaussian measure, shape (input_dim, ).
+    :param variance: The variances of the Gaussian measure. If a scalar value is given, all dimensions
+                     will have same variance.
 
     """
 
-    def __init__(self, mean: np.ndarray, variance: float):
-        super().__init__("IsotropicGaussianMeasure")
+    def __init__(self, mean: np.ndarray, variance: Union[float, np.ndarray]):
+        super().__init__("GaussianMeasure")
         # check mean
         if not isinstance(mean, np.ndarray):
             raise TypeError("Mean must be of type numpy.ndarray, {} given.".format(type(mean)))
@@ -33,20 +36,36 @@ class IsotropicGaussianMeasure(IntegrationMeasure):
             raise ValueError("Dimension of mean must be 1, dimension {} given.".format(mean.ndim))
 
         # check covariance
-        if not isinstance(variance, float):
-            raise TypeError("Variance must be of type float, {} given.".format(type(variance)))
+        is_isotropic = False
 
-        if not variance > 0:
-            raise ValueError("Variance must be positive, current value is {}.".format(variance))
+        if isinstance(variance, float):
+            if not variance > 0:
+                raise ValueError("Variance must be positive, current value is {}.".format(variance))
+            variance = np.full((mean.shape[0],), variance)
+            is_isotropic = True
+
+        elif isinstance(variance, np.ndarray):
+            if variance.shape != mean.shape:
+                raise ValueError(
+                    "Variance has wrong shape; {} given but {} expected.".format(variance.shape, mean.shape)
+                )
+            if not all(variance > 0):
+                raise ValueError(
+                    "All elements of variance must be positive. At least one value seems to be non positive."
+                )
+
+        else:
+            raise TypeError("Variance must be of type float or numpy.ndarray, {} given.".format(type(variance)))
 
         self.mean = mean
         self.variance = variance
-        self.num_dimensions = mean.shape[0]
+        self.input_dim = mean.shape[0]
+        self.is_isotropic = is_isotropic
 
     @property
     def full_covariance_matrix(self):
         """The full covariance matrix of the Gaussian measure."""
-        return self.variance * np.eye(self.num_dimensions)
+        return np.diag(self.variance)
 
     @property
     def can_sample(self) -> bool:
@@ -62,7 +81,7 @@ class IsotropicGaussianMeasure(IntegrationMeasure):
         :param x: Points at which density is evaluated, shape (n_points, input_dim).
         :return: The density at x, shape (n_points, ).
         """
-        factor = (2 * np.pi * self.variance) ** (self.num_dimensions / 2)
+        factor = (2 * np.pi) ** (self.input_dim / 2) * np.prod(np.sqrt(self.variance))
         scaled_diff = (x - self.mean) / (np.sqrt(2 * self.variance))
         return np.exp(-np.sum(scaled_diff**2, axis=1)) / factor
 
@@ -73,7 +92,8 @@ class IsotropicGaussianMeasure(IntegrationMeasure):
         :return: The gradient of the density at x, shape (n_points, input_dim).
         """
         values = self.compute_density(x)
-        return ((-values / self.variance) * (x - self.mean).T).T
+        diff = (x - self.mean) / self.variance
+        return -diff * values[:, None]
 
     def get_box(self) -> BoundsType:
         """A meaningful box containing the measure.
@@ -98,10 +118,10 @@ class IsotropicGaussianMeasure(IntegrationMeasure):
                                 If a context is given, this method samples from the conditional distribution.
         :return: The samples, shape (num_samples, input_dim).
         """
-        samples = self.mean + np.sqrt(self.variance) * np.random.randn(num_samples, self.num_dimensions)
+        samples = self.mean + np.sqrt(self.variance) * np.random.randn(num_samples, self.input_dim)
 
         if context_manager is not None:
-            # since the Gaussian is isotropic, fixing the value after sampling the joint is equal to sampling the
+            # Since the Gaussian is diagonal, fixing the value after sampling the joint is equal to sampling the
             # conditional.
             samples[:, context_manager.context_idxs] = context_manager.context_values
 

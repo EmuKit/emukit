@@ -27,7 +27,7 @@ from emukit.quadrature.kernels import (
     QuadratureRBFLebesgueMeasure,
     QuadratureRBFUniformMeasure,
 )
-from emukit.quadrature.measures import IsotropicGaussianMeasure, UniformMeasure
+from emukit.quadrature.measures import GaussianMeasure, UniformMeasure
 
 
 # the following classes and functions are also used to compute the ground truth integrals with MC
@@ -147,7 +147,7 @@ def get_qrbf_lebesque():
 
 def get_qrbf_gauss_iso():
     dat = DataGaussIso()
-    measure = IsotropicGaussianMeasure(mean=dat.measure_mean, variance=dat.measure_var)
+    measure = GaussianMeasure(mean=dat.measure_mean, variance=dat.measure_var)
     qkern = QuadratureRBFIsoGaussMeasure(EmukitRBF().kern, measure=measure)
     return qkern, dat
 

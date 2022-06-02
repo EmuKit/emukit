@@ -7,7 +7,7 @@ from pytest_lazyfixture import lazy_fixture
 from emukit.core.loop.user_function import UserFunctionWrapper
 from emukit.model_wrappers.gpy_quadrature_wrappers import BaseGaussianProcessGPy, QuadratureRBFIsoGaussMeasure, RBFGPy
 from emukit.quadrature.loop import WSABILLoop
-from emukit.quadrature.measures import IsotropicGaussianMeasure
+from emukit.quadrature.measures import GaussianMeasure
 from emukit.quadrature.methods import WSABIL
 
 
@@ -20,7 +20,7 @@ def base_gp_data():
     X = np.array([[-1, 1], [0, 0], [-2, 0.1]])
     Y = np.array([[1], [2], [3]])
     gpy_model = GPy.models.GPRegression(X=X, Y=Y, kernel=GPy.kern.RBF(input_dim=X.shape[1]))
-    measure = IsotropicGaussianMeasure(mean=np.array([0.1, 1.8]), variance=0.8)
+    measure = GaussianMeasure(mean=np.array([0.1, 1.8]), variance=0.8)
     qrbf = QuadratureRBFIsoGaussMeasure(RBFGPy(gpy_model.kern), measure=measure)
     base_gp = BaseGaussianProcessGPy(kern=qrbf, gpy_model=gpy_model)
     return base_gp, X, Y

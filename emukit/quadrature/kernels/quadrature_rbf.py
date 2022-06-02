@@ -11,7 +11,7 @@ from scipy.special import erf
 
 from ...quadrature.interfaces.standard_kernels import IRBF
 from ..kernels import QuadratureKernel
-from ..measures import BoxDomain, IntegrationMeasure, IsotropicGaussianMeasure, UniformMeasure
+from ..measures import BoxDomain, GaussianMeasure, IntegrationMeasure, UniformMeasure
 from ..typing import BoundsType
 
 
@@ -153,7 +153,7 @@ class QuadratureRBFIsoGaussMeasure(QuadratureRBF):
 
     """
 
-    def __init__(self, rbf_kernel: IRBF, measure: IsotropicGaussianMeasure, variable_names: str = "") -> None:
+    def __init__(self, rbf_kernel: IRBF, measure: GaussianMeasure, variable_names: str = "") -> None:
         super().__init__(rbf_kernel=rbf_kernel, integral_bounds=None, measure=measure, variable_names=variable_names)
 
     def qK(self, x2: np.ndarray, scale_factor: float = 1.0) -> np.ndarray:

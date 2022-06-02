@@ -19,7 +19,7 @@ from test_quadrature_kernels import (
 )
 
 from emukit.quadrature.kernels import QuadratureKernel
-from emukit.quadrature.measures import IsotropicGaussianMeasure
+from emukit.quadrature.measures import GaussianMeasure
 
 
 def _sample_uniform(num_samples: int, bounds: List[Tuple[float, float]]) -> np.ndarray:
@@ -31,7 +31,7 @@ def _sample_uniform(num_samples: int, bounds: List[Tuple[float, float]]) -> np.n
     return samples_shifted
 
 
-def _sample_gauss_iso(num_samples: int, measure: IsotropicGaussianMeasure) -> np.ndarray:
+def _sample_gauss_iso(num_samples: int, measure: GaussianMeasure) -> np.ndarray:
     D = measure.num_dimensions
     samples = np.reshape(np.random.randn(num_samples * D), [num_samples, D])
     return measure.mean + np.sqrt(measure.variance) * samples
