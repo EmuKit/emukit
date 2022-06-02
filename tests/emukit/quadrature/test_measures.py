@@ -111,8 +111,8 @@ def test_uniform_measure_wrong_bounds():
 
 
 def test_gauss_measure_values(gauss_measure, gauss_iso_measure):
-    assert gauss_iso_measure.is_isotropic
-    assert not gauss_measure.is_isotropic
+    assert gauss_iso_measure.measure.is_isotropic
+    assert not gauss_measure.measure.is_isotropic
 
 
 @pytest.mark.parametrize(

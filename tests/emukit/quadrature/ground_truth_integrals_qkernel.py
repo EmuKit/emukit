@@ -111,13 +111,13 @@ if __name__ == "__main__":
 
     # === Choose MEASURE BELOW ======
     # MEASURE_INTBOUNDS = "Lebesgue-finite"
-    MEASURE_INTBOUNDS = 'Gaussian-infinite'
+    MEASURE_INTBOUNDS = "Gaussian-infinite"
     # MEASURE_INTBOUNDS = 'Uniform-infinite'
     # MEASURE_INTBOUNDS = "Uniform-finite"
     # === CHOOSE MEASURE ABOVE ======
 
     # === Choose KERNEL BELOW ======
-    KERNEL = 'rbf'
+    KERNEL = "rbf"
     # KERNEL = "matern32"
     # KERNEL = "matern52"
     # KERNEL = "brownian"

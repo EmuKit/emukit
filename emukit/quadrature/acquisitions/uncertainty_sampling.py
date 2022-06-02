@@ -30,6 +30,7 @@ class UncertaintySampling(Acquisition):
         self.model = model
         self._measure_power = measure_power
 
+    @property
     def has_gradients(self) -> bool:
         """Whether acquisition value has analytical gradient calculation available."""
         return True

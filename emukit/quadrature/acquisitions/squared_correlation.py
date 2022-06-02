@@ -35,6 +35,7 @@ class SquaredCorrelation(Acquisition):
     def __init__(self, model: VanillaBayesianQuadrature):
         self.model = model
 
+    @property
     def has_gradients(self) -> bool:
         """Whether acquisition value has analytical gradient calculation available."""
         return True
