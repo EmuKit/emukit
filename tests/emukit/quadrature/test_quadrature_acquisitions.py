@@ -11,7 +11,7 @@ from utils import check_grad
 from emukit.model_wrappers.gpy_quadrature_wrappers import BaseGaussianProcessGPy, RBFGPy
 from emukit.quadrature.acquisitions import IntegralVarianceReduction, MutualInformation, UncertaintySampling
 from emukit.quadrature.kernels.quadrature_rbf import QuadratureRBFGaussianMeasure, QuadratureRBFLebesgueMeasure
-from emukit.quadrature.measures import GaussianMeasure
+from emukit.quadrature.measures import GaussianMeasure, LebesgueMeasure
 from emukit.quadrature.methods import VanillaBayesianQuadrature
 
 
@@ -28,7 +28,8 @@ def gpy_model():
 @pytest.fixture
 def model(gpy_model):
     x_init, y_init = gpy_model.X, gpy_model.Y
-    qrbf = QuadratureRBFLebesgueMeasure(RBFGPy(gpy_model.kern), integral_bounds=x_init.shape[1] * [(-3, 3)])
+    measure = LebesgueMeasure.from_bounds(bounds=x_init.shape[1] * [(-3, 3)])
+    qrbf = QuadratureRBFLebesgueMeasure(RBFGPy(gpy_model.kern), measure)
     basegp = BaseGaussianProcessGPy(kern=qrbf, gpy_model=gpy_model)
     return VanillaBayesianQuadrature(base_gp=basegp, X=x_init, Y=y_init)
 

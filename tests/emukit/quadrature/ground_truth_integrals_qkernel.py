@@ -90,17 +90,17 @@ if __name__ == "__main__":
     np.random.seed(0)
 
     # === Choose MEASURE BELOW ======
-    MEASURE = "Gaussian"
+    # MEASURE = "Gaussian"
     # MEASURE = "Lebesgue"
-    # MEASURE = "Lebesgue-normalized"
+    MEASURE = "Lebesgue-normalized"
     # === CHOOSE MEASURE ABOVE ======
 
     # === Choose KERNEL BELOW ======
-    KERNEL = "rbf"
+    # KERNEL = "rbf"
     # KERNEL = "matern32"
     # KERNEL = "matern52"
     # KERNEL = "brownian"
-    # KERNEL = "prodbrownian"
+    KERNEL = "prodbrownian"
     # === CHOOSE KERNEL ABOVE ======
 
     _e = "Kernel embedding not implemented."
