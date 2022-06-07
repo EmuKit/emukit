@@ -25,50 +25,49 @@ from emukit.quadrature.kernels import (
     QuadratureProductMatern52LebesgueMeasure,
     QuadratureRBFGaussianMeasure,
     QuadratureRBFLebesgueMeasure,
-    QuadratureRBFUniformMeasure,
 )
-from emukit.quadrature.measures import GaussianMeasure, UniformMeasure
+from emukit.quadrature.measures import GaussianMeasure, LebesgueMeasure
 
 
 # the following classes and functions are also used to compute the ground truth integrals with MC
 @dataclass
-class DataLebesque:
+class DataBox:
     D = 2
-    integral_bounds = [(-1, 2), (-3, 3)]
+    bounds = [(-1, 2), (-3, 3)]
     # x1 and x2 must lay inside domain
     x1 = np.array([[-1, 1], [0, 0.1], [0.5, -1.5]])
     x2 = np.array([[-1, 1], [0, 0.2], [0.8, -0.1], [1.3, 2.8]])
     N = 3
     M = 4
-    dat_bounds = integral_bounds
+    dat_bounds = bounds
 
 
 @dataclass
-class DataLebesqueSDElike:
-    D = 1
-    integral_bounds = [(0.2, 1.6)]
-    # x1 and x2 must lay inside domain
-    x1 = np.array([[0.3], [0.8], [1.5]])
-    x2 = np.array([[0.25], [0.5], [1.0], [1.2]])
-    N = 3
-    M = 4
-    dat_bounds = integral_bounds
-
-
-@dataclass
-class DataPositiveDomain:
+class DataBoxPositiveDomain:
     D = 2
-    integral_bounds = [(0.1, 2), (0.2, 3)]
+    bounds = [(0.1, 2), (0.2, 3)]
     # x1 and x2 must lay inside domain
     x1 = np.array([[0.3, 1], [0.8, 0.5], [1.5, 2.8]])
     x2 = np.array([[0.25, 1.1], [0.5, 0.3], [1.0, 1.3], [1.2, 1.2]])
     N = 3
     M = 4
-    dat_bounds = integral_bounds
+    dat_bounds = bounds
 
 
 @dataclass
-class DataGaussian:
+class DataIntervalPositiveDomain:
+    D = 1
+    bounds = [(0.2, 1.6)]
+    # x1 and x2 must lay inside domain
+    x1 = np.array([[0.3], [0.8], [1.5]])
+    x2 = np.array([[0.25], [0.5], [1.0], [1.2]])
+    N = 3
+    M = 4
+    dat_bounds = bounds
+
+
+@dataclass
+class DataGaussianSpread:
     D = 2
     measure_mean = np.array([0.2, 1.3])
     measure_var = np.array([0.3, 1.4])
@@ -80,36 +79,10 @@ class DataGaussian:
 
 
 @dataclass
-class DataUniformFinite:
-    D = 2
-    integral_bounds = [(-1, 2), (-3, 3)]
-    bounds = [(1, 2), (-4, 2)]
-    # x1 and x2 must lay inside dat_bounds
-    x1 = np.array([[0.1, 1], [0, 0.1], [0.5, -1.5]])
-    x2 = np.array([[0.1, 1], [0, 0.1], [0.8, -0.1], [1.3, 2]])
-    N = 3
-    M = 4
-    dat_bounds = [(-1, 2), (-2, 3)]
-
-
-@dataclass
-class DataUniformInfinite:
-    D = 2
-    integral_bounds = None
-    bounds = [(1, 2), (-4, 2)]
-    # x1 and x2 must lay inside domain
-    x1 = np.array([[-1, 1], [0, 0.1], [1.5, -1.5]])
-    x2 = np.array([[-1, 1], [0, 0.2], [1.8, -0.1], [1.3, 1.8]])
-    N = 3
-    M = 4
-    dat_bounds = bounds
-
-
-@dataclass
 class EmukitRBF:
-    ell = np.array([0.8, 1.3])
-    var = 0.5
-    kern = RBFGPy(GPy.kern.RBF(input_dim=2, lengthscale=ell, variance=var, ARD=True))
+    variance = 0.5
+    lengthscales = np.array([0.8, 1.3])
+    kern = RBFGPy(GPy.kern.RBF(input_dim=2, lengthscale=lengthscales, variance=variance, ARD=True))
 
 
 @dataclass
@@ -139,115 +112,167 @@ class EmukitProductBrownian:
     kern = ProductBrownianGPy(variance=variance, input_dim=2, offset=offset)
 
 
-def get_qrbf_lebesque():
-    dat = DataLebesque()
-    qkern = QuadratureRBFLebesgueMeasure(EmukitRBF().kern, integral_bounds=dat.integral_bounds)
-    return qkern, dat
-
-
-def get_qrbf_gaussian():
-    dat = DataGaussian()
+# gaussian
+def get_gaussian_qrbf():
+    dat = DataGaussianSpread()
     measure = GaussianMeasure(mean=dat.measure_mean, variance=dat.measure_var)
     qkern = QuadratureRBFGaussianMeasure(EmukitRBF().kern, measure=measure)
     return qkern, dat
 
 
-def get_qrbf_uniform_finite():
-    dat = DataUniformFinite()
-    measure = UniformMeasure(bounds=dat.bounds)
-    qkern = QuadratureRBFUniformMeasure(rbf_kernel=EmukitRBF.kern, integral_bounds=dat.integral_bounds, measure=measure)
+# lebesgue
+def get_lebesgue_qrbf():
+    dat = DataBox()
+    measure = LebesgueMeasure(bounds=dat.bounds, normalized=False)
+    qkern = QuadratureRBFLebesgueMeasure(EmukitRBF().kern, measure=measure)
     return qkern, dat
 
 
-def get_qrbf_uniform_infinite():
-    dat = DataUniformInfinite()
-    measure = UniformMeasure(bounds=dat.bounds)
-    qkern = QuadratureRBFUniformMeasure(rbf_kernel=EmukitRBF.kern, integral_bounds=dat.integral_bounds, measure=measure)
+def get_lebesgue_qmatern32():
+    dat = DataBox()
+    measure = LebesgueMeasure(bounds=dat.bounds, normalized=False)
+    qkern = QuadratureProductMatern32LebesgueMeasure(EmukitProductMatern32().kern, measure=measure)
     return qkern, dat
 
 
-def get_qmatern32_lebesque():
-    dat = DataLebesque()
-    qkern = QuadratureProductMatern32LebesgueMeasure(EmukitProductMatern32().kern, integral_bounds=dat.integral_bounds)
+def get_lebesgue_qmatern52():
+    dat = DataBox()
+    measure = LebesgueMeasure(bounds=dat.bounds, normalized=False)
+    qkern = QuadratureProductMatern52LebesgueMeasure(EmukitProductMatern52().kern, measure=measure)
     return qkern, dat
 
 
-def get_qmatern52_lebesque():
-    dat = DataLebesque()
-    qkern = QuadratureProductMatern52LebesgueMeasure(EmukitProductMatern52().kern, integral_bounds=dat.integral_bounds)
+def get_lebesgue_qbrownian():
+    dat = DataIntervalPositiveDomain()
+    measure = LebesgueMeasure(bounds=dat.bounds, normalized=False)
+    qkern = QuadratureBrownianLebesgueMeasure(EmukitBrownian().kern, measure=measure)
     return qkern, dat
 
 
-def get_qbrownian_lebesque():
-    dat = DataLebesqueSDElike()
-    qkern = QuadratureBrownianLebesgueMeasure(EmukitBrownian().kern, integral_bounds=dat.integral_bounds)
+def get_lebesgue_qprodbrownian():
+    dat = DataBoxPositiveDomain()
+    measure = LebesgueMeasure(bounds=dat.bounds, normalized=False)
+    qkern = QuadratureProductBrownianLebesgueMeasure(EmukitProductBrownian().kern, measure=measure)
     return qkern, dat
 
 
-def get_qprodbrownian_lebesque():
-    dat = DataPositiveDomain()
-    qkern = QuadratureProductBrownianLebesgueMeasure(EmukitProductBrownian().kern, integral_bounds=dat.integral_bounds)
+# lebesgue normalized
+def get_lebesgue_normalized_qrbf():
+    dat = DataBox()
+    measure = LebesgueMeasure(bounds=dat.bounds, normalized=True)
+    qkern = QuadratureRBFLebesgueMeasure(EmukitRBF().kern, measure=measure)
     return qkern, dat
 
 
-# == fixtures start here
+def get_lebesgue_normalized_qmatern32():
+    dat = DataBox()
+    measure = LebesgueMeasure(bounds=dat.bounds, normalized=True)
+    qkern = QuadratureProductMatern32LebesgueMeasure(EmukitProductMatern32().kern, measure=measure)
+    return qkern, dat
+
+
+def get_lebesgue_normalized_qmatern52():
+    dat = DataBox()
+    measure = LebesgueMeasure(bounds=dat.bounds, normalized=True)
+    qkern = QuadratureProductMatern52LebesgueMeasure(EmukitProductMatern52().kern, measure=measure)
+    return qkern, dat
+
+
+def get_lebesgue_normalized_qbrownian():
+    dat = DataIntervalPositiveDomain()
+    measure = LebesgueMeasure(bounds=dat.bounds, normalized=True)
+    qkern = QuadratureBrownianLebesgueMeasure(EmukitBrownian().kern, measure=measure)
+    return qkern, dat
+
+
+def get_lebesgue_normalized_qprodbrownian():
+    dat = DataBoxPositiveDomain()
+    measure = LebesgueMeasure(bounds=dat.bounds, normalized=True)
+    qkern = QuadratureProductBrownianLebesgueMeasure(EmukitProductBrownian().kern, measure=measure)
+    return qkern, dat
+
+
+# == fixtures Gaussian start here
 @pytest.fixture
-def qrbf_lebesgue():
-    qkern, dat = get_qrbf_lebesque()
+def gaussian_qrbf():
+    qkern, dat = get_gaussian_qrbf()
+    return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D, dat.dat_bounds
+
+
+# == fixtures Lebesgue start here
+@pytest.fixture
+def lebesgue_qrbf():
+    qkern, dat = get_lebesgue_qrbf()
     return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D, dat.dat_bounds
 
 
 @pytest.fixture
-def qrbf_gaussian():
-    qkern, dat = get_qrbf_gaussian()
+def lebesgue_qmatern32():
+    qkern, dat = get_lebesgue_qmatern32()
     return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D, dat.dat_bounds
 
 
 @pytest.fixture
-def qrbf_uniform_infinite():
-    qkern, dat = get_qrbf_uniform_infinite()
+def lebesgue_qmatern52():
+    qkern, dat = get_lebesgue_qmatern52()
     return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D, dat.dat_bounds
 
 
 @pytest.fixture
-def qrbf_uniform_finite():
-    qkern, dat = get_qrbf_uniform_finite()
+def lebesgue_qbrownian():
+    qkern, dat = get_lebesgue_qbrownian()
     return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D, dat.dat_bounds
 
 
 @pytest.fixture
-def qmatern32_lebesgue():
-    qkern, dat = get_qmatern32_lebesque()
+def lebesque_qprodbrownian():
+    qkern, dat = get_lebesgue_qprodbrownian()
+    return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D, dat.dat_bounds
+
+
+# == fixtures Lebesgue normalized start here
+@pytest.fixture
+def lebesgue_normalized_qrbf():
+    qkern, dat = get_lebesgue_normalized_qrbf()
     return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D, dat.dat_bounds
 
 
 @pytest.fixture
-def qmatern52_lebesgue():
-    qkern, dat = get_qmatern52_lebesque()
+def lebesgue_normalized_qmatern32():
+    qkern, dat = get_lebesgue_normalized_qmatern32()
     return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D, dat.dat_bounds
 
 
 @pytest.fixture
-def qbrownian_lebesgue():
-    qkern, dat = get_qbrownian_lebesque()
+def lebesgue_normalized_qmatern52():
+    qkern, dat = get_lebesgue_normalized_qmatern52()
     return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D, dat.dat_bounds
 
 
 @pytest.fixture
-def qprodbrownian_lebesque():
-    qkern, dat = get_qprodbrownian_lebesque()
+def lebesgue_normalized_qbrownian():
+    qkern, dat = get_lebesgue_normalized_qbrownian()
+    return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D, dat.dat_bounds
+
+
+@pytest.fixture
+def lebesque_normalized_qprodbrownian():
+    qkern, dat = get_lebesgue_normalized_qprodbrownian()
     return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D, dat.dat_bounds
 
 
 embeddings_test_list = [
-    lazy_fixture("qrbf_lebesgue"),
-    lazy_fixture("qrbf_gaussian"),
-    lazy_fixture("qrbf_uniform_infinite"),
-    lazy_fixture("qrbf_uniform_finite"),
-    lazy_fixture("qmatern32_lebesgue"),
-    lazy_fixture("qmatern52_lebesgue"),
-    lazy_fixture("qbrownian_lebesgue"),
-    lazy_fixture("qprodbrownian_lebesque"),
+    lazy_fixture("gaussian_qrbf"),
+    lazy_fixture("lebesgue_qrbf"),
+    lazy_fixture("lebesgue_qmatern32"),
+    lazy_fixture("lebesgue_qmatern52"),
+    lazy_fixture("lebesgue_qbrownian"),
+    lazy_fixture("lebesque_qprodbrownian"),
+    lazy_fixture("lebesgue_normalized_qrbf"),
+    lazy_fixture("lebesgue_normalized_qmatern32"),
+    lazy_fixture("lebesgue_normalized_qmatern52"),
+    lazy_fixture("lebesgue_normalized_qbrownian"),
+    lazy_fixture("lebesque_normalized_qprodbrownian"),
 ]
 
 
@@ -271,14 +296,17 @@ def test_qkernel_shapes(kernel_embedding):
 @pytest.mark.parametrize(
     "kernel_embedding,interval",
     [
-        (embeddings_test_list[0], [38.267217898004176, 38.32112525041843]),
-        (embeddings_test_list[1], [0.22019471616760106, 0.22056701590213823]),
-        (embeddings_test_list[2], [0.19925694197982124, 0.19946236996755512]),
-        (embeddings_test_list[3], [0.15840594393483423, 0.16003690383217276]),
-        (embeddings_test_list[4], [33.6816570527734, 33.726646173769595]),
-        (embeddings_test_list[5], [36.311780552275614, 36.36134818184079]),
-        (embeddings_test_list[6], [0.6528048146871609, 0.653858667201299]),
-        (embeddings_test_list[7], [147.1346099151547, 147.3099172678195]),
+        (embeddings_test_list[0],),
+        (embeddings_test_list[1],),
+        (embeddings_test_list[2],),
+        (embeddings_test_list[3],),
+        (embeddings_test_list[4],),
+        (embeddings_test_list[5],),
+        (embeddings_test_list[6],),
+        (embeddings_test_list[7],),
+        (embeddings_test_list[8],),
+        (embeddings_test_list[9],),
+        (embeddings_test_list[10],),
     ],
 )
 def test_qkernel_qKq(kernel_embedding, interval):

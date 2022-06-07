@@ -8,7 +8,7 @@ import pytest
 from pytest_lazyfixture import lazy_fixture
 from utils import check_grad
 
-from emukit.quadrature.measures import GaussianMeasure, LebesgueMeasure, BoxDomain
+from emukit.quadrature.measures import BoxDomain, GaussianMeasure, LebesgueMeasure
 
 REL_TOL = 1e-5
 ABS_TOL = 1e-4
@@ -137,7 +137,7 @@ def test_lebesgue_measure_values(lebesgue_measure, lebesgue_measure_normalized):
     assert m_norm.input_dim == dat_norm.D
 
     assert m.density == 1.0
-    assert isclose(m_norm.density, 1/dat_norm.volume)
+    assert isclose(m_norm.density, 1 / dat_norm.volume)
 
     assert m.reasonable_box() == dat.bounds
     assert m_norm.reasonable_box() == dat_norm.bounds
@@ -190,8 +190,8 @@ def test_gauss_measure_values(gauss_measure, gauss_iso_measure):
 def test_gauss_measure_shapes(gauss_measure, gauss_iso_measure):
     input_dim = gauss_measure.D
     measure = gauss_measure.measure
-    assert measure.mean.shape == (input_dim, )
-    assert measure.variance.shape == (input_dim, )
+    assert measure.mean.shape == (input_dim,)
+    assert measure.variance.shape == (input_dim,)
     assert measure.full_covariance_matrix.shape == (input_dim, input_dim)
 
 
