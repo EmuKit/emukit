@@ -132,7 +132,7 @@ class QuadratureProductBrownian(QuadratureProductKernel):
     ) -> None:
         super().__init__(kern=brownian_kernel, measure=measure, variable_names=variable_names)
 
-        lower_bounds_x = self.reasonable_box.lower_bounds[0, :]
+        lower_bounds_x = self.reasonable_box.lower_bounds
         if any(lower_bounds_x < self.offset):
             raise ValueError(
                 f"The domain defined by the reasonable box seems allow to for values smaller than the offset "
