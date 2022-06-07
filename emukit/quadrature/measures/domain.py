@@ -22,15 +22,11 @@ class BoxDomain:
     """
 
     def __init__(self, name: str, bounds: BoundsType):
-        """ """
-
-        self.name = name
-        self.dim = len(bounds)
         self._check_bound_validity(bounds)
+        self.dim = len(bounds)
         self._bounds = bounds
         self.lower_bounds, self.upper_bounds = self._get_lower_and_upper_bounds()
-        self._lower_bounds = None
-        self._upper_bounds = None
+        self.name = name
 
     @property
     def bounds(self) -> BoundsType:
@@ -55,8 +51,9 @@ class BoxDomain:
 
         :param bounds: The bounds to be checked.
         """
-        if self.dim == 0:
+        if len(bounds) == 0:
             raise ValueError("Length of bound list must be > 0; empty list found.")
+
         for bounds_d in bounds:
             lb_d, ub_d = bounds_d
             if lb_d >= ub_d:

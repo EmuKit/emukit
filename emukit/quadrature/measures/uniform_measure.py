@@ -6,6 +6,7 @@ import numpy as np
 from ...core.optimization.context_manager import ContextManager
 from ..typing import BoundsType
 from .integration_measure import IntegrationMeasure
+from .domain import BoxDomain
 
 
 class UniformMeasure(IntegrationMeasure):
@@ -23,22 +24,13 @@ class UniformMeasure(IntegrationMeasure):
     """
 
     def __init__(self, bounds: BoundsType):
-        super().__init__("UniformMeasure")
+        super().__init__(domain=BoxDomain(name="", bounds=bounds), name="UniformMeasure")
 
-        # checks if lower bounds are smaller than upper bounds.
-        for (lb_d, ub_d) in bounds:
-            if lb_d >= ub_d:
-                raise ValueError(
-                    "Upper bound of uniform measure must be larger than lower bound. Found a pair "
-                    "containing ({}, {}).".format(lb_d, ub_d)
-                )
-
-        self.bounds = bounds
-        # uniform measure has constant density which is computed here.
         self._density = self._compute_constant_density()
+        self._input_dim = self.domain.dim
 
     def _compute_constant_density(self) -> float:
-        differences = np.array([x[1] - x[0] for x in self.bounds])
+        differences = np.array([x[1] - x[0] for x in self.domain.bounds])
         volume = np.prod(differences)
 
         if volume <= 0:
@@ -48,22 +40,17 @@ class UniformMeasure(IntegrationMeasure):
         return float(1.0 / volume)
 
     @property
-    def can_sample(self) -> bool:
-        """Indicates whether the measure has sampling available.
+    def input_dim(self):
+        return self._input_dim
 
-        :return: ``True`` if sampling is available. ``False`` otherwise.
-        """
+    @property
+    def can_sample(self) -> bool:
         return True
 
     def compute_density(self, x: np.ndarray) -> np.ndarray:
-        """Evaluates the density at x.
-
-        :param x: Points at which density is evaluated, shape (n_points, input_dim).
-        :return: The density at x, shape (n_points, ).
-        """
         # Compute density: (i) check if points are inside the box. (ii) multiply this bool value with density.
-        bounds_lower = np.array([b[0] for b in self.bounds])
-        bounds_upper = np.array([b[1] for b in self.bounds])
+        bounds_lower = np.array([b[0] for b in self.domain.bounds])
+        bounds_upper = np.array([b[1] for b in self.domain.bounds])
         inside_lower = 1 - (x < bounds_lower)  # contains 1 if element in x is above its lower bound, 0 otherwise
         inside_upper = 1 - (x > bounds_upper)  # contains 1 if element in x is below its upper bound, 0 otherwise
 
@@ -73,33 +60,14 @@ class UniformMeasure(IntegrationMeasure):
         return inside_upper_lower * self._density
 
     def compute_density_gradient(self, x: np.ndarray) -> np.ndarray:
-        """Evaluates the gradient of the density at x.
-
-        :param x: Points at which the gradient is evaluated, shape (n_points, input_dim).
-        :return: The gradient of the density at x, shape (n_points, input_dim).
-        """
         return np.zeros(x.shape)
 
     def get_box(self) -> BoundsType:
-        """A meaningful box containing the measure.
-
-        Outside this box, the measure should be zero or virtually zero.
-
-        :return: The meaningful box.
-        """
-        return self.bounds
+        return self.domain.bounds
 
     def get_samples(self, num_samples: int, context_manager: ContextManager = None) -> np.ndarray:
-        """Samples from the measure.
-
-        :param num_samples: The number of samples to be taken.
-        :param context_manager: The context manager that contains variables to fix and the values to fix them to.
-                                If a context is given, this method samples from the conditional distribution.
-        :return: The samples, shape (num_samples, input_dim).
-        """
-
-        D = len(self.bounds)
-        bounds = np.asarray(self.bounds)
+        D = len(self.domain.bounds)
+        bounds = np.asarray(self.domain.bounds)
 
         samples = np.random.rand(num_samples, D) * (bounds[:, 1] - bounds[:, 0]) + bounds[:, 0]
 

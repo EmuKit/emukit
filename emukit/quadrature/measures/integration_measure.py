@@ -3,20 +3,29 @@
 
 
 import numpy as np
+from typing import Optional
 
 from ...core.optimization.context_manager import ContextManager
 from ..typing import BoundsType
+from .domain import BoxDomain
 
 
 class IntegrationMeasure:
-    """An abstract class for an integration measure defined by a density.
+    r"""An abstract class for an integration measure defined by a density.
 
+    :domain: The domain. ``None`` implies :math:`\mathbb{R}^d`.
     :param name: Name of the integration measure
 
     """
 
-    def __init__(self, name: str):
+    def __init__(self, domain: Optional[BoxDomain],  name: str):
+        self.domain = domain
         self.name = name
+
+    @property
+    def input_dim(self):
+        """The input dimensionality."""
+        raise NotImplementedError
 
     def compute_density(self, x: np.ndarray) -> np.ndarray:
         """Evaluates the density at x.

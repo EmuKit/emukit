@@ -27,7 +27,7 @@ class GaussianMeasure(IntegrationMeasure):
     """
 
     def __init__(self, mean: np.ndarray, variance: Union[float, np.ndarray]):
-        super().__init__("GaussianMeasure")
+        super().__init__(domain=None, name="GaussianMeasure")
         # check mean
         if not isinstance(mean, np.ndarray):
             raise TypeError("Mean must be of type numpy.ndarray, {} given.".format(type(mean)))
@@ -59,8 +59,12 @@ class GaussianMeasure(IntegrationMeasure):
 
         self.mean = mean
         self.variance = variance
-        self.input_dim = mean.shape[0]
+        self._input_dim = mean.shape[0]
         self.is_isotropic = is_isotropic
+
+    @property
+    def input_dim(self):
+        return self._input_dim
 
     @property
     def full_covariance_matrix(self):
@@ -69,39 +73,19 @@ class GaussianMeasure(IntegrationMeasure):
 
     @property
     def can_sample(self) -> bool:
-        """Indicates whether the measure has sampling available.
-
-        :return: ``True`` if sampling is available. ``False`` otherwise.
-        """
         return True
 
     def compute_density(self, x: np.ndarray) -> np.ndarray:
-        """Evaluates the density at x.
-
-        :param x: Points at which density is evaluated, shape (n_points, input_dim).
-        :return: The density at x, shape (n_points, ).
-        """
         factor = (2 * np.pi) ** (self.input_dim / 2) * np.prod(np.sqrt(self.variance))
         scaled_diff = (x - self.mean) / (np.sqrt(2 * self.variance))
         return np.exp(-np.sum(scaled_diff**2, axis=1)) / factor
 
     def compute_density_gradient(self, x: np.ndarray) -> np.ndarray:
-        """Evaluates the gradient of the density at x.
-
-        :param x: Points at which the gradient is evaluated, shape (n_points, input_dim).
-        :return: The gradient of the density at x, shape (n_points, input_dim).
-        """
         values = self.compute_density(x)
         diff = (x - self.mean) / self.variance
         return -diff * values[:, None]
 
     def get_box(self) -> BoundsType:
-        """A meaningful box containing the measure.
-
-        Outside this box, the measure should be zero or virtually zero.
-
-        :return: The meaningful box.
-        """
         # Note: the factor 10 is somewhat arbitrary but well motivated. If this method is used to get a box for
         # data-collection, the box will be 2x 10 standard deviations wide in all directions, centered around the mean.
         # Outside the box the density is virtually zero.
@@ -111,13 +95,6 @@ class GaussianMeasure(IntegrationMeasure):
         return list(zip(lower, upper))
 
     def get_samples(self, num_samples: int, context_manager: ContextManager = None) -> np.ndarray:
-        """Samples from the measure.
-
-        :param num_samples: The number of samples to be taken.
-        :param context_manager: The context manager that contains variables to fix and the values to fix them to.
-                                If a context is given, this method samples from the conditional distribution.
-        :return: The samples, shape (num_samples, input_dim).
-        """
         samples = self.mean + np.sqrt(self.variance) * np.random.randn(num_samples, self.input_dim)
 
         if context_manager is not None:
