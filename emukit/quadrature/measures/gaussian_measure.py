@@ -86,9 +86,10 @@ class GaussianMeasure(IntegrationMeasure):
         return -diff * values[:, None]
 
     def reasonable_box(self) -> BoundsType:
-        # Note: the factor 10 is somewhat arbitrary but well motivated. If this method is used to get a box for
-        # data-collection, the box will be 2x 10 standard deviations wide in all directions, centered around the mean.
-        # Outside the box the density is virtually zero.
+        # The reasonable box is defined as the hypercube centered at the mean of the Gaussian with 10 standard
+        # deviations expanding to either side (edge length of the cube are thus 20 standard deviations).
+        # The factor 10 is somewhat arbitrary but well motivated as the Gaussian measure if virtually zero
+        # outside of 10 standard deviations. See also the docstring of IntegrationMeasure.reasonable_box.
         factor = 10
         lower = self.mean - factor * np.sqrt(self.variance)
         upper = self.mean + factor * np.sqrt(self.variance)
