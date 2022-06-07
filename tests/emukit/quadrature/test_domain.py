@@ -10,28 +10,29 @@ from emukit.quadrature.measures import BoxDomain
 
 
 @pytest.fixture
-def integral_bounds():
+def box_domain():
     bounds = 3 * [(-4, 4)]
     integral_bounds = BoxDomain(name="test_name", bounds=bounds)
     return integral_bounds
 
 
-def test_integral_bounds_values():
+def test_box_domain_values():
     bounds = [(-1, 1), (-2, 0)]
-    lower_bounds = np.array([[-1, -2]])
-    upper_bounds = np.array([[1, 0]])
+    test_name = "test_name"
+    domain = BoxDomain(name=test_name, bounds=bounds)
 
-    bounds = BoxDomain(name="test_name", bounds=bounds)
-    res = bounds._get_lower_and_upper_bounds()
-    assert len(res) == 2
-    assert np.all(res[0] == lower_bounds)
-    assert np.all(res[1] == upper_bounds)
+    # must match to the ones above
+    lower_bounds = np.array([-1, -2])
+    upper_bounds = np.array([1, 0])
 
-    assert len(bounds.convert_to_list_of_continuous_parameters()) == 2
-    assert bounds.name == "test_name"
+    assert np.all(domain.lower_bounds == lower_bounds)
+    assert np.all(domain.upper_bounds == upper_bounds)
+
+    assert len(domain.convert_to_list_of_continuous_parameters()) == 2
+    assert domain.name == test_name
 
 
-def test_integral_bounds_wrong_bounds_init():
+def test_box_domain_wrong_bounds():
     bounds_wrong = [(-1, 1), (0, -2)]
 
     with pytest.raises(ValueError):
@@ -42,29 +43,33 @@ def test_integral_bounds_wrong_bounds_init():
         BoxDomain(name="test_name", bounds=bounds_empty)
 
 
-def test_integral_bounds_set(integral_bounds):
+def test_box_domain_set_bounds(box_domain):
     new_bounds = 3 * [(-2, 2)]
-    new_lower = np.array([[-2, -2, -2]])
-    new_upper = np.array([[2, 2, 2]])
-    integral_bounds.bounds = new_bounds
 
-    assert_array_equal(integral_bounds.bounds, new_bounds)
-    assert_array_equal(integral_bounds.lower_bounds, new_lower)
-    assert_array_equal(integral_bounds.upper_bounds, new_upper)
+    # these must match the above bounds
+    new_lower = np.array([-2, -2, -2])
+    new_upper = np.array([2, 2, 2])
+
+    # set new
+    box_domain.bounds = new_bounds
+
+    assert_array_equal(box_domain.bounds, new_bounds)
+    assert_array_equal(box_domain.lower_bounds, new_lower)
+    assert_array_equal(box_domain.upper_bounds, new_upper)
 
 
-def test_integral_bounds_set_wrong_bounds(integral_bounds):
+def test_box_domain_set_bounds_raises(box_domain):
     # wrong dimensionality
     wrong_bounds = 4 * [(-2, 2)]
     with pytest.raises(ValueError):
-        integral_bounds.bounds = wrong_bounds
+        box_domain.bounds = wrong_bounds
 
     # empty bounds
     wrong_bounds = []
     with pytest.raises(ValueError):
-        integral_bounds.bounds = wrong_bounds
+        box_domain.bounds = wrong_bounds
 
     # wrong bound values
     wrong_bounds = 3 * [(-2, -3)]
     with pytest.raises(ValueError):
-        integral_bounds.bounds = wrong_bounds
+        box_domain.bounds = wrong_bounds
