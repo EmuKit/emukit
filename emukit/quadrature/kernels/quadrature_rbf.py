@@ -4,9 +4,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import Union
-
 import numpy as np
+from typing import Union
 from scipy.special import erf
 
 from ...quadrature.interfaces.standard_kernels import IRBF
@@ -43,7 +42,7 @@ class QuadratureRBF(QuadratureKernel):
         self,
         rbf_kernel: IRBF,
         measure: IntegrationMeasure,
-        variable_names: str = "",
+        variable_names: str,
     ) -> None:
         super().__init__(kern=rbf_kernel, measure=measure, variable_names=variable_names)
 
@@ -96,32 +95,30 @@ class QuadratureRBFLebesgueMeasure(QuadratureRBF, LebesgueEmbedding):
         super().__init__(rbf_kernel=rbf_kernel, measure=measure, variable_names=variable_names)
 
     def qK(self, x2: np.ndarray) -> np.ndarray:
-        lower_bounds = self.measure.lower_bounds[None, :]
-        upper_bounds = self.measure.upper_bounds[None, :]
-        erf_lo = erf(self._scaled_vector_diff(lower_bounds, x2))
-        erf_up = erf(self._scaled_vector_diff(upper_bounds, x2))
+        lb = self.measure.domain.lower_bounds[None, :]
+        ub = self.measure.domain.upper_bounds[None, :]
+        erf_lo = erf(self._scaled_vector_diff(lb, x2))
+        erf_up = erf(self._scaled_vector_diff(ub, x2))
         kernel_mean = (np.sqrt(np.pi / 2.0) * self.lengthscales * (erf_up - erf_lo)).prod(axis=1)
         return (self.variance * self.measure.density) * kernel_mean.reshape(1, -1)
 
     def qKq(self) -> float:
-        lower_bounds = self.measure.lower_bounds[None, :]
-        upper_bounds = self.measure.upper_bounds[None, :]
-        diff_bounds_scaled = self._scaled_vector_diff(upper_bounds, lower_bounds)
+        lb = self.measure.domain.lower_bounds[None, :]
+        ub = self.measure.domain.upper_bounds[None, :]
+        diff_bounds_scaled = self._scaled_vector_diff(ub, lb)
         exp_term = (np.exp(-(diff_bounds_scaled**2)) - 1.0) / np.sqrt(np.pi)
         erf_term = erf(diff_bounds_scaled) * diff_bounds_scaled
         qKq = ((2 * np.sqrt(np.pi) * self.lengthscales**2) * (exp_term + erf_term)).prod()
         return (self.variance * self.measure.density**2) * float(qKq)
 
     def dqK_dx(self, x2: np.ndarray) -> np.ndarray:
-        lower_bounds = self.measure.lower_bounds[None, :]
-        upper_bounds = self.measure.upper_bounds[None, :]
-        exp_lo = np.exp(-self._scaled_vector_diff(x2, lower_bounds) ** 2)
-        exp_up = np.exp(-self._scaled_vector_diff(x2, upper_bounds) ** 2)
-        erf_lo = erf(self._scaled_vector_diff(lower_bounds, x2))
-        erf_up = erf(self._scaled_vector_diff(upper_bounds, x2))
-
+        lb = self.measure.domain.lower_bounds[None, :]
+        ub = self.measure.domain.upper_bounds[None, :]
+        exp_lo = np.exp(-self._scaled_vector_diff(x2, lb) ** 2)
+        exp_up = np.exp(-self._scaled_vector_diff(x2, ub) ** 2)
+        erf_lo = erf(self._scaled_vector_diff(lb, x2))
+        erf_up = erf(self._scaled_vector_diff(ub, x2))
         fraction = ((exp_lo - exp_up) / (self.lengthscales * np.sqrt(np.pi / 2.0) * (erf_up - erf_lo))).T
-
         return self.qK(x2) * fraction
 
 

@@ -27,7 +27,7 @@ class QuadratureKernel:
 
     :param kern: Standard EmuKit kernel.
     :param measure: The integration measure.
-    :param variable_names: The (variable) name(s) of the integral
+    :param variable_names: The (variable) name(s) of the integral.
 
     """
 
@@ -35,7 +35,7 @@ class QuadratureKernel:
         self,
         kern: IStandardKernel,
         measure: IntegrationMeasure,
-        variable_names: str = "",
+        variable_names: str,
     ) -> None:
         self.kern = kern
         self.measure = measure
@@ -136,7 +136,7 @@ class QuadratureProductKernel(QuadratureKernel):
 
     :param kern: Standard EmuKit kernel (must be a product kernel).
     :param measure: The integration measure.
-    :param variable_names: The (variable) name(s) of the integral
+    :param variable_names: The (variable) name(s) of the integral.
 
     """
 
@@ -144,7 +144,7 @@ class QuadratureProductKernel(QuadratureKernel):
         self,
         kern: IStandardKernel,
         measure: IntegrationMeasure,
-        variable_names: str = "",
+        variable_names: str,
     ) -> None:
 
         super().__init__(kern=kern, measure=measure, variable_names=variable_names)

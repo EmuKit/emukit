@@ -5,12 +5,11 @@
 
 
 import numpy as np
-from typing import Optional, Union
+from typing import Union
 
 from ...quadrature.interfaces.standard_kernels import IBrownian, IProductBrownian
 from ..kernels import QuadratureKernel, QuadratureProductKernel, LebesgueEmbedding
 from ..measures import IntegrationMeasure, LebesgueMeasure
-from ..typing import BoundsType
 
 
 class QuadratureBrownian(QuadratureKernel):
@@ -41,7 +40,7 @@ class QuadratureBrownian(QuadratureKernel):
         self,
         brownian_kernel: IBrownian,
         measure: IntegrationMeasure,
-        variable_names: str = "",
+        variable_names: str,
     ) -> None:
 
         if measure.input_dim != 1:
@@ -79,19 +78,19 @@ class QuadratureBrownianLebesgueMeasure(QuadratureBrownian, LebesgueEmbedding):
         super().__init__(brownian_kernel=brownian_kernel, measure=measure, variable_names=variable_names)
 
     def qK(self, x2: np.ndarray) -> np.ndarray:
-        lb = self.measure.lower_bounds[None, :]
-        ub = self.measure.upper_bounds[None, :]
+        lb = self.measure.domain.lower_bounds[None, :]
+        ub = self.measure.domain.upper_bounds[None, :]
         kernel_mean = ub * x2 - 0.5 * x2**2 - 0.5 * lb**2
         return self.variance * kernel_mean.T
 
     def qKq(self) -> float:
-        lb = self.measure.lower_bounds[None, :]
-        ub = self.measure.upper_bounds[None, :]
+        lb = self.measure.domain.lower_bounds[None, :]
+        ub = self.measure.domain.upper_bounds[None, :]
         qKq = 0.5 * ub * (ub**2 - lb**2) - (ub**3 - lb**3) / 6 - 0.5 * lb**2 * (ub - lb)
         return float(self.variance * qKq)
 
     def dqK_dx(self, x2: np.ndarray) -> np.ndarray:
-        ub = self.measure.upper_bounds[None, :]
+        ub = self.measure.domain.upper_bounds[None, :]
         return self.variance * (ub - x2).T
 
 
@@ -124,7 +123,7 @@ class QuadratureProductBrownian(QuadratureProductKernel):
         self,
         brownian_kernel: IProductBrownian,
         measure: IntegrationMeasure,
-        variable_names: str = "",
+        variable_names: str,
     ) -> None:
         super().__init__(
             kern=brownian_kernel, measure=measure, variable_names=variable_names
@@ -149,7 +148,7 @@ class QuadratureProductBrownian(QuadratureProductKernel):
 
 
 class QuadratureProductBrownianLebesgueMeasure(QuadratureProductBrownian, LebesgueEmbedding):
-    """An product Brownian kernel augmented with integrability w.r.t. the standard Lebesgue measure.
+    """A product Brownian kernel augmented with integrability w.r.t. the standard Lebesgue measure.
 
     .. seealso::
        * :class:`emukit.quadrature.interfaces.IProductBrownian`
@@ -169,7 +168,7 @@ class QuadratureProductBrownianLebesgueMeasure(QuadratureProductBrownian, Lebesg
         return self.variance * z
 
     def _get_univariate_parameters(self, dim: int) -> dict:
-        return {"domain": self.measure.bounds[dim], "offset": self.offset}
+        return {"domain": self.measure.domain.bounds[dim], "offset": self.offset}
 
     def _qK_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
         a, b = parameters["domain"]
