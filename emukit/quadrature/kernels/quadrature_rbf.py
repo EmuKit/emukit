@@ -11,7 +11,7 @@ from scipy.special import erf
 
 from ...quadrature.interfaces.standard_kernels import IRBF
 from ..kernels import QuadratureKernel
-from ..measures import BoxDomain, IntegrationMeasure, IsotropicGaussianMeasure, UniformMeasure
+from ..measures import BoxDomain, GaussianMeasure, IntegrationMeasure, UniformMeasure
 from ..typing import BoundsType
 
 
@@ -139,13 +139,13 @@ class QuadratureRBFLebesgueMeasure(QuadratureRBF):
         return self.qK(x2) * fraction
 
 
-class QuadratureRBFIsoGaussMeasure(QuadratureRBF):
-    """An RBF kernel augmented with integrability w.r.t. an isotropic Gaussian measure.
+class QuadratureRBFGaussianMeasure(QuadratureRBF):
+    """An RBF kernel augmented with integrability w.r.t. a Gaussian measure.
 
     .. seealso::
        * :class:`emukit.quadrature.interfaces.IRBF`
        * :class:`emukit.quadrature.kernels.QuadratureRBF`
-       * :class:`emukit.quadrature.measures.IsotropicGaussianMeasure`
+       * :class:`emukit.quadrature.measures.GaussianMeasure`
 
     :param rbf_kernel: The standard EmuKit rbf-kernel.
     :param measure: A Gaussian measure.
@@ -153,7 +153,7 @@ class QuadratureRBFIsoGaussMeasure(QuadratureRBF):
 
     """
 
-    def __init__(self, rbf_kernel: IRBF, measure: IsotropicGaussianMeasure, variable_names: str = "") -> None:
+    def __init__(self, rbf_kernel: IRBF, measure: GaussianMeasure, variable_names: str = "") -> None:
         super().__init__(rbf_kernel=rbf_kernel, integral_bounds=None, measure=measure, variable_names=variable_names)
 
     def qK(self, x2: np.ndarray, scale_factor: float = 1.0) -> np.ndarray:

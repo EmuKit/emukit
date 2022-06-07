@@ -19,11 +19,11 @@ from emukit.quadrature.kernels import (
     QuadratureProductBrownianLebesgueMeasure,
     QuadratureProductMatern32LebesgueMeasure,
     QuadratureProductMatern52LebesgueMeasure,
-    QuadratureRBFIsoGaussMeasure,
+    QuadratureRBFGaussianMeasure,
     QuadratureRBFLebesgueMeasure,
     QuadratureRBFUniformMeasure,
 )
-from emukit.quadrature.measures import IsotropicGaussianMeasure, UniformMeasure
+from emukit.quadrature.measures import GaussianMeasure, UniformMeasure
 
 
 def get_prod_kernel(kernel_type, n_dim):
@@ -46,7 +46,7 @@ def measure_lebesgue(n_dim: int):
 
 
 def measure_gaussiso(n_dim: int):
-    return IsotropicGaussianMeasure(mean=np.ones(n_dim), variance=1.0)
+    return GaussianMeasure(mean=np.ones(n_dim), variance=1.0)
 
 
 def measure_uniform(n_dim: int):
@@ -131,7 +131,7 @@ def wrapper_rbf_1(dim2, gpy_rbf):
 
 @pytest.fixture
 def wrapper_rbf_2(dim2, gpy_rbf):
-    return get_wrapper_dict(dim2, measure_gaussiso, None, gpy_rbf, RBFGPy, QuadratureRBFIsoGaussMeasure)
+    return get_wrapper_dict(dim2, measure_gaussiso, None, gpy_rbf, RBFGPy, QuadratureRBFGaussianMeasure)
 
 
 @pytest.fixture

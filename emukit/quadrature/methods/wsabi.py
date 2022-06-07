@@ -35,9 +35,9 @@ class WSABIL(BoundedBayesianQuadrature):
         * :class:`emukit.quadrature.loop.WSABILLoop`
 
     :param base_gp: A standard Gaussian process.
-                    Must use :class:`emukit.quadrature.kernels.QuadratureRBFIsoGaussMeasure` as kernel.
-    :param X: The initial locations of integrand evaluations, shape (num_points, input_dim).
-    :param Y: The values of the integrand at X, shape (num_points, 1).
+                    Must use :class:`emukit.quadrature.kernels.QuadratureRBFGaussianMeasure` as kernel.
+    :param X: The initial locations of integrand evaluations, shape (n_points, input_dim).
+    :param Y: The values of the integrand at X, shape (n_points, 1).
     :param adapt_alpha: If ``True``, the offset :math:`\alpha` will be adapted. If ``False`` :math:`\alpha` will be
                         fixed to a small value for numerical stability. Default is ``True``.
 
@@ -53,8 +53,8 @@ class WSABIL(BoundedBayesianQuadrature):
     def _compute_alpha(self, X: np.ndarray, Y: np.ndarray) -> float:
         """Compute the offset :math:`\alpha`.
 
-        :param X: Observation locations, shape (num_points, input_dim)
-        :param Y: Values of observations, shape (num_points, 1)
+        :param X: Observation locations, shape (n_points, input_dim)
+        :param Y: Values of observations, shape (n_points, 1)
         :return: The offset :math:`\alpha`.
         """
         if self.adapt_alpha:

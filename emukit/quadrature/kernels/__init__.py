@@ -15,7 +15,7 @@ from .quadrature_matern32 import QuadratureProductMatern32, QuadratureProductMat
 from .quadrature_matern52 import QuadratureProductMatern52, QuadratureProductMatern52LebesgueMeasure
 from .quadrature_rbf import (
     QuadratureRBF,
-    QuadratureRBFIsoGaussMeasure,
+    QuadratureRBFGaussianMeasure,
     QuadratureRBFLebesgueMeasure,
     QuadratureRBFUniformMeasure,
 )
@@ -27,7 +27,7 @@ __all__ = [
     "QuadratureRBF",
     "QuadratureRBFLebesgueMeasure",
     "QuadratureRBFUniformMeasure",
-    "QuadratureRBFIsoGaussMeasure",
+    "QuadratureRBFGaussianMeasure",
     "QuadratureProductKernel",
     "QuadratureProductBrownian",
     "QuadratureProductBrownianLebesgueMeasure",

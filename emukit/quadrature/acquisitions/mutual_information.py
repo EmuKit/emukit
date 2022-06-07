@@ -34,6 +34,7 @@ class MutualInformation(Acquisition):
         self.model = model
         self.rho2 = SquaredCorrelation(model)
 
+    @property
     def has_gradients(self) -> bool:
         """Whether acquisition value has analytical gradient calculation available."""
         return True

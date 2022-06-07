@@ -23,11 +23,11 @@ from emukit.quadrature.kernels import (
     QuadratureProductBrownianLebesgueMeasure,
     QuadratureProductMatern32LebesgueMeasure,
     QuadratureProductMatern52LebesgueMeasure,
-    QuadratureRBFIsoGaussMeasure,
+    QuadratureRBFGaussianMeasure,
     QuadratureRBFLebesgueMeasure,
     QuadratureRBFUniformMeasure,
 )
-from emukit.quadrature.measures import IsotropicGaussianMeasure, UniformMeasure
+from emukit.quadrature.measures import GaussianMeasure, UniformMeasure
 
 
 # the following classes and functions are also used to compute the ground truth integrals with MC
@@ -68,15 +68,15 @@ class DataPositiveDomain:
 
 
 @dataclass
-class DataGaussIso:
+class DataGaussian:
     D = 2
     measure_mean = np.array([0.2, 1.3])
-    measure_var = 2.0
+    measure_var = np.array([0.3, 1.4])
     x1 = np.array([[-1, 1], [0, 0.1], [0.5, -1.5]])
     x2 = np.array([[-1, 1], [0, 0.2], [0.8, -0.1], [1.3, 2.8]])
     N = 3
     M = 4
-    dat_bounds = [(m - 2 * np.sqrt(2), m + 2 * np.sqrt(2)) for m in measure_mean]
+    dat_bounds = [(m - 2 * np.sqrt(v), m + 2 * np.sqrt(v)) for m, v in zip(measure_mean, measure_var)]
 
 
 @dataclass
@@ -145,10 +145,10 @@ def get_qrbf_lebesque():
     return qkern, dat
 
 
-def get_qrbf_gauss_iso():
-    dat = DataGaussIso()
-    measure = IsotropicGaussianMeasure(mean=dat.measure_mean, variance=dat.measure_var)
-    qkern = QuadratureRBFIsoGaussMeasure(EmukitRBF().kern, measure=measure)
+def get_qrbf_gaussian():
+    dat = DataGaussian()
+    measure = GaussianMeasure(mean=dat.measure_mean, variance=dat.measure_var)
+    qkern = QuadratureRBFGaussianMeasure(EmukitRBF().kern, measure=measure)
     return qkern, dat
 
 
@@ -198,8 +198,8 @@ def qrbf_lebesgue():
 
 
 @pytest.fixture
-def qrbf_gauss_iso():
-    qkern, dat = get_qrbf_gauss_iso()
+def qrbf_gaussian():
+    qkern, dat = get_qrbf_gaussian()
     return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D, dat.dat_bounds
 
 
@@ -241,7 +241,7 @@ def qprodbrownian_lebesque():
 
 embeddings_test_list = [
     lazy_fixture("qrbf_lebesgue"),
-    lazy_fixture("qrbf_gauss_iso"),
+    lazy_fixture("qrbf_gaussian"),
     lazy_fixture("qrbf_uniform_infinite"),
     lazy_fixture("qrbf_uniform_finite"),
     lazy_fixture("qmatern32_lebesgue"),
@@ -272,7 +272,7 @@ def test_qkernel_shapes(kernel_embedding):
     "kernel_embedding,interval",
     [
         (embeddings_test_list[0], [38.267217898004176, 38.32112525041843]),
-        (embeddings_test_list[1], [0.10107780172175222, 0.10132860168906656]),
+        (embeddings_test_list[1], [0.22019471616760106, 0.22056701590213823]),
         (embeddings_test_list[2], [0.19925694197982124, 0.19946236996755512]),
         (embeddings_test_list[3], [0.15840594393483423, 0.16003690383217276]),
         (embeddings_test_list[4], [33.6816570527734, 33.726646173769595]),
@@ -310,10 +310,10 @@ def test_qkernel_qKq(kernel_embedding, interval):
             embeddings_test_list[1],
             np.array(
                 [
-                    [0.12486974030387826, 0.125750078406417],
-                    [0.13992078671537916, 0.14081149568263046],
-                    [0.11892561016472149, 0.1197587877306684],
-                    [0.09729471848600614, 0.09804968814418509],
+                    [0.13947611219369957, 0.14011691061322437],
+                    [0.2451677448342577, 0.24601121206543616],
+                    [0.18304341553566297, 0.1838963624576538],
+                    [0.11108022737109795, 0.11170403633365646],
                 ]
             ),
         ),
