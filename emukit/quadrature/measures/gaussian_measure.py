@@ -49,7 +49,7 @@ class GaussianMeasure(IntegrationMeasure):
                 raise ValueError(
                     "Variance has wrong shape; {} given but {} expected.".format(variance.shape, mean.shape)
                 )
-            if not all(variance > 0):
+            if any(variance <= 0):
                 raise ValueError(
                     "All elements of variance must be positive. At least one value seems to be non positive."
                 )
