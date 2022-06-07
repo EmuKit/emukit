@@ -2,9 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import List, Tuple
-
-import numpy as np
+from typing import List
 
 from ...core.continuous_parameter import ContinuousParameter
 from ..typing import BoundsType
@@ -23,9 +21,8 @@ class BoxDomain:
 
     def __init__(self, name: str, bounds: BoundsType):
         self._check_bound_validity(bounds)
-        self.dim = len(bounds)
         self._bounds = bounds
-        self.lower_bounds, self.upper_bounds = self._get_lower_and_upper_bounds()
+        self.dim = len(bounds)
         self.name = name
 
     @property
@@ -44,7 +41,6 @@ class BoxDomain:
 
         self._check_bound_validity(new_bounds)
         self._bounds = new_bounds
-        self.lower_bounds, self.upper_bounds = self._get_lower_and_upper_bounds()
 
     def _check_bound_validity(self, bounds: BoundsType) -> None:
         """Checks if domain is not empty.
@@ -61,20 +57,6 @@ class BoxDomain:
                     "Upper box bound must be larger than lower bound. Found a pair containing ({}, "
                     "{}).".format(lb_d, ub_d)
                 )
-
-    def _get_lower_and_upper_bounds(self) -> Tuple[np.ndarray, np.ndarray]:
-        """Converts the box bounds into two arrays, one containing all lower bounds and one
-        containing all upper bounds.
-
-        :return: Lower bounds and upper bounds of box, each of shape (1, input_dim).
-        """
-        lower_bounds = np.zeros([self.dim, 1])
-        upper_bounds = np.zeros([self.dim, 1])
-        for i, bounds_d in enumerate(self._bounds):
-            lb_d, ub_d = bounds_d
-            lower_bounds[i] = lb_d
-            upper_bounds[i] = ub_d
-        return lower_bounds.T, upper_bounds.T
 
     def convert_to_list_of_continuous_parameters(self) -> List[ContinuousParameter]:
         """Converts the box bounds into a list of :class:`ContinuousParameter` objects.

@@ -13,7 +13,7 @@ from .domain import BoxDomain
 class IntegrationMeasure:
     r"""An abstract class for an integration measure defined by a density.
 
-    :domain: The domain. ``None`` implies :math:`\mathbb{R}^d`.
+    :param domain: The domain. ``None`` implies :math:`\mathbb{R}^d`.
     :param name: Name of the integration measure
 
     """
@@ -25,6 +25,14 @@ class IntegrationMeasure:
     @property
     def input_dim(self):
         """The input dimensionality."""
+        raise NotImplementedError
+
+    @property
+    def can_sample(self) -> bool:
+        """Indicates whether the measure has sampling available.
+
+        :return: ``True`` if sampling is available. ``False`` otherwise.
+        """
         raise NotImplementedError
 
     def compute_density(self, x: np.ndarray) -> np.ndarray:
@@ -43,24 +51,16 @@ class IntegrationMeasure:
         """
         raise NotImplementedError
 
-    def get_box(self) -> BoundsType:
-        """A meaningful box containing the measure.
+    def reasonable_box(self) -> BoundsType:
+        """A reasonable box containing the measure.
 
         Outside this box, the measure should be zero or virtually zero.
 
-        :return: The meaningful box.
+        :return: The reasonable box.
         """
         raise NotImplementedError
 
-    @property
-    def can_sample(self) -> bool:
-        """Indicates whether the measure has sampling available.
-
-        :return: ``True`` if sampling is available. ``False`` otherwise.
-        """
-        raise NotImplementedError
-
-    def get_samples(self, num_samples: int, context_manager: ContextManager = None) -> np.ndarray:
+    def sample(self, num_samples: int, context_manager: ContextManager = None) -> np.ndarray:
         """Samples from the measure.
 
         :param num_samples: The number of samples to be taken.

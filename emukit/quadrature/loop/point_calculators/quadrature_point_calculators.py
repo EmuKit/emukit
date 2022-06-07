@@ -68,8 +68,8 @@ class BayesianMonteCarloPointCalculator(CandidatePointCalculator):
         # probability measure
         else:
             if context is None:
-                return measure.get_samples(1)
+                return measure.sample(1)
             else:
                 context_manager = ContextManager(self.parameter_space, context)
-                samples = measure.get_samples(1, context_manager)
+                samples = measure.sample(1, context_manager)
                 return samples

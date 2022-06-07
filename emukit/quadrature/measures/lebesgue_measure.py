@@ -1,7 +1,8 @@
 """The Lebesgue measure."""
-
+import warnings
 
 import numpy as np
+from typing import Optional
 
 from ...core.optimization.context_manager import ContextManager
 from ..typing import BoundsType
@@ -9,7 +10,6 @@ from .integration_measure import IntegrationMeasure
 from .domain import BoxDomain
 
 
-# Todo: docstrint
 class LebesgueMeasure(IntegrationMeasure):
     r"""The Lebesgue measure.
 
@@ -18,31 +18,38 @@ class LebesgueMeasure(IntegrationMeasure):
     .. math::
         p(x)=\begin{cases} p & x\in\text{bounds}\\0 &\text{otherwise}\end{cases}.
 
-    :param bounds: List of D tuples [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)], where D is
-                   the input dimensionality and the tuple (lb_d, ub_d) contains the lower and upper bound
-                   of the uniform measure in dimension d.
+    :param domain: The Box domain. Either ``domain`` or ``bounds`` must be given.
+    :param bounds: List of d tuples [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_d, ub_d)], where d is
+                   the input dimensionality and the tuple (lb_i, ub_i) contains the lower and upper bound
+                   of the uniform measure in dimension i. ``bounds`` are ignored if ``domain`` is given.
+    :param normalized: Weather the Lebesgue measure is normalized.
 
     """
 
-    def __init__(self, bounds: BoundsType, normalized: bool=False):
-        super().__init__(domain=BoxDomain(name="", bounds=bounds), name="LebesgueMeasure")
+    def __init__(self, domain: Optional[BoxDomain] = None, bounds: Optional[BoundsType] = None, normalized: bool=False):
+        if domain is None and bounds is None:
+            raise ValueError("Either domain or bounds must be given.")
 
+        if domain is not None and bounds is not None:
+            warnings.warn("Both domain and bounds are given. Bounds are being ignored.")
+
+        if bounds is not None:
+            domain = BoxDomain(name="", bounds=bounds)
+
+        super().__init__(domain=domain, name="LebesgueMeasure")
+
+        density = 1.0
+        if not normalized:
+            differences = np.array([x[1] - x[0] for x in self.domain.bounds])
+            volume = np.prod(differences)
+
+            if volume <= 0:
+                raise NumericalPrecisionError("Domain volume of uniform measure is not positive. Its value is {}.".format(volume))
+            density = float(1.0 / volume)
+
+        self.density = density
         self.is_normalized = normalized
-        self._density = self._compute_constant_density()
         self._input_dim = self.domain.dim
-
-    def _compute_constant_density(self) -> float:
-        if self.is_normalized:
-            return 1.0
-
-        differences = np.array([x[1] - x[0] for x in self.domain.bounds])
-        volume = np.prod(differences)
-
-        if volume <= 0:
-            raise NumericalPrecisionError(
-                "Domain volume of uniform measure is not positive. Its value is {}.".format(volume)
-            )
-        return float(1.0 / volume)
 
     @property
     def input_dim(self):
@@ -62,19 +69,18 @@ class LebesgueMeasure(IntegrationMeasure):
         # Contains True if element in x is inside box, False otherwise.
         # The returned array thus contains self._density for each point inside the box and 0 otherwise.
         inside_upper_lower = (inside_lower * inside_upper).sum(axis=1) == x.shape[1]
-        return inside_upper_lower * self._density
+        return inside_upper_lower * self.density
 
     def compute_density_gradient(self, x: np.ndarray) -> np.ndarray:
         return np.zeros(x.shape)
 
-    def get_box(self) -> BoundsType:
+    def reasonable_box(self) -> BoundsType:
         return self.domain.bounds
 
-    def get_samples(self, num_samples: int, context_manager: ContextManager = None) -> np.ndarray:
-        D = len(self.domain.bounds)
+    def sample(self, num_samples: int, context_manager: ContextManager = None) -> np.ndarray:
         bounds = np.asarray(self.domain.bounds)
 
-        samples = np.random.rand(num_samples, D) * (bounds[:, 1] - bounds[:, 0]) + bounds[:, 0]
+        samples = np.random.rand(num_samples, self.input_dim) * (bounds[:, 1] - bounds[:, 0]) + bounds[:, 0]
 
         if context_manager is not None:
             samples[:, context_manager.context_idxs] = context_manager.context_values
