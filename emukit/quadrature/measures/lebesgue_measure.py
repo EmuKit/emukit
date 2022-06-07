@@ -41,7 +41,7 @@ class LebesgueMeasure(IntegrationMeasure):
         super().__init__(domain=domain, name="LebesgueMeasure")
 
         density = 1.0
-        if not normalized:
+        if normalized:
             differences = np.array([x[1] - x[0] for x in self.domain.bounds])
             volume = np.prod(differences)
 
