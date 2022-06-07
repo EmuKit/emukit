@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+import numpy as np
 from typing import List
 
 from ...core.continuous_parameter import ContinuousParameter
@@ -25,6 +26,11 @@ class BoxDomain:
         self.dim = len(bounds)
         self.name = name
 
+        # set upper and lower bounds arrays for convenience
+        bounds = np.array(bounds)
+        self.lower_bounds = bounds[:, 0]
+        self.upper_bounds = bounds[:, 1]
+
     @property
     def bounds(self) -> BoundsType:
         """The bounds defining the hypercube."""
@@ -41,6 +47,10 @@ class BoxDomain:
 
         self._check_bound_validity(new_bounds)
         self._bounds = new_bounds
+
+        new_bounds = np.array(new_bounds)
+        self.lower_bounds = new_bounds[:, 0]
+        self.upper_bounds = new_bounds[:, 1]
 
     def _check_bound_validity(self, bounds: BoundsType) -> None:
         """Checks if domain is not empty.

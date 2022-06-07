@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from .quadrature_kernels import QuadratureKernel, QuadratureProductKernel  # isort:skip
+from .quadrature_kernels import QuadratureKernel, QuadratureProductKernel, LebesgueEmbedding, GaussianEmbedding  # isort:skip
 from .quadrature_brownian import (
     QuadratureBrownian,
     QuadratureBrownianLebesgueMeasure,
@@ -17,18 +17,18 @@ from .quadrature_rbf import (
     QuadratureRBF,
     QuadratureRBFGaussianMeasure,
     QuadratureRBFLebesgueMeasure,
-    QuadratureRBFUniformMeasure,
 )
 
 __all__ = [
     "QuadratureKernel",
+    "QuadratureProductKernel",
+    "LebesgueEmbedding",
+    "GaussianEmbedding",
     "QuadratureBrownian",
     "QuadratureBrownianLebesgueMeasure",
     "QuadratureRBF",
     "QuadratureRBFLebesgueMeasure",
-    "QuadratureRBFUniformMeasure",
     "QuadratureRBFGaussianMeasure",
-    "QuadratureProductKernel",
     "QuadratureProductBrownian",
     "QuadratureProductBrownianLebesgueMeasure",
     "QuadratureProductMatern32",

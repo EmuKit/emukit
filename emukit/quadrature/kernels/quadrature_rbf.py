@@ -45,9 +45,7 @@ class QuadratureRBF(QuadratureKernel):
         measure: IntegrationMeasure,
         variable_names: str = "",
     ) -> None:
-        super().__init__(
-            kern=rbf_kernel, measure=measure, variable_names=variable_names
-        )
+        super().__init__(kern=rbf_kernel, measure=measure, variable_names=variable_names)
 
     @property
     def lengthscales(self) -> np.ndarray:
@@ -89,6 +87,7 @@ class QuadratureRBFLebesgueMeasure(QuadratureRBF, LebesgueEmbedding):
        * :class:`emukit.quadrature.measures.LebesgueMeasure`
 
     :param rbf_kernel: The standard EmuKit rbf-kernel.
+    :param measure: The Lebesgue measure.
     :param variable_names: The (variable) name(s) of the integral.
 
     """
@@ -97,16 +96,16 @@ class QuadratureRBFLebesgueMeasure(QuadratureRBF, LebesgueEmbedding):
         super().__init__(rbf_kernel=rbf_kernel, measure=measure, variable_names=variable_names)
 
     def qK(self, x2: np.ndarray) -> np.ndarray:
-        bounds = np.asarray(self.measure.bounds)
-        lower_bounds, upper_bounds = bounds[:, 0].reshape(1, -1), bounds[:, 0].reshape(1, -1)
+        lower_bounds = self.measure.lower_bounds[None, :]
+        upper_bounds = self.measure.upper_bounds[None, :]
         erf_lo = erf(self._scaled_vector_diff(lower_bounds, x2))
         erf_up = erf(self._scaled_vector_diff(upper_bounds, x2))
         kernel_mean = (np.sqrt(np.pi / 2.0) * self.lengthscales * (erf_up - erf_lo)).prod(axis=1)
         return (self.variance * self.measure.density) * kernel_mean.reshape(1, -1)
 
     def qKq(self) -> float:
-        bounds = np.asarray(self.measure.bounds)
-        lower_bounds, upper_bounds = bounds[:, 0].reshape(1, -1), bounds[:, 0].reshape(1, -1)
+        lower_bounds = self.measure.lower_bounds[None, :]
+        upper_bounds = self.measure.upper_bounds[None, :]
         diff_bounds_scaled = self._scaled_vector_diff(upper_bounds, lower_bounds)
         exp_term = (np.exp(-(diff_bounds_scaled**2)) - 1.0) / np.sqrt(np.pi)
         erf_term = erf(diff_bounds_scaled) * diff_bounds_scaled
@@ -114,8 +113,8 @@ class QuadratureRBFLebesgueMeasure(QuadratureRBF, LebesgueEmbedding):
         return (self.variance * self.measure.density**2) * float(qKq)
 
     def dqK_dx(self, x2: np.ndarray) -> np.ndarray:
-        bounds = np.asarray(self.measure.bounds)
-        lower_bounds, upper_bounds = bounds[:, 0].reshape(1, -1), bounds[:, 0].reshape(1, -1)
+        lower_bounds = self.measure.lower_bounds[None, :]
+        upper_bounds = self.measure.upper_bounds[None, :]
         exp_lo = np.exp(-self._scaled_vector_diff(x2, lower_bounds) ** 2)
         exp_up = np.exp(-self._scaled_vector_diff(x2, upper_bounds) ** 2)
         erf_lo = erf(self._scaled_vector_diff(lower_bounds, x2))
