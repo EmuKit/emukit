@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import numpy as np
 from typing import Optional
+
+import numpy as np
 
 from ...core.optimization.context_manager import ContextManager
 from ..typing import BoundsType
@@ -18,7 +19,7 @@ class IntegrationMeasure:
 
     """
 
-    def __init__(self, domain: Optional[BoxDomain],  name: str):
+    def __init__(self, domain: Optional[BoxDomain], name: str):
         self.domain = domain
         self.name = name
 

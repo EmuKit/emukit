@@ -2,8 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import numpy as np
 from typing import List
+
+import numpy as np
 
 from ...core.continuous_parameter import ContinuousParameter
 from ..typing import BoundsType

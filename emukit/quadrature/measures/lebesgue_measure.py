@@ -1,13 +1,13 @@
 """The Lebesgue measure."""
 import warnings
+from typing import Optional
 
 import numpy as np
-from typing import Optional
 
 from ...core.optimization.context_manager import ContextManager
 from ..typing import BoundsType
-from .integration_measure import IntegrationMeasure
 from .domain import BoxDomain
+from .integration_measure import IntegrationMeasure
 
 
 class LebesgueMeasure(IntegrationMeasure):
@@ -26,7 +26,9 @@ class LebesgueMeasure(IntegrationMeasure):
 
     """
 
-    def __init__(self, domain: Optional[BoxDomain] = None, bounds: Optional[BoundsType] = None, normalized: bool=False):
+    def __init__(
+        self, domain: Optional[BoxDomain] = None, bounds: Optional[BoundsType] = None, normalized: bool = False
+    ):
         if domain is None and bounds is None:
             raise ValueError("Either domain or bounds must be given.")
 
@@ -44,7 +46,9 @@ class LebesgueMeasure(IntegrationMeasure):
             volume = np.prod(differences)
 
             if volume <= 0:
-                raise NumericalPrecisionError("Domain volume of uniform measure is not positive. Its value is {}.".format(volume))
+                raise NumericalPrecisionError(
+                    "Domain volume of uniform measure is not positive. Its value is {}.".format(volume)
+                )
             density = float(1.0 / volume)
 
         self.density = density

@@ -4,11 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import numpy as np
 from typing import Union
 
+import numpy as np
+
 from ...quadrature.interfaces.standard_kernels import IBrownian, IProductBrownian
-from ..kernels import QuadratureKernel, QuadratureProductKernel, LebesgueEmbedding
+from ..kernels import LebesgueEmbedding, QuadratureKernel, QuadratureProductKernel
 from ..measures import IntegrationMeasure, LebesgueMeasure
 
 
@@ -44,7 +45,11 @@ class QuadratureBrownian(QuadratureKernel):
     ) -> None:
 
         if measure.input_dim != 1:
-            raise ValueError("Integration measure for Brownian motion kernel must be 1-dimensional. Current dimesnion is ({}).".format(measure.input_dim))
+            raise ValueError(
+                "Integration measure for Brownian motion kernel must be 1-dimensional. Current dimesnion is ({}).".format(
+                    measure.input_dim
+                )
+            )
 
         super().__init__(kern=brownian_kernel, measure=measure, variable_names=variable_names)
 
@@ -125,9 +130,7 @@ class QuadratureProductBrownian(QuadratureProductKernel):
         measure: IntegrationMeasure,
         variable_names: str,
     ) -> None:
-        super().__init__(
-            kern=brownian_kernel, measure=measure, variable_names=variable_names
-        )
+        super().__init__(kern=brownian_kernel, measure=measure, variable_names=variable_names)
 
         lower_bounds_x = self.reasonable_box.lower_bounds[0, :]
         if any(lower_bounds_x < self.offset):

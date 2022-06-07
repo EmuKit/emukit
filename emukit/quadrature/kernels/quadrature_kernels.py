@@ -9,7 +9,7 @@ from typing import List, Union
 import numpy as np
 
 from ..interfaces.standard_kernels import IStandardKernel
-from ..measures import BoxDomain, IntegrationMeasure, LebesgueMeasure, GaussianMeasure
+from ..measures import BoxDomain, GaussianMeasure, IntegrationMeasure, LebesgueMeasure
 from ..typing import BoundsType
 
 
@@ -223,7 +223,9 @@ class LebesgueEmbedding:
     """Mixin for quadrature kernel (kernel embedding) w.r.t. Lebesgue measure."""
 
     @classmethod
-    def from_integral_bounds(cls, kern: QuadratureKernel, integral_bounds: BoundsType, normalized: bool=False, variable_names: str = ""):
+    def from_integral_bounds(
+        cls, kern: QuadratureKernel, integral_bounds: BoundsType, normalized: bool = False, variable_names: str = ""
+    ):
         """Create the quadrature kernel w.r.t. a Lebesgue measure from the integral bounds.
 
         :param kern: Standard EmuKit kernel.
@@ -243,7 +245,9 @@ class GaussianEmbedding:
     """Mixin for quadrature kernel (kernel embedding) w.r.t. Gaussian measure."""
 
     @classmethod
-    def from_measure_params(cls, kern: QuadratureKernel, mean: np.ndarray, variance: Union[float, np.ndarray], variable_names: str = ""):
+    def from_measure_params(
+        cls, kern: QuadratureKernel, mean: np.ndarray, variance: Union[float, np.ndarray], variable_names: str = ""
+    ):
         """Create the quadrature kernel w.r.t. a Gaussian measure from the measure parameters.
 
         :param kern: Standard EmuKit kernel.

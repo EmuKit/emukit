@@ -6,7 +6,7 @@ import numpy as np
 
 from ...quadrature.interfaces.standard_kernels import IProductMatern32
 from ..measures import IntegrationMeasure, LebesgueMeasure
-from .quadrature_kernels import QuadratureProductKernel, LebesgueEmbedding
+from .quadrature_kernels import LebesgueEmbedding, QuadratureProductKernel
 
 
 class QuadratureProductMatern32(QuadratureProductKernel):

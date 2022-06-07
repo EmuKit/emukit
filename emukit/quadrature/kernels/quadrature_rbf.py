@@ -4,12 +4,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import numpy as np
 from typing import Union
+
+import numpy as np
 from scipy.special import erf
 
 from ...quadrature.interfaces.standard_kernels import IRBF
-from ..kernels import QuadratureKernel, LebesgueEmbedding, GaussianEmbedding
+from ..kernels import GaussianEmbedding, LebesgueEmbedding, QuadratureKernel
 from ..measures import GaussianMeasure, IntegrationMeasure, LebesgueMeasure
 
 
