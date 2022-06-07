@@ -85,7 +85,7 @@ class GaussianMeasure(IntegrationMeasure):
         diff = (x - self.mean) / self.variance
         return -diff * values[:, None]
 
-    def get_box(self) -> BoundsType:
+    def reasonable_box(self) -> BoundsType:
         # Note: the factor 10 is somewhat arbitrary but well motivated. If this method is used to get a box for
         # data-collection, the box will be 2x 10 standard deviations wide in all directions, centered around the mean.
         # Outside the box the density is virtually zero.
@@ -94,7 +94,7 @@ class GaussianMeasure(IntegrationMeasure):
         upper = self.mean + factor * np.sqrt(self.variance)
         return list(zip(lower, upper))
 
-    def get_samples(self, num_samples: int, context_manager: ContextManager = None) -> np.ndarray:
+    def sample(self, num_samples: int, context_manager: ContextManager = None) -> np.ndarray:
         samples = self.mean + np.sqrt(self.variance) * np.random.randn(num_samples, self.input_dim)
 
         if context_manager is not None:
