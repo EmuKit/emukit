@@ -21,8 +21,8 @@ class GaussianMeasure(IntegrationMeasure):
     :math:`\sigma_i^2` is :math:`i` th element of the ``variance`` parameter.
 
     :param mean: The mean of the Gaussian measure, shape (input_dim, ).
-    :param variance: The variances of the Gaussian measure. If a scalar value is given, all dimensions
-                     will have same variance.
+    :param variance: The variances of the Gaussian measure, shape (input_dim, ).
+                     If a scalar value is given, all dimensions will have same variance.
 
     """
 
