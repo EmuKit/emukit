@@ -39,7 +39,7 @@ class GaussianMeasure(IntegrationMeasure):
         is_isotropic = False
 
         if isinstance(variance, float):
-            if not variance > 0:
+            if variance <= 0:
                 raise ValueError("Variance must be positive, current value is {}.".format(variance))
             variance = np.full((mean.shape[0],), variance)
             is_isotropic = True
@@ -49,7 +49,7 @@ class GaussianMeasure(IntegrationMeasure):
                 raise ValueError(
                     "Variance has wrong shape; {} given but {} expected.".format(variance.shape, mean.shape)
                 )
-            if not all(variance > 0):
+            if any(variance <= 0):
                 raise ValueError(
                     "All elements of variance must be positive. At least one value seems to be non positive."
                 )
