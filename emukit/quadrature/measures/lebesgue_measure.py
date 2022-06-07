@@ -1,6 +1,4 @@
 """The Lebesgue measure."""
-import warnings
-from typing import Optional
 
 import numpy as np
 
@@ -18,26 +16,12 @@ class LebesgueMeasure(IntegrationMeasure):
     .. math::
         p(x)=\begin{cases} p & x\in\text{bounds}\\0 &\text{otherwise}\end{cases}.
 
-    :param domain: The Box domain. Either ``domain`` or ``bounds`` must be given.
-    :param bounds: List of d tuples [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_d, ub_d)], where d is
-                   the input dimensionality and the tuple (lb_i, ub_i) contains the lower and upper bound
-                   of the uniform measure in dimension i. ``bounds`` are ignored if ``domain`` is given.
+    :param domain: The Box domain.
     :param normalized: Weather the Lebesgue measure is normalized.
 
     """
 
-    def __init__(
-        self, domain: Optional[BoxDomain] = None, bounds: Optional[BoundsType] = None, normalized: bool = False
-    ):
-        if domain is None and bounds is None:
-            raise ValueError("Either domain or bounds must be given.")
-
-        if domain is not None and bounds is not None:
-            warnings.warn("Both domain and bounds are given. Bounds are being ignored.")
-
-        if bounds is not None:
-            domain = BoxDomain(name="", bounds=bounds)
-
+    def __init__(self, domain: BoxDomain, normalized: bool = False):
         super().__init__(domain=domain, name="LebesgueMeasure")
 
         density = 1.0
@@ -90,6 +74,19 @@ class LebesgueMeasure(IntegrationMeasure):
             samples[:, context_manager.context_idxs] = context_manager.context_values
 
         return samples
+
+    @classmethod
+    def from_bounds(cls, bounds: BoundsType, normalized: bool = False):
+        """Creates and instance of this class from integration bounds.
+
+        :param bounds: List of d tuples [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_d, ub_d)], where d is
+                       the input dimensionality and the tuple (lb_i, ub_i) contains the lower and upper bound
+                       of the uniform measure in dimension i. ``bounds`` are ignored if ``domain`` is given.
+        :param normalized: Weather the Lebesgue measure is normalized.
+        :return: An instance of LebesgueMeasure.
+        """
+        domain = BoxDomain(name="", bounds=bounds)
+        return cls(domain=domain, normalized=normalized)
 
 
 class NumericalPrecisionError(Exception):

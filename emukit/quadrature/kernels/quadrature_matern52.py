@@ -77,7 +77,7 @@ class QuadratureProductMatern52LebesgueMeasure(QuadratureProductMatern52, Lebesg
         super().__init__(matern_kernel=matern_kernel, measure=measure, variable_names=variable_names)
 
     def _scale(self, z: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
-        return self.variance * z
+        return (self.measure.density * self.variance) * z
 
     def _get_univariate_parameters(self, dim: int) -> dict:
         return {"domain": self.measure.domain.bounds[dim], "ell": self.lengthscales[dim]}

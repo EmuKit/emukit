@@ -237,7 +237,8 @@ class LebesgueEmbedding:
         :param variable_names: The (variable) name(s) of the integral
         :return: An instance of a quadrature kernel w.r.t. Lebesgue measure.
         """
-        measure = LebesgueMeasure(bounds=integral_bounds, normalized=normalized)
+        domain = BoxDomain(bounds=integral_bounds)
+        measure = LebesgueMeasure(domain=domain, normalized=normalized)
         return cls(kern=kern, measure=measure, variable_names=variable_names)
 
 

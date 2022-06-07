@@ -86,7 +86,7 @@ class QuadratureBrownianLebesgueMeasure(QuadratureBrownian, LebesgueEmbedding):
         lb = self.measure.domain.lower_bounds[None, :]
         ub = self.measure.domain.upper_bounds[None, :]
         kernel_mean = ub * x2 - 0.5 * x2**2 - 0.5 * lb**2
-        return self.variance * kernel_mean.T
+        return (self.variance * self.measure.density) * kernel_mean.T
 
     def qKq(self) -> float:
         lb = self.measure.domain.lower_bounds[None, :]
@@ -96,7 +96,7 @@ class QuadratureBrownianLebesgueMeasure(QuadratureBrownian, LebesgueEmbedding):
 
     def dqK_dx(self, x2: np.ndarray) -> np.ndarray:
         ub = self.measure.domain.upper_bounds[None, :]
-        return self.variance * (ub - x2).T
+        return (self.variance * self.measure.density**2) * (ub - x2).T
 
 
 class QuadratureProductBrownian(QuadratureProductKernel):
@@ -168,7 +168,7 @@ class QuadratureProductBrownianLebesgueMeasure(QuadratureProductBrownian, Lebesg
         super().__init__(brownian_kernel=brownian_kernel, measure=measure, variable_names=variable_names)
 
     def _scale(self, z: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
-        return self.variance * z
+        return (self.measure.density * self.variance) * z
 
     def _get_univariate_parameters(self, dim: int) -> dict:
         return {"domain": self.measure.domain.bounds[dim], "offset": self.offset}

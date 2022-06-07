@@ -26,9 +26,8 @@ from ..quadrature.kernels import (
     QuadratureProductMatern52LebesgueMeasure,
     QuadratureRBFGaussianMeasure,
     QuadratureRBFLebesgueMeasure,
-    QuadratureRBFUniformMeasure,
 )
-from ..quadrature.measures import GaussianMeasure, IntegrationMeasure, UniformMeasure
+from ..quadrature.measures import BoxDomain, GaussianMeasure, IntegrationMeasure, LebesgueMeasure
 from ..quadrature.typing import BoundsType
 
 
@@ -516,28 +515,33 @@ class ProductBrownianGPy(IProductBrownian):
 
 def create_emukit_model_from_gpy_model(
     gpy_model: GPy.models.GPRegression,
-    integral_bounds: Optional[BoundsType],
-    measure: Optional[IntegrationMeasure],
+    integral_bounds: Optional[BoundsType] = None,
+    measure: Optional[IntegrationMeasure] = None,
     integral_name: str = "",
 ) -> BaseGaussianProcessGPy:
     """Wraps a GPy model and returns an EmuKit quadrature model.
 
     :param gpy_model: A GPy Gaussian process regression model ``GPy.models.GPRegression``.
-    :param integral_bounds: List of D tuples, where D is the dimensionality of the integral and the tuples contain the
+    :param integral_bounds: List of d tuples, where d is the dimensionality of the integral and the tuples contain the
                             lower and upper bounds of the integral
-                            i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)].
-                            ``None`` means infinite bounds.
-    :param measure: An integration measure. ``None`` means the standard Lebesgue measure is used.
+                            i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_d, ub_d)].
+                            Only used if ``measure`` is not given in which case the unnormalized Lebesgue measure is used.
+    :param measure: An integration measure. Either ``measure`` or ``integral_bounds`` must be given.
+                    If both ``integral_bounds`` and ``measure`` are given, ``integral_bounds`` is disregarded.
     :param integral_name: The (variable) name(s) of the integral.
     :return: An EmuKit GP model for quadrature with GPy backend.
+
     """
 
-    # neither measure nor bounds are given
     if (integral_bounds is None) and (measure is None):
-        raise ValueError(
-            "Integral_bounds are infinite and measure is standard Lebesgue. Choose either finite bounds "
-            "or an appropriate integration measure."
-        )
+        raise ValueError("Either measure or integral bounds must be given.")
+
+    if (integral_bounds is not None) and (measure is not None):
+        warnings.warn("Both measure and integral bounds are given. Bounds are being ignored.")
+
+    if measure is None:
+        domain = BoxDomain(name="", bounds=integral_bounds)
+        measure = LebesgueMeasure(domain=domain)
 
     def _check_is_gpy_product_kernel(k, k_type):
         is_type = isinstance(gpy_model.kern, k_type)
@@ -550,159 +554,43 @@ def create_emukit_model_from_gpy_model(
 
     # wrap standard kernel
     # RBF
+    qkern_emukit = None
     if isinstance(gpy_model.kern, GPy.kern.RBF):
-        standard_kernel_emukit = RBFGPy(gpy_model.kern)
-        quadrature_kernel_emukit = _get_qkernel_gauss(standard_kernel_emukit, integral_bounds, measure, integral_name)
+        skern_emukit = RBFGPy(gpy_model.kern)
+        if isinstance(measure, LebesgueMeasure):
+            qkern_emukit = QuadratureRBFLebesgueMeasure(skern_emukit, measure, integral_name)
+        elif isinstance(measure, GaussianMeasure):
+            qkern_emukit = QuadratureRBFGaussianMeasure(skern_emukit, measure, integral_name)
+
     # Univariate Matern32 or ProductMatern32
     elif _check_is_gpy_product_kernel(gpy_model.kern, GPy.kern.Matern32):
-        standard_kernel_emukit = ProductMatern32GPy(gpy_model.kern)
-        quadrature_kernel_emukit = _get_qkernel_matern32(
-            standard_kernel_emukit, integral_bounds, measure, integral_name
-        )
+        skern_emukit = ProductMatern32GPy(gpy_model.kern)
+        if isinstance(measure, LebesgueMeasure):
+            qkern_emukit = QuadratureProductMatern32LebesgueMeasure(skern_emukit, measure, integral_name)
+
     # Univariate Matern52 or ProductMatern52
     elif _check_is_gpy_product_kernel(gpy_model.kern, GPy.kern.Matern52):
-        standard_kernel_emukit = ProductMatern52GPy(gpy_model.kern)
-        quadrature_kernel_emukit = _get_qkernel_matern52(
-            standard_kernel_emukit, integral_bounds, measure, integral_name
-        )
+        skern_emukit = ProductMatern52GPy(gpy_model.kern)
+        if isinstance(measure, LebesgueMeasure):
+            qkern_emukit = QuadratureProductMatern52LebesgueMeasure(skern_emukit, measure, integral_name)
+
     # Brownian
     elif isinstance(gpy_model.kern, GPy.kern.Brownian):
-        standard_kernel_emukit = BrownianGPy(gpy_model.kern)
-        quadrature_kernel_emukit = _get_qkernel_brownian(
-            standard_kernel_emukit, integral_bounds, measure, integral_name
-        )
+        skern_emukit = BrownianGPy(gpy_model.kern)
+        if isinstance(measure, LebesgueMeasure):
+            qkern_emukit = QuadratureBrownianLebesgueMeasure(skern_emukit, measure, integral_name)
+
     # ProductBrownian
     elif _check_is_gpy_product_kernel(gpy_model.kern, GPy.kern.Brownian):
-        standard_kernel_emukit = ProductBrownianGPy(gpy_model.kern)
-        quadrature_kernel_emukit = _get_qkernel_prodbrownian(
-            standard_kernel_emukit, integral_bounds, measure, integral_name
-        )
+        skern_emukit = ProductBrownianGPy(gpy_model.kern)
+        if isinstance(measure, LebesgueMeasure):
+            qkern_emukit = QuadratureProductBrownianLebesgueMeasure(skern_emukit, measure, integral_name)
+
     else:
-        raise ValueError(f"There is no GPy wrapper for the provided kernel ({gpy_model.kern.name}).")
+        raise ValueError(f"There is no GPy wrapper for the provided GPy kernel ({gpy_model.kern.name}).")
+
+    if qkern_emukit is None:
+        raise ValueError(f"Kernel embedding not available for provided kernel-measure combination.")
 
     # wrap the base-gp model
-    return BaseGaussianProcessGPy(kern=quadrature_kernel_emukit, gpy_model=gpy_model)
-
-
-def _get_qkernel_brownian(
-    standard_kernel_emukit: IBrownian,
-    integral_bounds: Optional[BoundsType],
-    measure: Optional[IntegrationMeasure],
-    integral_name: str,
-):
-    # we already know that either bounds or measure is given (or both)
-    # finite bounds, standard Lebesgue measure
-    if (integral_bounds is not None) and (measure is None):
-        quadrature_kernel_emukit = QuadratureBrownianLebesgueMeasure(
-            brownian_kernel=standard_kernel_emukit, integral_bounds=integral_bounds, variable_names=integral_name
-        )
-
-    else:
-        raise ValueError("Currently only standard Lebesgue measure (measure=None) is supported.")
-
-    return quadrature_kernel_emukit
-
-
-def _get_qkernel_prodbrownian(
-    standard_kernel_emukit: IProductBrownian,
-    integral_bounds: Optional[BoundsType],
-    measure: Optional[IntegrationMeasure],
-    integral_name: str,
-):
-    # we already know that either bounds or measure is given (or both)
-    # finite bounds, standard Lebesgue measure
-    if (integral_bounds is not None) and (measure is None):
-        quadrature_kernel_emukit = QuadratureProductBrownianLebesgueMeasure(
-            brownian_kernel=standard_kernel_emukit, integral_bounds=integral_bounds, variable_names=integral_name
-        )
-
-    else:
-        raise ValueError("Currently only standard Lebesgue measure (measure=None) is supported.")
-
-    return quadrature_kernel_emukit
-
-
-def _get_qkernel_matern32(
-    standard_kernel_emukit: IProductMatern32,
-    integral_bounds: Optional[BoundsType],
-    measure: Optional[IntegrationMeasure],
-    integral_name: str,
-):
-    # we already know that either bounds or measure is given (or both)
-    # finite bounds, standard Lebesgue measure
-    if (integral_bounds is not None) and (measure is None):
-        quadrature_kernel_emukit = QuadratureProductMatern32LebesgueMeasure(
-            matern_kernel=standard_kernel_emukit, integral_bounds=integral_bounds, variable_names=integral_name
-        )
-
-    else:
-        raise ValueError("Currently only standard Lebesgue measure (measure=None) is supported.")
-
-    return quadrature_kernel_emukit
-
-
-def _get_qkernel_matern52(
-    standard_kernel_emukit: IProductMatern52,
-    integral_bounds: Optional[BoundsType],
-    measure: Optional[IntegrationMeasure],
-    integral_name: str,
-):
-    # we already know that either bounds or measure is given (or both)
-    # finite bounds, standard Lebesgue measure
-    if (integral_bounds is not None) and (measure is None):
-        quadrature_kernel_emukit = QuadratureProductMatern52LebesgueMeasure(
-            matern_kernel=standard_kernel_emukit, integral_bounds=integral_bounds, variable_names=integral_name
-        )
-
-    else:
-        raise ValueError("Currently only standard Lebesgue measure (measure=None) is supported.")
-
-    return quadrature_kernel_emukit
-
-
-def _get_qkernel_gauss(
-    standard_kernel_emukit: IRBF,
-    integral_bounds: Optional[BoundsType],
-    measure: Optional[IntegrationMeasure],
-    integral_name: str,
-):
-    # we already know that either bounds or measure is given (or both)
-    # infinite bounds: Gauss or uniform measure only
-    if (integral_bounds is None) and (measure is not None):
-        if isinstance(measure, UniformMeasure):
-            quadrature_kernel_emukit = QuadratureRBFUniformMeasure(
-                rbf_kernel=standard_kernel_emukit,
-                integral_bounds=integral_bounds,
-                measure=measure,
-                variable_names=integral_name,
-            )
-        elif isinstance(measure, GaussianMeasure):
-            quadrature_kernel_emukit = QuadratureRBFGaussianMeasure(
-                rbf_kernel=standard_kernel_emukit, measure=measure, variable_names=integral_name
-            )
-        else:
-            raise ValueError(
-                "Currently only IsotropicGaussianMeasure and UniformMeasure supported with infinite integral bounds."
-            )
-
-    # finite bounds, standard Lebesgue measure
-    elif (integral_bounds is not None) and (measure is None):
-        quadrature_kernel_emukit = QuadratureRBFLebesgueMeasure(
-            rbf_kernel=standard_kernel_emukit, integral_bounds=integral_bounds, variable_names=integral_name
-        )
-
-    # finite bounds: measure: uniform measure only
-    else:
-        if isinstance(measure, UniformMeasure):
-            quadrature_kernel_emukit = QuadratureRBFUniformMeasure(
-                rbf_kernel=standard_kernel_emukit,
-                integral_bounds=integral_bounds,
-                measure=measure,
-                variable_names=integral_name,
-            )
-        else:
-            raise ValueError(
-                "Currently only standard Lebesgue measure (measure=None) is supported with finite integral bounds."
-            )
-
-    return quadrature_kernel_emukit
+    return BaseGaussianProcessGPy(kern=qkern_emukit, gpy_model=gpy_model)

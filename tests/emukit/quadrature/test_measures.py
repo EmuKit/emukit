@@ -19,7 +19,7 @@ class DataLebesgueMeasure:
     D = 2
     bounds = [(-1, 2), (0, 1)]
     volume = 3
-    measure = LebesgueMeasure(bounds=bounds, normalized=False)
+    measure = LebesgueMeasure(domain=BoxDomain(bounds=bounds), normalized=False)
     dat_bounds = bounds
 
 
@@ -28,7 +28,7 @@ class DataLebesgueNormalizedMeasure:
     D = 2
     bounds = [(-1, 2), (0, 1)]
     volume = 3
-    measure = LebesgueMeasure(bounds=bounds, normalized=True)
+    measure = LebesgueMeasure(domain=BoxDomain(bounds=bounds), normalized=True)
     dat_bounds = bounds
 
 
@@ -143,22 +143,12 @@ def test_lebesgue_measure_values(lebesgue_measure, lebesgue_measure_normalized):
     assert m_norm.reasonable_box() == dat_norm.bounds
 
 
+# Todo: move this to test of BoxDomain
 def test_lebesgue_measure_raises():
-
     # upper bound smaller than lower bound
     wrong_bounds = [(-1, 1), (3, 2), (1.3, 5.0)]
     with pytest.raises(ValueError):
-        LebesgueMeasure(bounds=wrong_bounds)
-
-    # neither domain nor bounds given
-    with pytest.raises(ValueError):
-        LebesgueMeasure()
-
-    # both domain and bounds given
-    bounds = [(0, 1), (0, 1)]
-    domain = BoxDomain(bounds=bounds, name="")
-    with pytest.warns(UserWarning):
-        LebesgueMeasure(domain=domain, bounds=bounds)
+        LebesgueMeasure.from_bounds(bounds=wrong_bounds)
 
 
 # == tests specific to gaussian measure start here

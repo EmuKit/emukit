@@ -22,7 +22,6 @@ from test_quadrature_kernels import (
 )
 
 from emukit.quadrature.kernels import QuadratureKernel
-from emukit.quadrature.measures import GaussianMeasure, LebesgueMeasure
 
 
 def _sample_lebesgue(num_samples: int, bounds: List[Tuple[float, float]]) -> np.ndarray:

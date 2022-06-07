@@ -1,6 +1,7 @@
 # Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+# Todo: test class methods of kernels
 from dataclasses import dataclass
 
 import GPy

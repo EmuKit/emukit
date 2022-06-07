@@ -13,15 +13,15 @@ from ..typing import BoundsType
 class BoxDomain:
     """A box domain defined by a hyper-cube.
 
-    :param name: Name of parameter.
     :param bounds: The bounds defining the box.
                    List of D tuples [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)], where D is
                    the input dimensionality and the tuple (lb_d, ub_d) contains the lower and upper bound
                    of dimension d defining the box.
+    :param name: Name of parameter.
 
     """
 
-    def __init__(self, name: str, bounds: BoundsType):
+    def __init__(self, bounds: BoundsType, name: str = ""):
         self._check_bound_validity(bounds)
         self._bounds = bounds
         self.dim = len(bounds)
