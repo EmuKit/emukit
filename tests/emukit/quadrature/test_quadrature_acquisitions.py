@@ -9,7 +9,7 @@ from pytest_lazyfixture import lazy_fixture
 from utils import check_grad
 
 from emukit.model_wrappers.gpy_quadrature_wrappers import BaseGaussianProcessGPy, RBFGPy
-from emukit.quadrature.acquisitions import IntegralVarianceReduction, MutualInformation, UncertaintySampling
+from emukit.quadrature.acquisitions import IntegralVarianceReduction, MutualInformation, UncertaintySampling, SquaredCorrelation
 from emukit.quadrature.kernels.quadrature_rbf import QuadratureRBFGaussianMeasure, QuadratureRBFLebesgueMeasure
 from emukit.quadrature.measures import GaussianMeasure, LebesgueMeasure
 from emukit.quadrature.methods import VanillaBayesianQuadrature
@@ -18,59 +18,77 @@ from emukit.quadrature.methods import VanillaBayesianQuadrature
 @pytest.fixture
 def gpy_model():
     rng = np.random.RandomState(42)
-    x_init = rng.rand(5, 2)
-    y_init = rng.rand(5, 1)
-    gpy_kernel = GPy.kern.RBF(input_dim=x_init.shape[1])
-    gpy_model = GPy.models.GPRegression(X=x_init, Y=y_init, kernel=gpy_kernel)
-    return gpy_model
+    X = rng.rand(5, 2)
+    Y = rng.rand(5, 1)
+    gpy_kernel = GPy.kern.RBF(input_dim=X.shape[1])
+    return GPy.models.GPRegression(X=X, Y=Y, kernel=gpy_kernel)
 
 
 @pytest.fixture
-def model(gpy_model):
-    x_init, y_init = gpy_model.X, gpy_model.Y
-    measure = LebesgueMeasure.from_bounds(bounds=x_init.shape[1] * [(-3, 3)])
+def model_lebesgue(gpy_model):
+    measure = LebesgueMeasure.from_bounds(bounds=gpy_model.X.shape[1] * [(-1, 2)], normalized=False)
     qrbf = QuadratureRBFLebesgueMeasure(RBFGPy(gpy_model.kern), measure)
     basegp = BaseGaussianProcessGPy(kern=qrbf, gpy_model=gpy_model)
-    return VanillaBayesianQuadrature(base_gp=basegp, X=x_init, Y=y_init)
+    return VanillaBayesianQuadrature(base_gp=basegp, X=gpy_model.X, Y=gpy_model.Y)
 
 
 @pytest.fixture
-def model_with_density(gpy_model):
-    x_init, y_init = gpy_model.X, gpy_model.Y
-    measure = GaussianMeasure(mean=np.arange(x_init.shape[1]), variance=2.0)
+def model_lebesgue_normalized(gpy_model):
+    measure = LebesgueMeasure.from_bounds(bounds=gpy_model.X.shape[1] * [(-1, 2)], normalized=True)
+    qrbf = QuadratureRBFLebesgueMeasure(RBFGPy(gpy_model.kern), measure)
+    basegp = BaseGaussianProcessGPy(kern=qrbf, gpy_model=gpy_model)
+    return VanillaBayesianQuadrature(base_gp=basegp, X=gpy_model.X, Y=gpy_model.Y)
+
+
+@pytest.fixture
+def model_gaussian(gpy_model):
+    X, Y = gpy_model.X, gpy_model.Y
+    measure = GaussianMeasure(mean=np.arange(gpy_model.X.shape[1]), variance=np.linspace(0.2, 1.5, X.shape[1]))
     qrbf = QuadratureRBFGaussianMeasure(RBFGPy(gpy_model.kern), measure=measure)
     basegp = BaseGaussianProcessGPy(kern=qrbf, gpy_model=gpy_model)
-    return VanillaBayesianQuadrature(base_gp=basegp, X=x_init, Y=y_init)
+    return VanillaBayesianQuadrature(base_gp=basegp, X=gpy_model.X, Y=gpy_model.Y)
+
+
+model_test_list = [
+    lazy_fixture("model_gaussian"),
+    lazy_fixture("model_lebesgue"),
+    lazy_fixture("model_lebesgue_normalized")
+]
+
+
+@pytest.fixture(params=model_test_list)
+def model_test_list_fixture(request):
+    return request.param
 
 
 # === acquisition fixtures start here
 
 
 @pytest.fixture
-def mutual_information(model):
-    return MutualInformation(model)
+def mutual_information(model_test_list_fixture):
+    return MutualInformation(model_test_list_fixture)
 
 
 @pytest.fixture
-def integral_variance_reduction(model):
-    return IntegralVarianceReduction(model)
+def squared_correlation(model_test_list_fixture):
+    return SquaredCorrelation(model_test_list_fixture)
 
 
 @pytest.fixture
-def uncertainty_sampling(model):
-    return UncertaintySampling(model)
+def integral_variance_reduction(model_test_list_fixture):
+    return IntegralVarianceReduction(model_test_list_fixture)
 
 
 @pytest.fixture
-def uncertainty_sampling_density(model_with_density):
-    return UncertaintySampling(model_with_density)
+def uncertainty_sampling(model_test_list_fixture):
+    return UncertaintySampling(model_test_list_fixture)
 
 
 acquisitions_test_list = [
     lazy_fixture("mutual_information"),
+    lazy_fixture("squared_correlation"),
     lazy_fixture("integral_variance_reduction"),
     lazy_fixture("uncertainty_sampling"),
-    lazy_fixture("uncertainty_sampling_density"),
 ]
 
 

@@ -17,9 +17,9 @@ class UncertaintySampling(Acquisition):
     .. math::
         a(x) = \operatorname{var}(f(x)) p(x)^q
 
-    where :math:`p(x)` is the density of the integration measure (:math:`p(x)\equiv 1` for Lebesgue),
-    :math:`\operatorname{var}(f(x))` is the predictive variance of the model and :math:`q` is a power that defaults to
-    :math:`q=2`.
+    where :math:`p(x)` is the density of the integration measure,
+    :math:`\operatorname{var}(f(x))` is the predictive variance of the model at :math:`x`
+    and :math:`q` is the ``measure_power`` parameter.
 
     :param model: A warped Bayesian quadrature model that has gradients.
     :param measure_power: The power :math:`q` of the measure. Default is 2.
@@ -42,11 +42,8 @@ class UncertaintySampling(Acquisition):
         :return: The acquisition values at x and unweighted variances, both of shape (n_points, 1).
         """
         variances = self.model.predict(x)[1]
-        if self.model.measure is None:
-            return variances, variances
-        else:
-            weights = self.model.measure.compute_density(x).reshape(variances.shape)
-            return variances * weights**self._measure_power, variances
+        weights = self.model.measure.compute_density(x).reshape(variances.shape)
+        return variances * weights**self._measure_power, variances
 
     def evaluate(self, x: np.ndarray) -> np.ndarray:
         """Evaluates the acquisition function at x.
@@ -67,9 +64,6 @@ class UncertaintySampling(Acquisition):
         variance_weighted, variance = self._evaluate(x)
 
         variance_gradient = self.model.get_prediction_gradients(x)[1]
-        if self.model.measure is None:
-            return variance, variance_gradient
-
         density = self.model.measure.compute_density(x)
         density_gradient = self.model.measure.compute_density_gradient(x)
 
