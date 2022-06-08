@@ -171,23 +171,23 @@ class QuadratureProductBrownianLebesgueMeasure(QuadratureProductBrownian, Lebesg
         return self.variance * z
 
     def _get_univariate_parameters(self, dim: int) -> dict:
-        return {"domain": self.measure.domain.bounds[dim], "offset": self.offset, "density": self.measure.density}
+        return {"domain": self.measure.domain.bounds[dim], "offset": self.offset, "normalize": self.measure.is_normalized}
 
     def _qK_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
         a, b = parameters["domain"]
         offset = parameters["offset"]
-        density = parameters["density"]
+        normalization = 1 / (b - a) if parameters["normalize"] else 1.0
         kernel_mean = b * x - 0.5 * x**2 - 0.5 * a**2
-        return density * (kernel_mean.T - offset * (b - a))
+        return (kernel_mean.T - offset * (b - a)) * normalization
 
     def _qKq_1d(self, **parameters) -> float:
         a, b = parameters["domain"]
         offset = parameters["offset"]
-        density = parameters["density"]
+        normalization = 1 / (b - a) if parameters["normalize"] else 1.0
         qKq = 0.5 * b * (b**2 - a**2) - (b**3 - a**3) / 6 - 0.5 * a**2 * (b - a)
-        return density**2 * (float(qKq) - offset * (b - a) ** 2)
+        return (float(qKq) - offset * (b - a) ** 2) * normalization**2
 
     def _dqK_dx_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
-        _, b = parameters["domain"]
-        density = parameters["density"]
-        return density * (b - x).T
+        a, b = parameters["domain"]
+        normalization = 1 / (b - a) if parameters["normalize"] else 1.0
+        return (b - x).T * normalization

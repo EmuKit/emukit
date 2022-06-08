@@ -39,37 +39,13 @@ def _sample_gaussian(num_samples: int, mean: np.ndarray, variance: np.ndarray) -
     return mean + np.sqrt(variance) * samples
 
 
-# === MC estimators start here
-def qK_gaussian(num_samples: int, qkern: QuadratureKernel, x2: np.ndarray) -> np.ndarray:
-    """MC estimator for kernel mean qK on Gaussian measure."""
-    measure = qkern.measure
-    samples = _sample_gaussian(num_samples, mean=measure.mean, variance=measure.variance)
-    Kx = qkern.K(samples, x2)
-    return np.mean(Kx, axis=0)
-
-
-def qKq_gaussian(num_samples: int, qkern: QuadratureKernel) -> float:
-    """MC estimator for initial error qKq on Gaussian measure."""
-    measure = qkern.measure
-    samples = _sample_gaussian(num_samples, mean=measure.mean, variance=measure.variance)
-    qKx = qkern.qK(samples)
-    return np.mean(qKx)
-
-
+# === qK MC estimators start here
 def qK_lebesgue_normalized(num_samples: int, qkern: QuadratureKernel, x2: np.ndarray) -> np.ndarray:
     """MC estimator for kernel mean qK on Lebesgue measure."""
     bounds = qkern.measure.domain.bounds
     samples = _sample_lebesgue(num_samples, bounds=bounds)
     Kx = qkern.K(samples, x2)
-    return np.mean(Kx, axis=0)
-
-
-def qKq_lebesgue_normalized(num_samples: int, qkern: QuadratureKernel) -> float:
-    """MC estimator for initial error qKq on Lebesgue measure."""
-    bounds = qkern.measure.domain.bounds
-    samples = _sample_lebesgue(num_samples, bounds=bounds)
-    qKx = qkern.qK(samples)
-    return np.mean(qKx)
+    return np.mean(Kx, axis=0) # Todo: axis?
 
 
 def qK_lebesgue(num_samples: int, qkern: QuadratureKernel, x2: np.ndarray) -> np.ndarray:
@@ -79,11 +55,36 @@ def qK_lebesgue(num_samples: int, qkern: QuadratureKernel, x2: np.ndarray) -> np
     return qK_lebesgue_normalized(num_samples=num_samples, qkern=qkern, x2=x2) * volume
 
 
+def qK_gaussian(num_samples: int, qkern: QuadratureKernel, x2: np.ndarray) -> np.ndarray:
+    """MC estimator for kernel mean qK on Gaussian measure."""
+    measure = qkern.measure
+    samples = _sample_gaussian(num_samples, mean=measure.mean, variance=measure.variance)
+    Kx = qkern.K(samples, x2)
+    return np.mean(Kx, axis=0)
+
+
+# === qKq MC estimators start here
+def qKq_lebesgue_normalized(num_samples: int, qkern: QuadratureKernel) -> float:
+    """MC estimator for initial error qKq on Lebesgue measure."""
+    bounds = qkern.measure.domain.bounds
+    samples = _sample_lebesgue(num_samples, bounds=bounds)
+    qKx = qkern.qK(samples)
+    return np.mean(qKx)
+
+
 def qKq_lebesgue(num_samples: int, qkern: QuadratureKernel) -> float:
     """MC estimator for initial error qKq on Lebesgue measure."""
     differences = np.array([x[1] - x[0] for x in qkern.measure.domain.bounds])
     volume = np.prod(differences)
     return qKq_lebesgue_normalized(num_samples=num_samples, qkern=qkern) * volume
+
+
+def qKq_gaussian(num_samples: int, qkern: QuadratureKernel) -> float:
+    """MC estimator for initial error qKq on Gaussian measure."""
+    measure = qkern.measure
+    samples = _sample_gaussian(num_samples, mean=measure.mean, variance=measure.variance)
+    qKx = qkern.qK(samples)
+    return np.mean(qKx)
 
 
 if __name__ == "__main__":

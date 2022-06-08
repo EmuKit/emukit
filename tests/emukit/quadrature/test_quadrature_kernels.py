@@ -310,10 +310,10 @@ def test_qkernel_shapes(kernel_embedding):
         (lebesgue_embeddings_test_list[3], [0.6527648875308305, 0.6539297075650101]),
         (lebesgue_embeddings_test_list[4], [147.14888857464945, 147.3118404349691]),
         (lebesgue_normalized_embeddings_test_list[0], [0.11810869721606222, 0.11827507793339022]),
-        #(lebesgue_normalized_embeddings_test_list[1], [0.005775318424686793, 0.005783032608671052]),
-        #(lebesgue_normalized_embeddings_test_list[2], ),
-        #(lebesgue_normalized_embeddings_test_list[3], ),
-        #(lebesgue_normalized_embeddings_test_list[4], ),
+        (lebesgue_normalized_embeddings_test_list[1], [0.10395517164642398, 0.10409490166790775]),
+        (lebesgue_normalized_embeddings_test_list[2], [0.11207343305303447, 0.11222975508629518]),
+        (lebesgue_normalized_embeddings_test_list[3], [0.3330433099647094, 0.3336376059005152]),
+        (lebesgue_normalized_embeddings_test_list[4], [5.199166451419295, 5.204923979414083]),
     ],
 )
 def test_qkernel_qKq(kernel_embedding, interval):
@@ -404,6 +404,50 @@ def test_qkernel_qKq(kernel_embedding, interval):
                     [0.157150129055736, 0.15798289390294645],
                     [0.1631761888065642, 0.16397690412268906],
                     [0.08183032034498759, 0.08258803561804583],
+                ]
+            ),
+        ),
+        (
+            lebesgue_normalized_embeddings_test_list[1],
+           np.array(
+                [
+                    [0.06536731866770777, 0.06630964768943874],
+                    [0.13260595006023823, 0.13384127776078464],
+                    [0.13416009384467334, 0.13541456916597047],
+                    [0.07572314782569524, 0.07671175363990439],
+                ]
+            ),
+        ),
+        (
+            lebesgue_normalized_embeddings_test_list[2],
+            np.array(
+                [
+                    [0.07040468527352946, 0.07148081141806432],
+                    [0.143866141242133, 0.145032618805113],
+                    [0.14523722168764414, 0.14647123121815653],
+                    [0.08116512097880196, 0.08221905064015111],
+                ]
+            ),
+        ),
+        (
+            lebesgue_normalized_embeddings_test_list[3],
+            np.array(
+                [
+                    [0.12454545728131114, 0.12456225219148712],
+                    [0.23382421543952772, 0.2340393234465488],
+                    [0.385329470081694, 0.38610624458877657],
+                    [0.42093527557756527, 0.4219194798611424],
+                ]
+            ),
+        ),
+        (
+            lebesgue_normalized_embeddings_test_list[4],
+            np.array(
+                [
+                    [3.9412445006525356, 3.9436934280045364],
+                    [3.315875743147793, 3.316681356946966],
+                    [5.219238473015395, 5.224927329816765],
+                    [5.293050112586275, 5.298970607095257],
                 ]
             ),
         ),
