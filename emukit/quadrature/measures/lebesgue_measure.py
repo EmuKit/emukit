@@ -14,7 +14,11 @@ class LebesgueMeasure(IntegrationMeasure):
     The Lebesgue measure has density
 
     .. math::
-        p(x)=\begin{cases} p & x\in\text{bounds}\\0 &\text{otherwise}\end{cases}.
+        p(x)=\begin{cases} \hat{p} & x\in\text{domain}\\0 &\text{otherwise}\end{cases}.
+
+    The value :math:`\hat{p} = 1` if the parameter ``normalized`` is set to ``False``
+    and  :math:`\hat{p} = |\text{domain}|^{-1}` otherwise, where :math:`|\text{domain}|`
+    is the volume (un-normalized Lebesgue measure) of the domain.
 
     :param domain: The Box domain.
     :param normalized: Weather the Lebesgue measure is normalized.
@@ -79,11 +83,15 @@ class LebesgueMeasure(IntegrationMeasure):
     def from_bounds(cls, bounds: BoundsType, normalized: bool = False):
         """Creates and instance of this class from integration bounds.
 
-        :param bounds: List of d tuples [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_d, ub_d)], where d is
-                       the input dimensionality and the tuple (lb_i, ub_i) contains the lower and upper bound
-                       of the uniform measure in dimension i. ``bounds`` are ignored if ``domain`` is given.
+        :param bounds: List of d tuples :math:`[(a_1, b_1), (a_2, b_2), \dots, (a_d, b_d)]`,
+                       where :math:`d` is the dimensionality of the domain and the tuple :math:`(a_i, b_i)`
+                       contains the lower and upper bound of dimension :math:`i` defining the box domain.
         :param normalized: Weather the Lebesgue measure is normalized.
         :return: An instance of LebesgueMeasure.
+
+        .. seealso::
+            * :class:`emukit.quadrature.measures.BoxDomain`
+
         """
         domain = BoxDomain(name="", bounds=bounds)
         return cls(domain=domain, normalized=normalized)
