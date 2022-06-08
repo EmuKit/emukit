@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import List, Tuple
+from typing import List
 
 import numpy as np
 
@@ -11,26 +11,26 @@ from ..typing import BoundsType
 
 
 class BoxDomain:
-    """A box domain defined by a hyper-cube.
+    r"""A box domain defined by a hyper-cube.
 
-    :param name: Name of parameter.
     :param bounds: The bounds defining the box.
-                   List of D tuples [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)], where D is
-                   the input dimensionality and the tuple (lb_d, ub_d) contains the lower and upper bound
-                   of dimension d defining the box.
+                   List of :math:`d` tuples :math:`[(a_1, b_1), (a_2, b_2), \dots, (a_d, b_d)]`,
+                   where :math:`d` is the dimensionality of the domain and the tuple :math:`(a_i, b_i)`
+                   contains the lower and upper bound of dimension :math:`i` defining the box domain.
+    :param name: Name of parameter.
 
     """
 
-    def __init__(self, name: str, bounds: BoundsType):
-        """ """
-
-        self.name = name
-        self.dim = len(bounds)
+    def __init__(self, bounds: BoundsType, name: str = ""):
         self._check_bound_validity(bounds)
         self._bounds = bounds
-        self.lower_bounds, self.upper_bounds = self._get_lower_and_upper_bounds()
-        self._lower_bounds = None
-        self._upper_bounds = None
+        self.dim = len(bounds)
+        self.name = name
+
+        # set upper and lower bounds arrays for convenience
+        bounds = np.array(bounds)
+        self.lower_bounds = bounds[:, 0]
+        self.upper_bounds = bounds[:, 1]
 
     @property
     def bounds(self) -> BoundsType:
@@ -48,15 +48,19 @@ class BoxDomain:
 
         self._check_bound_validity(new_bounds)
         self._bounds = new_bounds
-        self.lower_bounds, self.upper_bounds = self._get_lower_and_upper_bounds()
+
+        new_bounds = np.array(new_bounds)
+        self.lower_bounds = new_bounds[:, 0]
+        self.upper_bounds = new_bounds[:, 1]
 
     def _check_bound_validity(self, bounds: BoundsType) -> None:
         """Checks if domain is not empty.
 
         :param bounds: The bounds to be checked.
         """
-        if self.dim == 0:
+        if len(bounds) == 0:
             raise ValueError("Length of bound list must be > 0; empty list found.")
+
         for bounds_d in bounds:
             lb_d, ub_d = bounds_d
             if lb_d >= ub_d:
@@ -64,20 +68,6 @@ class BoxDomain:
                     "Upper box bound must be larger than lower bound. Found a pair containing ({}, "
                     "{}).".format(lb_d, ub_d)
                 )
-
-    def _get_lower_and_upper_bounds(self) -> Tuple[np.ndarray, np.ndarray]:
-        """Converts the box bounds into two arrays, one containing all lower bounds and one
-        containing all upper bounds.
-
-        :return: Lower bounds and upper bounds of box, each of shape (1, input_dim).
-        """
-        lower_bounds = np.zeros([self.dim, 1])
-        upper_bounds = np.zeros([self.dim, 1])
-        for i, bounds_d in enumerate(self._bounds):
-            lb_d, ub_d = bounds_d
-            lower_bounds[i] = lb_d
-            upper_bounds[i] = ub_d
-        return lower_bounds.T, upper_bounds.T
 
     def convert_to_list_of_continuous_parameters(self) -> List[ContinuousParameter]:
         """Converts the box bounds into a list of :class:`ContinuousParameter` objects.

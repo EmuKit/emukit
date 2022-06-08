@@ -4,14 +4,13 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import Optional, Union
+from typing import Union
 
 import numpy as np
 
 from ...quadrature.interfaces.standard_kernels import IBrownian, IProductBrownian
-from ..kernels import QuadratureKernel, QuadratureProductKernel
-from ..measures import IntegrationMeasure
-from ..typing import BoundsType
+from ..kernels import LebesgueEmbedding, QuadratureKernel, QuadratureProductKernel
+from ..measures import IntegrationMeasure, LebesgueMeasure
 
 
 class QuadratureBrownian(QuadratureKernel):
@@ -31,36 +30,30 @@ class QuadratureBrownian(QuadratureKernel):
        * :class:`emukit.quadrature.kernels.QuadratureKernel`
 
     :param brownian_kernel: The standard EmuKit Brownian motion kernel.
-    :param integral_bounds: The integral bounds.
-                            List of D tuples, where D is the dimensionality
-                            of the integral and the tuples contain the lower and upper bounds of the integral
-                            i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)].
-                            ``None`` if bounds are infinite.
-    :param measure: The integration measure. ``None`` implies the standard Lebesgue measure.
+    :param measure: The integration measure.
     :param variable_names: The (variable) name(s) of the integral.
 
-    :raises ValueError: If ``integral_bounds`` have wrong length.
+    :raises ValueError: If ``measure`` has wrong dimensionality.
 
     """
 
     def __init__(
         self,
         brownian_kernel: IBrownian,
-        integral_bounds: Optional[BoundsType],
-        measure: Optional[IntegrationMeasure],
-        variable_names: str = "",
+        measure: IntegrationMeasure,
+        variable_names: str,
     ) -> None:
 
-        if integral_bounds is not None:
-            if len(integral_bounds) != 1:
-                raise ValueError("Integral bounds for Brownian motion kernel must be 1-dimensional.")
+        if measure.input_dim != 1:
+            raise ValueError(
+                "Integration measure for Brownian motion kernel must be 1-dimensional. Current dimesnion is ({}).".format(
+                    measure.input_dim
+                )
+            )
 
-        super().__init__(
-            kern=brownian_kernel, integral_bounds=integral_bounds, measure=measure, variable_names=variable_names
-        )
+        super().__init__(kern=brownian_kernel, measure=measure, variable_names=variable_names)
 
-        lower_bounds_x = self.reasonable_box.lower_bounds[0, :]
-        if any(lower_bounds_x < 0):
+        if any(self.reasonable_box.lower_bounds < 0):
             raise ValueError(
                 "The domain defined by the reasonable box seems to allow negative values. "
                 "Brownian motion is only defined for positive input values."
@@ -72,46 +65,38 @@ class QuadratureBrownian(QuadratureKernel):
         return self.kern.variance
 
 
-class QuadratureBrownianLebesgueMeasure(QuadratureBrownian):
+class QuadratureBrownianLebesgueMeasure(QuadratureBrownian, LebesgueEmbedding):
     """A Brownian motion kernel augmented with integrability w.r.t. the standard Lebesgue measure.
 
     .. seealso::
        * :class:`emukit.quadrature.interfaces.IBrownian`
        * :class:`emukit.quadrature.kernels.QuadratureBrownian`
+       * :class:`emukit.quadrature.measures.LebesgueMeasure`
 
     :param brownian_kernel: The standard EmuKit Brownian motion kernel.
-    :param integral_bounds: The integral bounds.
-                            List of D tuples, where D is the dimensionality
-                            of the integral and the tuples contain the lower and upper bounds of the integral
-                            i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)].
-                            ``None`` if bounds are infinite.
+    :param measure: The Lebesgue measure.
     :param variable_names: The (variable) name(s) of the integral.
 
     """
 
-    def __init__(self, brownian_kernel: IBrownian, integral_bounds: BoundsType, variable_names: str = "") -> None:
-        super().__init__(
-            brownian_kernel=brownian_kernel,
-            integral_bounds=integral_bounds,
-            measure=None,
-            variable_names=variable_names,
-        )
+    def __init__(self, brownian_kernel: IBrownian, measure: LebesgueMeasure, variable_names: str = "") -> None:
+        super().__init__(brownian_kernel=brownian_kernel, measure=measure, variable_names=variable_names)
 
     def qK(self, x2: np.ndarray) -> np.ndarray:
-        lb = self.integral_bounds.lower_bounds
-        ub = self.integral_bounds.upper_bounds
+        lb = self.measure.domain.lower_bounds[None, :]
+        ub = self.measure.domain.upper_bounds[None, :]
         kernel_mean = ub * x2 - 0.5 * x2**2 - 0.5 * lb**2
-        return self.variance * kernel_mean.T
+        return (self.variance * self.measure.density) * kernel_mean.T
 
     def qKq(self) -> float:
-        lb = self.integral_bounds.lower_bounds[0, 0]
-        ub = self.integral_bounds.upper_bounds[0, 0]
+        lb = self.measure.domain.lower_bounds[None, :]
+        ub = self.measure.domain.upper_bounds[None, :]
         qKq = 0.5 * ub * (ub**2 - lb**2) - (ub**3 - lb**3) / 6 - 0.5 * lb**2 * (ub - lb)
-        return float(self.variance * qKq)
+        return (self.measure.density**2 * self.variance) * float(qKq)
 
     def dqK_dx(self, x2: np.ndarray) -> np.ndarray:
-        ub = self.integral_bounds.upper_bounds
-        return self.variance * (ub - x2).T
+        ub = self.measure.domain.upper_bounds[None, :]
+        return (self.measure.density * self.variance) * (ub - x2).T
 
 
 class QuadratureProductBrownian(QuadratureProductKernel):
@@ -135,27 +120,19 @@ class QuadratureProductBrownian(QuadratureProductKernel):
        * :class:`emukit.quadrature.kernels.QuadratureProductKernel`
 
     :param brownian_kernel: The standard EmuKit product Brownian kernel.
-    :param integral_bounds: The integral bounds.
-                            List of D tuples, where D is the dimensionality
-                            of the integral and the tuples contain the lower and upper bounds of the integral
-                            i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)].
-                            ``None`` if bounds are infinite.
-    :param measure: The integration measure. ``None`` implies the standard Lebesgue measure.
+    :param measure: The integration measure.
     :param variable_names: The (variable) name(s) of the integral.
     """
 
     def __init__(
         self,
         brownian_kernel: IProductBrownian,
-        integral_bounds: Optional[BoundsType],
-        measure: Optional[IntegrationMeasure],
-        variable_names: str = "",
+        measure: IntegrationMeasure,
+        variable_names: str,
     ) -> None:
-        super().__init__(
-            kern=brownian_kernel, integral_bounds=integral_bounds, measure=measure, variable_names=variable_names
-        )
+        super().__init__(kern=brownian_kernel, measure=measure, variable_names=variable_names)
 
-        lower_bounds_x = self.reasonable_box.lower_bounds[0, :]
+        lower_bounds_x = self.reasonable_box.lower_bounds
         if any(lower_bounds_x < self.offset):
             raise ValueError(
                 f"The domain defined by the reasonable box seems allow to for values smaller than the offset "
@@ -173,51 +150,48 @@ class QuadratureProductBrownian(QuadratureProductKernel):
         return self.kern.offset
 
 
-class QuadratureProductBrownianLebesgueMeasure(QuadratureProductBrownian):
-    """An product Brownian kernel augmented with integrability w.r.t. the standard Lebesgue measure.
+class QuadratureProductBrownianLebesgueMeasure(QuadratureProductBrownian, LebesgueEmbedding):
+    """A product Brownian kernel augmented with integrability w.r.t. the standard Lebesgue measure.
 
     .. seealso::
        * :class:`emukit.quadrature.interfaces.IProductBrownian`
        * :class:`emukit.quadrature.kernels.QuadratureProductBrownian`
+       * :class:`emukit.quadrature.measures.LebesgueMeasure`
 
     :param brownian_kernel: The standard EmuKit product Brownian kernel.
-    :param integral_bounds: The integral bounds.
-                            List of D tuples, where D is the dimensionality
-                            of the integral and the tuples contain the lower and upper bounds of the integral
-                            i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)].
-                            ``None`` if bounds are infinite.
+    :param measure: The Lebesgue measure.
     :param variable_names: The (variable) name(s) of the integral.
 
     """
 
-    def __init__(
-        self, brownian_kernel: IProductBrownian, integral_bounds: BoundsType, variable_names: str = ""
-    ) -> None:
-        super().__init__(
-            brownian_kernel=brownian_kernel,
-            integral_bounds=integral_bounds,
-            measure=None,
-            variable_names=variable_names,
-        )
+    def __init__(self, brownian_kernel: IProductBrownian, measure: LebesgueMeasure, variable_names: str = "") -> None:
+        super().__init__(brownian_kernel=brownian_kernel, measure=measure, variable_names=variable_names)
 
     def _scale(self, z: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
         return self.variance * z
 
     def _get_univariate_parameters(self, dim: int) -> dict:
-        return {"domain": self.integral_bounds.bounds[dim], "offset": self.offset}
+        return {
+            "domain": self.measure.domain.bounds[dim],
+            "offset": self.offset,
+            "normalize": self.measure.is_normalized,
+        }
 
     def _qK_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
         a, b = parameters["domain"]
         offset = parameters["offset"]
+        normalization = 1 / (b - a) if parameters["normalize"] else 1.0
         kernel_mean = b * x - 0.5 * x**2 - 0.5 * a**2
-        return kernel_mean.T - offset * (b - a)
+        return (kernel_mean.T - offset * (b - a)) * normalization
 
     def _qKq_1d(self, **parameters) -> float:
         a, b = parameters["domain"]
         offset = parameters["offset"]
+        normalization = 1 / (b - a) if parameters["normalize"] else 1.0
         qKq = 0.5 * b * (b**2 - a**2) - (b**3 - a**3) / 6 - 0.5 * a**2 * (b - a)
-        return float(qKq) - offset * (b - a) ** 2
+        return (float(qKq) - offset * (b - a) ** 2) * normalization**2
 
     def _dqK_dx_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
-        _, b = parameters["domain"]
-        return (b - x).T
+        a, b = parameters["domain"]
+        normalization = 1 / (b - a) if parameters["normalize"] else 1.0
+        return (b - x).T * normalization

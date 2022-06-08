@@ -8,21 +8,23 @@ from typing import List, Tuple
 
 import numpy as np
 from test_quadrature_kernels import (
-    get_qbrownian_lebesque,
-    get_qmatern32_lebesque,
-    get_qmatern52_lebesque,
-    get_qprodbrownian_lebesque,
-    get_qrbf_gaussian,
-    get_qrbf_lebesque,
-    get_qrbf_uniform_finite,
-    get_qrbf_uniform_infinite,
+    get_gaussian_qrbf,
+    get_lebesgue_normalized_qbrownian,
+    get_lebesgue_normalized_qmatern32,
+    get_lebesgue_normalized_qmatern52,
+    get_lebesgue_normalized_qprodbrownian,
+    get_lebesgue_normalized_qrbf,
+    get_lebesgue_qbrownian,
+    get_lebesgue_qmatern32,
+    get_lebesgue_qmatern52,
+    get_lebesgue_qprodbrownian,
+    get_lebesgue_qrbf,
 )
 
 from emukit.quadrature.kernels import QuadratureKernel
-from emukit.quadrature.measures import GaussianMeasure
 
 
-def _sample_uniform(num_samples: int, bounds: List[Tuple[float, float]]) -> np.ndarray:
+def _sample_lebesgue(num_samples: int, bounds: List[Tuple[float, float]]) -> np.ndarray:
     D = len(bounds)
     samples = np.reshape(np.random.rand(num_samples * D), [num_samples, D])
     samples_shifted = np.zeros(samples.shape)
@@ -31,129 +33,121 @@ def _sample_uniform(num_samples: int, bounds: List[Tuple[float, float]]) -> np.n
     return samples_shifted
 
 
-def _sample_gaussian(num_samples: int, measure: GaussianMeasure) -> np.ndarray:
-    D = measure.input_dim
+def _sample_gaussian(num_samples: int, mean: np.ndarray, variance: np.ndarray) -> np.ndarray:
+    D = mean.shape[0]
     samples = np.reshape(np.random.randn(num_samples * D), [num_samples, D])
-    return measure.mean + np.sqrt(measure.variance) * samples
+    return mean + np.sqrt(variance) * samples
 
 
-# === MC estimators start here
+# === qK MC estimators start here
+def qK_lebesgue_normalized(num_samples: int, qkern: QuadratureKernel, x2: np.ndarray) -> np.ndarray:
+    """MC estimator for kernel mean qK on Lebesgue measure."""
+    bounds = qkern.measure.domain.bounds
+    samples = _sample_lebesgue(num_samples, bounds=bounds)
+    Kx = qkern.K(samples, x2)
+    return np.mean(Kx, axis=0)  # Todo: axis?
+
+
 def qK_lebesgue(num_samples: int, qkern: QuadratureKernel, x2: np.ndarray) -> np.ndarray:
     """MC estimator for kernel mean qK on Lebesgue measure."""
-    bounds = qkern.integral_bounds.bounds
-    samples = _sample_uniform(num_samples, bounds)
-    Kx = qkern.K(samples, x2)
-    differences = np.array([x[1] - x[0] for x in bounds])
+    differences = np.array([x[1] - x[0] for x in qkern.measure.domain.bounds])
     volume = np.prod(differences)
-    return np.mean(Kx, axis=0) * volume
-
-
-def qKq_lebesgue(num_samples: int, qkern: QuadratureKernel) -> float:
-    """MC estimator for initial error qKq on Lebesgue measure."""
-    bounds = qkern.integral_bounds.bounds
-    samples = _sample_uniform(num_samples, bounds)
-    qKx = qkern.qK(samples)
-    differences = np.array([x[1] - x[0] for x in bounds])
-    volume = np.prod(differences)
-    return np.mean(qKx) * volume
+    return qK_lebesgue_normalized(num_samples=num_samples, qkern=qkern, x2=x2) * volume
 
 
 def qK_gaussian(num_samples: int, qkern: QuadratureKernel, x2: np.ndarray) -> np.ndarray:
     """MC estimator for kernel mean qK on Gaussian measure."""
     measure = qkern.measure
-    samples = _sample_gaussian(num_samples, measure)
+    samples = _sample_gaussian(num_samples, mean=measure.mean, variance=measure.variance)
     Kx = qkern.K(samples, x2)
     return np.mean(Kx, axis=0)
+
+
+# === qKq MC estimators start here
+def qKq_lebesgue_normalized(num_samples: int, qkern: QuadratureKernel) -> float:
+    """MC estimator for initial error qKq on Lebesgue measure."""
+    bounds = qkern.measure.domain.bounds
+    samples = _sample_lebesgue(num_samples, bounds=bounds)
+    qKx = qkern.qK(samples)
+    return np.mean(qKx)
+
+
+def qKq_lebesgue(num_samples: int, qkern: QuadratureKernel) -> float:
+    """MC estimator for initial error qKq on Lebesgue measure."""
+    differences = np.array([x[1] - x[0] for x in qkern.measure.domain.bounds])
+    volume = np.prod(differences)
+    return qKq_lebesgue_normalized(num_samples=num_samples, qkern=qkern) * volume
 
 
 def qKq_gaussian(num_samples: int, qkern: QuadratureKernel) -> float:
     """MC estimator for initial error qKq on Gaussian measure."""
     measure = qkern.measure
-    samples = _sample_gaussian(num_samples, measure)
+    samples = _sample_gaussian(num_samples, mean=measure.mean, variance=measure.variance)
     qKx = qkern.qK(samples)
     return np.mean(qKx)
-
-
-def qK_uniform(num_samples: int, qkern: QuadratureKernel, x2: np.ndarray) -> np.ndarray:
-    """MC estimator for kernel mean qK on uniform measure."""
-    if qkern.integral_bounds is None:
-        bounds = qkern.measure.bounds
-        samples = _sample_uniform(num_samples, bounds)
-        Kx = qkern.K(samples, x2)
-        return np.mean(Kx, axis=0)
-    else:
-        bounds = qkern.integral_bounds._bounds
-        samples = _sample_uniform(num_samples, bounds)
-        Kx = qkern.K(samples, x2) * qkern.measure.compute_density(samples)[:, np.newaxis]
-        differences = np.array([x[1] - x[0] for x in bounds])
-        volume = np.prod(differences)
-        return np.mean(Kx, axis=0) * volume
-
-
-def qKq_uniform(num_samples: int, qkern: QuadratureKernel) -> float:
-    """MC estimator for initial error qKq on uniform measure."""
-    if qkern.integral_bounds is None:
-        bounds = qkern.measure.bounds
-        samples = _sample_uniform(num_samples, bounds)
-        qKx = qkern.qK(samples)
-        return np.mean(qKx)
-    else:
-        bounds = qkern.integral_bounds.bounds
-        samples = _sample_uniform(num_samples, bounds)
-        qKx = qkern.qK(samples) * qkern.measure.compute_density(samples)[np.newaxis, :]
-        differences = np.array([x[1] - x[0] for x in bounds])
-        volume = np.prod(differences)
-        return np.mean(qKx) * volume
 
 
 if __name__ == "__main__":
     np.random.seed(0)
 
     # === Choose MEASURE BELOW ======
-    # MEASURE_INTBOUNDS = "Lebesgue-finite"
-    MEASURE_INTBOUNDS = "Gaussian-infinite"
-    # MEASURE_INTBOUNDS = 'Uniform-infinite'
-    # MEASURE_INTBOUNDS = "Uniform-finite"
+    # MEASURE = "Gaussian"
+    # MEASURE = "Lebesgue"
+    MEASURE = "Lebesgue-normalized"
     # === CHOOSE MEASURE ABOVE ======
 
     # === Choose KERNEL BELOW ======
-    KERNEL = "rbf"
+    # KERNEL = "rbf"
     # KERNEL = "matern32"
     # KERNEL = "matern52"
     # KERNEL = "brownian"
-    # KERNEL = "prodbrownian"
+    KERNEL = "prodbrownian"
     # === CHOOSE KERNEL ABOVE ======
 
     _e = "Kernel embedding not implemented."
     if KERNEL == "rbf":
-        if MEASURE_INTBOUNDS == "Lebesgue-finite":
-            emukit_qkern, dat = get_qrbf_lebesque()
-        elif MEASURE_INTBOUNDS == "Gaussian-infinite":
-            emukit_qkern, dat = get_qrbf_gaussian()
-        elif MEASURE_INTBOUNDS == "Uniform-infinite":
-            emukit_qkern, dat = get_qrbf_uniform_infinite()
-        elif MEASURE_INTBOUNDS == "Uniform-finite":
-            emukit_qkern, dat = get_qrbf_uniform_finite()
+        if MEASURE == "Gaussian":
+            emukit_qkern, dat = get_gaussian_qrbf()
+        elif MEASURE == "Lebesgue":
+            emukit_qkern, dat = get_lebesgue_qrbf()
+        elif MEASURE == "Lebesgue-normalized":
+            emukit_qkern, dat = get_lebesgue_normalized_qrbf()
         else:
             raise ValueError(_e)
     elif KERNEL == "matern32":
-        if MEASURE_INTBOUNDS == "Lebesgue-finite":
-            emukit_qkern, dat = get_qmatern32_lebesque()
-    elif KERNEL == "matern52":
-        if MEASURE_INTBOUNDS == "Lebesgue-finite":
-            emukit_qkern, dat = get_qmatern52_lebesque()
-    elif KERNEL == "brownian":
-        if MEASURE_INTBOUNDS == "Lebesgue-finite":
-            emukit_qkern, dat = get_qbrownian_lebesque()
-    elif KERNEL == "prodbrownian":
-        if MEASURE_INTBOUNDS == "Lebesgue-finite":
-            emukit_qkern, dat = get_qprodbrownian_lebesque()
+        if MEASURE == "Lebesgue":
+            emukit_qkern, dat = get_lebesgue_qmatern32()
+        elif MEASURE == "Lebesgue-normalized":
+            emukit_qkern, dat = get_lebesgue_normalized_qmatern32()
         else:
             raise ValueError(_e)
+    elif KERNEL == "matern52":
+        if MEASURE == "Lebesgue":
+            emukit_qkern, dat = get_lebesgue_qmatern52()
+        elif MEASURE == "Lebesgue-normalized":
+            emukit_qkern, dat = get_lebesgue_normalized_qmatern52()
+        else:
+            raise ValueError(_e)
+    elif KERNEL == "brownian":
+        if MEASURE == "Lebesgue":
+            emukit_qkern, dat = get_lebesgue_qbrownian()
+        elif MEASURE == "Lebesgue-normalized":
+            emukit_qkern, dat = get_lebesgue_normalized_qbrownian()
+        else:
+            raise ValueError(_e)
+    elif KERNEL == "prodbrownian":
+        if MEASURE == "Lebesgue":
+            emukit_qkern, dat = get_lebesgue_qprodbrownian()
+        elif MEASURE == "Lebesgue-normalized":
+            emukit_qkern, dat = get_lebesgue_normalized_qprodbrownian()
+        else:
+            raise ValueError(_e)
+    else:
+        raise ValueError("Kernel unknown.")
 
     print()
     print("kernel: {}".format(KERNEL))
-    print("measure: {}".format(MEASURE_INTBOUNDS))
+    print("measure: {}".format(MEASURE))
     print("no dimensions: {}".format(dat.D))
     print()
 
@@ -167,14 +161,12 @@ if __name__ == "__main__":
     for i in range(num_runs):
         num_samples = int(num_samples)
 
-        if MEASURE_INTBOUNDS == "Lebesgue-finite":
-            qK_samples = qK_lebesgue(num_samples, emukit_qkern, dat.x2)
-        elif MEASURE_INTBOUNDS == "Gaussian-infinite":
+        if MEASURE == "Gaussian":
             qK_samples = qK_gaussian(num_samples, emukit_qkern, dat.x2)
-        elif MEASURE_INTBOUNDS == "Uniform-infinite":
-            qK_samples = qK_uniform(num_samples, emukit_qkern, dat.x2)
-        elif MEASURE_INTBOUNDS == "Uniform-finite":
-            qK_samples = qK_uniform(num_samples, emukit_qkern, dat.x2)
+        elif MEASURE == "Lebesgue":
+            qK_samples = qK_lebesgue(num_samples, emukit_qkern, dat.x2)
+        elif MEASURE == "Lebesgue-normalized":
+            qK_samples = qK_lebesgue_normalized(num_samples, emukit_qkern, dat.x2)
         else:
             raise ValueError("Measure-integral-bounds combination not defined")
 
@@ -203,14 +195,12 @@ if __name__ == "__main__":
     for i in range(num_runs):
         num_samples = int(num_samples)
 
-        if MEASURE_INTBOUNDS == "Lebesgue-finite":
-            qKq_samples = qKq_lebesgue(num_samples, emukit_qkern)
-        elif MEASURE_INTBOUNDS == "Gaussian-infinite":
+        if MEASURE == "Gaussian":
             qKq_samples = qKq_gaussian(num_samples, emukit_qkern)
-        elif MEASURE_INTBOUNDS == "Uniform-infinite":
-            qKq_samples = qKq_uniform(num_samples, emukit_qkern)
-        elif MEASURE_INTBOUNDS == "Uniform-finite":
-            qKq_samples = qKq_uniform(num_samples, emukit_qkern)
+        elif MEASURE == "Lebesgue":
+            qKq_samples = qKq_lebesgue(num_samples, emukit_qkern)
+        elif MEASURE == "Lebesgue-normalized":
+            qKq_samples = qKq_lebesgue_normalized(num_samples, emukit_qkern)
         else:
             raise ValueError("Measure-integral-bounds combination not defined")
 

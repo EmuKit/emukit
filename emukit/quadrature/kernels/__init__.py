@@ -4,7 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from .quadrature_kernels import QuadratureKernel, QuadratureProductKernel  # isort:skip
+from .quadrature_kernels import (  # isort: skip
+    GaussianEmbedding,
+    LebesgueEmbedding,
+    QuadratureKernel,
+    QuadratureProductKernel,
+)
 from .quadrature_brownian import (
     QuadratureBrownian,
     QuadratureBrownianLebesgueMeasure,
@@ -13,26 +18,22 @@ from .quadrature_brownian import (
 )
 from .quadrature_matern32 import QuadratureProductMatern32, QuadratureProductMatern32LebesgueMeasure
 from .quadrature_matern52 import QuadratureProductMatern52, QuadratureProductMatern52LebesgueMeasure
-from .quadrature_rbf import (
-    QuadratureRBF,
-    QuadratureRBFGaussianMeasure,
-    QuadratureRBFLebesgueMeasure,
-    QuadratureRBFUniformMeasure,
-)
+from .quadrature_rbf import QuadratureRBF, QuadratureRBFGaussianMeasure, QuadratureRBFLebesgueMeasure
 
 __all__ = [
     "QuadratureKernel",
+    "QuadratureProductKernel",
+    "LebesgueEmbedding",
+    "GaussianEmbedding",
     "QuadratureBrownian",
     "QuadratureBrownianLebesgueMeasure",
     "QuadratureRBF",
     "QuadratureRBFLebesgueMeasure",
-    "QuadratureRBFUniformMeasure",
     "QuadratureRBFGaussianMeasure",
-    "QuadratureProductKernel",
-    "QuadratureProductBrownian",
-    "QuadratureProductBrownianLebesgueMeasure",
-    "QuadratureProductMatern32",
-    "QuadratureProductMatern32LebesgueMeasure",
     "QuadratureProductMatern52",
     "QuadratureProductMatern52LebesgueMeasure",
+    "QuadratureProductMatern32",
+    "QuadratureProductMatern32LebesgueMeasure",
+    "QuadratureProductBrownian",
+    "QuadratureProductBrownianLebesgueMeasure",
 ]

@@ -10,13 +10,13 @@ from utils import check_grad
 
 from emukit.model_wrappers.gpy_quadrature_wrappers import BaseGaussianProcessGPy, RBFGPy
 from emukit.quadrature.kernels import QuadratureRBFGaussianMeasure, QuadratureRBFLebesgueMeasure
-from emukit.quadrature.measures import GaussianMeasure
+from emukit.quadrature.measures import GaussianMeasure, LebesgueMeasure
 from emukit.quadrature.methods import WSABIL, BoundedBayesianQuadrature
 from emukit.quadrature.methods.vanilla_bq import VanillaBayesianQuadrature
 
 
 @dataclass
-class DataGaussIso:
+class DataGaussianSpread:
     D = 2
     measure_mean = np.array([0.2, 1.3])
     measure_var = 2.0
@@ -30,7 +30,7 @@ class DataGaussIso:
 
 
 def get_gpy_model():
-    dat = DataGaussIso()
+    dat = DataGaussianSpread()
     gpy_kern = GPy.kern.RBF(input_dim=dat.D)
     return GPy.models.GPRegression(X=dat.X, Y=dat.Y, kernel=gpy_kern), dat
 
@@ -40,13 +40,6 @@ def get_base_gp():
     measure = GaussianMeasure(mean=dat.measure_mean, variance=dat.measure_var)
     qrbf = QuadratureRBFGaussianMeasure(RBFGPy(gpy_model.kern), measure=measure)
     return BaseGaussianProcessGPy(kern=qrbf, gpy_model=gpy_model), dat
-
-
-def get_base_gp_wrong_kernel():
-    gpy_model, dat = get_gpy_model()
-    integral_bounds = [(-2.1, 1), (-3, 3)]
-    qrbf = QuadratureRBFLebesgueMeasure(RBFGPy(gpy_model.kern), integral_bounds=integral_bounds)
-    return BaseGaussianProcessGPy(kern=qrbf, gpy_model=gpy_model)
 
 
 def get_vanilla_bq_model():
@@ -78,17 +71,17 @@ def get_wsabil_fixed():
 # === fixtures start here
 @pytest.fixture
 def data():
-    return DataGaussIso()
+    return DataGaussianSpread()
+
+
+@pytest.fixture
+def gpy_model():
+    return get_gpy_model()
 
 
 @pytest.fixture
 def base_gp():
     return get_base_gp()
-
-
-@pytest.fixture
-def base_gp_wrong_kernel():
-    return get_base_gp_wrong_kernel()
 
 
 @pytest.fixture
@@ -287,7 +280,12 @@ def test_bounded_bq_correct_bound(data, bounded_bq_lower, bounded_bq_upper):
     assert bounded_bq_upper.bound == data.bound_upper
 
 
-def test_bounded_bq_raises(base_gp_wrong_kernel):
+def test_bounded_bq_raises(gpy_model):
+    gpy_model, _ = gpy_model
+    measure = LebesgueMeasure.from_bounds(gpy_model.X.shape[1] * [(0, 1)], normalized=False)
+    qrbf = QuadratureRBFLebesgueMeasure(RBFGPy(gpy_model.kern), measure=measure)
+    base_gp_wrong_kernel = BaseGaussianProcessGPy(kern=qrbf, gpy_model=gpy_model)
+
     # wrong kernel embedding
     with pytest.raises(ValueError):
         BoundedBayesianQuadrature(

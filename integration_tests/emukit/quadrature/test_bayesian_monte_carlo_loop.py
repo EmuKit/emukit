@@ -10,6 +10,7 @@ from numpy.testing import assert_array_equal
 from emukit.core.loop.user_function import UserFunctionWrapper
 from emukit.model_wrappers.gpy_quadrature_wrappers import BaseGaussianProcessGPy, QuadratureRBFLebesgueMeasure, RBFGPy
 from emukit.quadrature.loop import BayesianMonteCarlo
+from emukit.quadrature.measures import LebesgueMeasure
 from emukit.quadrature.methods import VanillaBayesianQuadrature
 
 
@@ -27,7 +28,8 @@ def loop():
     gpy_model = GPy.models.GPRegression(
         X=x_init, Y=y_init, kernel=GPy.kern.RBF(input_dim=x_init.shape[1], lengthscale=1.0, variance=1.0)
     )
-    emukit_qrbf = QuadratureRBFLebesgueMeasure(RBFGPy(gpy_model.kern), integral_bounds=bounds)
+    emukit_measure = LebesgueMeasure.from_bounds(bounds, normalized=False)
+    emukit_qrbf = QuadratureRBFLebesgueMeasure(RBFGPy(gpy_model.kern), measure=emukit_measure)
     emukit_model = BaseGaussianProcessGPy(kern=emukit_qrbf, gpy_model=gpy_model)
     emukit_method = VanillaBayesianQuadrature(base_gp=emukit_model, X=x_init, Y=y_init)
     emukit_loop = BayesianMonteCarlo(model=emukit_method)

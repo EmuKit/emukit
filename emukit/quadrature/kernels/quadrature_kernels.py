@@ -4,12 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import List, Optional, Union
+from typing import List, Union
 
 import numpy as np
 
 from ..interfaces.standard_kernels import IStandardKernel
-from ..measures import BoxDomain, IntegrationMeasure
+from ..measures import BoxDomain, GaussianMeasure, IntegrationMeasure, LebesgueMeasure
 from ..typing import BoundsType
 
 
@@ -26,41 +26,27 @@ class QuadratureKernel:
         implemented w.r.t. a specific integration measure, for example the :class:`LebesgueMeasure`.
 
     :param kern: Standard EmuKit kernel.
-    :param integral_bounds: The integral bounds.
-                            List of D tuples, where D is the dimensionality
-                            of the integral and the tuples contain the lower and upper bounds of the integral
-                            i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)].
-                            ``None`` if bounds are infinite.
-    :param measure: The integration measure. ``None`` implies the standard Lebesgue measure.
-    :param variable_names: The (variable) name(s) of the integral
+    :param measure: The integration measure.
+    :param variable_names: The (variable) name(s) of the integral.
 
     """
 
     def __init__(
         self,
         kern: IStandardKernel,
-        integral_bounds: Optional[BoundsType],
-        measure: Optional[IntegrationMeasure],
-        variable_names: str = "",
+        measure: IntegrationMeasure,
+        variable_names: str,
     ) -> None:
-        # we define reasonable box bounds for the integral because e.g., the optimizer of the acquisition function
-        # requires finite bounds. The box is defined by the integration measure. See each integration measure for
-        # details. Note that this only affects methods that use this box, e.g. the acqusition optimizers. The integrals
-        # in this kernel will have infinite bounds still.
-        if (integral_bounds is None) and (measure is None):
-            raise ValueError("integral_bounds and measure are both None. At least one of them must be given.")
-
-        if integral_bounds is not None:
-            reasonable_box = BoxDomain(name=variable_names, bounds=integral_bounds)
-            integral_bounds = BoxDomain(name=variable_names, bounds=integral_bounds)
-        else:
-            reasonable_box = BoxDomain(name=variable_names, bounds=measure.get_box())
-
         self.kern = kern
         self.measure = measure
-        self.integral_bounds = integral_bounds
-        self.reasonable_box = reasonable_box
-        self.input_dim = self.reasonable_box.dim
+        self.input_dim = self.measure.input_dim
+
+        # Even though the domain of the integration might be unbounded, some subroutines such as the acquisition
+        # optimizer require a bounded box. Hence, below we define a reasonable box for input values of the integrand
+        # that can be used by such methods. The box is defined by the integration measure used (see docs there).
+        # Note that the reasonable box only affects methods that use this box, e.g. the acqusition optimizers.
+        # The kernel embeddings still use the originally defined domain which may be unbounded.
+        self.reasonable_box = BoxDomain(name=variable_names, bounds=measure.reasonable_box())
 
     def K(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
         """The kernel k(x1, x2) evaluated at x1 and x2.
@@ -149,27 +135,21 @@ class QuadratureProductKernel(QuadratureKernel):
     where :math:`k_i(x, x')` is a univariate kernel acting on dimension :math:`i`.
 
     :param kern: Standard EmuKit kernel (must be a product kernel).
-    :param integral_bounds: The integral bounds.
-                            List of D tuples, where D is the dimensionality
-                            of the integral and the tuples contain the lower and upper bounds of the integral
-                            i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)].
-                            ``None`` if bounds are infinite.
-    :param measure: The integration measure. ``None`` implies the standard Lebesgue measure.
-    :param variable_names: The (variable) name(s) of the integral
+    :param measure: The integration measure.
+    :param variable_names: The (variable) name(s) of the integral.
 
     """
 
     def __init__(
         self,
         kern: IStandardKernel,
-        integral_bounds: Optional[BoundsType],
-        measure: Optional[IntegrationMeasure],
-        variable_names: str = "",
+        measure: IntegrationMeasure,
+        variable_names: str,
     ) -> None:
 
-        super().__init__(kern=kern, integral_bounds=integral_bounds, measure=measure, variable_names=variable_names)
+        super().__init__(kern=kern, measure=measure, variable_names=variable_names)
 
-    def qK(self, x2: np.ndarray, skip: List[int] = None) -> np.ndarray:
+    def _qK_unscaled(self, x2: np.ndarray, skip: List[int] = None) -> np.ndarray:
         if skip is None:
             skip = []
 
@@ -178,7 +158,10 @@ class QuadratureProductKernel(QuadratureKernel):
             if dim in skip:
                 continue
             qK *= self._qK_1d(x2[:, dim], **self._get_univariate_parameters(dim))
-        return self._scale(qK[None, :])
+        return qK[None, :]
+
+    def qK(self, x2: np.ndarray, skip: List[int] = None) -> np.ndarray:
+        return self._scale(self._qK_unscaled(x2, skip))
 
     def qKq(self) -> float:
         qKq = 1.0
@@ -191,8 +174,8 @@ class QuadratureProductKernel(QuadratureKernel):
         dqK_dx = np.zeros([input_dim, x2.shape[0]])
         for dim in range(input_dim):
             grad_term = self._dqK_dx_1d(x2[:, dim], **self._get_univariate_parameters(dim))
-            dqK_dx[dim, :] = grad_term * self.qK(x2, skip=[dim])[0, :]
-        return dqK_dx
+            dqK_dx[dim, :] = grad_term * self._qK_unscaled(x2, skip=[dim])[0, :]
+        return self._scale(dqK_dx)
 
     def _scale(self, z: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
         """Scales the input ``z`` with a scalar value specific to the kernel.
@@ -237,3 +220,58 @@ class QuadratureProductKernel(QuadratureKernel):
         :return: The gradient with shape (n_points, ).
         """
         raise NotImplementedError
+
+
+class LebesgueEmbedding:
+    """Mixin for quadrature kernel w.r.t. Lebesgue measure.
+
+    .. seealso::
+        * :class:`emukit.quadrature.measures.LebesgueMeasure`
+
+    """
+
+    @classmethod
+    def from_integral_bounds(
+        cls, kern: IStandardKernel, integral_bounds: BoundsType, normalized: bool = False, variable_names: str = ""
+    ):
+        """Create the quadrature kernel w.r.t. a Lebesgue measure from the integral bounds.
+
+        :param kern: Standard EmuKit kernel.
+        :param integral_bounds: The integral bounds.
+                               List of :math:`d` tuples :math:`[(a_1, b_1), (a_2, b_2), \dots, (a_d, b_d)]`,
+                               where :math:`d` is the dimensionality of the integral and the tuple :math:`(a_i, b_i)`
+                               contains the lower and upper integration bound of dimension :math:`i`.
+        :param normalized: Weather the Lebesgue measure is normalized.
+        :param variable_names: The (variable) name(s) of the integral
+        :return: An instance of a quadrature kernel w.r.t. Lebesgue measure.
+
+        """
+        domain = BoxDomain(bounds=integral_bounds)
+        measure = LebesgueMeasure(domain=domain, normalized=normalized)
+        return cls(kern=kern, measure=measure, variable_names=variable_names)
+
+
+class GaussianEmbedding:
+    """Mixin for quadrature kernel w.r.t. Gaussian measure.
+
+    .. seealso::
+        * :class:`emukit.quadrature.measures.GaussianMeasure`
+
+    """
+
+    @classmethod
+    def from_measure_params(
+        cls, kern: IStandardKernel, mean: np.ndarray, variance: Union[float, np.ndarray], variable_names: str = ""
+    ):
+        """Create the quadrature kernel w.r.t. a Gaussian measure from the measure parameters.
+
+        :param kern: Standard EmuKit kernel.
+        :param mean: The mean of the Gaussian measure, shape (input_dim, ).
+        :param variance: The variances of the Gaussian measure, shape (input_dim, ).
+                         If a scalar value is given, all dimensions will have same variance.
+        :param variable_names: The (variable) name(s) of the integral
+        :return: An instance of a quadrature kernel w.r.t. Gaussian measure.
+
+        """
+        measure = GaussianMeasure(mean=mean, variance=variance)
+        return cls(kern=kern, measure=measure, variable_names=variable_names)

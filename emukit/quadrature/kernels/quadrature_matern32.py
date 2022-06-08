@@ -1,13 +1,12 @@
 """The product Matern32 kernel embeddings."""
 
-from typing import Optional, Tuple, Union
+from typing import Optional, Union
 
 import numpy as np
 
 from ...quadrature.interfaces.standard_kernels import IProductMatern32
-from ..measures import IntegrationMeasure
-from ..typing import BoundsType
-from .quadrature_kernels import QuadratureProductKernel
+from ..measures import IntegrationMeasure, LebesgueMeasure
+from .quadrature_kernels import LebesgueEmbedding, QuadratureProductKernel
 
 
 class QuadratureProductMatern32(QuadratureProductKernel):
@@ -31,12 +30,7 @@ class QuadratureProductMatern32(QuadratureProductKernel):
        * :class:`emukit.quadrature.kernels.QuadratureProductKernel`
 
     :param matern_kernel: The standard EmuKit product Matern32 kernel.
-    :param integral_bounds: The integral bounds.
-                            List of D tuples, where D is the dimensionality
-                            of the integral and the tuples contain the lower and upper bounds of the integral
-                            i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)].
-                            ``None`` if bounds are infinite.
-    :param measure: The integration measure. ``None`` implies the standard Lebesgue measure.
+    :param measure: The integration measure.
     :param variable_names: The (variable) name(s) of the integral.
 
     """
@@ -44,13 +38,10 @@ class QuadratureProductMatern32(QuadratureProductKernel):
     def __init__(
         self,
         matern_kernel: IProductMatern32,
-        integral_bounds: Optional[BoundsType],
-        measure: Optional[IntegrationMeasure],
-        variable_names: str = "",
+        measure: IntegrationMeasure,
+        variable_names: str,
     ) -> None:
-        super().__init__(
-            kern=matern_kernel, integral_bounds=integral_bounds, measure=measure, variable_names=variable_names
-        )
+        super().__init__(kern=matern_kernel, measure=measure, variable_names=variable_names)
 
     @property
     def nu(self) -> float:
@@ -68,57 +59,58 @@ class QuadratureProductMatern32(QuadratureProductKernel):
         return self.kern.variance
 
 
-class QuadratureProductMatern32LebesgueMeasure(QuadratureProductMatern32):
-    """An product Matern32 kernel augmented with integrability w.r.t. the standard Lebesgue measure.
+class QuadratureProductMatern32LebesgueMeasure(QuadratureProductMatern32, LebesgueEmbedding):
+    """A product Matern32 kernel augmented with integrability w.r.t. the standard Lebesgue measure.
 
     .. seealso::
        * :class:`emukit.quadrature.interfaces.IProductMatern32`
        * :class:`emukit.quadrature.kernels.QuadratureProductMatern32`
+       * :class:`emukit.quadrature.measures.LebesgueMeasure`
 
     :param matern_kernel: The standard EmuKit product Matern32 kernel.
-    :param integral_bounds: The integral bounds.
-                            List of D tuples, where D is the dimensionality
-                            of the integral and the tuples contain the lower and upper bounds of the integral
-                            i.e., [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)].
-                            ``None`` if bounds are infinite.
+    :param measure: The Lebesgue measure.
     :param variable_names: The (variable) name(s) of the integral.
 
     """
 
-    def __init__(self, matern_kernel: IProductMatern32, integral_bounds: BoundsType, variable_names: str = "") -> None:
-        super().__init__(
-            matern_kernel=matern_kernel, integral_bounds=integral_bounds, measure=None, variable_names=variable_names
-        )
+    def __init__(self, matern_kernel: IProductMatern32, measure: LebesgueMeasure, variable_names: str = "") -> None:
+        super().__init__(matern_kernel=matern_kernel, measure=measure, variable_names=variable_names)
 
     def _scale(self, z: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
         return self.variance * z
 
     def _get_univariate_parameters(self, dim: int) -> dict:
-        return {"domain": self.integral_bounds.bounds[dim], "ell": self.lengthscales[dim]}
+        return {
+            "domain": self.measure.domain.bounds[dim],
+            "ell": self.lengthscales[dim],
+            "normalize": self.measure.is_normalized,
+        }
 
     def _qK_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
         a, b = parameters["domain"]
         ell = parameters["ell"]
+        normalization = 1 / (b - a) if parameters["normalize"] else 1.0
         s3 = np.sqrt(3.0)
         first_term = 4.0 * ell / s3
         second_term = -np.exp(s3 * (x - b) / ell) * (b + 2.0 * ell / s3 - x)
         third_term = -np.exp(s3 * (a - x) / ell) * (x + 2.0 * ell / s3 - a)
-        return first_term + second_term + third_term
+        return (first_term + second_term + third_term) * normalization
 
     def _qKq_1d(self, **parameters) -> float:
         a, b = parameters["domain"]
         ell = parameters["ell"]
-        r = b - a
-        c = np.sqrt(3.0) * r
+        normalization = 1 / (b - a) if parameters["normalize"] else 1.0
+        c = np.sqrt(3.0) * (b - a)
         qKq = 2.0 * ell / 3.0 * (2.0 * c - 3.0 * ell + np.exp(-c / ell) * (c + 3.0 * ell))
-        return float(qKq)
+        return float(qKq) * normalization**2
 
     def _dqK_dx_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
         a, b = parameters["domain"]
         ell = parameters["ell"]
+        normalization = 1 / (b - a) if parameters["normalize"] else 1.0
         s3 = np.sqrt(3)
         exp_term_b = np.exp(s3 * (x - b) / ell)
         exp_term_a = np.exp(s3 * (a - x) / ell)
         first_term = exp_term_b * (-1 + (s3 / ell) * (x - b))
         second_term = exp_term_a * (+1 - (s3 / ell) * (a - x))
-        return first_term + second_term
+        return (first_term + second_term) * normalization

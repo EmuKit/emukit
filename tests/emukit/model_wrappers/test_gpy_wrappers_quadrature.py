@@ -21,9 +21,8 @@ from emukit.quadrature.kernels import (
     QuadratureProductMatern52LebesgueMeasure,
     QuadratureRBFGaussianMeasure,
     QuadratureRBFLebesgueMeasure,
-    QuadratureRBFUniformMeasure,
 )
-from emukit.quadrature.measures import GaussianMeasure, UniformMeasure
+from emukit.quadrature.measures import GaussianMeasure, LebesgueMeasure
 
 
 def get_prod_kernel(kernel_type, n_dim):
@@ -42,15 +41,11 @@ def integral_bounds(n_dim: int):
 
 
 def measure_lebesgue(n_dim: int):
-    return None
+    return LebesgueMeasure.from_bounds(bounds=n_dim * [(0, 1)])
 
 
-def measure_gaussiso(n_dim: int):
+def measure_gaussian(n_dim: int):
     return GaussianMeasure(mean=np.ones(n_dim), variance=1.0)
-
-
-def measure_uniform(n_dim: int):
-    return UniformMeasure(bounds=n_dim * [(0, 1)])
 
 
 # === dimension fixtures start here
@@ -108,13 +103,11 @@ def gpy_prodmatern52(dim2):
     return get_prod_kernel(kernel_type, dim2), kernel_type, True
 
 
-def get_wrapper_dict(n_dim, measure, bounds, gpy_kern, gpy_kernel_wrapper_type, emukit_qkernel_type):
-    b = None if bounds is None else bounds(n_dim)
+def get_wrapper_dict(n_dim, measure, gpy_kern, gpy_kernel_wrapper_type, emukit_qkernel_type):
     gpy_kernel, gpy_kernel_type, is_prod = gpy_kern
     return {
         "data": data(n_dim),
         "measure": measure(n_dim),
-        "integral_bounds": b,
         "gpy_kernel": gpy_kernel,
         "gpy_kernel_type": gpy_kernel_type,
         "is_prod": is_prod,
@@ -126,41 +119,24 @@ def get_wrapper_dict(n_dim, measure, bounds, gpy_kern, gpy_kernel_wrapper_type, 
 # === RBF wrapper test cases
 @pytest.fixture
 def wrapper_rbf_1(dim2, gpy_rbf):
-    return get_wrapper_dict(dim2, measure_lebesgue, integral_bounds, gpy_rbf, RBFGPy, QuadratureRBFLebesgueMeasure)
+    return get_wrapper_dict(dim2, measure_lebesgue, gpy_rbf, RBFGPy, QuadratureRBFLebesgueMeasure)
 
 
 @pytest.fixture
 def wrapper_rbf_2(dim2, gpy_rbf):
-    return get_wrapper_dict(dim2, measure_gaussiso, None, gpy_rbf, RBFGPy, QuadratureRBFGaussianMeasure)
-
-
-@pytest.fixture
-def wrapper_rbf_3(dim2, gpy_rbf):
-    return get_wrapper_dict(dim2, measure_uniform, integral_bounds, gpy_rbf, RBFGPy, QuadratureRBFUniformMeasure)
-
-
-@pytest.fixture
-def wrapper_rbf_4(dim2, gpy_rbf):
-    return get_wrapper_dict(dim2, measure_uniform, None, gpy_rbf, RBFGPy, QuadratureRBFUniformMeasure)
+    return get_wrapper_dict(dim2, measure_gaussian, gpy_rbf, RBFGPy, QuadratureRBFGaussianMeasure)
 
 
 # === (product) Brownian wrapper test cases
 @pytest.fixture
 def wrapper_brownian_1(dim1, gpy_brownian):
-    return get_wrapper_dict(
-        dim1, measure_lebesgue, integral_bounds, gpy_brownian, BrownianGPy, QuadratureBrownianLebesgueMeasure
-    )
+    return get_wrapper_dict(dim1, measure_lebesgue, gpy_brownian, BrownianGPy, QuadratureBrownianLebesgueMeasure)
 
 
 @pytest.fixture
 def wrapper_brownian_2(dim2, gpy_prodbrownian):
     return get_wrapper_dict(
-        dim2,
-        measure_lebesgue,
-        integral_bounds,
-        gpy_prodbrownian,
-        ProductBrownianGPy,
-        QuadratureProductBrownianLebesgueMeasure,
+        dim2, measure_lebesgue, gpy_prodbrownian, ProductBrownianGPy, QuadratureProductBrownianLebesgueMeasure
     )
 
 
@@ -168,24 +144,14 @@ def wrapper_brownian_2(dim2, gpy_prodbrownian):
 @pytest.fixture
 def wrapper_matern32_1(dim2, gpy_prodmatern32):
     return get_wrapper_dict(
-        dim2,
-        measure_lebesgue,
-        integral_bounds,
-        gpy_prodmatern32,
-        ProductMatern32GPy,
-        QuadratureProductMatern32LebesgueMeasure,
+        dim2, measure_lebesgue, gpy_prodmatern32, ProductMatern32GPy, QuadratureProductMatern32LebesgueMeasure
     )
 
 
 @pytest.fixture
 def wrapper_matern32_2(dim1, gpy_matern32):
     return get_wrapper_dict(
-        dim1,
-        measure_lebesgue,
-        integral_bounds,
-        gpy_matern32,
-        ProductMatern32GPy,
-        QuadratureProductMatern32LebesgueMeasure,
+        dim1, measure_lebesgue, gpy_matern32, ProductMatern32GPy, QuadratureProductMatern32LebesgueMeasure
     )
 
 
@@ -193,32 +159,20 @@ def wrapper_matern32_2(dim1, gpy_matern32):
 @pytest.fixture
 def wrapper_matern52_1(dim2, gpy_prodmatern52):
     return get_wrapper_dict(
-        dim2,
-        measure_lebesgue,
-        integral_bounds,
-        gpy_prodmatern52,
-        ProductMatern52GPy,
-        QuadratureProductMatern52LebesgueMeasure,
+        dim2, measure_lebesgue, gpy_prodmatern52, ProductMatern52GPy, QuadratureProductMatern52LebesgueMeasure
     )
 
 
 @pytest.fixture
 def wrapper_matern52_2(dim1, gpy_matern52):
     return get_wrapper_dict(
-        dim1,
-        measure_lebesgue,
-        integral_bounds,
-        gpy_matern52,
-        ProductMatern52GPy,
-        QuadratureProductMatern52LebesgueMeasure,
+        dim1, measure_lebesgue, gpy_matern52, ProductMatern52GPy, QuadratureProductMatern52LebesgueMeasure
     )
 
 
 gpy_test_list = [
     lazy_fixture("wrapper_rbf_1"),
     lazy_fixture("wrapper_rbf_2"),
-    lazy_fixture("wrapper_rbf_3"),
-    lazy_fixture("wrapper_rbf_4"),
     lazy_fixture("wrapper_brownian_1"),
     lazy_fixture("wrapper_brownian_2"),
     lazy_fixture("wrapper_matern32_1"),
@@ -232,9 +186,7 @@ gpy_test_list = [
 def test_create_emukit_model_from_gpy_model_types(wrapper):
 
     gpy_model = GPy.models.GPRegression(kernel=wrapper["gpy_kernel"], X=wrapper["data"][0], Y=wrapper["data"][1])
-    emukit_gp = create_emukit_model_from_gpy_model(
-        gpy_model=gpy_model, integral_bounds=wrapper["integral_bounds"], measure=wrapper["measure"]
-    )
+    emukit_gp = create_emukit_model_from_gpy_model(gpy_model=gpy_model, measure=wrapper["measure"])
 
     assert isinstance(emukit_gp.kern, wrapper["emukit_qkernel_type"])
     assert isinstance(emukit_gp.kern.kern, wrapper["gpy_kernel_wrapper_type"])
@@ -249,13 +201,31 @@ def test_create_emukit_model_from_gpy_model_types(wrapper):
         assert isinstance(emukit_gp.gpy_model.kern, wrapper["gpy_kernel_type"])
 
 
+def test_create_emukit_model_from_gpy_model_raises_warns():
+    input_dim = 2
+    gpy_kernel = GPy.kern.RBF(input_dim=input_dim)
+    gpy_model = GPy.models.GPRegression(kernel=gpy_kernel, X=np.ones([3, input_dim]), Y=np.ones([3, 1]))
+
+    bounds = input_dim * [(0, 1)]
+    measure = LebesgueMeasure.from_bounds(bounds=bounds)
+
+    # Neither measure nor bounds given
+    with pytest.raises(ValueError):
+        create_emukit_model_from_gpy_model(gpy_model=gpy_model)
+
+    # both measure and bounds are given. Bounds will be ignored.
+    with pytest.warns(UserWarning):
+        create_emukit_model_from_gpy_model(gpy_model=gpy_model, integral_bounds=bounds, measure=measure)
+
+
 def test_base_gp_gpy_raises(gpy_prodbrownian):
     incompatible_offset = -3
 
     n_dim = 2
     dat = data(n_dim=n_dim)
     kern = ProductBrownianGPy(variance=1.0, input_dim=n_dim, offset=incompatible_offset)
-    qkern = QuadratureProductBrownianLebesgueMeasure(brownian_kernel=kern, integral_bounds=n_dim * [(0, 1)])
+    measure = LebesgueMeasure.from_bounds(bounds=n_dim * [(0, 1)])
+    qkern = QuadratureProductBrownianLebesgueMeasure(brownian_kernel=kern, measure=measure)
 
     # this GPy model and hence the emukit base_gp wrapper are not compatible with the kernel wrapper
     # for offsets other than zero.

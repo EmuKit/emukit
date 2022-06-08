@@ -18,14 +18,14 @@ from emukit.quadrature.methods import WarpedBayesianQuadratureModel
 
 def mc_integral_mean_from_measure(num_samples: int, model: WarpedBayesianQuadratureModel) -> float:
     """Computes the MC estimator for the integral mean of the model."""
-    samples = model.measure.get_samples(num_samples=num_samples)
+    samples = model.measure.sample(num_samples=num_samples)
     gp_mean_at_samples, _ = model.predict(samples)
     return np.mean(gp_mean_at_samples)
 
 
 def mc_integral_var_from_measure(num_samples: int, model: WarpedBayesianQuadratureModel) -> float:
     """Computes the MC estimator for the integral variance of the model."""
-    samples = model.measure.get_samples(num_samples=num_samples)
+    samples = model.measure.sample(num_samples=num_samples)
     _, gp_cov_at_samples = model.predict_with_full_covariance(samples)
     return np.sum(gp_cov_at_samples) / num_samples**2
 
