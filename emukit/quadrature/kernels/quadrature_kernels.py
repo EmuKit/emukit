@@ -149,7 +149,7 @@ class QuadratureProductKernel(QuadratureKernel):
 
         super().__init__(kern=kern, measure=measure, variable_names=variable_names)
 
-    def qK(self, x2: np.ndarray, skip: List[int] = None) -> np.ndarray:
+    def _qK_unscaled(self, x2: np.ndarray, skip: List[int] = None) -> np.ndarray:
         if skip is None:
             skip = []
 
@@ -158,7 +158,10 @@ class QuadratureProductKernel(QuadratureKernel):
             if dim in skip:
                 continue
             qK *= self._qK_1d(x2[:, dim], **self._get_univariate_parameters(dim))
-        return self._scale(qK[None, :])
+        return qK[None, :]
+
+    def qK(self, x2: np.ndarray, skip: List[int] = None) -> np.ndarray:
+        return self._scale(self._qK_unscaled(x2, skip))
 
     def qKq(self) -> float:
         qKq = 1.0
@@ -171,8 +174,8 @@ class QuadratureProductKernel(QuadratureKernel):
         dqK_dx = np.zeros([input_dim, x2.shape[0]])
         for dim in range(input_dim):
             grad_term = self._dqK_dx_1d(x2[:, dim], **self._get_univariate_parameters(dim))
-            dqK_dx[dim, :] = grad_term * self.qK(x2, skip=[dim])[0, :]
-        return dqK_dx
+            dqK_dx[dim, :] = grad_term * self._qK_unscaled(x2, skip=[dim])[0, :]
+        return self._scale(dqK_dx)
 
     def _scale(self, z: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
         """Scales the input ``z`` with a scalar value specific to the kernel.

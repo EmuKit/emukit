@@ -77,34 +77,37 @@ class QuadratureProductMatern32LebesgueMeasure(QuadratureProductMatern32, Lebesg
         super().__init__(matern_kernel=matern_kernel, measure=measure, variable_names=variable_names)
 
     def _scale(self, z: Union[float, np.ndarray]) -> Union[float, np.ndarray]:
-        return (self.measure.density * self.variance) * z
+        return self.variance * z
 
     def _get_univariate_parameters(self, dim: int) -> dict:
-        return {"domain": self.measure.domain.bounds[dim], "ell": self.lengthscales[dim]}
+        return {"domain": self.measure.domain.bounds[dim], "ell": self.lengthscales[dim], "density": self.measure.density}
 
     def _qK_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
         a, b = parameters["domain"]
         ell = parameters["ell"]
+        density = parameters["density"]
         s3 = np.sqrt(3.0)
         first_term = 4.0 * ell / s3
         second_term = -np.exp(s3 * (x - b) / ell) * (b + 2.0 * ell / s3 - x)
         third_term = -np.exp(s3 * (a - x) / ell) * (x + 2.0 * ell / s3 - a)
-        return first_term + second_term + third_term
+        return density * (first_term + second_term + third_term)
 
     def _qKq_1d(self, **parameters) -> float:
         a, b = parameters["domain"]
         ell = parameters["ell"]
+        density = parameters["density"]
         r = b - a
         c = np.sqrt(3.0) * r
         qKq = 2.0 * ell / 3.0 * (2.0 * c - 3.0 * ell + np.exp(-c / ell) * (c + 3.0 * ell))
-        return float(qKq)
+        return density**2 * float(qKq)
 
     def _dqK_dx_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
         a, b = parameters["domain"]
         ell = parameters["ell"]
+        density = parameters["density"]
         s3 = np.sqrt(3)
         exp_term_b = np.exp(s3 * (x - b) / ell)
         exp_term_a = np.exp(s3 * (a - x) / ell)
         first_term = exp_term_b * (-1 + (s3 / ell) * (x - b))
         second_term = exp_term_a * (+1 - (s3 / ell) * (a - x))
-        return first_term + second_term
+        return density * (first_term + second_term)
