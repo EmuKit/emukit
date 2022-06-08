@@ -4,13 +4,12 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from .quadrature_kernels import (
+from .quadrature_kernels import (  # isort: skip
     GaussianEmbedding,
     LebesgueEmbedding,
     QuadratureKernel,
     QuadratureProductKernel,
-)  # isort:skip
-
+)
 from .quadrature_brownian import (
     QuadratureBrownian,
     QuadratureBrownianLebesgueMeasure,

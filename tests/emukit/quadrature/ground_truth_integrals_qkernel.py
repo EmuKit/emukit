@@ -45,7 +45,7 @@ def qK_lebesgue_normalized(num_samples: int, qkern: QuadratureKernel, x2: np.nda
     bounds = qkern.measure.domain.bounds
     samples = _sample_lebesgue(num_samples, bounds=bounds)
     Kx = qkern.K(samples, x2)
-    return np.mean(Kx, axis=0) # Todo: axis?
+    return np.mean(Kx, axis=0)  # Todo: axis?
 
 
 def qK_lebesgue(num_samples: int, qkern: QuadratureKernel, x2: np.ndarray) -> np.ndarray:

@@ -280,7 +280,9 @@ lebesgue_normalized_embeddings_test_list = [
     lazy_fixture("lebesque_normalized_qprodbrownian"),
 ]
 
-embeddings_test_list = gaussian_embeddings_test_list + lebesgue_embeddings_test_list + lebesgue_normalized_embeddings_test_list
+embeddings_test_list = (
+    gaussian_embeddings_test_list + lebesgue_embeddings_test_list + lebesgue_normalized_embeddings_test_list
+)
 
 
 @pytest.mark.parametrize("kernel_embedding", embeddings_test_list)
@@ -409,7 +411,7 @@ def test_qkernel_qKq(kernel_embedding, interval):
         ),
         (
             lebesgue_normalized_embeddings_test_list[1],
-           np.array(
+            np.array(
                 [
                     [0.06536731866770777, 0.06630964768943874],
                     [0.13260595006023823, 0.13384127776078464],

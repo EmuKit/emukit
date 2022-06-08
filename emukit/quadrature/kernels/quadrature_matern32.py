@@ -80,7 +80,11 @@ class QuadratureProductMatern32LebesgueMeasure(QuadratureProductMatern32, Lebesg
         return self.variance * z
 
     def _get_univariate_parameters(self, dim: int) -> dict:
-        return {"domain": self.measure.domain.bounds[dim], "ell": self.lengthscales[dim], "normalize": self.measure.is_normalized}
+        return {
+            "domain": self.measure.domain.bounds[dim],
+            "ell": self.lengthscales[dim],
+            "normalize": self.measure.is_normalized,
+        }
 
     def _qK_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
         a, b = parameters["domain"]
@@ -98,7 +102,7 @@ class QuadratureProductMatern32LebesgueMeasure(QuadratureProductMatern32, Lebesg
         normalization = 1 / (b - a) if parameters["normalize"] else 1.0
         c = np.sqrt(3.0) * (b - a)
         qKq = 2.0 * ell / 3.0 * (2.0 * c - 3.0 * ell + np.exp(-c / ell) * (c + 3.0 * ell))
-        return  float(qKq) * normalization**2
+        return float(qKq) * normalization**2
 
     def _dqK_dx_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
         a, b = parameters["domain"]
