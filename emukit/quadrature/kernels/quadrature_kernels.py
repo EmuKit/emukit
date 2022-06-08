@@ -223,22 +223,28 @@ class QuadratureProductKernel(QuadratureKernel):
 
 
 class LebesgueEmbedding:
-    """Mixin for quadrature kernel (kernel embedding) w.r.t. Lebesgue measure."""
+    """Mixin for quadrature kernel w.r.t. Lebesgue measure.
+
+        .. seealso::
+            * :class:`emukit.quadrature.measures.LebesgueMeasure`
+
+    """
 
     @classmethod
     def from_integral_bounds(
-        cls, kern: QuadratureKernel, integral_bounds: BoundsType, normalized: bool = False, variable_names: str = ""
+        cls, kern: IStandardKernel, integral_bounds: BoundsType, normalized: bool = False, variable_names: str = ""
     ):
         """Create the quadrature kernel w.r.t. a Lebesgue measure from the integral bounds.
 
         :param kern: Standard EmuKit kernel.
         :param integral_bounds: The integral bounds.
-                                List of D tuples, where D is the dimensionality of the integral and the tuples
-                                contain the lower and upper bounds of the integral i.e.,
-                                [(lb_1, ub_1), (lb_2, ub_2), ..., (lb_D, ub_D)].
+                               List of :math:`d` tuples :math:`[(a_1, b_1), (a_2, b_2), \dots, (a_d, b_d)]`,
+                               where :math:`d` is the dimensionality of the integral and the tuple :math:`(a_i, b_i)`
+                               contains the lower and upper integration bound of dimension :math:`i`.
         :param normalized: Weather the Lebesgue measure is normalized.
         :param variable_names: The (variable) name(s) of the integral
         :return: An instance of a quadrature kernel w.r.t. Lebesgue measure.
+
         """
         domain = BoxDomain(bounds=integral_bounds)
         measure = LebesgueMeasure(domain=domain, normalized=normalized)
@@ -246,11 +252,16 @@ class LebesgueEmbedding:
 
 
 class GaussianEmbedding:
-    """Mixin for quadrature kernel (kernel embedding) w.r.t. Gaussian measure."""
+    """Mixin for quadrature kernel w.r.t. Gaussian measure.
+
+        .. seealso::
+            * :class:`emukit.quadrature.measures.GaussianMeasure`
+
+    """
 
     @classmethod
     def from_measure_params(
-        cls, kern: QuadratureKernel, mean: np.ndarray, variance: Union[float, np.ndarray], variable_names: str = ""
+        cls, kern: IStandardKernel, mean: np.ndarray, variance: Union[float, np.ndarray], variable_names: str = ""
     ):
         """Create the quadrature kernel w.r.t. a Gaussian measure from the measure parameters.
 
@@ -260,6 +271,7 @@ class GaussianEmbedding:
                          If a scalar value is given, all dimensions will have same variance.
         :param variable_names: The (variable) name(s) of the integral
         :return: An instance of a quadrature kernel w.r.t. Gaussian measure.
+
         """
         measure = GaussianMeasure(mean=mean, variance=variance)
         return cls(kern=kern, measure=measure, variable_names=variable_names)

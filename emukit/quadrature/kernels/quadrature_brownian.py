@@ -33,7 +33,7 @@ class QuadratureBrownian(QuadratureKernel):
     :param measure: The integration measure.
     :param variable_names: The (variable) name(s) of the integral.
 
-    :raises ValueError: If ``integral_bounds`` have wrong length.
+    :raises ValueError: If ``measure`` has wrong dimensionality.
 
     """
 

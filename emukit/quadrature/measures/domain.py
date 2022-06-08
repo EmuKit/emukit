@@ -14,7 +14,7 @@ class BoxDomain:
     r"""A box domain defined by a hyper-cube.
 
     :param bounds: The bounds defining the box.
-                   List of d tuples :math:`[(a_1, b_1), (a_2, b_2), \dots, (a_d, b_d)]`,
+                   List of :math:`d` tuples :math:`[(a_1, b_1), (a_2, b_2), \dots, (a_d, b_d)]`,
                    where :math:`d` is the dimensionality of the domain and the tuple :math:`(a_i, b_i)`
                    contains the lower and upper bound of dimension :math:`i` defining the box domain.
     :param name: Name of parameter.
