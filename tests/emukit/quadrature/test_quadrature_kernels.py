@@ -585,7 +585,7 @@ def test_quadrature_kernel_lebesgue_mixin(qkernel_type):
     ],
 )
 def test_quadrature_kernel_gaussian_mixin(qkernel_type):
-    mean = np.arra([0.0, 1.0])
+    mean = np.array([0.0, 1.0])
     kern = IStandardKernel()
 
     # diagonal covariance
@@ -593,13 +593,15 @@ def test_quadrature_kernel_gaussian_mixin(qkernel_type):
     qkern = qkernel_type.from_measure_params(kern, mean, variance)
 
     assert isinstance(qkern.measure, GaussianMeasure)
-    assert qkern.measure.mean == mean
-    assert qkern.measure.variance == variance
+    assert not qkern.measure.is_isotropic
+    assert np.all(qkern.measure.mean == mean)
+    assert np.all(qkern.measure.variance == variance)
 
     # isotropic covariance
     variance = 2.0
     qkern = qkernel_type.from_measure_params(kern, mean, variance)
 
     assert isinstance(qkern.measure, GaussianMeasure)
-    assert qkern.measure.mean == mean
-    assert qkern.measure.variance == np.full(mean.shape, variance)
+    assert qkern.measure.is_isotropic
+    assert np.all(qkern.measure.mean == mean)
+    assert np.all(qkern.measure.variance == np.full(mean.shape, variance))
