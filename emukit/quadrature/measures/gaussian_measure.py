@@ -24,6 +24,13 @@ class GaussianMeasure(IntegrationMeasure):
     :param variance: The variances of the Gaussian measure, shape (input_dim, ).
                      If a scalar value is given, all dimensions will have same variance.
 
+    :raises TypeError: If ``mean`` is not of type :class:`ndarray`.
+    :raises ValueError: If ``mean`` is not of dimension 1.
+    :raises TypeError: If ``variance`` is neither of type :class:`float` nor of type :class:`ndarray`.
+    :raises ValueError: If ``variance`` is of type :class:`float` but is non-positive.
+    :raises ValueError: If ``variance`` is of type :class:`ndarray` but of other size than ``mean``.
+    :raises ValueError: If ``variance`` is of type :class:`ndarray` and any of its elements is non-positive.
+
     """
 
     def __init__(self, mean: np.ndarray, variance: Union[float, np.ndarray]):

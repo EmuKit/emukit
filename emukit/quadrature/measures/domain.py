@@ -42,6 +42,9 @@ class BoxDomain:
         """Sets new box bounds and checks their validity.
 
         :param new_bounds: The new bounds.
+
+        :raises ValueError: If ``new_bounds`` is not equal to dimensionality of measure.
+
         """
         if not len(new_bounds) == self.dim:
             raise ValueError("Length of new box bounds is {} (length {} expected).".format(len(new_bounds), self.dim))
@@ -57,6 +60,10 @@ class BoxDomain:
         """Checks if domain is not empty.
 
         :param bounds: The bounds to be checked.
+
+        :raises ValueError: If bounds list is empty.
+        :raises ValueError: If volume of hypercube defined by the bounds is emtpy.
+
         """
         if len(bounds) == 0:
             raise ValueError("Length of bound list must be > 0; empty list found.")

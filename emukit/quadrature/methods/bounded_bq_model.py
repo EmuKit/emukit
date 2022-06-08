@@ -37,6 +37,7 @@ class BoundedBayesianQuadrature(WarpedBayesianQuadratureModel):
 
     :raises ValueError: If neither ``lower_bound`` nor ``upper_bound`` is given.
     :raises ValueError: If both ``lower_bound`` and ``upper_bound`` are given.
+    :raises ValueError: If the quadrature kernel of ``base_gp`` is not of type :class:`QuadratureRBFGaussianMeasure`.
 
     """
 

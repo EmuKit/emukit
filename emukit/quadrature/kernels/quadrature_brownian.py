@@ -34,6 +34,7 @@ class QuadratureBrownian(QuadratureKernel):
     :param variable_names: The (variable) name(s) of the integral.
 
     :raises ValueError: If ``measure`` has wrong dimensionality.
+    :raises ValueError: If the reasonable box of the measure allows for negative values.
 
     """
 
@@ -122,6 +123,9 @@ class QuadratureProductBrownian(QuadratureProductKernel):
     :param brownian_kernel: The standard EmuKit product Brownian kernel.
     :param measure: The integration measure.
     :param variable_names: The (variable) name(s) of the integral.
+
+    :raises ValueError: If the reasonable box of the measure allows for values smaller than the offset :math:`c`.
+
     """
 
     def __init__(
