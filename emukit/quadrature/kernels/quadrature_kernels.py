@@ -248,7 +248,7 @@ class LebesgueEmbedding:
         """
         domain = BoxDomain(bounds=integral_bounds)
         measure = LebesgueMeasure(domain=domain, normalized=normalized)
-        return cls(kern=kern, measure=measure, variable_names=variable_names)
+        return cls(kern, measure, variable_names)
 
 
 class GaussianEmbedding:
@@ -274,4 +274,4 @@ class GaussianEmbedding:
 
         """
         measure = GaussianMeasure(mean=mean, variance=variance)
-        return cls(kern=kern, measure=measure, variable_names=variable_names)
+        return cls(kern, measure, variable_names)
