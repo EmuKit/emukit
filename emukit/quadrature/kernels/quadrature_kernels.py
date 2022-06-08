@@ -225,8 +225,8 @@ class QuadratureProductKernel(QuadratureKernel):
 class LebesgueEmbedding:
     """Mixin for quadrature kernel w.r.t. Lebesgue measure.
 
-        .. seealso::
-            * :class:`emukit.quadrature.measures.LebesgueMeasure`
+    .. seealso::
+        * :class:`emukit.quadrature.measures.LebesgueMeasure`
 
     """
 
@@ -254,8 +254,8 @@ class LebesgueEmbedding:
 class GaussianEmbedding:
     """Mixin for quadrature kernel w.r.t. Gaussian measure.
 
-        .. seealso::
-            * :class:`emukit.quadrature.measures.GaussianMeasure`
+    .. seealso::
+        * :class:`emukit.quadrature.measures.GaussianMeasure`
 
     """
 

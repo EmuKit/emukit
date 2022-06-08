@@ -9,7 +9,12 @@ from pytest_lazyfixture import lazy_fixture
 from utils import check_grad
 
 from emukit.model_wrappers.gpy_quadrature_wrappers import BaseGaussianProcessGPy, RBFGPy
-from emukit.quadrature.acquisitions import IntegralVarianceReduction, MutualInformation, UncertaintySampling, SquaredCorrelation
+from emukit.quadrature.acquisitions import (
+    IntegralVarianceReduction,
+    MutualInformation,
+    SquaredCorrelation,
+    UncertaintySampling,
+)
 from emukit.quadrature.kernels.quadrature_rbf import QuadratureRBFGaussianMeasure, QuadratureRBFLebesgueMeasure
 from emukit.quadrature.measures import GaussianMeasure, LebesgueMeasure
 from emukit.quadrature.methods import VanillaBayesianQuadrature
@@ -52,7 +57,7 @@ def model_gaussian(gpy_model):
 model_test_list = [
     lazy_fixture("model_gaussian"),
     lazy_fixture("model_lebesgue"),
-    lazy_fixture("model_lebesgue_normalized")
+    lazy_fixture("model_lebesgue_normalized"),
 ]
 
 
