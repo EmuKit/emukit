@@ -23,6 +23,9 @@ class LebesgueMeasure(IntegrationMeasure):
     :param domain: The Box domain.
     :param normalized: Weather the Lebesgue measure is normalized.
 
+    :raises NumericalPrecisionError: If ``normalized=True`` this excetion can be raised if the volume of the domain
+                                     is so small that it is numerically zero or even negative.
+
     """
 
     def __init__(self, domain: BoxDomain, normalized: bool = False):

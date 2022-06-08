@@ -10,7 +10,9 @@ class IStandardKernel:
 
     .. seealso::
        * :class:`emukit.quadrature.interfaces.IRBF`
+       * :class:`emukit.quadrature.interfaces.IProductMatern52`
        * :class:`emukit.quadrature.interfaces.IProductMatern32`
+       * :class:`emukit.quadrature.interfaces.IProductBrownian`
 
     """
 
@@ -60,8 +62,7 @@ class IRBF(IStandardKernel):
     .. seealso::
        * :class:`emukit.quadrature.kernels.QuadratureRBF`
        * :class:`emukit.quadrature.kernels.QuadratureRBFLebesgueMeasure`
-       * :class:`emukit.quadrature.kernels.QuadratureRBFIsoGaussMeasure`
-       * :class:`emukit.quadrature.kernels.QuadratureRBFUniformMeasure`
+       * :class:`emukit.quadrature.kernels.QuadratureRBFGaussianMeasure`
 
     """
 
