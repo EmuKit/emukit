@@ -1,7 +1,6 @@
 # Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-# Todo: test class methods of kernels
 from dataclasses import dataclass
 
 import GPy
@@ -17,6 +16,7 @@ from emukit.model_wrappers.gpy_quadrature_wrappers import (
     ProductMatern52GPy,
     RBFGPy,
 )
+from emukit.quadrature.interfaces import IStandardKernel
 from emukit.quadrature.kernels import (
     QuadratureBrownianLebesgueMeasure,
     QuadratureProductBrownianLebesgueMeasure,
@@ -542,3 +542,64 @@ def test_brownian_qkernel_raises():
     measure = LebesgueMeasure.from_bounds(bounds=wrong_bounds)
     with pytest.raises(ValueError):
         QuadratureProductBrownianLebesgueMeasure(ProductBrownianGPy(input_dim=2, offset=offset), measure)
+
+
+# == tests specific to mixins start here
+
+
+@pytest.mark.parametrize(
+    "qkernel_type",
+    [
+        QuadratureRBFLebesgueMeasure,
+        QuadratureProductMatern32LebesgueMeasure,
+        QuadratureProductMatern52LebesgueMeasure,
+        QuadratureBrownianLebesgueMeasure,
+        QuadratureBrownianLebesgueMeasure,
+    ],
+)
+def test_quadrature_kernel_lebesgue_mixin(qkernel_type):
+    bounds = [(1, 3)]
+    kern = IStandardKernel()
+
+    # un-normalized measure
+    normalized = False
+    qkern = qkernel_type.from_integral_bounds(kern, bounds, normalized)
+
+    assert isinstance(qkern.measure, LebesgueMeasure)
+    assert qkern.measure.domain.bounds == bounds
+    assert qkern.measure.density == 1.0
+
+    # normalized measure
+    normalized = True
+    qkern = qkernel_type.from_integral_bounds(kern, bounds, normalized)
+
+    assert isinstance(qkern.measure, LebesgueMeasure)
+    assert qkern.measure.domain.bounds == bounds
+    assert qkern.measure.density == 0.5
+
+
+@pytest.mark.parametrize(
+    "qkernel_type",
+    [
+        QuadratureRBFGaussianMeasure,
+    ],
+)
+def test_quadrature_kernel_gaussian_mixin(qkernel_type):
+    mean = np.arra([0.0, 1.0])
+    kern = IStandardKernel()
+
+    # diagonal covariance
+    variance = np.array([1.0, 2.0])
+    qkern = qkernel_type.from_measure_params(kern, mean, variance)
+
+    assert isinstance(qkern.measure, GaussianMeasure)
+    assert qkern.measure.mean == mean
+    assert qkern.measure.variance == variance
+
+    # isotropic covariance
+    variance = 2.0
+    qkern = qkernel_type.from_measure_params(kern, mean, variance)
+
+    assert isinstance(qkern.measure, GaussianMeasure)
+    assert qkern.measure.mean == mean
+    assert qkern.measure.variance == np.full(mean.shape, variance)

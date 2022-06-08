@@ -143,10 +143,14 @@ def test_lebesgue_measure_values(lebesgue_measure, lebesgue_measure_normalized):
     assert m_norm.reasonable_box() == dat_norm.bounds
 
 
-# Todo: move this to test of BoxDomain
 def test_lebesgue_measure_raises():
     # upper bound smaller than lower bound
-    wrong_bounds = [(-1, 1), (3, 2), (1.3, 5.0)]
+    wrong_bounds = [(-1, 1), (0, -2)]
+    with pytest.raises(ValueError):
+        LebesgueMeasure.from_bounds(bounds=wrong_bounds)
+
+    # empty domain
+    wrong_bounds = []
     with pytest.raises(ValueError):
         LebesgueMeasure.from_bounds(bounds=wrong_bounds)
 
