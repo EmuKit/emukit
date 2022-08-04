@@ -84,6 +84,67 @@ class IRBF(IStandardKernel):
         return np.zeros((x.shape[1], x.shape[0]))
 
 
+class IProductMatern12(IStandardKernel):
+    r"""Interface for a Matern12 (a.k.a. Exponential) product kernel.
+
+    The product kernel is of the form
+    :math:`k(x, x') = \sigma^2 \prod_{i=1}^d k_i(x, x')` where
+
+    .. math::
+        k_i(x, x') = e^{-r_i}.
+
+    :math:`d` is the input dimensionality,
+    :math:`r_i:=\frac{|x_i - x'_i|}{\lambda_i}`,
+    :math:`\sigma^2` is the ``variance`` property and :math:`\lambda_i` is the :math:`i` th element
+    of the ``lengthscales`` property.
+
+    Make sure to encode only a single variance parameter, and not one for each individual :math:`k_i`.
+
+    .. note::
+        Inherit from this class to wrap your standard product Matern12 kernel. The wrapped kernel can then be
+        handed to a quadrature product Matern12 kernel that augments it with integrability.
+
+    .. seealso::
+       * :class:`emukit.quadrature.kernels.QuadratureProductMatern12`
+       * :class:`emukit.quadrature.kernels.QuadratureProductMatern12LebesgueMeasure`
+
+    """
+
+    @property
+    def nu(self) -> float:
+        """The smoothness parameter of the kernel."""
+        return 0.5
+
+    @property
+    def lengthscales(self) -> np.ndarray:
+        r"""The lengthscales :math:`\lambda` of the kernel."""
+        raise NotImplementedError
+
+    @property
+    def variance(self) -> float:
+        r"""The scale :math:`\sigma^2` of the kernel."""
+        raise NotImplementedError
+
+    def _dK_dx1_1d(self, x1: np.ndarray, x2: np.ndarray, ell: float) -> np.ndarray:
+        """Unscaled gradient of 1D Matern12 where ``ell`` is the lengthscale parameter.
+
+        This method can be used in case the product Matern12 is implemented via a List of
+        univariate Matern12 kernels.
+
+        :param x1: First argument of the kernel, shape = (n_points N,).
+        :param x2: Second argument of the kernel, shape = (n_points M,).
+        :param ell: The lengthscale of the 1D Matern12.
+        :return: The gradient of the kernel wrt x1 evaluated at (x1, x2), shape (N, M).
+        """
+        r = (x1.T[:, None] - x2.T[None, :]) / ell  # N x M
+        dr_dx1 = r / (ell * abs(r))
+        dK_dr = -np.exp(-abs(r))
+        return dK_dr * dr_dx1
+
+    def dKdiag_dx(self, x: np.ndarray) -> np.ndarray:
+        return np.zeros((x.shape[1], x.shape[0]))
+
+
 class IProductMatern32(IStandardKernel):
     r"""Interface for a Matern32 product kernel.
 

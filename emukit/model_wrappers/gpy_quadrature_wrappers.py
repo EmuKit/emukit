@@ -14,6 +14,7 @@ from ..quadrature.interfaces import (
     IBaseGaussianProcess,
     IBrownian,
     IProductBrownian,
+    IProductMatern12,
     IProductMatern32,
     IProductMatern52,
 )
@@ -22,6 +23,7 @@ from ..quadrature.kernels import (
     QuadratureKernel,
     QuadratureProductBrownian,
     QuadratureProductBrownianLebesgueMeasure,
+    QuadratureProductMatern12LebesgueMeasure,
     QuadratureProductMatern32LebesgueMeasure,
     QuadratureProductMatern52LebesgueMeasure,
     QuadratureRBFGaussianMeasure,
@@ -138,6 +140,120 @@ class RBFGPy(IRBF):
 
     def K(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
         return self.gpy_rbf.K(x1, x2)
+
+
+class ProductMatern12GPy(IProductMatern12):
+    r"""Wrapper of the GPy Exponential (a.k.a Matern12) product kernel as required for some
+    EmuKit quadrature methods.
+
+    The product kernel is of the form
+    :math:`k(x, x') = \sigma^2 \prod_{i=1}^d k_i(x, x')` where
+
+    .. math::
+        k_i(x, x') = e^{-r_i}.
+
+    :math:`d` is the input dimensionality,
+    :math:`r_i:=\frac{|x_i - x'_i|}{\lambda_i}`,
+    :math:`\sigma^2` is the ``variance`` property and :math:`\lambda_i` is the :math:`i` th element
+    of the ``lengthscales`` property.
+
+    :param gpy_matern: An Exponential (a.k.a. Matern12) product kernel from GPy. For :math:`d=1` this is equivalent
+                       to an Exponential kernel. For :math:`d>1`, this is *not* a :math:`d`-dimensional
+                       Exponential kernel but a product of :math:`d` 1-dimensional Exponential kernels with differing
+                       active dimensions constructed as k1 * k2 * ... .
+                       Make sure to unlink all variances except the variance of the first kernel k1 in the product
+                       as the variance of k1 will be used to represent :math:`\sigma^2`. If you are unsure what
+                       to do, use the :attr:`lengthscales` and :attr:`variance` parameter instead.
+                       If :attr:`gpy_matern` is not given, the :attr:`lengthscales` argument is used.
+    :param lengthscales: If :attr:`gpy_matern` is not given, a product Matern12 kernel will be constructed with
+                       the given lengthscales. The number of elements need to be equal to the dimensionality
+                       :math:`d`. If :attr:`gpy_matern` is given, this input is disregarded.
+    :param variance: The variance of the product kernel. Only used if :attr:`gpy_matern` is not given. Defaults to 1.
+    """
+
+    def __init__(
+        self,
+        gpy_matern: Optional[Union[GPy.kern.Exponential, GPy.kern.Prod]] = None,
+        lengthscales: Optional[np.ndarray] = None,
+        variance: Optional[float] = None,
+    ):
+        if gpy_matern is None and lengthscales is None:
+            raise ValueError("Either lengthscales or a GPy product matern kernel must be given.")
+
+        # product kernel from parameters
+        if gpy_matern is None:
+
+            input_dim = len(lengthscales)
+            if input_dim < 1:
+                raise ValueError("'lengthscales' must contain at least 1 value.")
+
+            # default variance
+            if variance is None:
+                variance = 1.0
+
+            gpy_matern = GPy.kern.Exponential(
+                input_dim=1, active_dims=[0], lengthscale=lengthscales[0], variance=variance
+            )
+            for dim in range(1, input_dim):
+                k = GPy.kern.Exponential(input_dim=1, active_dims=[dim], lengthscale=lengthscales[dim])
+                k.unlink_parameter(k.variance)
+                gpy_matern = gpy_matern * k
+
+        self.gpy_matern = gpy_matern
+
+    @property
+    def lengthscales(self) -> np.ndarray:
+        if isinstance(self.gpy_matern, GPy.kern.Exponential):
+            return np.array([self.gpy_matern.lengthscale[0]])
+
+        lengthscales = []
+        for kern in self.gpy_matern.parameters:
+            lengthscales.append(kern.lengthscale[0])
+        return np.array(lengthscales)
+
+    @property
+    def variance(self) -> float:
+        if isinstance(self.gpy_matern, GPy.kern.Exponential):
+            return self.gpy_matern.variance[0]
+
+        return self.gpy_matern.parameters[0].variance[0]
+
+    def K(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
+        return self.gpy_matern.K(x1, x2)
+
+    def _K_from_prod(self, x1: np.ndarray, x2: np.ndarray, skip: List[int] = None) -> np.ndarray:
+        """The kernel k(x1, x2) evaluated at x1 and x2 computed as product from the
+        individual 1d kernels.
+
+        :param x1: First argument of the kernel.
+        :param x2: Second argument of the kernel.
+        :param skip: Skip these dimensions if specified.
+        :returns: Kernel evaluated at x1, x2.
+        """
+        if skip is None:
+            skip = []
+        K = np.ones([x1.shape[0], x2.shape[0]])
+        for dim, kern in enumerate(self.gpy_matern.parameters):
+            if dim in skip:
+                continue
+            K *= kern.K(x1, x2)
+
+        # correct for missing variance
+        if 0 in skip:
+            K *= self.variance
+        return K
+
+    def dK_dx1(self, x1: np.ndarray, x2: np.ndarray) -> np.ndarray:
+        if isinstance(self.gpy_matern, GPy.kern.Exponential):
+            return self._dK_dx1_1d(x1[:, 0], x2[:, 0], self.gpy_matern.lengthscale[0])[None, :, :]
+
+        # product kernel
+        dK_dx1 = np.ones([x1.shape[1], x1.shape[0], x2.shape[0]])
+        for dim, kern in enumerate(self.gpy_matern.parameters):
+            prod_term = self._K_from_prod(x1, x2, skip=[dim])  # N x M
+            grad_term = self._dK_dx1_1d(x1[:, dim], x2[:, dim], kern.lengthscale[0])  # N x M
+            dK_dx1[dim, :, :] *= prod_term * grad_term
+        return dK_dx1
 
 
 class ProductMatern32GPy(IProductMatern32):
@@ -561,6 +677,12 @@ def create_emukit_model_from_gpy_model(
             qkern_emukit = QuadratureRBFLebesgueMeasure(skern_emukit, measure, integral_name)
         elif isinstance(measure, GaussianMeasure):
             qkern_emukit = QuadratureRBFGaussianMeasure(skern_emukit, measure, integral_name)
+
+    # Univariate Matern12 or ProductMatern12
+    elif _check_is_gpy_product_kernel(gpy_model.kern, GPy.kern.Exponential):
+        skern_emukit = ProductMatern12GPy(gpy_model.kern)
+        if isinstance(measure, LebesgueMeasure):
+            qkern_emukit = QuadratureProductMatern12LebesgueMeasure(skern_emukit, measure, integral_name)
 
     # Univariate Matern32 or ProductMatern32
     elif _check_is_gpy_product_kernel(gpy_model.kern, GPy.kern.Matern32):

@@ -16,6 +16,7 @@ from .quadrature_brownian import (
     QuadratureProductBrownian,
     QuadratureProductBrownianLebesgueMeasure,
 )
+from .quadrature_matern12 import QuadratureProductMatern12, QuadratureProductMatern12LebesgueMeasure
 from .quadrature_matern32 import QuadratureProductMatern32, QuadratureProductMatern32LebesgueMeasure
 from .quadrature_matern52 import QuadratureProductMatern52, QuadratureProductMatern52LebesgueMeasure
 from .quadrature_rbf import QuadratureRBF, QuadratureRBFGaussianMeasure, QuadratureRBFLebesgueMeasure
@@ -34,6 +35,8 @@ __all__ = [
     "QuadratureProductMatern52LebesgueMeasure",
     "QuadratureProductMatern32",
     "QuadratureProductMatern32LebesgueMeasure",
+    "QuadratureProductMatern12",
+    "QuadratureProductMatern12LebesgueMeasure",
     "QuadratureProductBrownian",
     "QuadratureProductBrownianLebesgueMeasure",
 ]

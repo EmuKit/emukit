@@ -9,6 +9,7 @@ from .standard_kernels import (  # noqa: F401
     IRBF,
     IBrownian,
     IProductBrownian,
+    IProductMatern12,
     IProductMatern32,
     IProductMatern52,
     IStandardKernel,
@@ -20,6 +21,7 @@ __all__ = [
     "IBrownian",
     "IRBF",
     "IProductBrownian",
+    "IProductMatern12",
     "IProductMatern32",
     "IProductMatern52",
 ]
