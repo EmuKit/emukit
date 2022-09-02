@@ -12,6 +12,7 @@ from utils import check_grad, sample_uniform
 from emukit.model_wrappers.gpy_quadrature_wrappers import (
     BrownianGPy,
     ProductBrownianGPy,
+    ProductMatern12GPy,
     ProductMatern32GPy,
     ProductMatern52GPy,
     RBFGPy,
@@ -20,6 +21,7 @@ from emukit.quadrature.interfaces import IStandardKernel
 from emukit.quadrature.kernels import (
     QuadratureBrownianLebesgueMeasure,
     QuadratureProductBrownianLebesgueMeasure,
+    QuadratureProductMatern12LebesgueMeasure,
     QuadratureProductMatern32LebesgueMeasure,
     QuadratureProductMatern52LebesgueMeasure,
     QuadratureRBFGaussianMeasure,
@@ -85,6 +87,13 @@ class EmukitRBF:
 
 
 @dataclass
+class EmukitProductMatern12:
+    variance = 0.7
+    lengthscales = np.array([0.4, 1.2])
+    kern = ProductMatern12GPy(lengthscales=lengthscales)
+
+
+@dataclass
 class EmukitProductMatern32:
     variance = 0.7
     lengthscales = np.array([0.4, 1.2])
@@ -127,6 +136,13 @@ def get_lebesgue_qrbf():
     return qkern, dat
 
 
+def get_lebesgue_qmatern12():
+    dat = DataBox()
+    measure = LebesgueMeasure.from_bounds(bounds=dat.bounds, normalized=False)
+    qkern = QuadratureProductMatern12LebesgueMeasure(EmukitProductMatern12().kern, measure=measure)
+    return qkern, dat
+
+
 def get_lebesgue_qmatern32():
     dat = DataBox()
     measure = LebesgueMeasure.from_bounds(bounds=dat.bounds, normalized=False)
@@ -160,6 +176,13 @@ def get_lebesgue_normalized_qrbf():
     dat = DataBox()
     measure = LebesgueMeasure.from_bounds(bounds=dat.bounds, normalized=True)
     qkern = QuadratureRBFLebesgueMeasure(EmukitRBF().kern, measure=measure)
+    return qkern, dat
+
+
+def get_lebesgue_normalized_qmatern12():
+    dat = DataBox()
+    measure = LebesgueMeasure.from_bounds(bounds=dat.bounds, normalized=True)
+    qkern = QuadratureProductMatern12LebesgueMeasure(EmukitProductMatern12().kern, measure=measure)
     return qkern, dat
 
 
@@ -206,6 +229,12 @@ def lebesgue_qrbf():
 
 
 @pytest.fixture
+def lebesgue_qmatern12():
+    qkern, dat = get_lebesgue_qmatern12()
+    return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D, dat.dat_bounds
+
+
+@pytest.fixture
 def lebesgue_qmatern32():
     qkern, dat = get_lebesgue_qmatern32()
     return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D, dat.dat_bounds
@@ -224,7 +253,7 @@ def lebesgue_qbrownian():
 
 
 @pytest.fixture
-def lebesque_qprodbrownian():
+def lebesgue_qprodbrownian():
     qkern, dat = get_lebesgue_qprodbrownian()
     return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D, dat.dat_bounds
 
@@ -233,6 +262,12 @@ def lebesque_qprodbrownian():
 @pytest.fixture
 def lebesgue_normalized_qrbf():
     qkern, dat = get_lebesgue_normalized_qrbf()
+    return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D, dat.dat_bounds
+
+
+@pytest.fixture
+def lebesgue_normalized_qmatern12():
+    qkern, dat = get_lebesgue_normalized_qmatern12()
     return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D, dat.dat_bounds
 
 
@@ -255,33 +290,37 @@ def lebesgue_normalized_qbrownian():
 
 
 @pytest.fixture
-def lebesque_normalized_qprodbrownian():
+def lebesgue_normalized_qprodbrownian():
     qkern, dat = get_lebesgue_normalized_qprodbrownian()
     return qkern, dat.x1, dat.x2, dat.N, dat.M, dat.D, dat.dat_bounds
 
 
-gaussian_embeddings_test_list = [
-    lazy_fixture("gaussian_qrbf"),
-]
+gaussian_embeddings_test_dict = {
+    "qrbf": lazy_fixture("gaussian_qrbf"),
+}
 
-lebesgue_embeddings_test_list = [
-    lazy_fixture("lebesgue_qrbf"),
-    lazy_fixture("lebesgue_qmatern32"),
-    lazy_fixture("lebesgue_qmatern52"),
-    lazy_fixture("lebesgue_qbrownian"),
-    lazy_fixture("lebesque_qprodbrownian"),
-]
+lebesgue_embeddings_test_dict = {
+    "qrbf": lazy_fixture("lebesgue_qrbf"),
+    "qmatern12": lazy_fixture("lebesgue_qmatern12"),
+    "qmatern32": lazy_fixture("lebesgue_qmatern32"),
+    "qmatern52": lazy_fixture("lebesgue_qmatern52"),
+    "qbrownian": lazy_fixture("lebesgue_qbrownian"),
+    "qprodbrownian": lazy_fixture("lebesgue_qprodbrownian"),
+}
 
-lebesgue_normalized_embeddings_test_list = [
-    lazy_fixture("lebesgue_normalized_qrbf"),
-    lazy_fixture("lebesgue_normalized_qmatern32"),
-    lazy_fixture("lebesgue_normalized_qmatern52"),
-    lazy_fixture("lebesgue_normalized_qbrownian"),
-    lazy_fixture("lebesque_normalized_qprodbrownian"),
-]
+lebesgue_normalized_embeddings_test_dict = {
+    "qrbf": lazy_fixture("lebesgue_normalized_qrbf"),
+    "qmatern12": lazy_fixture("lebesgue_normalized_qmatern12"),
+    "qmatern32": lazy_fixture("lebesgue_normalized_qmatern32"),
+    "qmatern52": lazy_fixture("lebesgue_normalized_qmatern52"),
+    "qbrownian": lazy_fixture("lebesgue_normalized_qbrownian"),
+    "qprodbrownian": lazy_fixture("lebesgue_normalized_qprodbrownian"),
+}
 
 embeddings_test_list = (
-    gaussian_embeddings_test_list + lebesgue_embeddings_test_list + lebesgue_normalized_embeddings_test_list
+    list(gaussian_embeddings_test_dict.values())
+    + list(lebesgue_embeddings_test_dict.values())
+    + list(lebesgue_normalized_embeddings_test_dict.values())
 )
 
 
@@ -305,17 +344,19 @@ def test_qkernel_shapes(kernel_embedding):
 @pytest.mark.parametrize(
     "kernel_embedding,interval",
     [
-        (gaussian_embeddings_test_list[0], [0.22019471616760106, 0.22056701590213823]),
-        (lebesgue_embeddings_test_list[0], [38.267217898004176, 38.32112525041843]),
-        (lebesgue_embeddings_test_list[1], [33.68147561344138, 33.72674814040212]),
-        (lebesgue_embeddings_test_list[2], [36.31179230918318, 36.36244064795965]),
-        (lebesgue_embeddings_test_list[3], [0.6527648875308305, 0.6539297075650101]),
-        (lebesgue_embeddings_test_list[4], [147.14888857464945, 147.3118404349691]),
-        (lebesgue_normalized_embeddings_test_list[0], [0.11810869721606222, 0.11827507793339022]),
-        (lebesgue_normalized_embeddings_test_list[1], [0.10395517164642398, 0.10409490166790775]),
-        (lebesgue_normalized_embeddings_test_list[2], [0.11207343305303447, 0.11222975508629518]),
-        (lebesgue_normalized_embeddings_test_list[3], [0.3330433099647094, 0.3336376059005152]),
-        (lebesgue_normalized_embeddings_test_list[4], [5.199166451419295, 5.204923979414083]),
+        (gaussian_embeddings_test_dict["qrbf"], [0.22019471616760106, 0.22056701590213823]),
+        (lebesgue_embeddings_test_dict["qrbf"], [38.267217898004176, 38.32112525041843]),
+        (lebesgue_embeddings_test_dict["qmatern12"], [23.989038590657223, 24.018860660258476]),
+        (lebesgue_embeddings_test_dict["qmatern32"], [33.68147561344138, 33.72674814040212]),
+        (lebesgue_embeddings_test_dict["qmatern52"], [36.31179230918318, 36.36244064795965]),
+        (lebesgue_embeddings_test_dict["qbrownian"], [0.6527648875308305, 0.6539297075650101]),
+        (lebesgue_embeddings_test_dict["qprodbrownian"], [147.14888857464945, 147.3118404349691]),
+        (lebesgue_normalized_embeddings_test_dict["qrbf"], [0.11810869721606222, 0.11827507793339022]),
+        (lebesgue_normalized_embeddings_test_dict["qmatern12"], [0.07404024256375687, 0.07413228598845208]),
+        (lebesgue_normalized_embeddings_test_dict["qmatern32"], [0.10395517164642398, 0.10409490166790775]),
+        (lebesgue_normalized_embeddings_test_dict["qmatern52"], [0.11207343305303447, 0.11222975508629518]),
+        (lebesgue_normalized_embeddings_test_dict["qbrownian"], [0.3330433099647094, 0.3336376059005152]),
+        (lebesgue_normalized_embeddings_test_dict["qprodbrownian"], [5.199166451419295, 5.204923979414083]),
     ],
 )
 def test_qkernel_qKq(kernel_embedding, interval):
@@ -333,7 +374,7 @@ def test_qkernel_qKq(kernel_embedding, interval):
     "kernel_embedding,intervals",
     [
         (
-            gaussian_embeddings_test_list[0],
+            gaussian_embeddings_test_dict["qrbf"],
             np.array(
                 [
                     [0.13947611219369957, 0.14011691061322437],
@@ -344,7 +385,7 @@ def test_qkernel_qKq(kernel_embedding, interval):
             ),
         ),
         (
-            lebesgue_embeddings_test_list[0],
+            lebesgue_embeddings_test_dict["qrbf"],
             np.array(
                 [
                     [1.5229873955135163, 1.537991178335842],
@@ -355,7 +396,18 @@ def test_qkernel_qKq(kernel_embedding, interval):
             ),
         ),
         (
-            lebesgue_embeddings_test_list[1],
+            lebesgue_embeddings_test_dict["qmatern12"],
+            np.array(
+                [
+                    [0.8454460426328465, 0.8580996295972143],
+                    [1.6744048023965732, 1.689032824857501],
+                    [1.7005411269221822, 1.7152507205903402],
+                    [0.9958472553429656, 1.0089809081559042],
+                ]
+            ),
+        ),
+        (
+            lebesgue_embeddings_test_dict["qmatern32"],
             np.array(
                 [
                     [1.1766117360187398, 1.1935736584098973],
@@ -366,7 +418,7 @@ def test_qkernel_qKq(kernel_embedding, interval):
             ),
         ),
         (
-            lebesgue_embeddings_test_list[2],
+            lebesgue_embeddings_test_dict["qmatern52"],
             np.array(
                 [
                     [1.26728433492353, 1.2866546055251578],
@@ -377,7 +429,7 @@ def test_qkernel_qKq(kernel_embedding, interval):
             ),
         ),
         (
-            lebesgue_embeddings_test_list[3],
+            lebesgue_embeddings_test_dict["qbrownian"],
             np.array(
                 [
                     [0.1743636401938356, 0.17438715306808195],
@@ -388,7 +440,7 @@ def test_qkernel_qKq(kernel_embedding, interval):
             ),
         ),
         (
-            lebesgue_embeddings_test_list[4],
+            lebesgue_embeddings_test_dict["qprodbrownian"],
             np.array(
                 [
                     [20.967420743471486, 20.980449036984133],
@@ -399,7 +451,7 @@ def test_qkernel_qKq(kernel_embedding, interval):
             ),
         ),
         (
-            lebesgue_normalized_embeddings_test_list[0],
+            lebesgue_normalized_embeddings_test_dict["qrbf"],
             np.array(
                 [
                     [0.08461041086186201, 0.08544395435199122],
@@ -410,7 +462,18 @@ def test_qkernel_qKq(kernel_embedding, interval):
             ),
         ),
         (
-            lebesgue_normalized_embeddings_test_list[1],
+            lebesgue_normalized_embeddings_test_dict["qmatern12"],
+            np.array(
+                [
+                    [0.04696922459071368, 0.04767220164428967],
+                    [0.09302248902203182, 0.09383515693652782],
+                    [0.09447450705123234, 0.09529170669946335],
+                    [0.05532484751905366, 0.05605449489755025],
+                ]
+            ),
+        ),
+        (
+            lebesgue_normalized_embeddings_test_dict["qmatern32"],
             np.array(
                 [
                     [0.06536731866770777, 0.06630964768943874],
@@ -421,7 +484,7 @@ def test_qkernel_qKq(kernel_embedding, interval):
             ),
         ),
         (
-            lebesgue_normalized_embeddings_test_list[2],
+            lebesgue_normalized_embeddings_test_dict["qmatern52"],
             np.array(
                 [
                     [0.07040468527352946, 0.07148081141806432],
@@ -432,7 +495,7 @@ def test_qkernel_qKq(kernel_embedding, interval):
             ),
         ),
         (
-            lebesgue_normalized_embeddings_test_list[3],
+            lebesgue_normalized_embeddings_test_dict["qbrownian"],
             np.array(
                 [
                     [0.12454545728131114, 0.12456225219148712],
@@ -443,7 +506,7 @@ def test_qkernel_qKq(kernel_embedding, interval):
             ),
         ),
         (
-            lebesgue_normalized_embeddings_test_list[4],
+            lebesgue_normalized_embeddings_test_dict["qprodbrownian"],
             np.array(
                 [
                     [3.9412445006525356, 3.9436934280045364],

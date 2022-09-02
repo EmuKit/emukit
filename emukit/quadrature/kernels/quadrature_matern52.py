@@ -82,13 +82,13 @@ class QuadratureProductMatern52LebesgueMeasure(QuadratureProductMatern52, Lebesg
     def _get_univariate_parameters(self, dim: int) -> dict:
         return {
             "domain": self.measure.domain.bounds[dim],
-            "ell": self.lengthscales[dim],
+            "lengthscale": self.lengthscales[dim],
             "normalize": self.measure.is_normalized,
         }
 
     def _qK_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
         a, b = parameters["domain"]
-        ell = parameters["ell"]
+        ell = parameters["lengthscale"]
         normalization = 1 / (b - a) if parameters["normalize"] else 1.0
         s5 = np.sqrt(5)
         first_term = 16 * ell / (3 * s5)
@@ -102,7 +102,7 @@ class QuadratureProductMatern52LebesgueMeasure(QuadratureProductMatern52, Lebesg
 
     def _qKq_1d(self, **parameters) -> float:
         a, b = parameters["domain"]
-        ell = parameters["ell"]
+        ell = parameters["lengthscale"]
         normalization = 1 / (b - a) if parameters["normalize"] else 1.0
         c = np.sqrt(5) * (b - a)
         bracket_term = 5 * a**2 - 10 * a * b + 5 * b**2 + 7 * c * ell + 15 * ell**2
@@ -111,7 +111,7 @@ class QuadratureProductMatern52LebesgueMeasure(QuadratureProductMatern52, Lebesg
 
     def _dqK_dx_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
         a, b = parameters["domain"]
-        ell = parameters["ell"]
+        ell = parameters["lengthscale"]
         normalization = 1 / (b - a) if parameters["normalize"] else 1.0
         s5 = np.sqrt(5)
         first_exp = -np.exp(s5 * (x - b) / ell) / (15 * ell)

@@ -9,6 +9,7 @@ from emukit.model_wrappers.gpy_quadrature_wrappers import (
     BaseGaussianProcessGPy,
     BrownianGPy,
     ProductBrownianGPy,
+    ProductMatern12GPy,
     ProductMatern32GPy,
     ProductMatern52GPy,
     RBFGPy,
@@ -17,6 +18,7 @@ from emukit.model_wrappers.gpy_quadrature_wrappers import (
 from emukit.quadrature.kernels import (
     QuadratureBrownianLebesgueMeasure,
     QuadratureProductBrownianLebesgueMeasure,
+    QuadratureProductMatern12LebesgueMeasure,
     QuadratureProductMatern32LebesgueMeasure,
     QuadratureProductMatern52LebesgueMeasure,
     QuadratureRBFGaussianMeasure,
@@ -67,6 +69,12 @@ def gpy_brownian(dim1):
 
 
 @pytest.fixture
+def gpy_matern12(dim1):
+    kernel_type = GPy.kern.Exponential
+    return kernel_type(input_dim=dim1), kernel_type, False
+
+
+@pytest.fixture
 def gpy_matern32(dim1):
     kernel_type = GPy.kern.Matern32
     return kernel_type(input_dim=dim1), kernel_type, False
@@ -88,6 +96,12 @@ def gpy_rbf(dim2):
 @pytest.fixture
 def gpy_prodbrownian(dim2):
     kernel_type = GPy.kern.Brownian
+    return get_prod_kernel(kernel_type, dim2), kernel_type, True
+
+
+@pytest.fixture
+def gpy_prodmatern12(dim2):
+    kernel_type = GPy.kern.Exponential
     return get_prod_kernel(kernel_type, dim2), kernel_type, True
 
 
@@ -140,6 +154,21 @@ def wrapper_brownian_2(dim2, gpy_prodbrownian):
     )
 
 
+# === Product Matern12 wrapper test cases
+@pytest.fixture
+def wrapper_matern12_1(dim2, gpy_prodmatern12):
+    return get_wrapper_dict(
+        dim2, measure_lebesgue, gpy_prodmatern12, ProductMatern12GPy, QuadratureProductMatern12LebesgueMeasure
+    )
+
+
+@pytest.fixture
+def wrapper_matern12_2(dim1, gpy_matern12):
+    return get_wrapper_dict(
+        dim1, measure_lebesgue, gpy_matern12, ProductMatern12GPy, QuadratureProductMatern12LebesgueMeasure
+    )
+
+
 # === Product Matern32 wrapper test cases
 @pytest.fixture
 def wrapper_matern32_1(dim2, gpy_prodmatern32):
@@ -175,6 +204,8 @@ gpy_test_list = [
     lazy_fixture("wrapper_rbf_2"),
     lazy_fixture("wrapper_brownian_1"),
     lazy_fixture("wrapper_brownian_2"),
+    lazy_fixture("wrapper_matern12_1"),
+    lazy_fixture("wrapper_matern12_2"),
     lazy_fixture("wrapper_matern32_1"),
     lazy_fixture("wrapper_matern32_2"),
     lazy_fixture("wrapper_matern52_1"),

@@ -10,11 +10,13 @@ import numpy as np
 from test_quadrature_kernels import (
     get_gaussian_qrbf,
     get_lebesgue_normalized_qbrownian,
+    get_lebesgue_normalized_qmatern12,
     get_lebesgue_normalized_qmatern32,
     get_lebesgue_normalized_qmatern52,
     get_lebesgue_normalized_qprodbrownian,
     get_lebesgue_normalized_qrbf,
     get_lebesgue_qbrownian,
+    get_lebesgue_qmatern12,
     get_lebesgue_qmatern32,
     get_lebesgue_qmatern52,
     get_lebesgue_qprodbrownian,
@@ -98,10 +100,11 @@ if __name__ == "__main__":
 
     # === Choose KERNEL BELOW ======
     # KERNEL = "rbf"
+    KERNEL = "matern12"
     # KERNEL = "matern32"
     # KERNEL = "matern52"
     # KERNEL = "brownian"
-    KERNEL = "prodbrownian"
+    # KERNEL = "prodbrownian"
     # === CHOOSE KERNEL ABOVE ======
 
     _e = "Kernel embedding not implemented."
@@ -112,6 +115,13 @@ if __name__ == "__main__":
             emukit_qkern, dat = get_lebesgue_qrbf()
         elif MEASURE == "Lebesgue-normalized":
             emukit_qkern, dat = get_lebesgue_normalized_qrbf()
+        else:
+            raise ValueError(_e)
+    elif KERNEL == "matern12":
+        if MEASURE == "Lebesgue":
+            emukit_qkern, dat = get_lebesgue_qmatern12()
+        elif MEASURE == "Lebesgue-normalized":
+            emukit_qkern, dat = get_lebesgue_normalized_qmatern12()
         else:
             raise ValueError(_e)
     elif KERNEL == "matern32":

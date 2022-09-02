@@ -141,16 +141,16 @@ class QuadratureRBFGaussianMeasure(QuadratureRBF, GaussianEmbedding):
         super().__init__(rbf_kernel=rbf_kernel, measure=measure, variable_names=variable_names)
 
     def qK(self, x2: np.ndarray, scale_factor: float = 1.0) -> np.ndarray:
-        ells = scale_factor * self.lengthscales
+        lengthscales = scale_factor * self.lengthscales
         sigma2 = self.measure.variance
         mu = self.measure.mean
-        factor = np.sqrt(ells**2 / (ells**2 + sigma2)).prod()
-        scaled_norm_sq = np.power(self._scaled_vector_diff(x2, mu, np.sqrt(ells**2 + sigma2)), 2).sum(axis=1)
+        factor = np.sqrt(lengthscales**2 / (lengthscales**2 + sigma2)).prod()
+        scaled_norm_sq = np.power(self._scaled_vector_diff(x2, mu, np.sqrt(lengthscales**2 + sigma2)), 2).sum(axis=1)
         return (self.variance * factor) * np.exp(-scaled_norm_sq).reshape(1, -1)
 
     def qKq(self) -> float:
-        ells = self.lengthscales
-        qKq = np.sqrt(ells**2 / (ells**2 + 2 * self.measure.variance)).prod()
+        lengthscales = self.lengthscales
+        qKq = np.sqrt(lengthscales**2 / (lengthscales**2 + 2 * self.measure.variance)).prod()
         return self.variance * float(qKq)
 
     def dqK_dx(self, x2: np.ndarray) -> np.ndarray:
