@@ -82,13 +82,13 @@ class QuadratureProductMatern32LebesgueMeasure(QuadratureProductMatern32, Lebesg
     def _get_univariate_parameters(self, dim: int) -> dict:
         return {
             "domain": self.measure.domain.bounds[dim],
-            "ell": self.lengthscales[dim],
+            "lengthscale": self.lengthscales[dim],
             "normalize": self.measure.is_normalized,
         }
 
     def _qK_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
         a, b = parameters["domain"]
-        ell = parameters["ell"]
+        ell = parameters["lengthscale"]
         normalization = 1 / (b - a) if parameters["normalize"] else 1.0
         s3 = np.sqrt(3.0)
         first_term = 4.0 * ell / s3
@@ -98,7 +98,7 @@ class QuadratureProductMatern32LebesgueMeasure(QuadratureProductMatern32, Lebesg
 
     def _qKq_1d(self, **parameters) -> float:
         a, b = parameters["domain"]
-        ell = parameters["ell"]
+        ell = parameters["lengthscale"]
         normalization = 1 / (b - a) if parameters["normalize"] else 1.0
         c = np.sqrt(3.0) * (b - a)
         qKq = 2.0 * ell / 3.0 * (2.0 * c - 3.0 * ell + np.exp(-c / ell) * (c + 3.0 * ell))
@@ -106,7 +106,7 @@ class QuadratureProductMatern32LebesgueMeasure(QuadratureProductMatern32, Lebesg
 
     def _dqK_dx_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
         a, b = parameters["domain"]
-        ell = parameters["ell"]
+        ell = parameters["lengthscale"]
         normalization = 1 / (b - a) if parameters["normalize"] else 1.0
         s3 = np.sqrt(3)
         exp_term_b = np.exp(s3 * (x - b) / ell)
