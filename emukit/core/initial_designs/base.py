@@ -6,14 +6,15 @@ import numpy as np
 from .. import ParameterSpace
 
 
-class ModelFreeDesignBase(object):
+class InitialDesignBase(object):
     """
-    Base class for all model free experiment designs
+    Base class for all initial designs
     """
 
     def __init__(self, parameter_space: ParameterSpace):
         """
         :param parameter_space: The parameter space to generate design for.
+
         """
         self.parameter_space = parameter_space
 
