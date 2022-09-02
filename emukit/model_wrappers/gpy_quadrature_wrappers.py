@@ -225,10 +225,10 @@ class ProductMatern12GPy(IProductMatern12):
         """The kernel k(x1, x2) evaluated at x1 and x2 computed as product from the
         individual 1d kernels.
 
-        :param x1: First argument of the kernel.
-        :param x2: Second argument of the kernel.
+        :param x1: First argument of the kernel, shape (n_points N, input_dim)
+        :param x2: Second argument of the kernel, shape (n_points M, input_dim)
         :param skip: Skip these dimensions if specified.
-        :returns: Kernel evaluated at x1, x2.
+        :returns: Kernel evaluated at x1, x2, shape (N, M).
         """
         if skip is None:
             skip = []
@@ -336,10 +336,10 @@ class ProductMatern32GPy(IProductMatern32):
         """The kernel k(x1, x2) evaluated at x1 and x2 computed as product from the
         individual 1d kernels.
 
-        :param x1: First argument of the kernel.
-        :param x2: Second argument of the kernel.
+        :param x1: First argument of the kernel, shape (n_points N, input_dim)
+        :param x2: Second argument of the kernel, shape (n_points M, input_dim)
         :param skip: Skip these dimensions if specified.
-        :returns: Kernel evaluated at x1, x2.
+        :returns: Kernel evaluated at x1, x2, shape (N, M).
         """
         if skip is None:
             skip = []
@@ -447,10 +447,10 @@ class ProductMatern52GPy(IProductMatern52):
         """The kernel k(x1, x2) evaluated at x1 and x2 computed as product from the
         individual 1d kernels.
 
-        :param x1: First argument of the kernel.
-        :param x2: Second argument of the kernel.
+        :param x1: First argument of the kernel, shape (n_points N, input_dim)
+        :param x2: Second argument of the kernel, shape (n_points M, input_dim)
         :param skip: Skip these dimensions if specified.
-        :returns: Kernel evaluated at x1, x2.
+        :returns: Kernel evaluated at x1, x2, shape (N, M).
         """
         if skip is None:
             skip = []
@@ -576,10 +576,10 @@ class ProductBrownianGPy(IProductBrownian):
         """The kernel k(x1, x2) with offset=0 evaluated at x1 and x2 computed as product from the
         individual 1d kernels.
 
-        :param x1: First argument of the kernel.
-        :param x2: Second shifted argument of the kernel.
+        :param x1: First argument of the kernel, shape (n_points N, input_dim)
+        :param x2: Second argument of the kernel, shape (n_points M, input_dim)
         :param skip: Skip these dimensions if specified.
-        :returns: Kernel evaluated at x1, x2.
+        :returns: Kernel evaluated at x1, x2, shape (N, M).
         """
         if skip is None:
             skip = []
