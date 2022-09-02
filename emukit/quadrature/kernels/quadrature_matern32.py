@@ -88,29 +88,31 @@ class QuadratureProductMatern32LebesgueMeasure(QuadratureProductMatern32, Lebesg
 
     def _qK_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
         a, b = parameters["domain"]
-        ell = parameters["lengthscale"]
+        lengthscale = parameters["lengthscale"]
         normalization = 1 / (b - a) if parameters["normalize"] else 1.0
         s3 = np.sqrt(3.0)
-        first_term = 4.0 * ell / s3
-        second_term = -np.exp(s3 * (x - b) / ell) * (b + 2.0 * ell / s3 - x)
-        third_term = -np.exp(s3 * (a - x) / ell) * (x + 2.0 * ell / s3 - a)
+        first_term = 4.0 * lengthscale / s3
+        second_term = -np.exp(s3 * (x - b) / lengthscale) * (b + 2.0 * lengthscale / s3 - x)
+        third_term = -np.exp(s3 * (a - x) / lengthscale) * (x + 2.0 * lengthscale / s3 - a)
         return (first_term + second_term + third_term) * normalization
 
     def _qKq_1d(self, **parameters) -> float:
         a, b = parameters["domain"]
-        ell = parameters["lengthscale"]
+        lengthscale = parameters["lengthscale"]
         normalization = 1 / (b - a) if parameters["normalize"] else 1.0
         c = np.sqrt(3.0) * (b - a)
-        qKq = 2.0 * ell / 3.0 * (2.0 * c - 3.0 * ell + np.exp(-c / ell) * (c + 3.0 * ell))
+        qKq = (
+            2.0 * lengthscale / 3.0 * (2.0 * c - 3.0 * lengthscale + np.exp(-c / lengthscale) * (c + 3.0 * lengthscale))
+        )
         return float(qKq) * normalization**2
 
     def _dqK_dx_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
         a, b = parameters["domain"]
-        ell = parameters["lengthscale"]
+        lengthscale = parameters["lengthscale"]
         normalization = 1 / (b - a) if parameters["normalize"] else 1.0
         s3 = np.sqrt(3)
-        exp_term_b = np.exp(s3 * (x - b) / ell)
-        exp_term_a = np.exp(s3 * (a - x) / ell)
-        first_term = exp_term_b * (-1 + (s3 / ell) * (x - b))
-        second_term = exp_term_a * (+1 - (s3 / ell) * (a - x))
+        exp_term_b = np.exp(s3 * (x - b) / lengthscale)
+        exp_term_a = np.exp(s3 * (a - x) / lengthscale)
+        first_term = exp_term_b * (-1 + (s3 / lengthscale) * (x - b))
+        second_term = exp_term_a * (+1 - (s3 / lengthscale) * (a - x))
         return (first_term + second_term) * normalization
