@@ -113,13 +113,9 @@ def _estimate_lipschitz_constant(space: ParameterSpace, model: IDifferentiable):
     samples = space.sample_uniform(N_SAMPLES)
     samples = np.vstack([samples, model.X])
     gradient_norm_at_samples = negative_gradient_norm(samples)
-    # x0 = samples[np.argmin(gradient_norm_at_samples)][None, :]
     x0 = samples[np.argmin(gradient_norm_at_samples)]
 
     # Run optimizer to find point of highest gradient
-    print('#####################################')
-    print("pre x0", samples[np.argmin(gradient_norm_at_samples)])
-    print("x0: ", x0)
     res = scipy.optimize.minimize(
         lambda x: negative_gradient_norm(x[None, :]), x0, bounds=space.get_bounds(), options={"maxiter": MAX_ITER}
     )
