@@ -305,7 +305,7 @@ lebesgue_embeddings_test_dict = {
     "qmatern32": lazy_fixture("lebesgue_qmatern32"),
     "qmatern52": lazy_fixture("lebesgue_qmatern52"),
     "qbrownian": lazy_fixture("lebesgue_qbrownian"),
-    "qprodbrownian": lazy_fixture("lebesgue_normalized_qprodbrownian"),
+    "qprodbrownian": lazy_fixture("lebesgue_qprodbrownian"),
 }
 
 lebesgue_normalized_embeddings_test_dict = {
