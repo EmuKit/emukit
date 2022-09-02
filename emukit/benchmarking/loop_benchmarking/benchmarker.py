@@ -6,7 +6,7 @@ import numpy as np
 
 from ...core import ParameterSpace
 from ...core.initial_designs import RandomDesign
-from ...core.initial_designs.base import ModelFreeDesignBase
+from ...core.initial_designs.base import InitialDesignBase
 from ...core.loop import LoopState, UserFunction, UserFunctionWrapper
 from .benchmark_result import BenchmarkResult
 from .metrics import Metric
@@ -21,7 +21,7 @@ class Benchmarker:
         test_function: Union[Callable, UserFunction],
         parameter_space: ParameterSpace,
         metrics: List[Metric],
-        initial_design: ModelFreeDesignBase = None,
+        initial_design: InitialDesignBase = None,
     ):
         """
         :param loops_with_names: A list of tuples where the first entry is the name of the loop and the second is a
