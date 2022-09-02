@@ -4,10 +4,10 @@
 import numpy as np
 
 from .. import ParameterSpace
-from .base import ModelFreeDesignBase
+from .base import InitialDesignBase
 
 
-class RandomDesign(ModelFreeDesignBase):
+class RandomDesign(InitialDesignBase):
     """
     Random experiment design.
     Uniform random values for all variables within the given bounds.

@@ -10,10 +10,10 @@ except ImportError:
     raise ImportError("sobol_seq needs to be installed in order to use sobol design")
 
 from .. import ParameterSpace
-from .base import ModelFreeDesignBase
+from .base import InitialDesignBase
 
 
-class SobolDesign(ModelFreeDesignBase):
+class SobolDesign(InitialDesignBase):
     """
     Sobol experiment design.
     Based on sobol_seq implementation. For further reference see https://github.com/naught101/sobol_seq

@@ -10,10 +10,10 @@ except ImportError:
     raise ImportError("pyDOE needs to be installed in order to use latin design")
 
 from .. import ParameterSpace
-from .base import ModelFreeDesignBase
+from .base import InitialDesignBase
 
 
-class LatinDesign(ModelFreeDesignBase):
+class LatinDesign(InitialDesignBase):
     """
     Latin hypercube experiment design.
 

@@ -15,7 +15,7 @@ def test_optimization_with_linear_constraint():
     A = np.array([[1.0, 1.0]])
     b_lower = np.array([-5])
     b_upper = np.array([5])
-    parameter_space.constraints = [LinearInequalityConstraint(A, np.array([-5]), np.array([5]))]
+    parameter_space.constraints = [LinearInequalityConstraint(A, b_lower, b_upper)]
 
     gpy_model = GPy.models.GPRegression(x_init, y_init)
     model = GPyModelWrapper(gpy_model)
