@@ -9,7 +9,7 @@ It is based on this paper:
 
 Nonlinear information fusion algorithms for data-efficient multi-fidelity modelling.
 P. Perdikaris, M. Raissi, A. Damianou, N. D. Lawrence and G. E. Karniadakis (2017)
-http://web.mit.edu/parisp/www/assets/20160751.full.pdf
+https://royalsocietypublishing.org/doi/10.1098/rspa.2016.0751
 """
 from typing import List, Tuple, Type
 
