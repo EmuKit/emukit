@@ -88,23 +88,23 @@ class QuadratureProductMatern12LebesgueMeasure(QuadratureProductMatern12, Lebesg
 
     def _qK_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
         a, b = parameters["domain"]
-        ell = parameters["lengthscale"]
+        lengthscale = parameters["lengthscale"]
         normalization = 1 / (b - a) if parameters["normalize"] else 1.0
-        first_term = -np.exp((a - x) / ell)
-        second_term = -np.exp((x - b) / ell)
-        return normalization * ell * (2.0 + first_term + second_term)
+        first_term = -np.exp((a - x) / lengthscale)
+        second_term = -np.exp((x - b) / lengthscale)
+        return normalization * lengthscale * (2.0 + first_term + second_term)
 
     def _qKq_1d(self, **parameters) -> float:
         a, b = parameters["domain"]
-        ell = parameters["lengthscale"]
+        lengthscale = parameters["lengthscale"]
         normalization = 1 / (b - a) if parameters["normalize"] else 1.0
-        qKq = 2.0 * ell * ((b - a) + ell * (np.exp(-(b - a) / ell) - 1.0))
+        qKq = 2.0 * lengthscale * ((b - a) + lengthscale * (np.exp(-(b - a) / lengthscale) - 1.0))
         return float(qKq) * normalization**2
 
     def _dqK_dx_1d(self, x: np.ndarray, **parameters) -> np.ndarray:
         a, b = parameters["domain"]
-        ell = parameters["lengthscale"]
+        lengthscale = parameters["lengthscale"]
         normalization = 1 / (b - a) if parameters["normalize"] else 1.0
-        first_term = np.exp((a - x) / ell)
-        second_term = -np.exp((x - b) / ell)
+        first_term = np.exp((a - x) / lengthscale)
+        second_term = -np.exp((x - b) / lengthscale)
         return (first_term + second_term) * normalization

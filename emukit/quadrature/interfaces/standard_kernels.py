@@ -125,19 +125,19 @@ class IProductMatern12(IStandardKernel):
         r"""The scale :math:`\sigma^2` of the kernel."""
         raise NotImplementedError
 
-    def _dK_dx1_1d(self, x1: np.ndarray, x2: np.ndarray, ell: float) -> np.ndarray:
-        """Unscaled gradient of 1D Matern12 where ``ell`` is the lengthscale parameter.
+    def _dK_dx1_1d(self, x1: np.ndarray, x2: np.ndarray, lengthscale: float) -> np.ndarray:
+        """Unscaled gradient of 1D Matern12 where ``lengthscale`` is the lengthscale parameter.
 
         This method can be used in case the product Matern12 is implemented via a List of
         univariate Matern12 kernels.
 
         :param x1: First argument of the kernel, shape = (n_points N,).
         :param x2: Second argument of the kernel, shape = (n_points M,).
-        :param ell: The lengthscale of the 1D Matern12.
+        :param lengthscale: The lengthscale of the 1D Matern12.
         :return: The gradient of the kernel wrt x1 evaluated at (x1, x2), shape (N, M).
         """
-        r = (x1.T[:, None] - x2.T[None, :]) / ell  # N x M
-        dr_dx1 = r / (ell * abs(r))
+        r = (x1.T[:, None] - x2.T[None, :]) / lengthscale  # N x M
+        dr_dx1 = r / (lengthscale * abs(r))
         dK_dr = -np.exp(-abs(r))
         return dK_dr * dr_dx1
 
@@ -186,19 +186,19 @@ class IProductMatern32(IStandardKernel):
         r"""The scale :math:`\sigma^2` of the kernel."""
         raise NotImplementedError
 
-    def _dK_dx1_1d(self, x1: np.ndarray, x2: np.ndarray, ell: float) -> np.ndarray:
-        """Unscaled gradient of 1D Matern32 where ``ell`` is the lengthscale parameter.
+    def _dK_dx1_1d(self, x1: np.ndarray, x2: np.ndarray, lengthscale: float) -> np.ndarray:
+        """Unscaled gradient of 1D Matern32 where ``lengthscale`` is the lengthscale parameter.
 
         This method can be used in case the product Matern32 is implemented via a List of
         univariate Matern32 kernels.
 
         :param x1: First argument of the kernel, shape = (n_points N,).
         :param x2: Second argument of the kernel, shape = (n_points M,).
-        :param ell: The lengthscale of the 1D Matern32.
+        :param lengthscale: The lengthscale of the 1D Matern32.
         :return: The gradient of the kernel wrt x1 evaluated at (x1, x2), shape (N, M).
         """
-        r = (x1.T[:, None] - x2.T[None, :]) / ell  # N x M
-        dr_dx1 = r / (ell * abs(r))
+        r = (x1.T[:, None] - x2.T[None, :]) / lengthscale  # N x M
+        dr_dx1 = r / (lengthscale * abs(r))
         dK_dr = -3 * abs(r) * np.exp(-np.sqrt(3) * abs(r))
         return dK_dr * dr_dx1
 
@@ -247,19 +247,19 @@ class IProductMatern52(IStandardKernel):
         r"""The scale :math:`\sigma^2` of the kernel."""
         raise NotImplementedError
 
-    def _dK_dx1_1d(self, x1: np.ndarray, x2: np.ndarray, ell: float) -> np.ndarray:
-        """Unscaled gradient of 1D Matern52 where ``ell`` is the lengthscale parameter.
+    def _dK_dx1_1d(self, x1: np.ndarray, x2: np.ndarray, lengthscale: float) -> np.ndarray:
+        """Unscaled gradient of 1D Matern52 where ``lengthscale`` is the lengthscale parameter.
 
         This method can be used in case the product Matern52 is implemented via a List of
         univariate Matern52 kernels.
 
         :param x1: First argument of the kernel, shape = (n_points N,).
         :param x2: Second argument of the kernel, shape = (n_points M,).
-        :param ell: The lengthscale of the 1D Matern52.
+        :param lengthscale: The lengthscale of the 1D Matern52.
         :return: The gradient of the kernel wrt x1 evaluated at (x1, x2), shape (N, M).
         """
-        r = (x1.T[:, None] - x2.T[None, :]) / ell  # N x M
-        dr_dx1 = r / (ell * abs(r))
+        r = (x1.T[:, None] - x2.T[None, :]) / lengthscale  # N x M
+        dr_dx1 = r / (lengthscale * abs(r))
         dK_dr = (-5 / 3) * np.exp(-np.sqrt(5) * abs(r)) * (abs(r) + np.sqrt(5) * r**2)
         return dK_dr * dr_dx1
 
