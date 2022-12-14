@@ -8,6 +8,7 @@ from emukit.test_functions import branin_function
 
 
 def test_optimization_with_linear_constraint():
+    np.random.seed(0)
     branin_fcn, parameter_space = branin_function()
     x_init = parameter_space.sample_uniform(10)
     y_init = branin_fcn(x_init)
