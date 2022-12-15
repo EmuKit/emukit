@@ -1,6 +1,16 @@
 # Changelog
 All notable changes to Emukit will be documented in this file.
 
+## [0.4.10]
+- Wrapper for SKlearn Guassian process
+- Black and isort formatting
+- Brownian motion quadrature kernel and product embedding
+- ProductMatern52 quadrature kernel embedding 
+- Multiple improvements to quadrature integration measures
+- QuadratureProductKernel base class
+- Doc improvements
+- Bug fixes, including scipy compatibility fixes
+
 ## [0.4.9]
 - Update to newest version of GPy, which shall fix installation issues
 - Mean Plug-in Expected Improvement
