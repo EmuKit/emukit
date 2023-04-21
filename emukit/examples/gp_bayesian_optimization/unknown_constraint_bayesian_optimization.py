@@ -37,7 +37,6 @@ class UnknownConstraintGPBayesianOptimization(UnknownConstraintBayesianOptimizat
         batch_size: int = 1,
         model_update_interval: int = int(1),
     ) -> None:
-
         """
         Class to run Bayesian optimization with unknown contraints with GPyRegression model.
 

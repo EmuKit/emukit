@@ -63,7 +63,6 @@ class ContinuousFidelityEntropySearch(EntropySearch):
         return repr_points, repr_points_log
 
     def _get_proposal_function(self, model, space):
-
         # Define proposal function for multi-fidelity
         ei = ExpectedImprovement(model)
 

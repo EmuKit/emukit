@@ -440,7 +440,6 @@ class MultipointExpectedImprovement(ExpectedImprovement):
         else:
             B1, B2, B3 = np.zeros((q, d)), np.zeros((q, d)), np.zeros((q, d))
             for i in range(q):
-
                 # Assign helper variables needed by the gradients (See equation (6) for details)
                 ineq = [n for n in range(q) if n is not i]
                 Sigk_ik = Sigk[i, k]

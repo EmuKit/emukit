@@ -96,7 +96,6 @@ if __name__ == "__main__":
         vZ_SAMPLES = np.zeros(num_runs)
         _, vZ = model.integrate()
         for i in range(num_runs):
-
             vZ_samples = mc_integral_var_from_measure(num_samples, model)
             vZ_SAMPLES[i] = vZ_samples
             print(".", end="", flush=True)

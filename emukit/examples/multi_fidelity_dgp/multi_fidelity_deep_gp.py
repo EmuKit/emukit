@@ -233,7 +233,6 @@ class DGP_Base(Model):
         L = 0.0
         KL = 0.0
         for fidelity in range(self.num_layers):
-
             if (self._train_upto_fidelity != -1) and (fidelity > self._train_upto_fidelity):
                 continue
 

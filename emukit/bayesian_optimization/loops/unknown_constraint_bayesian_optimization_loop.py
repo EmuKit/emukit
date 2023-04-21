@@ -27,7 +27,6 @@ class UnknownConstraintBayesianOptimizationLoop(OuterLoop):
         update_interval: int = 1,
         batch_size: int = 1,
     ):
-
         """
         Emukit class that implements a loop for building Bayesian optimization with an unknown constraint.
         For more information see:

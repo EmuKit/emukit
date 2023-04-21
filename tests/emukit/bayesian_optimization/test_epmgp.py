@@ -4,7 +4,6 @@ from emukit.bayesian_optimization import epmgp
 
 
 def test_joint_min():
-
     # Uniform distribution
     n_points = 5
     m = np.ones([n_points])

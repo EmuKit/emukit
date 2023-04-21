@@ -8,7 +8,6 @@ TOL = 1e-6
 
 
 def test_penalization_function_shape():
-
     model = MockModel()
     lp = LocalPenalization(model)
     lp.update_batches(np.zeros((5, 1)), 1, -0.1)
@@ -18,7 +17,6 @@ def test_penalization_function_shape():
 
 
 def test_penalization_function_gradients_shape():
-
     model = MockModel()
     lp = LocalPenalization(model)
     lp.update_batches(np.zeros((5, 2)), 1, -0.1)

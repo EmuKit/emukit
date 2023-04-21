@@ -23,7 +23,6 @@ class CostSensitiveBayesianOptimizationLoop(OuterLoop):
         update_interval: int = 1,
         acquisition_optimizer: AcquisitionOptimizerBase = None,
     ):
-
         """
         Emukit class that implements a loop for building modular cost sensitive Bayesian optimization.
 

@@ -32,7 +32,6 @@ def joint_min(mu: np.ndarray, var: np.ndarray, with_derivatives: bool = False) -
         dlogPdSigma = np.zeros((D, int(0.5 * D * (D + 1))))
         dlogPdMudMu = np.zeros((D, D, D))
     for i in range(mu.shape[0]):
-
         # logP[k] ) self._min_factor(mu, var, 0)
         a = min_factor(mu, var, i)
 

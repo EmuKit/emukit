@@ -29,7 +29,6 @@ class BayesianOptimizationLoop(OuterLoop):
         batch_size: int = 1,
         acquisition_optimizer: AcquisitionOptimizerBase = None,
     ):
-
         """
         Emukit class that implement a loop for building modular Bayesian optimization
 
@@ -74,7 +73,6 @@ class BayesianOptimizationLoop(OuterLoop):
 
 class BayesianOptimizationResults:
     def __init__(self, loop_state: LoopState):
-
         """
         Emukit class that takes as input the loop state and computes some results.
 

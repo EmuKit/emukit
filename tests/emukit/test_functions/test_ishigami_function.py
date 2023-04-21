@@ -4,7 +4,6 @@ from emukit.test_functions.sensitivity import Ishigami
 
 
 def test_ishigami_function():
-
     ishigami = Ishigami(a=5, b=0.1)
 
     assert ishigami.fidelity1(np.array([[0, 1, 0]])).shape == (1,)

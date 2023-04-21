@@ -33,7 +33,6 @@ from emukit.examples.profet.meta_benchmarks.meta_forrester import get_architectu
 
 
 def download_data(path, source="http://www.ml4aad.org/wp-content/uploads/2019/05/profet_data.tar.gz"):
-
     l = urlretrieve(source)[0]
 
     tar = tarfile.open(l)

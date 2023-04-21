@@ -586,7 +586,6 @@ def test_qkernel_gradient_values(kernel_embedding):
 
 
 def test_brownian_qkernel_raises():
-
     # measure has wrong dimensionality
     wrong_bounds = [(1, 2), (1, 2)]
     measure = LebesgueMeasure.from_bounds(bounds=wrong_bounds)

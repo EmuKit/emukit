@@ -63,7 +63,6 @@ def test_batch_experimental_design_loop():
 
 
 def test_batch_point_calculator(mock_model):
-
     acquisition = mock.create_autospec(Acquisition)
     acquisition_optimizer = mock.create_autospec(GradientAcquisitionOptimizer)
     acquisition_optimizer.optimize.return_value = (np.zeros((1, 1)), 0)

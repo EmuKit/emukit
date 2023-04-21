@@ -76,7 +76,6 @@ def test_inequality_constraint_no_bounds():
 
 
 def test_inequality_constraint_all_inf_bound():
-
     lower = np.array([-np.inf, 0])
     upper = np.array([np.inf, 1])
     with pytest.raises(ValueError):
@@ -84,7 +83,6 @@ def test_inequality_constraint_all_inf_bound():
 
 
 def test_inequality_constraint_unbounded():
-
     lower = np.array([-np.inf, 0])
     upper = None
     with pytest.raises(ValueError):

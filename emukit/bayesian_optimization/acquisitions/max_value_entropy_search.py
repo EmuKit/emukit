@@ -26,7 +26,6 @@ class MaxValueEntropySearch(Acquisition):
         num_samples: int = 10,
         grid_size: int = 5000,
     ) -> None:
-
         """
         MES acquisition function approximates the distribution of the value at the global
         minimum and tries to decrease its entropy. See this paper for more details:
@@ -159,7 +158,6 @@ class MUMBO(MaxValueEntropySearch):
         num_samples: int = 10,
         grid_size: int = 5000,
     ) -> None:
-
         """
         MUMBO acquisition function approximates the distribution of the value at the global
         minimum and tries to decrease its entropy.

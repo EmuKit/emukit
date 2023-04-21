@@ -182,7 +182,6 @@ class ProductMatern12GPy(IProductMatern12):
 
         # product kernel from parameters
         if gpy_matern is None:
-
             input_dim = len(lengthscales)
             if input_dim < 1:
                 raise ValueError("'lengthscales' must contain at least 1 value.")
@@ -295,7 +294,6 @@ class ProductMatern32GPy(IProductMatern32):
 
         # product kernel from parameters
         if gpy_matern is None:
-
             input_dim = len(lengthscales)
             if input_dim < 1:
                 raise ValueError("'lengthscales' must contain at least 1 value.")
@@ -406,7 +404,6 @@ class ProductMatern52GPy(IProductMatern52):
 
         # product kernel from parameters
         if gpy_matern is None:
-
             input_dim = len(lengthscales)
             if input_dim < 1:
                 raise ValueError("'lengthscales' must contain at least 1 value.")
@@ -533,7 +530,6 @@ class ProductBrownianGPy(IProductBrownian):
         variance: Optional[float] = None,
         input_dim: Optional[int] = None,
     ):
-
         if gpy_brownian is not None:
             if input_dim is not None or variance is not None:
                 warnings.warn("gpy_brownian and variance is given. The variance will be ignore.")

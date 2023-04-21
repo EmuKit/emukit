@@ -19,7 +19,6 @@ def objective_function(
     log_objective=False,
     with_noise=True,
 ):
-
     Ht = np.repeat(task_feature_objective[None, :], config.shape[0], axis=0)
     x = np.concatenate((config, Ht), axis=1)
     x_norm = torch.from_numpy((x - x_mean_objective) / x_std_objective).float()

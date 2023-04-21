@@ -210,7 +210,6 @@ def test_warped_model_transforms(model):
 
 @pytest.mark.parametrize("model", all_models_test_list)
 def test_warped_model_gradient_values(model, data):
-
     # gradient of mean
     func = lambda z: model.predict(z)[0][:, 0]
     dfunc = lambda z: model.get_prediction_gradients(z)[0].T

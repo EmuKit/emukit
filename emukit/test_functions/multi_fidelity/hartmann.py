@@ -62,7 +62,6 @@ def multi_fidelity_hartmann_3d() -> Tuple[MultiSourceFunctionWrapper, ParameterS
     delta = np.array([0.01, -0.01, -0.1, 0.1])
 
     def high(x):
-
         res = 0
         for i in range(4):
             temp = 0
@@ -73,7 +72,6 @@ def multi_fidelity_hartmann_3d() -> Tuple[MultiSourceFunctionWrapper, ParameterS
         return res[:, None]
 
     def medium(x):
-
         alpha_m = alpha + delta
 
         res = 0
@@ -86,7 +84,6 @@ def multi_fidelity_hartmann_3d() -> Tuple[MultiSourceFunctionWrapper, ParameterS
         return res[:, None]
 
     def low(x):
-
         alpha_l = alpha + 2 * delta
 
         res = 0

@@ -23,7 +23,7 @@ class UserFunctionResult(object):
             raise ValueError("y is expected to be 1-dimensional, actual dimensionality is {}".format(Y.ndim))
 
         self.extra_outputs = dict()
-        for (key, val) in kwargs.items():
+        for key, val in kwargs.items():
             if val.ndim != 1:
                 raise ValueError("Key word arguments must be 1-dimensional but {} is {}d".format(key, val.ndim))
             self.extra_outputs[key] = val

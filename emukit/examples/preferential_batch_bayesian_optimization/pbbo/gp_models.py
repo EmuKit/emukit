@@ -129,7 +129,6 @@ class EPComparisonGP(ComparisonGP):
         eta: float = 0.5,
         get_logger: Callable = None,
     ):
-
         super(EPComparisonGP, self).__init__(name=name)
 
         self.N, self.D = X.shape[0], X.shape[1]

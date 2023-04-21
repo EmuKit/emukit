@@ -12,7 +12,6 @@ from ...core.interfaces import IDifferentiable, IModel
 
 class NegativeLowerConfidenceBound(Acquisition):
     def __init__(self, model: Union[IModel, IDifferentiable], beta: float = 1.0) -> None:
-
         """
         This acquisition computes the negative lower confidence bound for a given input point. This is the same
         as optimizing the upper confidence bound if we would maximize instead of minimizing the objective function.

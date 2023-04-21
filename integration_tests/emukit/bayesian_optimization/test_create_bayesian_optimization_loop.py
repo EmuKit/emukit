@@ -6,7 +6,6 @@ from emukit.test_functions.forrester import forrester_function
 
 
 def test_loop_state():
-
     fcn, cs = forrester_function()
     n_init = 5
 

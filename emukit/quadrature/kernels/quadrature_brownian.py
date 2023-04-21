@@ -44,7 +44,6 @@ class QuadratureBrownian(QuadratureKernel):
         measure: IntegrationMeasure,
         variable_names: str,
     ) -> None:
-
         if measure.input_dim != 1:
             raise ValueError(
                 "Integration measure for Brownian motion kernel must be 1-dimensional. Current dimesnion is ({}).".format(

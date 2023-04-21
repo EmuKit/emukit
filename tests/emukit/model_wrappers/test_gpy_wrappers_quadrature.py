@@ -215,7 +215,6 @@ gpy_test_list = [
 
 @pytest.mark.parametrize("wrapper", gpy_test_list)
 def test_create_emukit_model_from_gpy_model_types(wrapper):
-
     gpy_model = GPy.models.GPRegression(kernel=wrapper["gpy_kernel"], X=wrapper["data"][0], Y=wrapper["data"][1])
     emukit_gp = create_emukit_model_from_gpy_model(gpy_model=gpy_model, measure=wrapper["measure"])
 

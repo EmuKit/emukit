@@ -9,7 +9,6 @@ from emukit.model_wrappers.gpy_model_wrappers import GPyModelWrapper
 
 class FabolasKernel(GPy.kern.Kern):
     def __init__(self, input_dim, basis_func, a=1.0, b=1.0, active_dims=None):
-
         super(FabolasKernel, self).__init__(input_dim, active_dims, "fabolas_kernel")
 
         assert input_dim == 1

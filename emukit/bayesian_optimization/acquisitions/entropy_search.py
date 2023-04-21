@@ -28,7 +28,6 @@ class EntropySearch(Acquisition):
         proposal_function: Callable = None,
         burn_in_steps: int = 50,
     ) -> None:
-
         """
         Entropy Search acquisition function approximates the distribution of the global
         minimum and tries to decrease its entropy. See this paper for more details:
@@ -62,7 +61,6 @@ class EntropySearch(Acquisition):
 
         # (unnormalized) density from which to sample the representer points to approximate pmin
         if proposal_function is None:
-
             ei = ExpectedImprovement(model)
 
             def prop_func(x):
@@ -286,7 +284,6 @@ class MultiInformationSourceEntropySearch(EntropySearch):
         return repr_points, repr_points_log
 
     def _get_proposal_function(self, model, space):
-
         # Define proposal function for multi-fidelity
         ei = ExpectedImprovement(model)
 

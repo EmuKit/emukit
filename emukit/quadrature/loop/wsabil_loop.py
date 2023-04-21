@@ -30,7 +30,6 @@ class WSABILLoop(OuterLoop):
     def __init__(
         self, model: WSABIL, model_updater: ModelUpdater = None, acquisition_optimizer: AcquisitionOptimizerBase = None
     ):
-
         # WSABI-L is used with uncertainty sampling.
         acquisition = UncertaintySampling(model, measure_power=1)
 

@@ -146,7 +146,6 @@ class QuadratureProductKernel(QuadratureKernel):
         measure: IntegrationMeasure,
         variable_names: str,
     ) -> None:
-
         super().__init__(kern=kern, measure=measure, variable_names=variable_names)
 
     def _qK_unscaled(self, x2: np.ndarray, skip: List[int] = None) -> np.ndarray:

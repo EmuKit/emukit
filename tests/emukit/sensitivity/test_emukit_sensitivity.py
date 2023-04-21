@@ -16,7 +16,6 @@ def space():
 
 
 def test_model_based_montecarlo_sensitivity(space):
-
     model = mock.create_autospec(IModel)
     model.predict.return_value = (0.1 * np.ones((3, 2)), np.zeros((3, 2)))
 
@@ -43,7 +42,6 @@ def test_model_based_montecarlo_sensitivity(space):
 
 
 def test_model_free_montecarlo_sensitivity(space):
-
     mock_function = lambda x: 0.1 * np.ones((3, 1))
 
     sensitivity = ModelFreeMonteCarloSensitivity(mock_function, space)

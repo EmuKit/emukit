@@ -37,7 +37,6 @@ class GPBayesianOptimization(BayesianOptimizationLoop):
         model_update_interval: int = int(1),
         batch_size: int = 1,
     ) -> None:
-
         """
         Generic class to run Bayesian optimization with GPyRegression model.
 
