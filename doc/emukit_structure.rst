@@ -15,7 +15,7 @@ We think of all these decision making processes as implementations of a common a
         update model with new observation
 
 We have built Emukit in a modular way such that each fundamental component of this loop can be swapped out. 
-If you are a machine learning researcher interested implemented in your method in Emukit - this is where to do find out
+If you are a machine learning researcher interested implemented in your method in Emukit - this is where to find out
 which parts you need to implement!
 
 Loop
