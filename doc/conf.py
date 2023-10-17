@@ -35,7 +35,7 @@ sys.modules.update((module_name, Mock()) for module_name in MOCK_MODULES)
 # -- Project information -----------------------------------------------------
 
 project = 'emukit'
-copyright = '{}, Amazon.com'.format(datetime.now().year)
+copyright = '{}, Emukit authors'.format(datetime.now().year)
 
 exec(open("../emukit/__version__.py").read())
 version = __version__ # noqa: variable __version__ is defined in exec above
@@ -101,7 +101,7 @@ exclude_patterns = ['_build', '**.ipynb_checkpoints', '_templates', '**.cfg']
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
@@ -154,7 +154,7 @@ autosummary_generate = True
 
 # -- intersphinx extension --
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {'https://docs.python.org/': None}
+intersphinx_mapping = {'python': ('https://docs.python.org/3', None)}
 
 # -- nbsphinx extension --
 # Allow notebooks to have errors when generating docs
