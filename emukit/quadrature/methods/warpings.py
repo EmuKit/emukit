@@ -1,3 +1,7 @@
+# Copyright 2024 The Emukit Authors. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+
 """Warpings as used by warped Bayesian quadrature models."""
 
 import abc
