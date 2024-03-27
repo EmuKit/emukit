@@ -1,3 +1,10 @@
+# Copyright 2024 The Emukit Authors. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+# Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+
 # These are notebooks that take too long to run so are not tested here
 # The parallel evel notebook is too flaky and often fails the builds for no reason
 excluded_notebooks = ['Emukit-tutorial-multi-fidelity-bayesian-optimization.ipynb',
