@@ -1,19 +1,9 @@
 # Copyright 2024 The Emukit Authors. All Rights Reserved.
-#
+# SPDX-License-Identifier: Apache-2.0
+
 # Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-#
-#   Licensed under the Apache License, Version 2.0 (the "License").
-#   You may not use this file except in compliance with the License.
-#   A copy of the License is located at
-#
-#       http://www.apache.org/licenses/LICENSE-2.0
-#
-#   or in the "license" file accompanying this file. This file is distributed
-#   on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
-#   express or implied. See the License for the specific language governing
-#   permissions and limitations under the License.
-# ==============================================================================
-# -*- coding: utf-8 -*-
+# SPDX-License-Identifier: Apache-2.0
+
 
 from datetime import datetime
 import os
@@ -21,7 +11,7 @@ import shutil
 import sys
 from os.path import abspath, dirname
 
-# -- Mock graphing modules - workaround for optinal dependencies as well as for wrong behavior of some required ones
+# -- Mock graphing modules - workaround for optional dependencies as well as for wrong behavior of some required ones
 from unittest.mock import MagicMock
 
 
