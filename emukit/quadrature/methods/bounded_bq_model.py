@@ -1,3 +1,7 @@
+# Copyright 2020-2024 The Emukit Authors. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+
 """The bounded Bayesian quadrature model is with square-root warping."""
 
 from typing import Optional, Tuple

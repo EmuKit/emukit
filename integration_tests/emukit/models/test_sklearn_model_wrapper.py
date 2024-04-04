@@ -1,3 +1,7 @@
+# Copyright 2020-2024 The Emukit Authors. All Rights Reserved.
+# SPDX-License-Identifier: Apache-2.0
+
+
 import numpy as np
 import pytest
 from sklearn.gaussian_process import GaussianProcessRegressor
