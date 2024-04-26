@@ -7,7 +7,7 @@ import logging
 import numpy as np
 
 from ...core.loop.stopping_conditions import StoppingCondition
-from .bq_loop_state import BQLoopState
+from .bq_loop_state import QuadratureLoopState
 
 _log = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ class CoefficientOfVariationStoppingCondition(StoppingCondition):
     .. math::
         COV = \frac{\sigma}{\mu}
 
-    with :math:`\mu` and :math:`\sigma^2` the current mean and standard deviation of integral according to the
+    where :math:`\mu` and :math:`\sigma^2` are the current mean and standard deviation of integral according to the
     BQ posterior model.
 
     :param eps: Threshold under which the COV must fall.
@@ -37,7 +37,7 @@ class CoefficientOfVariationStoppingCondition(StoppingCondition):
         self.delay = delay
         self.times_true = 0  # counts how many times stopping had been triggered in a row
 
-    def should_stop(self, loop_state: BQLoopState) -> bool:
+    def should_stop(self, loop_state: QuadratureLoopState) -> bool:
         if len(loop_state.integral_means) < 1:
             return False
 

@@ -7,11 +7,11 @@ from typing import List, Union
 from ...core.loop import OuterLoop
 from ...core.loop.candidate_point_calculators import CandidatePointCalculator
 from ...core.loop.model_updaters import ModelUpdater
-from .bq_loop_state import BQLoopState
+from .bq_loop_state import QuadratureLoopState
 
 
-class BQOuterLoop(OuterLoop):
-    """Base class for a Bayesian quadrature outer loop.
+class QuadratureOuterLoop(OuterLoop):
+    """Base class for a Bayesian quadrature loop.
 
     :param candidate_point_calculator: Finds next point(s) to evaluate.
     :param model_updaters: Updates the model with the new data and fits the model hyper-parameters.
@@ -26,7 +26,7 @@ class BQOuterLoop(OuterLoop):
         self,
         candidate_point_calculator: CandidatePointCalculator,
         model_updaters: Union[ModelUpdater, List[ModelUpdater]],
-        loop_state: BQLoopState = None,
+        loop_state: QuadratureLoopState = None,
     ):
         if isinstance(model_updaters, list):
             raise ValueError("The BQ loop only supports a single model.")

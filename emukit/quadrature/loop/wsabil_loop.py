@@ -11,10 +11,10 @@ from ...core.parameter_space import ParameterSpace
 from ..acquisitions import UncertaintySampling
 from ..methods import WSABIL
 from .bq_loop_state import create_bq_loop_state
-from .bq_outer_loop import BQOuterLoop
+from .bq_outer_loop import QuadratureOuterLoop
 
 
-class WSABILLoop(BQOuterLoop):
+class WSABILLoop(QuadratureOuterLoop):
     """The loop for WSABI-L.
 
     .. rubric:: References

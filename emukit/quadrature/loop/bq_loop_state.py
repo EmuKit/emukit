@@ -10,8 +10,8 @@ from ...core.loop.loop_state import LoopState, create_loop_state
 from ...core.loop.user_function_result import UserFunctionResult
 
 
-class BQLoopState(LoopState):
-    """Contains the state of the BQ loop, which includes a history of all function evaluations and integral mean and
+class QuadratureLoopState(LoopState):
+    """Contains the state of the BQ loop, which includes a history of all integrand evaluations and integral mean and
     variance estimates.
 
     :param initial_results: The results from previous integrand evaluations.
@@ -35,7 +35,7 @@ class BQLoopState(LoopState):
         self.integral_vars.append(integral_var)
 
 
-def create_bq_loop_state(x_init: np.ndarray, y_init: np.ndarray, **kwargs) -> BQLoopState:
+def create_bq_loop_state(x_init: np.ndarray, y_init: np.ndarray, **kwargs) -> QuadratureLoopState:
     """Creates a BQ loop state object using the provided data.
 
     :param x_init: x values for initial function evaluations. Shape: (n_initial_points x n_input_dims)
@@ -45,4 +45,4 @@ def create_bq_loop_state(x_init: np.ndarray, y_init: np.ndarray, **kwargs) -> BQ
     """
 
     loop_state = create_loop_state(x_init, y_init, **kwargs)
-    return BQLoopState(loop_state.results)
+    return QuadratureLoopState(loop_state.results)

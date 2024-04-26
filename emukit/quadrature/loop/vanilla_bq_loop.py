@@ -12,10 +12,10 @@ from ...core.parameter_space import ParameterSpace
 from ..acquisitions import IntegralVarianceReduction
 from ..methods import VanillaBayesianQuadrature
 from .bq_loop_state import create_bq_loop_state
-from .bq_outer_loop import BQOuterLoop
+from .bq_outer_loop import QuadratureOuterLoop
 
 
-class VanillaBayesianQuadratureLoop(BQOuterLoop):
+class VanillaBayesianQuadratureLoop(QuadratureOuterLoop):
     """The loop for standard ('vanilla') Bayesian Quadrature.
 
     .. seealso::
