@@ -6,15 +6,16 @@
 
 
 from ...core.acquisition import Acquisition
-from ...core.loop import FixedIntervalUpdater, ModelUpdater, OuterLoop, SequentialPointCalculator
-from ...core.loop.loop_state import create_loop_state
+from ...core.loop import FixedIntervalUpdater, ModelUpdater, SequentialPointCalculator
 from ...core.optimization import AcquisitionOptimizerBase, GradientAcquisitionOptimizer
 from ...core.parameter_space import ParameterSpace
 from ..acquisitions import IntegralVarianceReduction
 from ..methods import VanillaBayesianQuadrature
+from .bq_loop_state import create_bq_loop_state
+from .bq_outer_loop import BQOuterLoop
 
 
-class VanillaBayesianQuadratureLoop(OuterLoop):
+class VanillaBayesianQuadratureLoop(BQOuterLoop):
     """The loop for standard ('vanilla') Bayesian Quadrature.
 
     .. seealso::
@@ -46,7 +47,7 @@ class VanillaBayesianQuadratureLoop(OuterLoop):
         if acquisition_optimizer is None:
             acquisition_optimizer = GradientAcquisitionOptimizer(space)
         candidate_point_calculator = SequentialPointCalculator(acquisition, acquisition_optimizer)
-        loop_state = create_loop_state(model.X, model.Y)
+        loop_state = create_bq_loop_state(model.X, model.Y)
 
         super().__init__(candidate_point_calculator, model_updater, loop_state)
 

@@ -101,6 +101,7 @@ class OuterLoop(object):
             _log.info("Iteration {}".format(self.loop_state.iteration))
 
             self._update_models()
+            self._update_loop_state_custom()
             new_x = self.candidate_point_calculator.compute_next_points(self.loop_state, context)
             _log.debug("Next suggested point(s): {}".format(new_x))
             results = user_function.evaluate(new_x)
@@ -109,7 +110,13 @@ class OuterLoop(object):
             self.iteration_end_event(self, self.loop_state)
 
         self._update_models()
+        self._update_loop_state_custom()
         _log.info("Finished outer loop")
+
+    def _update_loop_state_custom(self) -> None:
+        """This method is called after the models are updated. Override this function to store model quantities
+        in the loop state."""
+        pass
 
     def _update_models(self):
         for model_updater in self.model_updaters:
