@@ -7,8 +7,8 @@ import logging
 import numpy as np
 
 from ...core.loop.stopping_conditions import StoppingCondition
-
 from .bq_loop_state import BQLoopState
+
 _log = logging.getLogger(__name__)
 
 

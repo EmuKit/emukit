@@ -3,11 +3,10 @@
 
 
 from typing import List, Union
-from ...core.loop import OuterLoop
 
+from ...core.loop import OuterLoop
 from ...core.loop.candidate_point_calculators import CandidatePointCalculator
 from ...core.loop.model_updaters import ModelUpdater
-
 from .bq_loop_state import BQLoopState
 
 
@@ -15,19 +14,26 @@ class BQOuterLoop(OuterLoop):
     """Base class for a Bayesian quadrature outer loop.
 
     :param candidate_point_calculator: Finds next point(s) to evaluate.
-    :param model_updater: Updates the model with the new data and fits the model hyper-parameters.
+    :param model_updaters: Updates the model with the new data and fits the model hyper-parameters.
     :param loop_state: Object that keeps track of the history of the BQ loop. Default is None, resulting in empty
                        initial state.
+
+    :raises ValueError: If more than one model updater is provided.
+
     """
 
     def __init__(
         self,
         candidate_point_calculator: CandidatePointCalculator,
-        model_updater: Union[ModelUpdater, List[ModelUpdater]],
+        model_updaters: Union[ModelUpdater, List[ModelUpdater]],
         loop_state: BQLoopState = None,
     ):
-        super().__init__(candidate_point_calculator, model_updater, loop_state)
+        if isinstance(model_updaters, list):
+            raise ValueError("The BQ loop only supports a single model.")
 
-    def _update_loop_state_custom(self) -> None:
-        integral_mean, integral_var = self.model.integrate()
+        super().__init__(candidate_point_calculator, model_updaters, loop_state)
+
+    def _update_loop_state(self) -> None:
+        model = self.model_updaters[0].model  # only works if there is a model, but for BQ nothing else makes sense
+        integral_mean, integral_var = model.integrate()
         self.loop_state.update_integral_stats(integral_mean, integral_var)
