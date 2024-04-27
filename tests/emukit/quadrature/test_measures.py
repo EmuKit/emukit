@@ -85,6 +85,7 @@ measure_test_list = [
 
 # === tests shared by all measures start here
 
+
 @pytest.mark.parametrize("measure", measure_test_list)
 def test_measure_gradient_values(measure):
     D, measure, dat_bounds = measure.D, measure.measure, measure.dat_bounds

@@ -64,6 +64,7 @@ model_test_list = [
 
 # === acquisition fixtures start here
 
+
 @pytest.fixture
 def mutual_information():
     return lambda model: MutualInformation(model)
