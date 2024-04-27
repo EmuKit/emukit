@@ -9,7 +9,6 @@ import GPy
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
-from pytest_lazyfixture import lazy_fixture
 from utils import check_grad
 
 from emukit.model_wrappers.gpy_quadrature_wrappers import BaseGaussianProcessGPy, RBFGPy
@@ -46,32 +45,6 @@ def get_base_gp():
     return BaseGaussianProcessGPy(kern=qrbf, gpy_model=gpy_model), dat
 
 
-def get_vanilla_bq_model():
-    base_gp, dat = get_base_gp()
-    return VanillaBayesianQuadrature(base_gp=base_gp, X=dat.X, Y=dat.Y)
-
-
-def get_bounded_bq_lower():
-    base_gp, dat = get_base_gp()
-    return BoundedBayesianQuadrature(base_gp=base_gp, X=dat.X, Y=dat.Y, lower_bound=dat.bound_lower)
-
-
-def get_bounded_bq_upper():
-    base_gp, dat = get_base_gp()
-    return BoundedBayesianQuadrature(base_gp=base_gp, X=dat.X, Y=dat.Y, upper_bound=dat.bound_upper)
-
-
-def get_wsabil_adapt():
-    base_gp, dat = get_base_gp()
-    return WSABIL(base_gp=base_gp, X=dat.X, Y=dat.Y, adapt_alpha=True)
-
-
-def get_wsabil_fixed():
-    base_gp, dat = get_base_gp()
-    wsabil = WSABIL(base_gp=base_gp, X=dat.X, Y=dat.Y, adapt_alpha=False)
-    return wsabil
-
-
 # === fixtures start here
 @pytest.fixture
 def data():
@@ -80,7 +53,8 @@ def data():
 
 @pytest.fixture
 def gpy_model():
-    return get_gpy_model()
+    model, _ = get_gpy_model()
+    return model
 
 
 @pytest.fixture
@@ -90,41 +64,47 @@ def base_gp():
 
 @pytest.fixture
 def vanilla_bq():
-    return get_vanilla_bq_model()
+    base_gp, dat = get_base_gp()
+    return VanillaBayesianQuadrature(base_gp=base_gp, X=dat.X, Y=dat.Y)
 
 
 @pytest.fixture
 def bounded_bq_lower():
-    return get_bounded_bq_lower()
+    base_gp, dat = get_base_gp()
+    return BoundedBayesianQuadrature(base_gp=base_gp, X=dat.X, Y=dat.Y, lower_bound=dat.bound_lower)
 
 
 @pytest.fixture
 def bounded_bq_upper():
-    return get_bounded_bq_upper()
+    base_gp, dat = get_base_gp()
+    return BoundedBayesianQuadrature(base_gp=base_gp, X=dat.X, Y=dat.Y, upper_bound=dat.bound_upper)
 
 
 @pytest.fixture
 def wsabil_adapt():
-    return get_wsabil_adapt()
+    base_gp, dat = get_base_gp()
+    return WSABIL(base_gp=base_gp, X=dat.X, Y=dat.Y, adapt_alpha=True)
 
 
 @pytest.fixture
 def wsabil_fixed():
-    return get_wsabil_fixed()
+    base_gp, dat = get_base_gp()
+    wsabil = WSABIL(base_gp=base_gp, X=dat.X, Y=dat.Y, adapt_alpha=False)
+    return wsabil
 
 
 vanilla_test_list = [
-    lazy_fixture("vanilla_bq"),
+    "vanilla_bq",
 ]
 
 bounded_test_list = [
-    lazy_fixture("bounded_bq_lower"),
-    lazy_fixture("bounded_bq_upper"),
+    "bounded_bq_lower",
+    "bounded_bq_upper",
 ]
 
 wsabi_test_list = [
-    lazy_fixture("wsabil_adapt"),
-    lazy_fixture("wsabil_fixed"),
+    "wsabil_adapt",
+    "wsabil_fixed",
 ]
 
 all_models_test_list = vanilla_test_list + bounded_test_list + wsabi_test_list
@@ -133,16 +113,18 @@ all_models_test_list = vanilla_test_list + bounded_test_list + wsabi_test_list
 # === tests shared by all warped models start here
 
 
-@pytest.mark.parametrize("model", all_models_test_list)
-def test_warped_model_data(model, data):
+@pytest.mark.parametrize("model_name", all_models_test_list)
+def test_warped_model_data(model_name, data, request):
+    model = request.getfixturevalue(model_name)
     ABS_TOL = 1e-5
     REL_TOL = 1e-6
     assert_allclose(model.X, data.X, rtol=REL_TOL, atol=ABS_TOL)
     assert_allclose(model.Y, data.Y, rtol=REL_TOL, atol=ABS_TOL)
 
 
-@pytest.mark.parametrize("model", all_models_test_list)
-def test_warped_model_shapes(model):
+@pytest.mark.parametrize("model_name", all_models_test_list)
+def test_warped_model_shapes(model_name, request):
+    model = request.getfixturevalue(model_name)
     x = np.array([[-1, 1], [0, 0], [-2, 0.1], [-3, 4]])
     Y = np.array([[1], [2], [3]])
 
@@ -195,8 +177,9 @@ def test_warped_model_shapes(model):
     assert res[1].shape == (N, M)
 
 
-@pytest.mark.parametrize("model", all_models_test_list)
-def test_warped_model_transforms(model):
+@pytest.mark.parametrize("model_name", all_models_test_list)
+def test_warped_model_transforms(model_name, request):
+    model = request.getfixturevalue(model_name)
     Y = np.array([[1], [2], [3]])
     ABS_TOL = 1e-5
     REL_TOL = 1e-6
@@ -212,8 +195,9 @@ def test_warped_model_transforms(model):
     assert_allclose(model.inverse_transform(Y2), Y1, rtol=REL_TOL, atol=ABS_TOL)
 
 
-@pytest.mark.parametrize("model", all_models_test_list)
-def test_warped_model_gradient_values(model, data):
+@pytest.mark.parametrize("model_name", all_models_test_list)
+def test_warped_model_gradient_values(model_name, data, request):
+    model = request.getfixturevalue(model_name)
     # gradient of mean
     func = lambda z: model.predict(z)[0][:, 0]
     dfunc = lambda z: model.get_prediction_gradients(z)[0].T
@@ -226,16 +210,16 @@ def test_warped_model_gradient_values(model, data):
 
 
 @pytest.mark.parametrize(
-    "model,interval",
+    "model_name,interval",
     [
-        (vanilla_test_list[0], [0.5956279650321574, 0.6000811779371775]),
-        (bounded_test_list[0], [0.8383067891004425, 0.8417905366769567]),
-        (bounded_test_list[1], [2.977651803340788, 2.981939540780773]),
-        (wsabi_test_list[0], [1.0571955335349208, 1.0601420159245922]),
-        (wsabi_test_list[1], [0.47610638476406725, 0.48068140048609603]),
+        ("vanilla_bq", [0.5956279650321574, 0.6000811779371775]),
+        ("bounded_bq_lower", [0.8383067891004425, 0.8417905366769567]),
+        ("bounded_bq_upper", [2.977651803340788, 2.981939540780773]),
+        ("wsabil_adapt", [1.0571955335349208, 1.0601420159245922]),
+        ("wsabil_fixed", [0.47610638476406725, 0.48068140048609603]),
     ],
 )
-def test_warped_model_integrate_mean(model, interval):
+def test_warped_model_integrate_mean(model_name, interval, request):
     # Both outputs of the model.intgerate() method are analytic integrals.
     # To test their values we check if they lie in the confidence interva of an MC estimator.
     # These intervals were computed as follows: the mean model.predict (first argument) was integrated by
@@ -243,21 +227,23 @@ def test_warped_model_integrate_mean(model, interval):
     # times. The intervals show mean\pm 3 std of the 100 integrals obtained by sampling. There might be a very small
     # chance that the true integrals lies outside the specified intervals.
     # See file "ground_truth_integrals_methods.py" for details.
+    model = request.getfixturevalue(model_name)
     res = model.integrate()[0]
     assert interval[0] < res < interval[1]
 
 
 @pytest.mark.parametrize(
-    "model,interval",
+    "model_name,interval",
     [
-        (vanilla_test_list[0], [0.09859906877945852, 0.11181285735935843]),
-        (bounded_test_list[0], None),
-        (bounded_test_list[1], None),
-        (wsabi_test_list[0], None),
-        (wsabi_test_list[1], None),
+        ("vanilla_bq", [0.09859906877945852, 0.11181285735935843]),
+        ("bounded_bq_lower", None),
+        ("bounded_bq_upper", None),
+        ("wsabil_adapt", None),
+        ("wsabil_fixed", None),
     ],
 )
-def test_warped_model_integrate_variance(model, interval):
+def test_warped_model_integrate_variance(model_name, interval, request):
+    model = request.getfixturevalue(model_name)
     # See test_warped_model_integrate_mean on how the intervals were computed
     res = model.integrate()[1]
 
@@ -284,7 +270,6 @@ def test_bounded_bq_correct_bound(data, bounded_bq_lower, bounded_bq_upper):
 
 
 def test_bounded_bq_raises(gpy_model):
-    gpy_model, _ = gpy_model
     measure = LebesgueMeasure.from_bounds(gpy_model.X.shape[1] * [(0, 1)], normalized=False)
     qrbf = QuadratureRBFLebesgueMeasure(RBFGPy(gpy_model.kern), measure=measure)
     base_gp_wrong_kernel = BaseGaussianProcessGPy(kern=qrbf, gpy_model=gpy_model)

@@ -7,7 +7,6 @@ from dataclasses import dataclass
 import GPy
 import numpy as np
 import pytest
-from pytest_lazyfixture import lazy_fixture
 from utils import check_grad, sample_uniform
 
 from emukit.model_wrappers.gpy_quadrature_wrappers import (
@@ -297,25 +296,25 @@ def lebesgue_normalized_qprodbrownian():
 
 
 gaussian_embeddings_test_dict = {
-    "qrbf": lazy_fixture("gaussian_qrbf"),
+    "qrbf": "gaussian_qrbf",
 }
 
 lebesgue_embeddings_test_dict = {
-    "qrbf": lazy_fixture("lebesgue_qrbf"),
-    "qmatern12": lazy_fixture("lebesgue_qmatern12"),
-    "qmatern32": lazy_fixture("lebesgue_qmatern32"),
-    "qmatern52": lazy_fixture("lebesgue_qmatern52"),
-    "qbrownian": lazy_fixture("lebesgue_qbrownian"),
-    "qprodbrownian": lazy_fixture("lebesgue_qprodbrownian"),
+    "qrbf": "lebesgue_qrbf",
+    "qmatern12": "lebesgue_qmatern12",
+    "qmatern32": "lebesgue_qmatern32",
+    "qmatern52": "lebesgue_qmatern52",
+    "qbrownian": "lebesgue_qbrownian",
+    "qprodbrownian": "lebesgue_qprodbrownian",
 }
 
 lebesgue_normalized_embeddings_test_dict = {
-    "qrbf": lazy_fixture("lebesgue_normalized_qrbf"),
-    "qmatern12": lazy_fixture("lebesgue_normalized_qmatern12"),
-    "qmatern32": lazy_fixture("lebesgue_normalized_qmatern32"),
-    "qmatern52": lazy_fixture("lebesgue_normalized_qmatern52"),
-    "qbrownian": lazy_fixture("lebesgue_normalized_qbrownian"),
-    "qprodbrownian": lazy_fixture("lebesgue_normalized_qprodbrownian"),
+    "qrbf": "lebesgue_normalized_qrbf",
+    "qmatern12": "lebesgue_normalized_qmatern12",
+    "qmatern32": "lebesgue_normalized_qmatern32",
+    "qmatern52": "lebesgue_normalized_qmatern52",
+    "qbrownian": "lebesgue_normalized_qbrownian",
+    "qprodbrownian": "lebesgue_normalized_qprodbrownian",
 }
 
 embeddings_test_list = (
@@ -326,8 +325,8 @@ embeddings_test_list = (
 
 
 @pytest.mark.parametrize("kernel_embedding", embeddings_test_list)
-def test_qkernel_shapes(kernel_embedding):
-    emukit_qkernel, x1, x2, N, M, D, _ = kernel_embedding
+def test_qkernel_shapes(kernel_embedding, request):
+    emukit_qkernel, x1, x2, N, M, D, _ = request.getfixturevalue(kernel_embedding)
 
     # kernel shapes
     assert emukit_qkernel.K(x1, x2).shape == (N, M)
@@ -360,13 +359,13 @@ def test_qkernel_shapes(kernel_embedding):
         (lebesgue_normalized_embeddings_test_dict["qprodbrownian"], [5.199166451419295, 5.204923979414083]),
     ],
 )
-def test_qkernel_qKq(kernel_embedding, interval):
+def test_qkernel_qKq(kernel_embedding, interval, request):
     # To test the integral value of the kernel embedding, we check if it lies in some confidence interval.
     # These intervals were computed as follows: The kernel emukit_qkernel.qK was integrated by
     # simple random sampling with 1e6 samples. This was done 100 times. The intervals show mean\pm 3 std of the 100
     # integrals obtained by sampling. There might be a small chance that the true integrals lies outside the
     # specified intervals.
-    emukit_qkernel = kernel_embedding[0]
+    emukit_qkernel = request.getfixturevalue(kernel_embedding)[0]
     qKq = emukit_qkernel.qKq()
     assert interval[0] < qKq < interval[1]
 
@@ -519,9 +518,9 @@ def test_qkernel_qKq(kernel_embedding, interval):
         ),
     ],
 )
-def test_qkernel_qK(kernel_embedding, intervals):
+def test_qkernel_qK(kernel_embedding, intervals, request):
     # See test_qkernel_qKq on how the intervals were computed.
-    emukit_qkernel, _, x2, _, _, _, _ = kernel_embedding
+    emukit_qkernel, _, x2, _, _, _, _ = request.getfixturevalue(kernel_embedding)
     qK = emukit_qkernel.qK(x2)[0, :]
     for i in range(4):
         assert intervals[i, 0] < qK[i] < intervals[i, 1]
@@ -531,8 +530,8 @@ def test_qkernel_qK(kernel_embedding, intervals):
 
 
 @pytest.mark.parametrize("kernel_embedding", embeddings_test_list)
-def test_qkernel_gradient_shapes(kernel_embedding):
-    emukit_qkernel, x1, x2, N, M, D, _ = kernel_embedding
+def test_qkernel_gradient_shapes(kernel_embedding, request):
+    emukit_qkernel, x1, x2, N, M, D, _ = request.getfixturevalue(kernel_embedding)
 
     # gradient of kernel
     assert emukit_qkernel.dK_dx1(x1, x2).shape == (D, N, M)
@@ -545,8 +544,8 @@ def test_qkernel_gradient_shapes(kernel_embedding):
 
 
 @pytest.mark.parametrize("kernel_embedding", embeddings_test_list)
-def test_qkernel_gradient_values(kernel_embedding):
-    emukit_qkernel, x1, x2, N, M, D, dat_bounds = kernel_embedding
+def test_qkernel_gradient_values(kernel_embedding, request):
+    emukit_qkernel, x1, x2, N, M, D, dat_bounds = request.getfixturevalue(kernel_embedding)
 
     np.random.seed(42)
     x1 = sample_uniform(in_shape=(N, D), bounds=dat_bounds)
