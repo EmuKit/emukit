@@ -51,9 +51,7 @@ class ModelFreeMonteCarloSensitivity(object):
         Saltelli estimators of the total mean and variance
         """
 
-        variable_main_variance = (
-            sum(f_main_sample * f_new_fixing_sample) / (num_monte_carlo_points - 1) - total_mean**2
-        )
+        variable_main_variance = sum(f_main_sample * f_new_fixing_sample) / (num_monte_carlo_points - 1) - total_mean**2
         variable_total_variance = (
             total_variance - sum(f_fixing_sample * f_new_fixing_sample) / (num_monte_carlo_points - 1) + total_mean**2
         )
