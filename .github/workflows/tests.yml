@@ -52,9 +52,6 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        # don't build stuff from source
-        pip install wheel
-        pip install --upgrade setuptools
         pip install -r requirements/requirements.txt
         pip install -r requirements/test_requirements.txt
         # work around issues with GPy setting matplotlib backend
