@@ -31,7 +31,7 @@ setup(
     include_package_data=True,
     install_requires=requires,
     extras_require={"benchmarking": ["matplotlib"]},
-    python_requires=">=3",
+    python_requires=">=3.9",
     license="Apache License 2.0",
     classifiers=(
         # https://pypi.org/pypi?%3Aaction=list_classifiers
@@ -40,9 +40,6 @@ setup(
         "Intended Audience :: Education",
         "Intended Audience :: Science/Research",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.4",
-        "Programming Language :: Python :: 3.5",
-        "Programming Language :: Python :: 3.6",
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: OS Independent",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
