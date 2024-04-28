@@ -9,7 +9,6 @@ from collections import namedtuple
 
 import numpy as np
 import pytest
-import pytest_lazyfixture
 from scipy.optimize import check_grad
 
 from emukit.bayesian_optimization.acquisitions import (
@@ -160,7 +159,7 @@ def MUMBO_acquisition(gpy_model):
 
 # Helpers for creating parameterized fixtures
 def create_acquisition_fixture_parameters():
-    return [pytest.param(pytest_lazyfixture.lazy_fixture(acq.name), id=acq.name) for acq in acquisition_tests]
+    return [acq.name for acq in acquisition_tests]
 
 
 def create_gradient_acquisition_fixtures():
@@ -168,15 +167,14 @@ def create_gradient_acquisition_fixtures():
     parameters = []
     for acquisition in acquisition_tests:
         if acquisition.has_gradients:
-            acquisition_name = acquisition.name
-            lazy_fixture = pytest_lazyfixture.lazy_fixture(acquisition.name)
-            parameters.append(pytest.param(lazy_fixture, acquisition.rmse_gradient_tolerance, id=acquisition_name))
+            parameters.append(pytest.param(acquisition.name, acquisition.rmse_gradient_tolerance, id=acquisition.name))
     return parameters
 
 
 # Tests
-@pytest.mark.parametrize("acquisition", create_acquisition_fixture_parameters())
-def test_acquisition_evaluate_shape(acquisition, n_dims):
+@pytest.mark.parametrize("acquisition_name", create_acquisition_fixture_parameters())
+def test_acquisition_evaluate_shape(acquisition_name, n_dims, request):
+    acquisition = request.getfixturevalue(acquisition_name)
     x = np.random.rand(1, n_dims)
     acquisition_value = acquisition.evaluate(x)
     assert acquisition_value.shape == (1, 1)
@@ -186,8 +184,9 @@ def test_acquisition_evaluate_shape(acquisition, n_dims):
     assert acquisition_value.shape == (10, 1)
 
 
-@pytest.mark.parametrize(("acquisition", "tol"), create_gradient_acquisition_fixtures())
-def test_acquisition_gradient_computation(acquisition, n_dims, tol):
+@pytest.mark.parametrize(("acquisition_name", "tol"), create_gradient_acquisition_fixtures())
+def test_acquisition_gradient_computation(acquisition_name, n_dims, tol, request):
+    acquisition = request.getfixturevalue(acquisition_name)
     rng = np.random.RandomState(43)
     x_test = rng.rand(10, n_dims)
 
@@ -199,8 +198,9 @@ def test_acquisition_gradient_computation(acquisition, n_dims, tol):
         assert err < tol
 
 
-@pytest.mark.parametrize(("acquisition", "tol"), create_gradient_acquisition_fixtures())
-def test_acquisition_gradient_shapes(acquisition, n_dims, tol):
+@pytest.mark.parametrize(("acquisition_name", "tol"), create_gradient_acquisition_fixtures())
+def test_acquisition_gradient_shapes(acquisition_name, n_dims, tol, request):
+    acquisition = request.getfixturevalue(acquisition_name)
     rng = np.random.RandomState(43)
 
     x_test = rng.rand(1, n_dims)

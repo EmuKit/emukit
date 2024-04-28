@@ -6,7 +6,6 @@ import GPy
 import numpy as np
 import pytest
 from numpy.testing import assert_array_equal
-from pytest_lazyfixture import lazy_fixture
 
 from emukit.core.loop.user_function import UserFunctionWrapper
 from emukit.model_wrappers.gpy_quadrature_wrappers import BaseGaussianProcessGPy, QuadratureRBFGaussianMeasure, RBFGPy
@@ -58,12 +57,12 @@ def loop_fixed(wsabil_fixed):
     return emukit_loop, Y.shape[0], X, Y
 
 
-wsabi_test_list = [lazy_fixture("loop_adapt"), lazy_fixture("loop_fixed")]
+wsabi_test_list = ["loop_adapt", "loop_fixed"]
 
 
 @pytest.mark.parametrize("loop", wsabi_test_list)
-def test_wsabil_loop(loop):
-    emukit_loop, init_size, _, _ = loop
+def test_wsabil_loop(loop, request):
+    emukit_loop, init_size, _, _ = request.getfixturevalue(loop)
     num_iter = 5
 
     emukit_loop.run_loop(user_function=UserFunctionWrapper(func), stopping_condition=num_iter)
@@ -73,8 +72,8 @@ def test_wsabil_loop(loop):
 
 
 @pytest.mark.parametrize("loop", wsabi_test_list)
-def test_wsabil_loop_initial_state(loop):
-    emukit_loop, _, x_init, y_init = loop
+def test_wsabil_loop_initial_state(loop, request):
+    emukit_loop, _, x_init, y_init = request.getfixturevalue(loop)
 
     assert_array_equal(emukit_loop.loop_state.X, x_init)
     assert_array_equal(emukit_loop.loop_state.Y, y_init)
