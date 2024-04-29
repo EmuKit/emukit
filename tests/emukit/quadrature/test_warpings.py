@@ -7,13 +7,8 @@ from collections import namedtuple
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
-from pytest_lazyfixture import lazy_fixture
 
 from emukit.quadrature.methods.warpings import IdentityWarping, SquareRootWarping
-
-
-def create_fixture_parameters():
-    return [pytest.param(lazy_fixture(warping.name), id=warping.name) for warping in warpings]
 
 
 @pytest.fixture
@@ -33,11 +28,10 @@ def inverted_squarerroot_warping():
     return SquareRootWarping(offset=offset, is_inverted=True)
 
 
-warpings_tuple = namedtuple("WarpingTest", ["name"])
 warpings = [
-    warpings_tuple("identity_warping"),
-    warpings_tuple("squarerroot_warping"),
-    warpings_tuple("inverted_squarerroot_warping"),
+    "identity_warping",
+    "squarerroot_warping",
+    "inverted_squarerroot_warping",
 ]
 
 
@@ -45,15 +39,17 @@ RTOL = 1e-8
 ATOL = 1e-6
 
 
-@pytest.mark.parametrize("warping", create_fixture_parameters())
-def test_warping_shapes(warping):
+@pytest.mark.parametrize("warping_name", warpings)
+def test_warping_shapes(warping_name, request):
+    warping = request.getfixturevalue(warping_name)
     Y = np.ones([5, 1])
     assert warping.transform(Y).shape == Y.shape
     assert warping.inverse_transform(Y).shape == Y.shape
 
 
-@pytest.mark.parametrize("warping", create_fixture_parameters())
-def test_warping_values(warping):
+@pytest.mark.parametrize("warping_name", warpings)
+def test_warping_values(warping_name, request):
+    warping = request.getfixturevalue(warping_name)
     np.random.seed(42)
     Y = np.random.rand(5, 1)
 

@@ -7,7 +7,6 @@
 import GPy
 import numpy as np
 import pytest
-from pytest_lazyfixture import lazy_fixture
 
 from emukit.model_wrappers.gpy_quadrature_wrappers import (
     BaseGaussianProcessGPy,
@@ -204,21 +203,22 @@ def wrapper_matern52_2(dim1, gpy_matern52):
 
 
 gpy_test_list = [
-    lazy_fixture("wrapper_rbf_1"),
-    lazy_fixture("wrapper_rbf_2"),
-    lazy_fixture("wrapper_brownian_1"),
-    lazy_fixture("wrapper_brownian_2"),
-    lazy_fixture("wrapper_matern12_1"),
-    lazy_fixture("wrapper_matern12_2"),
-    lazy_fixture("wrapper_matern32_1"),
-    lazy_fixture("wrapper_matern32_2"),
-    lazy_fixture("wrapper_matern52_1"),
-    lazy_fixture("wrapper_matern52_2"),
+    "wrapper_rbf_1",
+    "wrapper_rbf_2",
+    "wrapper_brownian_1",
+    "wrapper_brownian_2",
+    "wrapper_matern12_1",
+    "wrapper_matern12_2",
+    "wrapper_matern32_1",
+    "wrapper_matern32_2",
+    "wrapper_matern52_1",
+    "wrapper_matern52_2",
 ]
 
 
-@pytest.mark.parametrize("wrapper", gpy_test_list)
-def test_create_emukit_model_from_gpy_model_types(wrapper):
+@pytest.mark.parametrize("wrapper_name", gpy_test_list)
+def test_create_emukit_model_from_gpy_model_types(wrapper_name, request):
+    wrapper = request.getfixturevalue(wrapper_name)
     gpy_model = GPy.models.GPRegression(kernel=wrapper["gpy_kernel"], X=wrapper["data"][0], Y=wrapper["data"][1])
     emukit_gp = create_emukit_model_from_gpy_model(gpy_model=gpy_model, measure=wrapper["measure"])
 
@@ -252,7 +252,7 @@ def test_create_emukit_model_from_gpy_model_raises_warns():
         create_emukit_model_from_gpy_model(gpy_model=gpy_model, integral_bounds=bounds, measure=measure)
 
 
-def test_base_gp_gpy_raises(gpy_prodbrownian):
+def test_base_gp_gpy_raises():
     incompatible_offset = -3
 
     n_dim = 2

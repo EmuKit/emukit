@@ -8,7 +8,6 @@
 import GPy
 import numpy as np
 import pytest
-from pytest_lazyfixture import lazy_fixture
 from utils import check_grad
 
 from emukit.model_wrappers.gpy_quadrature_wrappers import BaseGaussianProcessGPy, RBFGPy
@@ -58,50 +57,49 @@ def model_gaussian(gpy_model):
 
 
 model_test_list = [
-    lazy_fixture("model_gaussian"),
-    lazy_fixture("model_lebesgue"),
-    lazy_fixture("model_lebesgue_normalized"),
+    "model_gaussian",
+    "model_lebesgue",
+    "model_lebesgue_normalized",
 ]
-
-
-@pytest.fixture(params=model_test_list)
-def model_test_list_fixture(request):
-    return request.param
-
 
 # === acquisition fixtures start here
 
 
 @pytest.fixture
-def mutual_information(model_test_list_fixture):
-    return MutualInformation(model_test_list_fixture)
+def mutual_information():
+    return lambda model: MutualInformation(model)
 
 
 @pytest.fixture
-def squared_correlation(model_test_list_fixture):
-    return SquaredCorrelation(model_test_list_fixture)
+def squared_correlation():
+    return lambda model: SquaredCorrelation(model)
 
 
 @pytest.fixture
-def integral_variance_reduction(model_test_list_fixture):
-    return IntegralVarianceReduction(model_test_list_fixture)
+def integral_variance_reduction():
+    return lambda model: IntegralVarianceReduction(model)
 
 
 @pytest.fixture
-def uncertainty_sampling(model_test_list_fixture):
-    return UncertaintySampling(model_test_list_fixture)
+def uncertainty_sampling():
+    return lambda model: UncertaintySampling(model)
 
 
-acquisitions_test_list = [
-    lazy_fixture("mutual_information"),
-    lazy_fixture("squared_correlation"),
-    lazy_fixture("integral_variance_reduction"),
-    lazy_fixture("uncertainty_sampling"),
+acquisition_test_list = [
+    "mutual_information",
+    "squared_correlation",
+    "integral_variance_reduction",
+    "uncertainty_sampling",
 ]
 
 
-@pytest.mark.parametrize("aq", acquisitions_test_list)
-def test_quadrature_acquisition_shapes(aq):
+@pytest.mark.parametrize("model_name", model_test_list)
+@pytest.mark.parametrize("aq_name", acquisition_test_list)
+def test_quadrature_acquisition_shapes(model_name, aq_name, request):
+    model = request.getfixturevalue(model_name)
+    aq_factory = request.getfixturevalue(aq_name)
+    aq = aq_factory(model)
+
     x = np.array([[-1, 1], [0, 0], [-2, 0.1]])
 
     # value
@@ -114,8 +112,13 @@ def test_quadrature_acquisition_shapes(aq):
     assert res[1].shape == (3, 2)
 
 
-@pytest.mark.parametrize("aq", acquisitions_test_list)
-def test_quadrature_acquisition_gradient_values(aq):
+@pytest.mark.parametrize("model_name", model_test_list)
+@pytest.mark.parametrize("aq_name", acquisition_test_list)
+def test_quadrature_acquisition_gradient_values(model_name, aq_name, request):
+    model = request.getfixturevalue(model_name)
+    aq_factory = request.getfixturevalue(aq_name)
+    aq = aq_factory(model)
+
     func = lambda x: aq.evaluate(x)[:, 0]
     dfunc = lambda x: aq.evaluate_with_gradients(x)[1].T
     check_grad(func, dfunc, in_shape=(3, 2), bounds=aq.model.X.shape[1] * [(-3, 3)])
