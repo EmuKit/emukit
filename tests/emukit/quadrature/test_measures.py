@@ -75,12 +75,7 @@ def gauss_measure():
     return DataGaussMeasure()
 
 
-measure_test_list = [
-    "lebesgue_measure",
-    "lebesgue_measure_normalized",
-    "gauss_iso_measure",
-    "gauss_measure"
-]
+measure_test_list = ["lebesgue_measure", "lebesgue_measure_normalized", "gauss_iso_measure", "gauss_measure"]
 
 
 # === tests shared by all measures start here
