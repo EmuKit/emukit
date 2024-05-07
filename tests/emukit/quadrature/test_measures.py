@@ -76,26 +76,28 @@ def gauss_measure():
 
 
 measure_test_list = [
-    DataLebesgueMeasure(),
-    DataLebesgueNormalizedMeasure(),
-    DataGaussIsoMeasure(),
-    DataGaussMeasure(),
+    "lebesgue_measure",
+    "lebesgue_measure_normalized",
+    "gauss_iso_measure",
+    "gauss_measure"
 ]
 
 
 # === tests shared by all measures start here
 
 
-@pytest.mark.parametrize("measure", measure_test_list)
-def test_measure_gradient_values(measure):
+@pytest.mark.parametrize("measure_name", measure_test_list)
+def test_measure_gradient_values(measure_name, request):
+    measure = request.getfixturevalue(measure_name)
     D, measure, dat_bounds = measure.D, measure.measure, measure.dat_bounds
     func = lambda x: measure.compute_density(x)
     dfunc = lambda x: measure.compute_density_gradient(x).T
     check_grad(func, dfunc, in_shape=(3, D), bounds=dat_bounds)
 
 
-@pytest.mark.parametrize("measure", measure_test_list)
-def test_measure_shapes(measure):
+@pytest.mark.parametrize("measure_name", measure_test_list)
+def test_measure_shapes(measure_name, request):
+    measure = request.getfixturevalue(measure_name)
     D, measure = measure.D, measure.measure
 
     # box bounds
