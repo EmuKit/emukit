@@ -17,21 +17,21 @@ def identity_warping():
 
 
 @pytest.fixture
-def squarerroot_warping():
+def square_root_warping():
     offset = 1.0
     return SquareRootWarping(offset=offset)
 
 
 @pytest.fixture
-def inverted_squarerroot_warping():
+def inverted_square_root_warping():
     offset = 1.0
     return SquareRootWarping(offset=offset, is_inverted=True)
 
 
 warpings = [
     "identity_warping",
-    "squarerroot_warping",
-    "inverted_squarerroot_warping",
+    "square_root_warping",
+    "inverted_square_root_warping",
 ]
 
 
@@ -56,16 +56,16 @@ def test_warping_values(warping_name, request):
     assert_allclose(warping.inverse_transform(warping.transform(Y)), Y, rtol=RTOL, atol=ATOL)
 
 
-def test_squarerroot_warping_update_parameters(squarerroot_warping, inverted_squarerroot_warping):
+def test_square_root_warping_update_parameters(square_root_warping, inverted_square_root_warping):
     new_offset = 10.0
 
-    squarerroot_warping.update_parameters(offset=new_offset)
-    assert squarerroot_warping.offset == new_offset
+    square_root_warping.update_parameters(offset=new_offset)
+    assert square_root_warping.offset == new_offset
 
-    inverted_squarerroot_warping.update_parameters(offset=new_offset)
-    assert inverted_squarerroot_warping.offset == new_offset
+    inverted_square_root_warping.update_parameters(offset=new_offset)
+    assert inverted_square_root_warping.offset == new_offset
 
 
-def test_squarerroot_warping_inverted_flag(squarerroot_warping, inverted_squarerroot_warping):
-    assert not squarerroot_warping.is_inverted
-    assert inverted_squarerroot_warping.is_inverted
+def test_square_root_warping_inverted_flag(square_root_warping, inverted_square_root_warping):
+    assert not square_root_warping.is_inverted
+    assert inverted_square_root_warping.is_inverted
