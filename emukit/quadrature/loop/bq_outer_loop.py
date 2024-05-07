@@ -34,6 +34,6 @@ class QuadratureOuterLoop(OuterLoop):
         super().__init__(candidate_point_calculator, model_updaters, loop_state)
 
     def _update_loop_state(self) -> None:
-        model = self.model_updaters[0].model  # only works if there is a model, but for BQ nothing else makes sense
+        model = self.model_updaters[0].model  # only works if there is one model, but for BQ nothing else makes sense
         integral_mean, integral_var = model.integrate()
         self.loop_state.update_integral_stats(integral_mean, integral_var)

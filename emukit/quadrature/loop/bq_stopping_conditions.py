@@ -20,11 +20,14 @@ class CoefficientOfVariationStoppingCondition(StoppingCondition):
     .. math::
         COV = \frac{\sigma}{\mu}
 
-    where :math:`\mu` and :math:`\sigma^2` are the current mean and standard deviation of integral according to the
-    BQ posterior model.
+    where :math:`\mu` and :math:`\sigma^2` are the current mean and variance respectively of the integral according to
+    the BQ posterior model.
 
     :param eps: Threshold under which the COV must fall.
     :param delay: Number of times the stopping condition needs to be true in a row in order to stop. Defaults to 1.
+
+    :raises ValueError: If `delay` is smaller than 1.
+    :raises ValueError: If `eps` is non-negative.
 
     """
 
@@ -33,9 +36,12 @@ class CoefficientOfVariationStoppingCondition(StoppingCondition):
         if delay < 1:
             raise ValueError(f"delay ({delay}) must be and integer greater than zero.")
 
+        if eps <= 0.0:
+            raise ValueError(f"eps ({eps}) must be positive.")
+
         self.eps = eps
         self.delay = delay
-        self.times_true = 0  # counts how many times stopping had been triggered in a row
+        self.times_true = 0  # counts how many times stopping has been triggered in a row
 
     def should_stop(self, loop_state: QuadratureLoopState) -> bool:
         if len(loop_state.integral_means) < 1:
@@ -50,11 +56,7 @@ class CoefficientOfVariationStoppingCondition(StoppingCondition):
         else:
             self.times_true = 0
 
-        print(np.sqrt(v) / m)
-        print(should_stop, self.times_true)
         should_stop = should_stop and (self.times_true >= self.delay)
-        print(should_stop)
-        print()
 
         if should_stop:
             _log.info(f"Stopped as coefficient of variation is below threshold of {self.eps}.")
