@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to Emukit will be documented in this file.
 
+## [0.4.11]
+- Various bugfixes, including installation on Windows
+- Updated copyright info
+
 ## [0.4.10]
 - Wrapper for SKlearn Guassian process
 - Black and isort formatting
