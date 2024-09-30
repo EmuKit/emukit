@@ -8,14 +8,15 @@
 # Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-from ...core.loop import FixedIntervalUpdater, ModelUpdater, OuterLoop
-from ...core.loop.loop_state import create_loop_state
+from ...core.loop import FixedIntervalUpdater, ModelUpdater
 from ...core.parameter_space import ParameterSpace
 from ..loop.point_calculators import BayesianMonteCarloPointCalculator
 from ..methods import WarpedBayesianQuadratureModel
+from .bq_loop_state import create_bq_loop_state
+from .bq_outer_loop import QuadratureOuterLoop
 
 
-class BayesianMonteCarlo(OuterLoop):
+class BayesianMonteCarlo(QuadratureOuterLoop):
     """The loop for Bayesian Monte Carlo (BMC).
 
 
@@ -61,7 +62,7 @@ class BayesianMonteCarlo(OuterLoop):
 
         space = ParameterSpace(model.reasonable_box_bounds.convert_to_list_of_continuous_parameters())
         candidate_point_calculator = BayesianMonteCarloPointCalculator(model, space)
-        loop_state = create_loop_state(model.X, model.Y)
+        loop_state = create_bq_loop_state(model.X, model.Y)
 
         super().__init__(candidate_point_calculator, model_updater, loop_state)
 
