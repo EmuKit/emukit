@@ -74,9 +74,11 @@ class BenchmarkPlot:
         self.fig_handle = None
         self.x_axis = x_axis_metric_name
 
-    def make_plot(self, logy: bool = False) -> None:
+    def make_plot(self, log_y: bool = False) -> None:
         """
         Make one plot for each metric measured, comparing the different loop results against each other
+        
+        :param log_y: Set the y axis to log scaling if true.
         """
 
         n_metrics = len(self.metrics_to_plot)
@@ -125,7 +127,7 @@ class BenchmarkPlot:
 
             plt.xlim(min_x, max_x)
             
-            if logy: 
+            if log_y: 
                 plt.yscale('log')
 
     def save_plot(self, file_name: str) -> None:
