@@ -77,7 +77,7 @@ class BenchmarkPlot:
     def make_plot(self, log_y: bool = False) -> None:
         """
         Make one plot for each metric measured, comparing the different loop results against each other
-        
+
         :param log_y: Set the y axis to log scaling if true.
         """
 
@@ -120,15 +120,15 @@ class BenchmarkPlot:
                 plt.xlabel(self.x_label)
                 fill_plt = plt.fill_between(x, mean - std, mean + std, alpha=0.2, color=colour)
                 legend_handles.append((fill_plt, mean_plt[0]))
-              
+
             # Make legend
             plt.legend(legend_handles, self.loop_names)
             plt.tight_layout()
 
             plt.xlim(min_x, max_x)
-            
-            if log_y: 
-                plt.yscale('log')
+
+            if log_y:
+                plt.yscale("log")
 
     def save_plot(self, file_name: str) -> None:
         """
