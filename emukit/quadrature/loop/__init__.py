@@ -12,12 +12,18 @@
 
 
 from .bayesian_monte_carlo_loop import BayesianMonteCarlo  # noqa: F401
+from .bq_loop_state import QuadratureLoopState
+from .bq_outer_loop import QuadratureOuterLoop
+from .bq_stopping_conditions import CoefficientOfVariationStoppingCondition
 from .vanilla_bq_loop import VanillaBayesianQuadratureLoop  # noqa: F401
 from .wsabil_loop import WSABILLoop  # noqa: F401
 
 __all__ = [
+    "QuadratureOuterLoop",
     "BayesianMonteCarlo",
     "VanillaBayesianQuadratureLoop",
     "WSABILLoop",
+    "QuadratureLoopState",
     "point_calculators",
+    "CoefficientOfVariationStoppingCondition",
 ]
