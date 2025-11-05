@@ -41,10 +41,7 @@ gpy = ["GPy>=1.13.0"]
 bnn = ["pybnn>=0.0.5", "torch"]
 sklearn = ["scikit-learn"]
 examples = [
-  "emukit[gpy]",
-  "emukit[bnn]",
-  "emukit[sklearn]",
-]
+  "emukit[gpy, bnn, sklearn]",
 docs = [
   "emukit[gpy]",
   "ipykernel",
@@ -68,9 +65,7 @@ tests = [
 ]
 # Aggregate ALL optional dependencies for development
 dev = [
-  "emukit[examples]",
-  "emukit[docs]",
-  "emukit[tests]"
+  "emukit[examples, docs, tests]",
 ]
 
 [project.urls]
