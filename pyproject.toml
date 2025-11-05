@@ -9,7 +9,7 @@ dynamic = ["version"]
 description = "Toolkit for decision making under uncertainty."
 readme = "README.md"
 license = { file = "LICENSE" }
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 authors = [ { name = "Emukit Authors" } ]
 keywords = ["bayesian-optimization", "active-learning", "uncertainty", "experimental-design"]
 classifiers = [
@@ -41,15 +41,13 @@ gpy = ["GPy>=1.13.0"]
 bnn = ["pybnn>=0.0.5", "torch"]
 sklearn = ["scikit-learn"]
 examples = [
-  "GPy>=1.13.0",
-  "pybnn>=0.0.5",
-  "torch",
-  "scikit-learn",
+  "emukit[gpy]",
+  "emukit[bnn]",
+  "emukit[sklearn]",
 ]
 docs = [
-  # Retain historical versions for minimal change; can modernize later
+  "emukit[gpy]",
   "ipykernel",
-  "GPy>=1.13.0",
   "Sphinx>=1.7.5",
   "nbsphinx>=0.3.4",
   "sphinx-autodoc-typehints>=1.3.0",
@@ -68,27 +66,11 @@ tests = [
   "pytest-cov>=2.5.1",
   "mock>=2.0.0",
 ]
-# Convenience aggregate identical to previous 'full'
-full = [
-  "GPy>=1.13.0",
-  "pybnn>=0.0.5",
-  "torch",
-  "scikit-learn",
-  "pandas",
-  "ipykernel",
-  "matplotlib",
-  "Sphinx>=1.7.5",
-  "nbsphinx>=0.3.4",
-  "sphinx-autodoc-typehints>=1.3.0",
-  "sphinx-rtd-theme>=0.4.1",
-  "coverage>=4.5.1",
-  "codecov>=2.0.15",
-  "flake8>=3.5.0",
-  "isort>=5.10",
-  "black",
-  "pytest>=3.5.1",
-  "pytest-cov>=2.5.1",
-  "mock>=2.0.0",
+# Aggregate ALL optional dependencies for development
+dev = [
+  "emukit[examples]",
+  "emukit[docs]",
+  "emukit[tests]"
 ]
 
 [project.urls]

@@ -78,7 +78,7 @@ Before submitting the pull request, please go through this checklist to make the
 ## Setting up a development environment
 
 ### Building the code
-See installing from source (now using `pip install -e .[tests]` for development).
+See installing from source (from version 0.5.0 using `pip install -e .[tests]` for core development, and `pip install -e .[dev]` for examples and docs as well). Note that, due to `numpy` version incompatibilities brought forwards by legacy dependencies (such as `GPy`), it is recommended to develop core features without installing any of the extras, using `tests` whenever possible. This will be improved whenever major dependencies, such as `GPy`, are updated.
 
 ### Running tests
 Run the full suite of unit tests or integration tests with these commands:
@@ -101,7 +101,7 @@ pip install -e .[gpy]
 pip install -e .[bnn]
 pip install -e .[sklearn]
 # Or everything:
-pip install -e .[full]
+pip install -e .[examples]
 ```
 Legacy requirement files in `requirements/` remain temporarily for reference but will be phased out; prefer extras going forward.
 
@@ -157,7 +157,6 @@ Emukit uses black and isort to format code. There is also a build action that ch
 ```
 isort .
 black .
-# Or run only on changed files via pre-commit if configured.
 ```
 
 ### Generating docs

@@ -1,8 +1,6 @@
 # For random forest and GPR models
 scikit-learn
 # For BNN model
-# For BNN model (Bohamiann/Profet examples and tests only)
-# Install from PyPI:
 pybnn==0.0.5
 # For Latin design
 PyDOE>=0.3.0

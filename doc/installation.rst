@@ -19,7 +19,7 @@ You can install optional dependency groups via setuptools extras. Each group ena
 - ``docs``: Build documentation locally (Sphinx toolchain + GPy for rendering GP API docs).
 - ``tests``: Test tooling only.
 - ``examples``: Convenience bundle for most example scripts (installs ``GPy``, ``pybnn``, ``torch``, ``scikit-learn``).
-- ``full``: Convenience meta extra installing all of the above.
+- ``dev``: Convenience meta extra installing all of the above.
 
 .. code-block:: bash
 
@@ -39,7 +39,7 @@ You can install optional dependency groups via setuptools extras. Each group ena
      pip install emukit[examples]
  
      # Everything (gpy + bnn + sklearn + examples + docs + tests)
-     pip install emukit[full]
+     pip install emukit[dev]
  
  Installation from sources
 
@@ -58,7 +58,7 @@ If you would like a bit more control (e.g. for development), clone the repo, ins
      pip install -e .[tests]          # core + test tooling
      pip install -e .[gpy]            # add GPy-based functionality
      # Or everything:
-     pip install -e .[full]
+     pip install -e .[dev]
 
 `python setup.py develop` is no longer needed; PEP 621 metadata in `pyproject.toml` enables editable installs directly via pip (PEP 660).
 

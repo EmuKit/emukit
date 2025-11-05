@@ -6,7 +6,3 @@ black
 pytest>=3.5.1
 pytest-cov>=2.5.1
 mock>=2.0.0
-
-# Optional: For BNN model (Bohamiann/Profet examples and tests only)
-# Install from PyPI:
-# pybnn==0.0.5

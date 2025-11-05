@@ -15,10 +15,7 @@ import os
 
 import pytest
 
-pytest.importorskip("nbformat")
-pytest.importorskip("nbconvert")
 pytestmark = pytest.mark.notebooks
-pytest.importorskip("ipykernel")
 import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor
 

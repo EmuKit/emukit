@@ -28,6 +28,15 @@ class BenchmarkPlot:
         x_axis_metric_name: str = None,
         metrics_to_plot: List[str] = None,
     ):
+        """ 
+        :param benchmark_results: The output of a benchmark run
+        :param loop_colours: Colours to use for each loop. Defaults to standard matplotlib colour palette
+        :param loop_line_styles: Line style to use for each loop. Defaults to solid line style for all lines
+        :param x_axis_metric_name: Which metric to use as the x axis in plots.
+                                   None means it will be plotted against iteration number.
+        :param metrics_to_plot: A list of metric names to plot. Defaults to all metrics apart from the one used as the
+                                x axis.
+        """
         self.benchmark_results = benchmark_results
         self.loop_names = benchmark_results.loop_names
 
@@ -59,6 +68,11 @@ class BenchmarkPlot:
         self.x_axis = x_axis_metric_name
 
     def make_plot(self, log_y: bool = False) -> None:
+        """
+        Make one plot for each metric measured, comparing the different loop results against each other
+
+        :param log_y: Set the y axis to log scaling if true.
+        """
         n_metrics = len(self.metrics_to_plot)
         self.fig_handle, _ = plt.subplots(n_metrics, 1)
 
