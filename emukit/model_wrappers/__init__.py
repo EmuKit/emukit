@@ -6,8 +6,9 @@
 
 
 # Importing emukit.model_wrappers should succeed without GPy. Accessing GPy wrappers
-# (instantiating or importing their concrete classes) should raise an informative ImportError
+# should raise an informative ImportError
 # pointing users to install the optional extra: `pip install emukit[gpy]`.
+# By doing it this way, we avoid breaking minimal installs of Emukit.
 
 from importlib import util as _importlib_util
 

@@ -10,6 +10,10 @@
 
 from importlib import util as _importlib_util
 
+# Importing multi_fidelity_kernel should succeed without GPy. Accessing GPy-specific classes
+# should raise an informative ImportError
+# pointing users to install the optional extra: `pip install emukit[gpy]`.
+# By doing it this way, we avoid breaking minimal installs of Emukit.
 if _importlib_util.find_spec("GPy") is not None:  # GPy available
     from .linear_model import GPyLinearMultiFidelityModel  # noqa: F401
     from .non_linear_multi_fidelity_model import NonLinearMultiFidelityModel  # noqa: F401
