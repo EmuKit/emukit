@@ -14,12 +14,13 @@ try:
 except ImportError:
     raise ImportError(
         """
-        This module is missing required dependencies. Try running
+        Optional dependency 'pybnn' is not installed. Install from PyPI with:
 
-        pip install git+https://github.com/automl/pybnn.git
+            pip install pybnn
 
-        Refer to https://github.com/automl/pybnn for further information.
-    """
+        For latest development version or more information see:
+            https://github.com/automl/pybnn
+        """
     )
 
 import torch

@@ -57,7 +57,7 @@ class Encoding(object):
             row_rounded = self.round_row(row)
             x_rounded.append(row_rounded)
 
-        return np.row_stack(x_rounded)
+        return np.vstack(x_rounded)
 
     def round_row(self, x_row):
         """

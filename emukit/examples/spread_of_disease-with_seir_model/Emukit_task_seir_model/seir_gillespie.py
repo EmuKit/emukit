@@ -33,7 +33,7 @@ class SEIRGillespie(GillespieBase):
 
     def _get_possible_state_updates(self):
         """possible updates of compartment counts"""
-        return np.array([[-1, 1, 0], [0, -1, 1], [0, 0, -1]], dtype=np.int)
+        return np.array([[-1, 1, 0], [0, -1, 1], [0, 0, -1]], dtype=int)
 
     def _get_current_rates(self, state):
         """

@@ -5,9 +5,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import GPy
-import numpy as np
 import pytest
+
+GPy = pytest.importorskip("GPy")
+pytestmark = pytest.mark.gpy
+import numpy as np
 from numpy.testing import assert_array_equal
 
 from emukit.core.loop.user_function import UserFunctionWrapper

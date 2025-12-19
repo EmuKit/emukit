@@ -78,7 +78,7 @@ class DiscreteParameter(Parameter):
             rounded_value = min(self.domain, key=lambda d: abs(d - value))
             x_rounded.append([rounded_value])
 
-        return np.row_stack(x_rounded)
+        return np.vstack(x_rounded)
 
     def sample_uniform(self, point_count: int) -> np.ndarray:
         """

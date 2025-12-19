@@ -14,9 +14,14 @@ Nonlinear information fusion algorithms for data-efficient multi-fidelity modell
 P. Perdikaris, M. Raissi, A. Damianou, N. D. Lawrence and G. E. Karniadakis (2017)
 https://royalsocietypublishing.org/doi/10.1098/rspa.2016.0751
 """
+import importlib
 from typing import List, Tuple, Type
 
-import GPy
+if importlib.util.find_spec("GPy") is None:  # pragma: no cover
+	raise ImportError(
+		"GPy is not installed. Install optional dependency with 'pip install emukit[gpy]' to use NonLinearMultiFidelityModel." 
+	)
+import GPy  # noqa: F401
 import numpy as np
 
 from ...core.interfaces import IDifferentiable, IModel

@@ -24,14 +24,16 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install flake8 pytest
-          pip install -r requirements/requirements.txt
-          pip install -r requirements/test_requirements.txt
+      - name: Run core coverage
+        run: |
+          pip install .[tests]
+          python -m pytest --verbose --cov emukit --cov-report term-missing tests
+      - name: Run GPy coverage
+        run: |
+          pip install ".[tests, gpy]"
           # work around issues with GPy setting matplotlib backend
           echo 'backend: Agg' > matplotlibrc
-          pip install .
-      - name: Run coverage
-        run: |
-          python -m pytest --verbose --cov emukit --cov-report term-missing tests
+          python -m pytest  -m 'gpy or not gpy' --verbose --cov emukit --cov-report term-missing tests
       - name: Run codecov
         if: success()
         run: |

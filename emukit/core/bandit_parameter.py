@@ -161,7 +161,7 @@ class BanditParameter(Parameter):
 
         if not all([self.check_in_domain(xr) for xr in x_rounded]):
             raise ValueError("Rounding error encountered, not all rounded values in domain.")
-        return np.row_stack(x_rounded)
+        return np.vstack(x_rounded)
 
     @property
     def dimension(self) -> int:

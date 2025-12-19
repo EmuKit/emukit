@@ -1,11 +1,11 @@
 setuptools>=40.8.0
 # numpy deprecated np.bool in 1.24, and it is still used in GPy
 # until GPy is updated we need to avoid 1.24 or higher
-numpy>=1.23
-# This is unfortunate - we don't need matplotlib
-# but until GPy gets its dependencies straight
-# we need matplotlib to ensure smooth installation
+numpy
+# matplotlib mandatory for core plotting utilities
 matplotlib>=3.9
-GPy>=1.13.0
+# GPy>=1.13.0
 emcee>=2.2.1
-scipy>=1.1.0
+scipy
+PyDOE>=0.3.0
+sobol_seq>=0.1.2

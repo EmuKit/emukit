@@ -78,7 +78,7 @@ Before submitting the pull request, please go through this checklist to make the
 ## Setting up a development environment
 
 ### Building the code
-See installing from source.
+See installing from source (from version 0.5.0 using `pip install -e .[tests]` for core development, and `pip install -e .[dev]` for examples and docs as well). Note that, due to `numpy` version incompatibilities brought forwards by legacy dependencies (such as `GPy`), it is recommended to develop core features without installing any of the extras, using `tests` whenever possible. This will be improved whenever major dependencies, such as `GPy`, are updated.
 
 ### Running tests
 Run the full suite of unit tests or integration tests with these commands:
@@ -91,10 +91,65 @@ from the top level directory. To check unit test coverage, run this:
 pytest --verbose --cov emukit --cov-report term-missing tests
 ```
 
-Notice that unit tests and integration tests have their own set of additional dependencies. Those can be found in the `requirements` folder, and installed with:
+Notice that unit tests and integration tests have their own set of additional dependencies. You can install them via extras defined in `pyproject.toml`:
 ```
-pip install -r requirements/test_requirements.txt
-pip install -r requirements/integration_test_requirements.txt
+# Core + test tooling
+pip install -e .[tests]
+
+# Add optional dependency groups as needed (examples):
+pip install -e .[gpy]
+pip install -e .[bnn]
+pip install -e .[sklearn]
+# Or everything:
+pip install -e .[examples]
+```
+Legacy requirement files in `requirements/` remain temporarily for reference but will be phased out; prefer extras going forward.
+
+### Test markers & optional dependencies
+Emukit uses pytest markers to group tests that rely on optional dependencies. Current markers (defined in `pyproject.toml` under `[tool.pytest.ini_options]`):
+
+- gpy: tests requiring GPy optional dependency
+- pybnn: tests requiring pybnn optional dependency
+- sklearn: tests requiring scikit-learn optional dependency
+- notebooks: tests executing Jupyter notebooks (requires nbformat, nbconvert)
+
+Example of gating a test that needs GPy:
+```python
+import pytest
+
+pytest.importorskip("GPy")  # skip if GPy not installed
+pytestmark = pytest.mark.gpy  # file-level marker (can also set per test)
+
+def test_some_gpy_integration():
+    import GPy
+    # ... assertions using GPy ...
+```
+Function-level alternative:
+```python
+import pytest
+
+def test_feature_x():
+    GPy = pytest.importorskip("GPy")
+    # ... use GPy ...
+
+test_feature_x = pytest.mark.gpy(test_feature_x)
+```
+Guidelines:
+- Always protect optional imports with `pytest.importorskip("<module>")` to turn absence into a skip, not an error.
+- Apply the corresponding marker (`pytestmark = pytest.mark.<marker>` or function-level) so contributors can include/exclude groups via `-m`.
+- When introducing a new optional dependency group, add its marker entry in `setup.cfg` under `[tool:pytest]` and document it in this section.
+- Avoid installing heavy optional dependencies in default dev loops; install only when working on that area (e.g. `pip install .[gpy]`).
+- Notebook execution tests use the `notebooks` marker; exclude them during rapid iteration with `pytest -m 'not notebooks'`.
+- Keep slow or heavyweight examples under an appropriate marker instead of core unit tests.
+
+Filtering examples:
+Run only core tests (skip all optional groups):
+```
+pytest -m 'not (gpy or pybnn or sklearn or notebooks)'
+```
+Run just the sklearn tests:
+```
+pytest -m sklearn
 ```
 
 ### Formatting

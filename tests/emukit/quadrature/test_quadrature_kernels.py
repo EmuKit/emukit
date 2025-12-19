@@ -4,9 +4,12 @@
 
 from dataclasses import dataclass
 
+import pytest
+
+pytest.importorskip("GPy", reason="GPy not installed; install emukit[gpy]")
+pytestmark = pytest.mark.gpy
 import GPy
 import numpy as np
-import pytest
 from utils import check_grad, sample_uniform
 
 from emukit.model_wrappers.gpy_quadrature_wrappers import (

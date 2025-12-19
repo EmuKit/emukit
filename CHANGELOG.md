@@ -1,6 +1,16 @@
 # Changelog
 All notable changes to Emukit will be documented in this file.
 
+## [0.5.0]
+- Upgrade codebase to allow `numpy` versions greater than 2.0, while maintaining backwards compatibility. `GPy` remains pinned to `numpy<2.0` due to upstream constraints, but core Emukit functionality is now independent of it. Users can now install and use Emukit core API with `numpy>=2.0`.
+- Packaging: Adopt PEP 621 metadata in `pyproject.toml`; dynamic version from `emukit.__version__`.
+- Packaging: Introduced setuptools extras (`gpy`, `bnn`, `sklearn`, `docs`, `examples`, `tests`, `dev`).
+- CI: Workflows now install extras via `pip install -e .[tests]` (and `[tests,gpy]`) instead of requirements files.
+- Docs: Updated installation guide, README, CONTRIBUTING to prefer extras over legacy `requirements/` files.
+- Tests: Documented pytest marker and optional dependency usage.
+- Docs build: Use `docs` extra (includes GPy).
+- Maintenance: Legacy requirements files retained temporarily for reference; deprecation planned.
+
 ## [0.4.11]
 - Various bugfixes, including installation on Windows
 - Updated copyright info

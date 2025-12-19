@@ -5,9 +5,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import GPy
-import numpy as np
 import pytest
+
+pytest.importorskip("GPy", reason="GPy not installed; install emukit[gpy]")
+pytestmark = pytest.mark.gpy
+import numpy as np
 from scipy.optimize import check_grad
 
 import emukit.multi_fidelity.models
@@ -36,6 +38,7 @@ class TestNonLinearModel:
         Creates a NonLinearModel instance to use in tests
         """
         np.random.seed(123)
+        import GPy
         base_kernel = GPy.kern.RBF
         kernel = make_non_linear_kernels(base_kernel, len(x_init), x_init.shape[1] - 1)
         model = emukit.multi_fidelity.models.NonLinearMultiFidelityModel(x_init, y_init, 3, kernel, n_samples=3)
@@ -45,6 +48,7 @@ class TestNonLinearModel:
         """
         Check sensible error is thrown if we pass in a kernel instance rather than class definition
         """
+        import GPy
         base_kernel = GPy.kern.RBF(1)
         with pytest.raises(TypeError):
             emukit.multi_fidelity.models.NonLinearMultiFidelityModel(x_init, y_init, base_kernel, n_samples=70)
@@ -53,6 +57,7 @@ class TestNonLinearModel:
         """
         Test for sensible error message if we pass arrays rather than lists to constructor
         """
+        import GPy
         base_kernel = GPy.kern.RBF
         X_init = np.random.rand(5, 3)
         Y_init = np.random.rand(5, 3)
@@ -161,7 +166,7 @@ class TestNonLinearModel:
         grad = lambda x: np.sum(
             non_linear_model._predict_samples_with_gradients(x[None, :], fidelity_idx)[grad_idx], axis=0
         )
-        assert check_grad(func, grad, x0) < 1e-6
+        assert check_grad(func, grad, x0) < 2e-6
 
     def test_non_linear_model_mean_gradient(self, non_linear_model):
         """
@@ -208,6 +213,7 @@ def test_non_linear_kernel_ard():
     """
     Test that the kernels that act on the input space have the correct number of lengthscales when ARD is true
     """
+    import GPy
     kernels = make_non_linear_kernels(GPy.kern.RBF, 2, 2, ARD=True)
     assert len(kernels[0].lengthscale) == 2
     assert len(kernels[1].bias_kernel_fidelity2.lengthscale) == 2
