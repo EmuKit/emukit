@@ -5,4 +5,4 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-__version__ = "0.4.11"  # noqa
+__version__ = "0.5.0"  # noqa
