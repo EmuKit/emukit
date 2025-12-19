@@ -82,3 +82,19 @@ jobs:
     - name: Unit tests (core, multi-OS)
       run: |
         python -m pytest tests
+
+  all-pass:
+    if: always()
+    needs: [core_tests, gpy_tests, os_versions]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check all tests pass
+        run: |
+          if [[ "${{ needs.core_tests.result }}" != "success" && "${{ needs.core_tests.result }}" != "skipped" ]] || \
+             [[ "${{ needs.gpy_tests.result }}" != "success" && "${{ needs.gpy_tests.result }}" != "skipped" ]] || \
+             [[ "${{ needs.os_versions.result }}" != "success" && "${{ needs.os_versions.result }}" != "skipped" ]]; then
+            echo "One or more test jobs failed"
+            exit 1
+          fi
