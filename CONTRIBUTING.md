@@ -168,6 +168,19 @@ If you'd like to generate the docs locally, from inside the "doc" directory, run
 make html
 ```
 
+## How to create a new release
+Step by step guide on releasing new version of Emukit. Mostly useful for project maintenance team.
+
+1. Update changelog file with most relevant changes since the last release
+1. Update `emukit/__version__.py` with new version
+1. Add both files and commit them with the message "Release <version>"
+1. Create new venv and install two packages: `build` and `twine`
+1. Generate new build with `python -m build --sdist --wheel`
+1. Ensure your PyPI creds are available in `~/.pypirc`
+1. Upload build to PyPI with `twine upload dist/*`
+1. In a separate clean environment install new version to ensure installation works fine
+1. Done!
+
 ## Licensing
 
 See the [LICENSE](LICENSE) file for our project's licensing. We will ask you to confirm the licensing of your contribution.
