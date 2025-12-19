@@ -57,7 +57,7 @@ jobs:
         python -m pytest tests -m 'gpy or not gpy'
     - name: Integration tests (with GPy)
       run: |
-        pip install ".[integration-tests, gpy]"
+        pip install ".[integration-tests, examples]"
         python -m pytest integration_tests -m 'gpy or not gpy'
 
   os_versions:
