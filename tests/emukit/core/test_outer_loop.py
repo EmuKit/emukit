@@ -5,10 +5,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import pytest
-
 import mock
 import numpy as np
+import pytest
 
 from emukit.core import ContinuousParameter, ParameterSpace
 from emukit.core.interfaces import IModel

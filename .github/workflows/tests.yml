@@ -31,6 +31,7 @@ jobs:
         python -m pytest tests
     - name: Integration tests (core)
       run: |
+        pip install -e .[integration-tests]
         python -m pytest integration_tests
 
   gpy_tests:
