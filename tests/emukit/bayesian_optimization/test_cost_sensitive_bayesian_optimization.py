@@ -4,12 +4,6 @@
 # Copyright 2018-2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-
-import pytest
-
-pytest.importorskip("GPy", reason="GPy not installed; install emukit[gpy]")
-pytestmark = pytest.mark.gpy
-import GPy
 import numpy as np
 
 from emukit.bayesian_optimization.loops.cost_sensitive_bayesian_optimization_loop import (
@@ -17,7 +11,7 @@ from emukit.bayesian_optimization.loops.cost_sensitive_bayesian_optimization_loo
 )
 from emukit.core import ContinuousParameter, ParameterSpace
 from emukit.core.loop.user_function import UserFunctionWrapper
-from emukit.model_wrappers import GPyModelWrapper
+from emukit.model_wrappers import SimpleGaussianProcessModel
 
 
 def test_cost_sensitive_bayesian_optimization_loop():
@@ -32,11 +26,8 @@ def test_cost_sensitive_bayesian_optimization_loop():
 
     y_init, cost_init = function_with_cost(x_init)
 
-    gpy_model_objective = GPy.models.GPRegression(x_init, y_init)
-    gpy_model_cost = GPy.models.GPRegression(x_init, cost_init)
-
-    model_objective = GPyModelWrapper(gpy_model_objective)
-    model_cost = GPyModelWrapper(gpy_model_cost)
+    model_objective = SimpleGaussianProcessModel(x_init, y_init)
+    model_cost = SimpleGaussianProcessModel(x_init, cost_init)
 
     loop = CostSensitiveBayesianOptimizationLoop(space, model_objective, model_cost)
     loop.run_loop(user_fcn, 10)

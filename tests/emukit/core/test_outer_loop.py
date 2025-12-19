@@ -7,9 +7,6 @@
 
 import pytest
 
-pytest.importorskip("GPy", reason="GPy not installed; install emukit[gpy]")
-pytestmark = pytest.mark.gpy
-import GPy
 import mock
 import numpy as np
 
@@ -28,7 +25,7 @@ from emukit.core.loop import (
 from emukit.core.loop.loop_state import create_loop_state
 from emukit.core.optimization import GradientAcquisitionOptimizer
 from emukit.experimental_design.acquisitions import ModelVariance
-from emukit.model_wrappers import GPyModelWrapper
+from emukit.model_wrappers import SimpleGaussianProcessModel
 
 
 @pytest.fixture
@@ -156,8 +153,7 @@ def test_iteration_end_event():
     x_init = np.linspace(0, 1, 5)[:, None]
     y_init = user_function(x_init)
 
-    gpy_model = GPy.models.GPRegression(x_init, y_init)
-    model = GPyModelWrapper(gpy_model)
+    model = SimpleGaussianProcessModel(x_init, y_init)
 
     mse = []
 
