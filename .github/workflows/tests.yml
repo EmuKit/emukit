@@ -23,7 +23,7 @@ jobs:
     - name: Install core dependencies (no GPy)
       run: |
         python -m pip install --upgrade pip
-        pip install -e .[tests]
+        pip install .[tests]
         # work around issues with GPy setting matplotlib backend (defensive even w/o GPy)
         echo 'backend: Agg' > matplotlibrc
     - name: Unit tests (core)
@@ -31,7 +31,7 @@ jobs:
         python -m pytest tests
     - name: Integration tests (core)
       run: |
-        pip install -e .[integration-tests]
+        pip install .[integration-tests]
         python -m pytest integration_tests
 
   gpy_tests:
@@ -50,14 +50,14 @@ jobs:
     - name: Install dependencies with GPy extra
       run: |
         python -m pip install --upgrade pip
-        pip install -e ".[tests, gpy]"
+        pip install ".[tests, gpy]"
         echo 'backend: Agg' > matplotlibrc
     - name: Unit tests (with GPy)
       run: |
         python -m pytest tests -m 'gpy or not gpy'
     - name: Integration tests (with GPy)
       run: |
-        pip install -e ".[integration-tests, gpy]"
+        pip install ".[integration-tests, gpy]"
         python -m pytest integration_tests -m 'gpy or not gpy'
 
   os_versions:
@@ -76,7 +76,7 @@ jobs:
     - name: Install dependencies (core)
       run: |
         python -m pip install --upgrade pip
-        pip install -e .[tests]
+        pip install .[tests]
         # work around issues with GPy setting matplotlib backend (defensive even w/o GPy)
         echo 'backend: Agg' > matplotlibrc
     - name: Unit tests (core, multi-OS)
