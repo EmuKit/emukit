@@ -9,12 +9,21 @@
 This file is where to put fixtures that are to be shared across different test files
 """
 
-import GPy
+try:
+    import GPy  # noqa: F401
+    HAS_GPY = True
+except ImportError:
+    HAS_GPY = False
 import numpy as np
 import pytest
 
 from emukit.core import ContinuousParameter, OneHotEncoding, ParameterSpace
-from emukit.model_wrappers import GPyModelWrapper
+
+if HAS_GPY:
+    from emukit.model_wrappers import GPyModelWrapper
+
+def pytest_configure(config):
+    config.addinivalue_line("markers", "gpy: marks tests that require GPy")
 
 
 @pytest.fixture
@@ -26,6 +35,8 @@ def n_dims():
 
 @pytest.fixture
 def gpy_model(n_dims):
+    if not HAS_GPY:
+        pytest.skip("GPy not installed; install emukit[gpy] to run GPy-dependent tests")
     rng = np.random.RandomState(42)
     x_init = rng.rand(5, n_dims)
     y_init = rng.rand(5, 1)
@@ -37,6 +48,8 @@ def gpy_model(n_dims):
 
 @pytest.fixture
 def gpy_model_mcmc(n_dims):
+    if not HAS_GPY:
+        pytest.skip("GPy not installed; install emukit[gpy] to run GPy-dependent tests")
     rng = np.random.RandomState(42)
     x_init = rng.rand(5, n_dims)
     y_init = rng.rand(5, 1)
@@ -57,3 +70,7 @@ def continuous_space(n_dims):
 def encoding():
     # different types of volcanoes
     return OneHotEncoding(["strato", "shield", "dome"])
+
+@pytest.fixture
+def seed_random():
+    np.random.seed(42)

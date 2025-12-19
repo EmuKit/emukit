@@ -5,6 +5,11 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+import pytest
+
+pytest.importorskip("sklearn")
+pytestmark = pytest.mark.sklearn
+
 import numpy as np
 
 from emukit.examples.gp_bayesian_optimization.enums import AcquisitionType, ModelType

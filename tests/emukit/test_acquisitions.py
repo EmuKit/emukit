@@ -9,6 +9,9 @@ from collections import namedtuple
 
 import numpy as np
 import pytest
+
+pytest.importorskip("GPy")
+pytestmark = pytest.mark.gpy
 from scipy.optimize import check_grad
 
 from emukit.bayesian_optimization.acquisitions import (

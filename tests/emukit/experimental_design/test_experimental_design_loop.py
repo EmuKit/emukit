@@ -4,8 +4,6 @@
 # Copyright 2018-2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-
-import GPy
 import numpy as np
 from numpy.testing import assert_array_equal
 
@@ -14,7 +12,7 @@ from emukit.core.loop import FixedIterationsStoppingCondition, UserFunctionWrapp
 from emukit.core.parameter_space import ParameterSpace
 from emukit.experimental_design import ExperimentalDesignLoop
 from emukit.experimental_design.acquisitions import ModelVariance
-from emukit.model_wrappers import GPyModelWrapper
+from emukit.model_wrappers import SimpleGaussianProcessModel
 
 
 def f(x):
@@ -25,8 +23,7 @@ def test_loop_initial_state():
     x_init = np.random.rand(5, 1)
     y_init = np.random.rand(5, 1)
 
-    gpy_model = GPy.models.GPRegression(x_init, y_init)
-    model = GPyModelWrapper(gpy_model)
+    model = SimpleGaussianProcessModel(x_init, y_init)
     space = ParameterSpace([ContinuousParameter("x", 0, 1)])
 
     exp_design = ExperimentalDesignLoop(space, model)
@@ -42,9 +39,7 @@ def test_loop():
     x_init = np.random.rand(5, 1)
     y_init = np.random.rand(5, 1)
 
-    # Make GPy model
-    gpy_model = GPy.models.GPRegression(x_init, y_init)
-    model = GPyModelWrapper(gpy_model)
+    model = SimpleGaussianProcessModel(x_init, y_init)
 
     space = ParameterSpace([ContinuousParameter("x", 0, 1)])
     acquisition = ModelVariance(model)

@@ -15,7 +15,7 @@ try:
     import torch
     import torch.nn as nn
 except ImportError:
-    raise ImportError("pytorch is not installed. Please installed version it by running pip install torch torchvision")
+    raise ImportError("pytorch is not installed. Please install it with: pip install torch torchvision")
 
 try:
     from pybnn.util.layers import AppendLayer

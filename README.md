@@ -30,9 +30,43 @@ pip install emukit
 
 For other install options, see our [documentation](https://emukit.readthedocs.io/en/latest/installation.html).
 
-### Dependencies / Prerequisites
-Emukit's primary dependencies are Numpy and GPy.
-See [requirements](requirements/requirements.txt).
+### Dependencies / Optional Extras
+Core dependencies are the numerical Python stack (NumPy, SciPy, matplotlib, emcee). Optional groups enable additional features without pulling heavy dependencies into a minimal install:
+
+- `gpy`: Gaussian process wrappers, multi-fidelity models, Bayesian quadrature (adds `GPy`). Also see notice below.
+- `bnn`: Bayesian neural network (Bohamiann) and Profet meta-surrogate examples (adds `pybnn`, `torch`).
+- `sklearn`: scikit-learn model wrapper and examples (adds `scikit-learn`).
+- `docs`: Build documentation locally (adds Sphinx toolchain + GPy to render GP API docs).
+- `tests`: Test tooling.
+- `full`: Convenience meta extra installing all of the above.
+
+Install extras via pip:
+```
+# Core install
+pip install emukit
+
+# Add GPy-based functionality
+pip install emukit[gpy]
+
+# Bohamiann & Profet examples (Bayesian neural nets)
+pip install emukit[bnn]
+
+# scikit-learn model wrapper support
+pip install emukit[sklearn]
+
+# Build documentation (includes GPy + Sphinx toolchain)
+pip install emukit[docs]
+
+# Bundle for running most example scripts (GPy + pybnn + torch + scikit-learn)
+pip install emukit[examples]
+
+# Everything (gpy + bnn + sklearn + examples + docs + test tooling)
+pip install emukit[full]
+```
+Legacy pinned requirement files remain in the `requirements/` directory for reference but extras (above) are the preferred installation mechanism going forward.
+
+### NumPy 2 notice
+Core Emukit functionality works with NumPy 2.0+. However, some parts of Emukit (e.g. most acquisition functions) need GPy, that for the time being is a bit behind. If using GPy is critical for you, consider installing earlier versions of Emukit.
 
 ## Getting started
 For examples see our [tutorial notebooks](http://nbviewer.jupyter.org/github/emukit/emukit/blob/main/notebooks/index.ipynb).

@@ -81,12 +81,12 @@ class ContinuousFidelityEntropySearch(EntropySearch):
             x_ = np.insert(x_, self.target_fidelity_index, idx, axis=1)
 
             if space.check_points_in_domain(x_):
-                val = np.log(np.clip(ei.evaluate(x_)[0], 0.0, np.PINF))
+                val = np.log(np.clip(ei.evaluate(x_)[0], 0.0, np.inf))
                 if np.any(np.isnan(val)):
-                    return np.array([np.NINF])
+                    return np.array([-np.inf])
                 else:
                     return val
             else:
-                return np.array([np.NINF])
+                return np.array([-np.inf])
 
         return proposal_func

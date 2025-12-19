@@ -8,6 +8,10 @@
 """
 Tests for multi-fidelity kernels
 """
+import pytest
+
+pytest.importorskip("GPy", reason="GPy not installed; install emukit[gpy]")
+pytestmark = pytest.mark.gpy
 import GPy
 import numpy as np
 from GPy.testing.test_kernel import check_kernel_gradient_functions

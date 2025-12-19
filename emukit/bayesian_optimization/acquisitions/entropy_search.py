@@ -73,9 +73,9 @@ class EntropySearch(Acquisition):
                     x_ = x
 
                 if space.check_points_in_domain(x_):
-                    return np.log(np.clip(ei.evaluate(x_)[0], 0.0, np.PINF))
+                    return np.log(np.clip(ei.evaluate(x_)[0], 0.0, np.inf))
                 else:
-                    return np.array([np.NINF])
+                    return np.array([-np.inf])
 
             self.proposal_function = prop_func
         else:
@@ -298,13 +298,13 @@ class MultiInformationSourceEntropySearch(EntropySearch):
             x_ = np.insert(x_, self.source_idx, idx, axis=1)
 
             if space.check_points_in_domain(x_):
-                val = np.log(np.clip(ei.evaluate(x_)[0], 0.0, np.PINF))
+                val = np.log(np.clip(ei.evaluate(x_)[0], 0.0, np.inf))
                 if np.any(np.isnan(val)):
-                    return np.array([np.NINF])
+                    return np.array([-np.inf])
                 else:
                     return val
             else:
-                return np.array([np.NINF])
+                return np.array([-np.inf])
 
         return proposal_func
 

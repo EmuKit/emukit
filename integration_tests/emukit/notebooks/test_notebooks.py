@@ -13,8 +13,12 @@ excluded_notebooks = ['Emukit-tutorial-multi-fidelity-bayesian-optimization.ipyn
 
 import os
 
-import nbformat
 import pytest
+
+# many notebooks use GPy, therefore add this mark too
+GPy = pytest.importorskip("GPy")
+pytestmark = [pytest.mark.gpy, pytest.mark.notebooks]
+import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor
 
 notebook_directory = './notebooks/'
@@ -39,5 +43,5 @@ def get_notebook_names():
 def test_notebook_runs_without_errors(name):
     with open(os.path.join(notebook_directory, name)) as f:
         nb = nbformat.read(f, as_version=4)
-    ep = ExecutePreprocessor(timeout=120)
+    ep = ExecutePreprocessor(timeout=120, kernel_name="python3")
     ep.preprocess(nb, {'metadata': {'path': notebook_directory}})

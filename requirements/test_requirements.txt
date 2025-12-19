@@ -6,8 +6,3 @@ black
 pytest>=3.5.1
 pytest-cov>=2.5.1
 mock>=2.0.0
-
-# For Latin design
-PyDOE>=0.3.0
-# For Sobol design
-sobol_seq>=0.1.2

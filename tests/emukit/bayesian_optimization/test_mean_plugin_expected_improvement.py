@@ -1,9 +1,6 @@
 # Copyright 2020-2024 The Emukit Authors. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-
-from unittest.mock import MagicMock
-
 import numpy as np
 import pytest
 
@@ -12,7 +9,6 @@ from emukit.bayesian_optimization.acquisitions.expected_improvement import (
     MeanPluginExpectedImprovement,
 )
 from emukit.core.interfaces import IModel, IModelWithNoise
-from emukit.model_wrappers import GPyModelWrapper
 
 
 class MockIModel(IModel):

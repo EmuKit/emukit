@@ -7,12 +7,18 @@
 
 """GPy wrappers for the quadrature package."""
 
+import importlib
+
+if importlib.util.find_spec("GPy") is None:  # pragma: no cover
+	raise ImportError(
+		"GPy is not installed. Install optional dependency with 'pip install emukit[gpy]' to use gpy_quadrature_wrappers." 
+	)
 # Copyright 2018 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 import warnings
 from typing import List, Optional, Tuple, Union
 
-import GPy
+import GPy  # noqa: F401
 import numpy as np
 from scipy.linalg import lapack
 
