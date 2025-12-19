@@ -63,6 +63,7 @@ tests = [
   "pytest>=3.5.1",
   "pytest-cov>=2.5.1",
   "mock>=2.0.0",
+  "nbformat",
 ]
 # Aggregate ALL optional dependencies for development
 dev = [
