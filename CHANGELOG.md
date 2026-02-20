@@ -9,7 +9,7 @@ All notable changes to Emukit will be documented in this file.
 - Docs: Updated installation guide, README, CONTRIBUTING to prefer extras over legacy `requirements/` files.
 - Tests: Documented pytest marker and optional dependency usage.
 - Docs build: Use `docs` extra (includes GPy).
-- Maintenance: Legacy requirements files retained temporarily for reference; deprecation planned.
+- Maintenance: Legacy requirements files retained temporarily for reference.
 
 ## [0.4.11]
 - Various bugfixes, including installation on Windows

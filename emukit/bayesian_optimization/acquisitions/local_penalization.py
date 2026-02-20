@@ -109,7 +109,12 @@ def _distance_calculation(x_1, x_2):
 
 def _distance_with_gradient(x_1, x_2):
     distances = _distance_calculation(x_1, x_2)
-    inv_distance = np.where(distances != 0.0, 1 / distances, 0)
+    # This line is quite tricky and needs explanation
+    # First, "~" negates boolean numpy array
+    # Second, divide is only doing division in indexes
+    # where provided condition is true
+    # otherwise corresponding member of "out" arg is returned
+    inv_distance = np.divide(1, distances, out=np.zeros_like(distances), where=~np.isclose(distances, 0))
     dx = x_1[:, None, :] - x_2[None, :, :]
     d_dist_dx = 2 * dx * inv_distance[:, :, None]
     return distances, d_dist_dx

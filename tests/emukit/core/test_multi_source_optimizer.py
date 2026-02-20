@@ -19,7 +19,7 @@ from emukit.core.optimization.multi_source_acquisition_optimizer import MultiSou
 @pytest.fixture
 def multi_source_optimizer():
     mock_acquisition_optimizer = mock.create_autospec(GradientAcquisitionOptimizer)
-    mock_acquisition_optimizer.optimize.return_value = (np.array([[0.0]]), None)
+    mock_acquisition_optimizer.optimize.return_value = (np.array([[0.0]]), np.array([[0.0]]))
     space = ParameterSpace([ContinuousParameter("x", 0, 1), InformationSourceParameter(2)])
     return MultiSourceAcquisitionOptimizer(mock_acquisition_optimizer, space)
 
