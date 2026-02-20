@@ -31,7 +31,7 @@ dependencies = [
   "scipy",
   "matplotlib>=3.9",
   "emcee>=2.2.1",
-  "pydoe>=0.9.6",
+  "pydoe<0.9.6",
   "sobol_seq>=0.1.2",
 ]
 
