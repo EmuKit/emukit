@@ -1,9 +1,10 @@
-# Copyright 2020-2024 The Emukit Authors. All Rights Reserved.
+# Copyright 2020-2026 The Emukit Authors. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 # Copyright 2018-2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
+import numpy as np
 
 from emukit.core import CategoricalParameter, ContinuousParameter, DiscreteParameter, ParameterSpace
 from emukit.core.initial_designs import RandomDesign
@@ -25,8 +26,22 @@ def test_design_returns_correct_number_of_points():
         points = design.get_samples(points_count)
 
         assert points_count == len(points)
-        columns_count = 1
-        assert all([len(p) == columns_count for p in points])
+        assert all([len(p) == 1 for p in points])
+
+
+def test_design_returns_points_within_bounds():
+    p1 = ContinuousParameter("p1", 0.01, 0.05)
+    p2 = ContinuousParameter("p2", -100.0, -90.0)
+    space = ParameterSpace([p1, p2])
+    points_count = 5
+
+    designs = create_model_free_designs(space)
+    for design in designs:
+        points = design.get_samples(points_count)
+
+        for i, p in enumerate(space.parameters):
+            assert np.all(p.min <= points[:, i])
+            assert np.all(points[:, i] <= p.max)
 
 
 def test_design_with_mixed_domain(encoding):
