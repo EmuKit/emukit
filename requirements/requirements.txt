@@ -7,5 +7,3 @@ matplotlib>=3.9
 # GPy>=1.13.0
 emcee>=2.2.1
 scipy
-PyDOE>=0.3.0
-sobol_seq>=0.1.2

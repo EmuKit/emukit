@@ -1,20 +1,12 @@
-# Copyright 2020-2024 The Emukit Authors. All Rights Reserved.
+# Copyright 2020-2026 The Emukit Authors. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 # Copyright 2018-2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 
-# Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
-# SPDX-License-Identifier: Apache-2.0
-
-
 import numpy as np
-
-try:
-    from sobol_seq import i4_sobol_generate
-except ImportError:
-    raise ImportError("sobol_seq needs to be installed in order to use sobol design")
+from scipy.stats import qmc
 
 from .. import ParameterSpace
 from .base import InitialDesignBase
@@ -23,7 +15,8 @@ from .base import InitialDesignBase
 class SobolDesign(InitialDesignBase):
     """
     Sobol experiment design.
-    Based on sobol_seq implementation. For further reference see https://github.com/naught101/sobol_seq
+    Based on scipy implementation. For further reference see
+    https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.qmc.Sobol.html
     """
 
     def __init__(self, parameter_space: ParameterSpace) -> None:
@@ -40,12 +33,14 @@ class SobolDesign(InitialDesignBase):
         :return: A numpy array of generated samples, shape (point_count x space_dim)
         """
         bounds = self.parameter_space.get_bounds()
-        lower_bound = np.asarray(bounds)[:, 0].reshape(1, len(bounds))
-        upper_bound = np.asarray(bounds)[:, 1].reshape(1, len(bounds))
-        diff = upper_bound - lower_bound
+        d = len(bounds)
+        lower_bounds = [x[0] for x in bounds]
+        upper_bounds = [x[1] for x in bounds]
 
-        X_design = np.dot(i4_sobol_generate(len(bounds), point_count), np.diag(diff[0, :])) + lower_bound
+        sampler = qmc.Sobol(d)
+        samples = sampler.random(n=point_count)
+        samples = qmc.scale(samples, lower_bounds, upper_bounds)
 
-        samples = self.parameter_space.round(X_design)
+        X_design = self.parameter_space.round(samples)
 
-        return samples
+        return X_design
