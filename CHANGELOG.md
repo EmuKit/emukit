@@ -1,6 +1,11 @@
 # Changelog
 All notable changes to Emukit will be documented in this file.
 
+## [0.5.1]
+- Use scipy for model free designs (#483)
+- Fix division by 0 warning (#481)
+- Document release process (#479)
+
 ## [0.5.0]
 - Upgrade codebase to allow `numpy` versions greater than 2.0, while maintaining backwards compatibility. `GPy` remains pinned to `numpy<2.0` due to upstream constraints, but core Emukit functionality is now independent of it. Users can now install and use Emukit core API with `numpy>=2.0`.
 - Packaging: Adopt PEP 621 metadata in `pyproject.toml`; dynamic version from `emukit.__version__`.
