@@ -174,6 +174,7 @@ Step by step guide on releasing new version of Emukit. Mostly useful for project
 1. Update changelog file with most relevant changes since the last release
 1. Update `emukit/__version__.py` with new version
 1. Add both files and commit them with the message "Release <version>"
+1. Push changes to main (via PR or directly if you can)
 1. Create new git tag with `git tag <version>`
 1. Push tag to GitHub with `git push origin --tags`
 1. Create new venv and install two packages: `build` and `twine`
