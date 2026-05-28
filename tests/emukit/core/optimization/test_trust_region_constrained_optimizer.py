@@ -43,13 +43,7 @@ def trust_region_constr_nonlinear_constraint():
 
 def test_trust_region_constrained_no_context(trust_region_constr_linear_constraint, objective, space):
     x0 = np.array([1, 1])
-    x, f = apply_optimizer(trust_region_constr_linear_constraint, x0, space, objective, None, None, None)
-    assert np.all(np.isclose(x, np.array([0, 0.5])))
-
-
-def test_trust_region_constrained_no_context(trust_region_constr_linear_constraint, objective, space):
-    x0 = np.array([1, 1])
-    x, f = apply_optimizer(trust_region_constr_linear_constraint, x0, space, objective, None, None, None)
+    x, f = apply_optimizer(trust_region_constr_linear_constraint, x0, space, objective)
     assert np.all(np.isclose(x, np.array([0, 0.5])))
 
 
@@ -58,7 +52,7 @@ def test_trust_region_constrained_no_context_with_gradient(
 ):
     # Tests the optimizer when passing in f and df as separate function handles
     x0 = np.array([1, 1])
-    x, f = apply_optimizer(trust_region_constr_linear_constraint, x0, space, objective, gradient, None, None)
+    x, f = apply_optimizer(trust_region_constr_linear_constraint, x0, space, objective, gradient)
     assert np.all(np.isclose(x, np.array([0, 0.5])))
 
 
@@ -67,17 +61,17 @@ def test_trust_region_constrained_nonlinear_constraint(
 ):
     # Tests the optimizer when passing in f and df as separate function handles
     x0 = np.array([1, 1])
-    x, f = apply_optimizer(trust_region_constr_nonlinear_constraint, x0, space, objective, gradient, None, None)
+    x, f = apply_optimizer(trust_region_constr_nonlinear_constraint, x0, space, objective, gradient)
     assert np.all(np.isclose(x, np.array([np.sqrt(2) / 2, np.sqrt(2) / 2]), atol=1e-3))
 
 
 def test_trust_region_constrained_no_context_with_f_df(
     trust_region_constr_linear_constraint, objective, gradient, space
 ):
-    # Tests the optimizer when passing in f and df as a single function handle
-    f_df = lambda x: (objective(x), gradient(x))
+    # Tests the optimizer when passing in f and df as separate handles
+    # (Note: f_df parameter removed in refactoring, now pass df separately)
     x0 = np.array([1, 1])
-    x, f = apply_optimizer(trust_region_constr_linear_constraint, x0, space, None, None, f_df, None)
+    x, f = apply_optimizer(trust_region_constr_linear_constraint, x0, space, objective, gradient)
     assert np.all(np.isclose(x, np.array([0, 0.5]), atol=1e-3))
 
 
