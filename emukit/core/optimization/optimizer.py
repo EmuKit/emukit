@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import Callable, List, Tuple, Optional
+from typing import Callable, List, Optional, Tuple
 
 import numpy as np
 import scipy.optimize
