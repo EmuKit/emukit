@@ -69,7 +69,6 @@ def test_trust_region_constrained_no_context_with_f_df(
     trust_region_constr_linear_constraint, objective, gradient, space
 ):
     # Tests the optimizer when passing in f and df as separate handles
-    # (Note: f_df parameter removed in refactoring, now pass df separately)
     x0 = np.array([1, 1])
     x, f = apply_optimizer(trust_region_constr_linear_constraint, x0, space, objective, gradient)
     assert np.all(np.isclose(x, np.array([0, 0.5]), atol=1e-3))

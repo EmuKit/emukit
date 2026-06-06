@@ -61,43 +61,32 @@ class OptLbfgs(Optimizer):
         :return: Tuple of (location of optimum, value at optimum)
         """
 
+        # Wrap f to handle conversion between emukit format (2d) and scipy format (1d)
+        def f_wrapped(x):
+            x_2d = np.atleast_2d(x)
+            f_val = f(x_2d)
+            # Extract scalar value
+            if np.isscalar(f_val):
+                return float(f_val)
+            else:
+                f_arr = np.asarray(f_val).squeeze()
+                return float(f_arr.item()) if f_arr.ndim == 0 else float(f_arr.flat[0])
+
         if df is not None:
             # Use provided gradient
             def f_and_grad(x):
                 x_2d = np.atleast_2d(x)
-                f_val_raw = f(x_2d)
-                # Extract scalar value, handling 0-d arrays
-                if np.isscalar(f_val_raw):
-                    f_val = float(f_val_raw)
-                else:
-                    f_arr = np.asarray(f_val_raw).squeeze()
-                    f_val = float(f_arr) if f_arr.ndim == 0 else float(f_arr.flat[0])
-                
+                f_val = f_wrapped(x)
                 grad = df(x_2d)
-                # Handle gradient shape - could be (n_dims, n_samples) or (n_samples, n_dims)
-                if grad.shape[0] == 1:
-                    grad_val = grad[0]  # Shape (n_dims,)
-                elif grad.shape[1] == 1:
-                    grad_val = grad[:, 0]  # Shape (n_dims,) from transpose 
-                else:
-                    grad_val = grad[0]  # Assume (n_samples, n_dims), take first
-                return f_val, grad_val
+                # Extract 1d gradient from 2d array
+                grad_1d = grad[0, :]
+                return f_val, grad_1d
             
             res = scipy.optimize.fmin_l_bfgs_b(
                 f_and_grad, x0=x0, bounds=self.bounds, maxiter=self.max_iterations
             )
         else:
             # Approximate gradient using finite differences
-            def f_wrapped(x):
-                x_2d = np.atleast_2d(x)
-                f_val_raw = f(x_2d)
-                # Extract scalar value, handling 0-d arrays
-                if np.isscalar(f_val_raw):
-                    return float(f_val_raw)
-                else:
-                    f_arr = np.asarray(f_val_raw).squeeze()
-                    return float(f_arr) if f_arr.ndim == 0 else float(f_arr.flat[0])
-            
             res = scipy.optimize.fmin_l_bfgs_b(
                 f_wrapped, x0=x0, bounds=self.bounds, approx_grad=True, maxiter=self.max_iterations
             )
@@ -253,35 +242,31 @@ class OptTrustRegionConstrained(Optimizer):
         :return: Location of optimum and function value at optimum
         """
 
-        # Prepare gradient function
-        if df is not None:
-            # Convert 2d output to 1d for scipy, handle 1d scipy input
-            def df_1d(x):
-                x_2d = np.atleast_2d(x)
-                grad = df(x_2d)
-                # Handle gradient shape - could be (n_dims, n_samples) or (n_samples, n_dims)
-                if grad.ndim == 1:
-                    return grad  # Already 1D
-                elif grad.shape[0] == 1:
-                    return grad[0]  # Extract from (1, n_dims)
-                elif grad.shape[1] == 1:
-                    return grad[:, 0]  # Extract from (n_dims, 1) (transposed)
-                else:
-                    return grad[0, :]  # Assume (n_samples, n_dims), take first
-        else:
-            # Let scipy approximate with finite differences
-            df_1d = "2-point"
-        
+        if f is None:
+            raise ValueError("f is a required argument")
+
         # Wrap f to handle 1d scipy input
         def f_wrapped(x):
             x_2d = np.atleast_2d(x)
             f_val = f(x_2d)
-            # Extract scalar value, handling both scalar and array returns (including 0-d)
+            # Extract scalar value, handling both scalar and array returns
             if np.isscalar(f_val):
                 return float(f_val)
             else:
                 f_arr = np.asarray(f_val).squeeze()
-                return float(f_arr) if f_arr.ndim == 0 else float(f_arr.flat[0] if f_arr.size > 0 else 0.0)
+                return float(f_arr.item()) if f_arr.ndim == 0 else float(f_arr.flat[0])
+
+        # Prepare gradient function
+        if df is not None:
+            # Convert 2d output to 1d for scipy
+            def df_1d(x):
+                x_2d = np.atleast_2d(x)
+                grad = df(x_2d)
+                # Extract 1d gradient from 2d array
+                return grad[0, :]
+        else:
+            # Let scipy approximate with finite differences
+            df_1d = "2-point"
 
         options = {"maxiter": self.max_iterations}
 
