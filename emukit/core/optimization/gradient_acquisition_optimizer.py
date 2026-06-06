@@ -51,14 +51,14 @@ class GradientAcquisitionOptimizer(AcquisitionOptimizerBase):
             x = np.array(context_manager.context_values)[None, :]
             return x, f(x)
 
+        # Prepare gradient function (if available)
         if acquisition.has_gradients:
-
-            def f_df(x):
+            def df(x):
                 f_value, df_value = acquisition.evaluate_with_gradients(x)
-                return -f_value, -df_value
-
+                # Return negated gradient (since we negated f)
+                return -df_value
         else:
-            f_df = None
+            df = None
 
         optimizer = self._get_optimizer(context_manager)
         anchor_points_generator = ObjectiveAnchorPointsGenerator(self.space, acquisition, num_samples=self.num_samples)
@@ -70,7 +70,7 @@ class GradientAcquisitionOptimizer(AcquisitionOptimizerBase):
         optimized_points = []
         for a in anchor_points:
             optimized_point = apply_optimizer(
-                optimizer, a, space=self.space, f=f, df=None, f_df=f_df, context_manager=context_manager
+                optimizer, a, space=self.space, f=f, df=df, context_manager=context_manager
             )
             optimized_points.append(optimized_point)
 

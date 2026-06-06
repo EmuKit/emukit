@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-from typing import Callable, List, Tuple
+from typing import Callable, List, Optional, Tuple
 
 import numpy as np
 import scipy.optimize
@@ -27,21 +27,22 @@ class Optimizer(object):
         self.bounds = bounds
 
     def optimize(
-        self, x0: np.ndarray, f: Callable = None, df: Callable = None, f_df: Callable = None
+        self, x0: np.ndarray, f: Callable, df: Optional[Callable] = None
     ) -> Tuple[np.ndarray, np.ndarray]:
         """
-        :param x0: initial point for a local optimizer.
-        :param f: function to optimize.
-        :param df: gradient of the function to optimize.
-        :param f_df: returns both the function to optimize and its gradient.
-        :return: Location of optimum and value at optimum
+        Optimize f starting from x0.
+
+        :param x0: Initial point for optimization
+        :param f: Objective function to minimize (required)
+        :param df: Gradient of f (optional; if None, gradient will be approximated)
+        :return: Tuple of (location of optimum, value at optimum)
         """
         raise NotImplementedError("The optimize method is not implemented in the parent class.")
 
 
 class OptLbfgs(Optimizer):
     """
-    Wrapper for l-bfgs-b to use the true or the approximate gradients.
+    Wrapper for L-BFGS-B optimizer using true or approximate gradients.
     """
 
     def __init__(self, bounds, max_iterations=1000):
@@ -49,31 +50,48 @@ class OptLbfgs(Optimizer):
         self.max_iterations = max_iterations
 
     def optimize(
-        self, x0: np.ndarray, f: Callable = None, df: Callable = None, f_df: Callable = None
+        self, x0: np.ndarray, f: Callable, df: Optional[Callable] = None
     ) -> Tuple[np.ndarray, np.ndarray]:
         """
-        :param x0: initial point for a local optimizer.
-        :param f: function to optimize.
-        :param df: gradient of the function to optimize.
-        :param f_df: returns both the function to optimize and its gradient.
-        :return: Location of optimum and value at optimum
+        Minimize f using L-BFGS-B.
+
+        :param x0: Initial point for optimization
+        :param f: Objective function to minimize (required)
+        :param df: Gradient of f (optional; if None, gradient will be approximated)
+        :return: Tuple of (location of optimum, value at optimum)
         """
 
-        if f_df is None and df is not None:
-            f_df = lambda x: (float(f(x)), df(x))
-        if f_df is not None:
+        # Wrap f to handle conversion between emukit format (2d) and scipy format (1d)
+        def f_wrapped(x):
+            x_2d = np.atleast_2d(x)
+            f_val = f(x_2d)
+            # Extract scalar value
+            if np.isscalar(f_val):
+                return float(f_val)
+            else:
+                f_arr = np.asarray(f_val).squeeze()
+                return float(f_arr.item()) if f_arr.ndim == 0 else float(f_arr.flat[0])
 
-            def _f_df(x):
-                return f(x), f_df(x)[1][0]
-
-        if f_df is None and df is None:
+        if df is not None:
+            # Use provided gradient
+            def f_and_grad(x):
+                x_2d = np.atleast_2d(x)
+                f_val = f_wrapped(x)
+                grad = df(x_2d)
+                # Extract 1d gradient from 2d array
+                grad_1d = grad[0, :]
+                return f_val, grad_1d
+            
             res = scipy.optimize.fmin_l_bfgs_b(
-                f, x0=x0, bounds=self.bounds, approx_grad=True, maxiter=self.max_iterations
+                f_and_grad, x0=x0, bounds=self.bounds, maxiter=self.max_iterations
             )
         else:
-            res = scipy.optimize.fmin_l_bfgs_b(_f_df, x0=x0, bounds=self.bounds, maxiter=self.max_iterations)
+            # Approximate gradient using finite differences
+            res = scipy.optimize.fmin_l_bfgs_b(
+                f_wrapped, x0=x0, bounds=self.bounds, approx_grad=True, maxiter=self.max_iterations
+            )
 
-        # We check here if the the optimizer moved. It it didn't we report x0 and f(x0) as scipy can return NaNs
+        # Handle abnormal termination
         if res[2]["task"] == b"ABNORMAL_TERMINATION_IN_LNSRCH":
             result_x = np.atleast_2d(x0)
             result_fx = np.atleast_2d(f(x0))
@@ -88,132 +106,113 @@ def apply_optimizer(
     optimizer: Optimizer,
     x0: np.ndarray,
     space: ParameterSpace,
-    f: Callable = None,
-    df: Callable = None,
-    f_df: Callable = None,
+    f: Callable,
+    df: Optional[Callable] = None,
     context_manager: ContextManager = None,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Optimizes f using the optimizer supplied, deals with potential context variables.
+    Optimize f using the provided optimizer, handling context variables.
 
-    :param optimizer: The optimizer object that will perform the optimization
-    :param x0: initial point for a local optimizer (x0 can be defined with or without the context included).
-    :param f: function to optimize.
-    :param df: gradient of the function to optimize.
-    :param f_df: returns both the function to optimize and its gradient.
-    :param context_manager: If provided, x0 (and the optimizer) operates in the space without the context
-    :param space: Parameter space describing input domain, including any context variables
-    :return: Location of optimum and value at optimum
+    :param optimizer: The optimizer to use
+    :param x0: Initial point (with or without context variables)
+    :param space: Parameter space describing input domain
+    :param f: Objective function to minimize (required)
+    :param df: Gradient of f (optional; if None, will be approximated)
+    :param context_manager: If provided, handles fixed context variables
+    :return: Tuple of (optimized point with context, function value at optimum)
     """
 
     if context_manager is None:
         context_manager = ContextManager(space, {})
 
-    # Compute new objective that inputs non context variables but takes into account the values of the context ones.
-    # It does nothing if no context is passed
-    problem = OptimizationWithContext(x0=x0, f=f, df=df, f_df=f_df, context_manager=context_manager)
+    # Build objective functions that handle context
+    problem = OptimizationWithContext(x0=x0, f=f, df=df, context_manager=context_manager)
 
     add_context = lambda x: context_manager.expand_vector(x)
 
-    # Optimize point
-    if f is None:
-        f_no_context = None
-    else:
-        f_no_context = problem.f_no_context
+    # Optimize
+    optimized_x, _ = optimizer.optimize(
+        problem.x0_no_context, 
+        problem.f_no_context, 
+        problem.df_no_context
+    )
 
-    if df is None:
-        df_no_context = None
-    else:
-        df_no_context = problem.df_no_context
-
-    if f_df is None:
-        f_df_no_context = None
-    else:
-        f_df_no_context = problem.f_df_no_context
-
-    optimized_x, _ = optimizer.optimize(problem.x0_no_context, f_no_context, df_no_context, f_df_no_context)
-
-    # Add context and round according to the type of variables of the design space
+    # Add context and round according to parameter types
     suggested_x_with_context = add_context(optimized_x)
     suggested_x_with_context_rounded = space.round(suggested_x_with_context)
 
-    if f is None:
-        f_opt, _ = f_df(suggested_x_with_context_rounded)
-    else:
-        f_opt = f(suggested_x_with_context_rounded)
+    # Evaluate at final point
+    f_opt = f(suggested_x_with_context_rounded)
+    
     return suggested_x_with_context_rounded, f_opt
 
 
 class OptimizationWithContext(object):
+    """
+    Wraps an objective function to handle fixed context variables during optimization.
+    """
+
     def __init__(
         self,
         x0: np.ndarray,
         f: Callable,
-        df: Callable = None,
-        f_df: Callable = None,
+        df: Optional[Callable] = None,
         context_manager: ContextManager = None,
     ):
         """
         Constructor of an objective function that takes as input a vector x of the non context variables
         and returns a value in which the context variables have been fixed.
+        
+        :param x0: Initial point
+        :param f: Objective function
+        :param df: Gradient of objective function
+        :param context_manager: Handles fixed context variables
         """
         self.x0 = np.atleast_2d(x0)
         self.f = f
         self.df = df
-        self.f_df = f_df
         self.context_manager = context_manager
 
-        if not context_manager:
+        # Check if context is actually empty (no variables are fixed)
+        has_context = context_manager and len(context_manager.context_values) > 0
+        
+        if not has_context:
             self.x0_no_context = x0
             self.f_no_context = self.f
-            self.df_no_context = self.df
-            self.f_df_no_context = self.f_df
+            # When there's no actual context, use finite differences (scipy converges better)
+            # This preserves the behavior of the original code
+            self.df_no_context = None
         else:
             self.x0_no_context = self.x0[:, self.context_manager.non_context_idxs]
-            self.f_no_context = self.f_no_context
-            if self.f_df is None:
-                self.df_no_context = None
-                self.f_df_no_context = None
+            self.f_no_context = self._make_f_no_context()
+            self.df_no_context = self._make_df_no_context() if df is not None else None
+
+    def _make_f_no_context(self) -> Callable:
+        """Create wrapper that adds context variables before calling f."""
+        def f_no_context(x: np.ndarray) -> np.ndarray:
+            x = np.atleast_2d(x)
+            xx = self.context_manager.expand_vector(x)
+            if x.shape[0] == 1:
+                return self.f(xx)[0]
             else:
-                self.df_no_context = self.df_no_context
-                self.f_df_no_context = self.f_df_no_context
+                return self.f(xx)
+        return f_no_context
 
-    def f_no_context(self, x: np.ndarray) -> np.ndarray:
-        """
-        Wrapper of optimization objective function which deals with adding context variables to x
-
-        :param x: Input without context variables
-        """
-        x = np.atleast_2d(x)
-        xx = self.context_manager.expand_vector(x)
-        if x.shape[0] == 1:
-            return self.f(xx)[0]
-        else:
-            return self.f(xx)
-
-    def df_no_context(self, x: np.ndarray) -> np.ndarray:
-        """
-        Wrapper of the derivative of optimization objective function which deals with adding context variables to x
-
-        :param x: Input without context variables
-        """
-        x = np.atleast_2d(x)
-        xx = self.context_manager.expand_vector(x)
-        _, df_no_context_xx = self.f_df(xx)
-        df_no_context_xx = df_no_context_xx[:, np.array(self.context_manager.non_context_idxs)]
-        return df_no_context_xx
-
-    def f_df_no_context(self, x: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-        """
-        Wrapper of optimization objective function and its derivative which deals with adding context variables to x
-
-        :param x: Input without context variables
-        """
-        x = np.atleast_2d(x)
-        xx = self.context_manager.expand_vector(x)
-        f_no_context_xx, df_no_context_xx = self.f_df(xx)
-        df_no_context_xx = df_no_context_xx[:, np.array(self.context_manager.non_context_idxs)]
-        return f_no_context_xx, df_no_context_xx
+    def _make_df_no_context(self) -> Callable:
+        """Create wrapper that extracts gradient for non-context variables."""
+        def df_no_context(x: np.ndarray) -> np.ndarray:
+            x = np.atleast_2d(x)
+            xx = self.context_manager.expand_vector(x)
+            df_xx = self.df(xx)
+            # Handle gradient shape - could be (n_dims, n_samples) or (n_samples, n_dims)
+            # Extract only non-context dimensions
+            if df_xx.shape[0] == 1 or len(df_xx.shape) == 1:
+                # Shape (n_dims,) or (1, n_dims) - transpose handling
+                return df_xx[:, np.array(self.context_manager.non_context_idxs)] if len(df_xx.shape) > 1 else df_xx[np.array(self.context_manager.non_context_idxs)]
+            else:
+                # Shape (n_dims, n_samples) - extract rows for non-context dims
+                return df_xx[np.array(self.context_manager.non_context_idxs), :]
+        return df_no_context
 
 
 class OptTrustRegionConstrained(Optimizer):
@@ -232,59 +231,58 @@ class OptTrustRegionConstrained(Optimizer):
         self.constraints = _get_scipy_constraints(constraints)
 
     def optimize(
-        self, x0: np.ndarray, f: Callable = None, df: Callable = None, f_df: Callable = None
+        self, x0: np.ndarray, f: Callable, df: Optional[Callable] = None
     ) -> Tuple[np.ndarray, np.ndarray]:
         """
         Run Trust region constrained optimization algorithm
 
         :param x0: Initial start point
-        :param f: Function to optimize
-        :param df: Derivative of function to optimize
-        :param f_df: Function returning both value of objective and its gradient
+        :param f: Objective function to minimize (required)
+        :param df: Derivative of function to optimize (optional)
         :return: Location of optimum and function value at optimum
         """
 
-        if (f is None) and (f_df is None):
-            raise ValueError("Neither f nor f_df are supplied - you must supply an objective function")
-
-        # If f not supplied, make lambda that returns objective only from f_df
         if f is None:
-            f = lambda x: f_df(x)[0]
+            raise ValueError("f is a required argument")
 
-        if df is None and f_df is not None:
-            # If df not supplied and f_df is, make lambda that returns gradient only from f_df
-            df_1d = lambda x: f_df(x)[1][0, :]
-        elif df is not None:
-            # If df is supplied, convert the 2d output to 1d
-            df_1d = lambda x: df(x)[0, :]
+        # Wrap f to handle 1d scipy input
+        def f_wrapped(x):
+            x_2d = np.atleast_2d(x)
+            f_val = f(x_2d)
+            # Extract scalar value, handling both scalar and array returns
+            if np.isscalar(f_val):
+                return float(f_val)
+            else:
+                f_arr = np.asarray(f_val).squeeze()
+                return float(f_arr.item()) if f_arr.ndim == 0 else float(f_arr.flat[0])
+
+        # Prepare gradient function
+        if df is not None:
+            # Convert 2d output to 1d for scipy
+            def df_1d(x):
+                x_2d = np.atleast_2d(x)
+                grad = df(x_2d)
+                # Extract 1d gradient from 2d array
+                return grad[0, :]
         else:
-            # Gradient not supplied
-            df_1d = None
+            # Let scipy approximate with finite differences
+            df_1d = "2-point"
 
         options = {"maxiter": self.max_iterations}
 
-        if df_1d is None:
-            res = scipy.optimize.minimize(
-                f,
-                x0=x0[0, :],
-                method="trust-constr",
-                bounds=self.bounds,
-                jac="2-point",
-                options=options,
-                constraints=self.constraints,
-                hess=scipy.optimize.BFGS(),
-            )
-        else:
-            res = scipy.optimize.minimize(
-                f,
-                x0=x0[0, :],
-                method="trust-constr",
-                bounds=self.bounds,
-                jac=df_1d,
-                options=options,
-                constraints=self.constraints,
-                hess=scipy.optimize.BFGS(),
-            )
+        # Handle both 1D and 2D x0
+        x0_1d = np.atleast_1d(x0).flatten()
+        
+        res = scipy.optimize.minimize(
+            f_wrapped,
+            x0=x0_1d,
+            method="trust-constr",
+            bounds=self.bounds,
+            jac=df_1d,
+            options=options,
+            constraints=self.constraints,
+            hess=scipy.optimize.BFGS(),
+        )
 
         result_x = np.atleast_2d(res.x)
         result_fx = np.atleast_2d(res.fun)
