@@ -147,14 +147,12 @@ def uncertainty_sampling_acquisition(vanilla_bq_model):
 
 
 @pytest.fixture
-@pytest.mark.parametrize("n_dims", [2])
 def multi_source_entropy_search_acquisition(gpy_model):
     space = ParameterSpace([ContinuousParameter("x1", 0, 1), InformationSourceParameter(2)])
     return MultiInformationSourceEntropySearch(gpy_model, space, num_representer_points=10)
 
 
 @pytest.fixture
-@pytest.mark.parametrize("n_dims", [2])
 def MUMBO_acquisition(gpy_model):
     space = ParameterSpace([ContinuousParameter("x1", 0, 1), InformationSourceParameter(2)])
     return MUMBO(gpy_model, space, num_samples=10, grid_size=5000)
