@@ -25,9 +25,9 @@ class SobolDesign(InitialDesignBase):
         """
         super(SobolDesign, self).__init__(parameter_space)
 
-    def get_samples(self, point_count: int) -> np.ndarray:
+    def _generate_samples(self, point_count: int) -> np.ndarray:
         """
-        Generates requested amount of points.
+        Generates requested amount of points (without constraint checking).
 
         :param point_count: Number of points required.
         :return: A numpy array of generated samples, shape (point_count x space_dim)
