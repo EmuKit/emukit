@@ -6,6 +6,9 @@
 /.mypy_cache/
 /.vscode/
 /.venv/
+/venv/
+env/
+virtualenv/
 
 __pycache__/
 *.py[cod]
