@@ -150,7 +150,7 @@ def test_design_fails_with_impossible_constraints():
 
     # Constraint: p1 > 10 (impossible given bounds)
     constraint = LinearInequalityConstraint(
-        constraint_matrix=np.array([[1.0]]), lower_bound=np.array([10.1]), upper_bound=np.array([np.inf])
+        constraint_matrix=np.array([[1.0]]), lower_bound=np.array([10.0]), upper_bound=np.array([np.inf])
     )
 
     space = ParameterSpace([p1], constraints=[constraint])
@@ -177,9 +177,9 @@ def test_design_respects_max_retries():
 
     # Test with all design types
     designs_with_low_retries = [
-        RandomDesign(space, max_retries=1),
-        LatinDesign(space, max_retries=1),
-        SobolDesign(space, max_retries=1),
+        RandomDesign(space, max_retries=10),
+        LatinDesign(space, max_retries=10),
+        SobolDesign(space, max_retries=10),
     ]
     for design in designs_with_low_retries:
         with pytest.raises(RuntimeError, match="Could not generate"):
