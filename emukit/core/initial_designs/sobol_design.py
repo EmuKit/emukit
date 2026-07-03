@@ -19,11 +19,12 @@ class SobolDesign(InitialDesignBase):
     https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.qmc.Sobol.html
     """
 
-    def __init__(self, parameter_space: ParameterSpace) -> None:
+    def __init__(self, parameter_space: ParameterSpace, max_retries: int = 100) -> None:
         """
-        param parameter_space: The parameter space to generate design for.
+        :param parameter_space: The parameter space to generate design for.
+        :param max_retries: Maximum number of retry attempts for constraint satisfaction.
         """
-        super(SobolDesign, self).__init__(parameter_space)
+        super(SobolDesign, self).__init__(parameter_space, max_retries=max_retries)
 
     def _generate_samples(self, point_count: int) -> np.ndarray:
         """
