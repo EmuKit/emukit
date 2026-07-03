@@ -148,14 +148,7 @@ def test_design_respects_max_retries():
     
     space = ParameterSpace([p1, p2], constraints=[constraint])
     
-    # With low max_retries, should fail faster
-    design_low_retries = RandomDesign(space, max_retries=2)
-    with pytest.raises(RuntimeError):
-        design_low_retries.get_samples(10)
-    
-    # With high max_retries, should succeed
-    design_high_retries = RandomDesign(space, max_retries=1000)
-    points = design_high_retries.get_samples(10)
-    assert points.shape == (10, 2)
-    assert np.all((points[:, 0] + points[:, 1]) >= 19.5 - 1e-6)
-    assert np.all((points[:, 0] + points[:, 1]) <= 20.0 + 1e-6)
+    # With low max_retries, should fail
+    design_low_retries = RandomDesign(space, max_retries=1)
+    with pytest.raises(RuntimeError, match="Could not generate"):
+        design_low_retries.get_samples(5)

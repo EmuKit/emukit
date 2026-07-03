@@ -53,6 +53,8 @@ class InitialDesignBase(object):
         # Check each constraint and keep only points that satisfy all
         for constraint in self.parameter_space.constraints:
             constraint_satisfaction = constraint.evaluate(samples)
+            # Ensure we're working with boolean arrays
+            constraint_satisfaction = np.asarray(constraint_satisfaction, dtype=bool)
             valid = valid & constraint_satisfaction
 
         return valid
