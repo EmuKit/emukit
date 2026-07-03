@@ -14,7 +14,7 @@ from emukit.core.initial_designs.latin_design import LatinDesign
 from emukit.core.initial_designs.sobol_design import SobolDesign
 
 
-def create_model_free_designs(space: ParameterSpace):
+def create_initial_designs(space: ParameterSpace):
     return [RandomDesign(space), LatinDesign(space), SobolDesign(space)]
 
 
@@ -23,7 +23,7 @@ def test_design_returns_correct_number_of_points():
     space = ParameterSpace([p])
     points_count = 5
 
-    designs = create_model_free_designs(space)
+    designs = create_initial_designs(space)
     for design in designs:
         points = design.get_samples(points_count)
 
@@ -37,7 +37,7 @@ def test_design_returns_points_within_bounds():
     space = ParameterSpace([p1, p2])
     points_count = 5
 
-    designs = create_model_free_designs(space)
+    designs = create_initial_designs(space)
     for design in designs:
         points = design.get_samples(points_count)
 
@@ -53,7 +53,7 @@ def test_design_with_mixed_domain(encoding):
     space = ParameterSpace([p1, p2, p3])
     points_count = 5
 
-    designs = create_model_free_designs(space)
+    designs = create_initial_designs(space)
     for design in designs:
         points = design.get_samples(points_count)
 
@@ -79,7 +79,7 @@ def test_designs_respect_linear_inequality_constraints():
     space = ParameterSpace([p1, p2], constraints=[constraint])
     points_count = 10
 
-    designs = create_model_free_designs(space)
+    designs = create_initial_designs(space)
     for design in designs:
         points = design.get_samples(points_count)
 
@@ -106,7 +106,7 @@ def test_designs_respect_nonlinear_constraints():
     space = ParameterSpace([p1, p2], constraints=[constraint])
     points_count = 5
 
-    designs = create_model_free_designs(space)
+    designs = create_initial_designs(space)
     for design in designs:
         points = design.get_samples(points_count)
 
@@ -134,7 +134,7 @@ def test_designs_with_multiple_constraints():
     space = ParameterSpace([p1, p2], constraints=[constraint1, constraint2])
     points_count = 5
 
-    designs = create_model_free_designs(space)
+    designs = create_initial_designs(space)
     for design in designs:
         points = design.get_samples(points_count)
 
@@ -155,7 +155,7 @@ def test_design_fails_with_impossible_constraints():
 
     space = ParameterSpace([p1], constraints=[constraint])
 
-    designs = create_model_free_designs(space)
+    designs = create_initial_designs(space)
     for design in designs:
         with pytest.raises(RuntimeError, match="Could not generate"):
             design.get_samples(10)
