@@ -19,14 +19,11 @@ class InitialDesignBase(object):
     Base class for all initial designs
     """
 
-    def __init__(self, parameter_space: ParameterSpace, max_retries: int = 100):
+    def __init__(self, parameter_space: ParameterSpace):
         """
         :param parameter_space: The parameter space to generate design for.
-        :param max_retries: Maximum number of retry attempts to generate valid samples when constraints are present.
-                           Default is 100.
         """
         self.parameter_space = parameter_space
-        self.max_retries = max_retries
 
     def _generate_samples(self, point_count: int) -> np.ndarray:
         """
@@ -59,13 +56,15 @@ class InitialDesignBase(object):
 
         return valid
 
-    def get_samples(self, point_count: int) -> np.ndarray:
+    def get_samples(self, point_count: int, max_retries: int = 100) -> np.ndarray:
         """
         Generates requested amount of points that satisfy all constraints.
         Uses rejection sampling: if any constraints are present and violated,
         the entire batch is regenerated.
 
         :param point_count: Number of points required.
+        :param max_retries: Maximum number of retry attempts to generate valid samples when constraints are present.
+                           Default is 100.
         :return: A numpy array of generated samples, shape (point_count x space_dim)
         :raises RuntimeError: If unable to generate the required number of valid points after max_retries attempts.
         """
@@ -74,7 +73,7 @@ class InitialDesignBase(object):
             return self._generate_samples(point_count)
 
         # With constraints: use rejection sampling
-        for attempt in range(self.max_retries):
+        for attempt in range(max_retries):
             candidates = self._generate_samples(point_count)
             valid_mask = self._check_constraints(candidates)
 
@@ -85,12 +84,12 @@ class InitialDesignBase(object):
                 valid_count = np.sum(valid_mask)
                 _log.debug(
                     f"Initial design: {valid_count}/{point_count} points satisfy constraints. "
-                    f"Retrying (attempt {attempt + 1}/{self.max_retries})."
+                    f"Retrying (attempt {attempt + 1}/{max_retries})."
                 )
 
         # Failed to generate valid samples after all retries
         raise RuntimeError(
             f"Could not generate {point_count} valid samples respecting all constraints "
-            f"after {self.max_retries} attempts. "
+            f"after {max_retries} attempts. "
             f"Consider relaxing constraints or increasing max_retries."
         )
