@@ -43,25 +43,25 @@ def space():
 
 def test_lbfgs_with_gradient_no_context(lbfgs, objective, gradient, space):
     x0 = np.array([1, 1])
-    x, f = apply_optimizer(lbfgs, x0, space, objective, gradient, None, None)
+    x, f = apply_optimizer(lbfgs, x0, space, objective, gradient)
     assert np.all(np.isclose(x, np.array([0, 0])))
 
 
 def test_lbfgs_no_gradient_no_context(lbfgs, objective, space):
     x0 = np.array([1, 1])
-    x, f = apply_optimizer(lbfgs, x0, space, objective, None, None)
+    x, f = apply_optimizer(lbfgs, x0, space, objective)
     assert np.all(np.isclose(x, np.array([0, 0])))
 
 
 def test_lbfgs_with_gradient_and_context(lbfgs_context, objective, gradient, space):
     context = ContextManager(space, {"x": 0.5})
     x0 = np.array([1, 1])
-    x, f = apply_optimizer(lbfgs_context, x0, space, objective, gradient, None, context)
+    x, f = apply_optimizer(lbfgs_context, x0, space, objective, gradient, context)
     assert np.all(np.isclose(x, np.array([0.5, 0])))
 
 
 def test_lbfgs_no_gradient_with_context(lbfgs_context, objective, space):
     context = ContextManager(space, {"x": 0.5})
     x0 = np.array([1, 1])
-    x, f = apply_optimizer(lbfgs_context, x0, space, objective, None, None, context)
+    x, f = apply_optimizer(lbfgs_context, x0, space, objective, None, context)
     assert np.all(np.isclose(x, np.array([0.5, 0])))
