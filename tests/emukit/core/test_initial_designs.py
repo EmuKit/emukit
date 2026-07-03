@@ -176,11 +176,7 @@ def test_design_respects_max_retries():
     space = ParameterSpace([p1, p2], constraints=[constraint])
 
     # Test with all design types
-    designs = [
-        RandomDesign(space),
-        LatinDesign(space),
-        SobolDesign(space),
-    ]
+    designs = create_initial_designs(space)
     for design in designs:
         with pytest.raises(RuntimeError, match="Could not generate"):
             design.get_samples(5, max_retries=10)
