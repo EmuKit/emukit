@@ -1,4 +1,4 @@
-# Copyright 2020-2024 The Emukit Authors. All Rights Reserved.
+# Copyright 2020-2026 The Emukit Authors. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 # Copyright 2018-2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
@@ -82,12 +82,11 @@ class InitialDesignBase(object):
                 # All points are valid
                 return candidates
             else:
-                if attempt == 0:
-                    valid_count = np.sum(valid_mask)
-                    _log.debug(
-                        f"Initial design: {valid_count}/{point_count} points satisfy constraints. "
-                        f"Retrying (attempt {attempt + 1}/{self.max_retries})."
-                    )
+                valid_count = np.sum(valid_mask)
+                _log.debug(
+                    f"Initial design: {valid_count}/{point_count} points satisfy constraints. "
+                    f"Retrying (attempt {attempt + 1}/{self.max_retries})."
+                )
 
         # Failed to generate valid samples after all retries
         raise RuntimeError(
