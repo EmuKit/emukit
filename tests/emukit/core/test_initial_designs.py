@@ -90,7 +90,7 @@ def test_designs_respect_linear_inequality_constraints():
 
 
 def test_designs_respect_nonlinear_constraints():
-    """Test that RandomDesign respects nonlinear constraints."""
+    """Test that designs respect nonlinear constraints."""
     p1 = ContinuousParameter("p1", 0.0, 5.0)
     p2 = ContinuousParameter("p2", 0.0, 5.0)
 
@@ -106,18 +106,18 @@ def test_designs_respect_nonlinear_constraints():
     space = ParameterSpace([p1, p2], constraints=[constraint])
     points_count = 5
 
-    # RandomDesign is most suitable for general constraints
-    design = RandomDesign(space)
-    points = design.get_samples(points_count)
+    designs = create_model_free_designs(space)
+    for design in designs:
+        points = design.get_samples(points_count)
 
-    # Verify all points satisfy the constraint
-    assert points.shape == (points_count, 2)
-    constraint_values = np.array([circle_constraint(p) for p in points])
-    assert np.all(constraint_values <= 22.0 + 1e-6)  # Small tolerance for numerical errors
+        # Verify all points satisfy the constraint
+        assert points.shape == (points_count, 2)
+        constraint_values = np.array([circle_constraint(p) for p in points])
+        assert np.all(constraint_values <= 22.0 + 1e-6)  # Small tolerance for numerical errors
 
 
 def test_designs_with_multiple_constraints():
-    """Test that RandomDesign respects multiple constraints simultaneously."""
+    """Test that designs respect multiple constraints simultaneously."""
     p1 = ContinuousParameter("p1", 0.0, 10.0)
     p2 = ContinuousParameter("p2", 0.0, 10.0)
 
@@ -134,14 +134,14 @@ def test_designs_with_multiple_constraints():
     space = ParameterSpace([p1, p2], constraints=[constraint1, constraint2])
     points_count = 5
 
-    # RandomDesign is most suitable for general constraints
-    design = RandomDesign(space)
-    points = design.get_samples(points_count)
+    designs = create_model_free_designs(space)
+    for design in designs:
+        points = design.get_samples(points_count)
 
-    # Verify all points satisfy both constraints
-    assert points.shape == (points_count, 2)
-    assert np.all(points[:, 0] >= 0.5 - 1e-6)
-    assert np.all(points[:, 1] <= 9.5 + 1e-6)
+        # Verify all points satisfy both constraints
+        assert points.shape == (points_count, 2)
+        assert np.all(points[:, 0] >= 0.5 - 1e-6)
+        assert np.all(points[:, 1] <= 9.5 + 1e-6)
 
 
 def test_design_fails_with_impossible_constraints():
@@ -175,7 +175,12 @@ def test_design_respects_max_retries():
 
     space = ParameterSpace([p1, p2], constraints=[constraint])
 
-    # With low max_retries, should fail
-    design_low_retries = RandomDesign(space, max_retries=1)
-    with pytest.raises(RuntimeError, match="Could not generate"):
-        design_low_retries.get_samples(5)
+    # Test with all design types
+    designs_with_low_retries = [
+        RandomDesign(space, max_retries=1),
+        LatinDesign(space, max_retries=1),
+        SobolDesign(space, max_retries=1),
+    ]
+    for design in designs_with_low_retries:
+        with pytest.raises(RuntimeError, match="Could not generate"):
+            design.get_samples(5)
