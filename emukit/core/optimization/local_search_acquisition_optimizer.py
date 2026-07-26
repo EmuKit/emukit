@@ -34,9 +34,9 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
     This kind of optimization is also known as Variable Neighbourhood Search
     (e.g. see https://en.wikipedia.org/wiki/Variable_neighborhood_search).
     Neighbourhood definitions and default parameters are based on the search used
-    in SMAC [1].
+    in SMAC (Hutter, Frank, Holger H. Hoos, and Kevin Leyton-Brown, 2011).
 
-    .. warning:: The local search heuristic here currently differs to SMAC [1].
+    .. warning:: The local search heuristic here currently differs to SMAC.
                  The neighbourhood of a point is evaluated completely,
                  the search continues at the best neighbour (best improvement heuristic).
                  SMAC iteratively samples neighbours and continues at the first which
@@ -45,16 +45,12 @@ class LocalSearchAcquisitionOptimizer(AcquisitionOptimizerBase):
                  (e.g. parameters with hundreds of categories).
 
     One-exchange neighbourhood is defined for the following parameter types:
-      :Categorical parameter with one-hot encoding: All other categories
-      :Categorical parameter with ordinal encoding: Only preceeding and following categories
-      :Continuous parameter: Gaussian samples (default: 4) around current value. Standard deviation (default: 0.2) is
-                             scaled by parameter value range.
-      :Discrete parameter: Preceeding and following discrete values.
 
-    .. [1] Hutter, Frank, Holger H. Hoos, and Kevin Leyton-Brown.
-           "Sequential model-based optimization for general algorithm configuration."
-           International Conference on Learning and Intelligent Optimization.
-           Springer, Berlin, Heidelberg, 2011.
+      - Categorical parameter with one-hot encoding: All other categories
+      - Categorical parameter with ordinal encoding: Only preceding and following categories
+      - Continuous parameter: Gaussian samples (default: 4) around current value. Standard deviation
+        (default: 0.2) is scaled by parameter value range.
+      - Discrete parameter: Preceding and following discrete values.
     """
 
     def __init__(

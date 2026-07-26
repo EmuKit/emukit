@@ -1,5 +1,5 @@
 emukit.quadrature.measures package
-=================================
+==================================
 
 Module contents
 ---------------

@@ -31,9 +31,10 @@ class OuterLoop(object):
        criterion is met.
     2. Emukit only calculates the next points(s) to try and you evaluate your function or perform the experiment.
 
-    This object exposes the following events. See ``emukit.core.event_handler`` for details of how to subscribe:
-         - ``loop_start_event`` called at the start of the `run_loop` method
-         - ``iteration_end_event`` called at the end of each iteration
+    This object exposes the following events. See :py:mod:`emukit.core.event_handler` for details of how to subscribe:
+
+    - ``loop_start_event`` called at the start of the run_loop method
+    - ``iteration_end_event`` called at the end of each iteration
     """
 
     def __init__(
