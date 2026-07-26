@@ -152,3 +152,4 @@ intersphinx_mapping = {'python': ('https://docs.python.org/3', None)}
 # Allow notebooks to have errors when generating docs
 nbsphinx_allow_errors = True
 nbsphinx_execute = 'never'
+
