@@ -95,6 +95,10 @@ class LinearInequalityConstraint(InequalityConstraint):
 class NonlinearInequalityConstraint(InequalityConstraint):
     """
     Constraint of the form lower_bound <= g(x) <= upper_bound
+
+    **Note:** This class is for *known* constraints where you specify explicit bounds.
+    For *unknown* constraints that are learned via Bayesian optimization, see
+    `UnknownConstraintBayesianOptimizationLoop` in `emukit.bayesian_optimization.loops`.
     """
 
     def __init__(
@@ -106,7 +110,8 @@ class NonlinearInequalityConstraint(InequalityConstraint):
     ):
         """
         :param constraint_function: function defining constraint in b_lower <= fun(x) <= b_upper.
-                                    Has signature f(x) -> array, shape(m,) where x is 1d and m is the number of constraints
+                                    Has signature f(x) -> array, shape(m,) where x is 1d and m is the
+                                    number of constraints
         :param lower_bound: Lower bound vector of size (n_constraint,). Can be -np.inf for one sided constraint
         :param upper_bound: Upper bound vector of size (n_constraint,). Can be np.inf for one sided constraint
         :param jacobian_fun: Function returning the jacobian of the constraint function. Optional, if not supplied

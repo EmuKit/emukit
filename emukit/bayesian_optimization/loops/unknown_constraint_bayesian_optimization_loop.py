@@ -38,9 +38,23 @@ class UnknownConstraintBayesianOptimizationLoop(OuterLoop):
         Bayesian Optimization with Unknown Constraints,
         https://arxiv.org/pdf/1403.5607.pdf
 
+        **Constraint Semantics:** Constraints are satisfied when they return a **negative value**.
+        The constraint function C(x) should be implemented such that:
+
+        - C(x) < 0 when the constraint is satisfied
+        - C(x) >= 0 when the constraint is violated
+
+        **Example:** To implement a constraint x <= 10, define the constraint function as:
+
+            def constraint_func(x):
+                return x - 10  # Negative when x <= 10 (satisfied)
+
+        This follows the semantics in the referenced paper (Gelbart et al., 2014).
+
         :param space: Input space where the optimization is carried out.
         :param model_objective: The model that approximates the underlying objective function
-        :param model_constraint: The model that approximates the unknown constraints
+        :param model_constraint: The model that approximates the unknown constraints. The outputs of this
+                                  model are expected to follow the C(x) < 0 semantics described above.
         :param acquisition: The acquisition function for the objective function (default, EI).
         :param update_interval:  Number of iterations between optimization of model hyper-parameters. Defaults to 1.
         :param batch_size: How many points to evaluate in one iteration of the optimization loop. Defaults to 1.
