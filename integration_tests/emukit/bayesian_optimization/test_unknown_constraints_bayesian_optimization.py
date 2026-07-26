@@ -20,10 +20,20 @@ from emukit.examples.gp_bayesian_optimization.unknown_constraint_bayesian_optimi
 
 
 def f(x):
+    """Objective function to minimize."""
     return x**2
 
 
 def fc(x):
+    """
+    Constraint function for unknown constraint optimization.
+
+    In Bayesian optimization with unknown constraints, constraints are satisfied when
+    the constraint function returns a **negative value**.
+
+    This example uses C(x) = 2*x, which is satisfied (C(x) < 0) when x < 0.
+    This represents a constraint like "x must be negative" in a maximization-like sense.
+    """
     return 2 * x
 
 

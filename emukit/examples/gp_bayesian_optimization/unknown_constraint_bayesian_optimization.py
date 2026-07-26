@@ -46,11 +46,16 @@ class UnknownConstraintGPBayesianOptimization(UnknownConstraintBayesianOptimizat
         Dependencies:
             GPy (https://github.com/SheffieldML/GPy)
 
+        **Constraint Semantics:** Constraints are satisfied when they return a **negative value**.
+        In your constraint evaluation data (Yc), values should follow the C(x) < 0 convention:
+        negative values indicate satisfied constraints, and non-negative values indicate violations.
+
         :param variables_list: list containing the definition of the variables of the input space.
         :param noiseless:  determines whether the objective function is noisy or not
         :param X: initial input values where the objective has been evaluated.
         :param Y: initial output values where the objective has been evaluated.
-        :param Yc: initial output values where the constraint has been evaluated.
+        :param Yc: initial output values where the constraint has been evaluated. Should follow C(x) < 0
+                   semantics (negative = constraint satisfied).
         :param acquisition_type: type of acquisition to use during optimization.
             - EI: Expected improvement
             - PI: Probability of improvement

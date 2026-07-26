@@ -18,13 +18,18 @@ class ProbabilityOfFeasibility(Acquisition):
     def __init__(self, model: Union[IModel, IDifferentiable], jitter: float = float(0)) -> None:
         """
         This acquisition computes for a given input point the probability of satisfying the constraint
-        C<0. For more information see:
+        C(x) < 0. For more information see:
 
         Michael A. Gelbart, Jasper Snoek, and Ryan P. Adams,
         Bayesian Optimization with Unknown Constraints,
         https://arxiv.org/pdf/1403.5607.pdf
 
-        :param model: The underlying model that provides the predictive mean and variance for the given test points
+        **Constraint Semantics:** A constraint is satisfied when C(x) < 0. The model provided should
+        predict constraint values following this convention: negative predictions indicate feasible
+        regions, and non-negative predictions indicate infeasible regions.
+
+        :param model: The underlying model that provides the predictive mean and variance for the given test points.
+                      This model should predict constraint values where C(x) < 0 means constraint satisfied.
         :param jitter: Jitter to balance exploration / exploitation
         """
         self.model = model
