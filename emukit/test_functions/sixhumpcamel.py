@@ -15,8 +15,8 @@ def sixhumpcamel_function():
     Based on: https://www.sfu.ca/~ssurjano/camel6.html
 
     .. math::
-        f(\mathbf{x}) = \left(4-2.1x_1^2 = \frac{x_1^4}{3} \right)x_1^2 + x_1x_2 + (-4 +4x_2^2)x_2^2
 
+        f(\mathbf{x}) = \left(4-2.1x_1^2 + \frac{x_1^4}{3} \right)x_1^2 + x_1x_2 + (-4 +4x_2^2)x_2^2
     """
 
     parameter_space = ParameterSpace([ContinuousParameter("x1", -2, 2), ContinuousParameter("x2", -1, 1)])

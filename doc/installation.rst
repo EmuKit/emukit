@@ -10,7 +10,7 @@ To install the core emukit package (without GPy), run
     pip install emukit
 
 Optional dependencies
-________
+=====================
 You can install optional dependency groups via setuptools extras. Each group enables additional functionality without inflating the core install:
 
 - ``gpy``: Gaussian process wrappers, multi-fidelity models, Bayesian quadrature (adds ``GPy``).
@@ -24,24 +24,24 @@ You can install optional dependency groups via setuptools extras. Each group ena
 .. code-block:: bash
 
     # Gaussian processes / multi-fidelity / quadrature
-     pip install emukit[gpy]
+    pip install emukit[gpy]
+
+    # Bayesian neural network & Profet examples
+    pip install emukit[bnn]
+
+    # scikit-learn model wrapper
+    pip install emukit[sklearn]
+
+    # Build documentation locally (includes gpy)
+    pip install emukit[docs]
+
+    # Bundle of example dependencies
+    pip install emukit[examples]
+
+    # Everything (gpy + bnn + sklearn + examples + docs + tests)
+    pip install emukit[dev]
  
-     # Bayesian neural network & Profet examples
-     pip install emukit[bnn]
- 
-     # scikit-learn model wrapper
-     pip install emukit[sklearn]
- 
-     # Build documentation locally (includes gpy)
-     pip install emukit[docs]
- 
-     # Bundle of example dependencies
-     pip install emukit[examples]
- 
-     # Everything (gpy + bnn + sklearn + examples + docs + tests)
-     pip install emukit[dev]
- 
- Installation from sources
+Installation from sources
 
 
 .. code-block:: bash
@@ -63,5 +63,5 @@ If you would like a bit more control (e.g. for development), clone the repo, ins
 `python setup.py develop` is no longer needed; PEP 621 metadata in `pyproject.toml` enables editable installs directly via pip (PEP 660).
 
 NumPy 2 notice
-________
+===============
 Core Emukit functionality works with NumPy 2.0+. However, some parts of Emukit (e.g. most acquisition functions) need GPy, that for the time being is a bit behind. If using GPy is critical for you, consider installing earlier versions of Emukit.
