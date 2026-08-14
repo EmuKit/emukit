@@ -7,8 +7,6 @@
 
 import pytest
 
-pytest.importorskip("GPy", reason="GPy not installed; install emukit[gpy]")
-pytestmark = pytest.mark.gpy
 import GPy
 import numpy as np
 from utils import check_grad

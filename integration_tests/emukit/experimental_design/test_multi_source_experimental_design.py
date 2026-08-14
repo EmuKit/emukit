@@ -5,10 +5,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import pytest
-
-GPy = pytest.importorskip("GPy")
-pytestmark = pytest.mark.gpy
 import numpy as np
 
 from emukit.core.initial_designs import RandomDesign
