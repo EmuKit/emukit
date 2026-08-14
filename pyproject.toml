@@ -34,7 +34,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-gpy = ["GPy>=1.13.0"]
+gpy = ["GPy>=1.14.0"]
 bnn = ["pybnn>=0.0.5", "torch"]
 sklearn = ["scikit-learn"]
 examples = [
