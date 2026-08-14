@@ -5,10 +5,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import pytest
-
 import GPy
 import numpy as np
+import pytest
 
 import emukit.multi_fidelity
 import emukit.test_functions.forrester

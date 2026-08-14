@@ -5,10 +5,9 @@
 from dataclasses import dataclass
 from math import isclose
 
-import pytest
-
 import GPy
 import numpy as np
+import pytest
 from numpy.testing import assert_allclose
 from utils import check_grad
 

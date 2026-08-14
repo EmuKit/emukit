@@ -4,10 +4,9 @@
 
 """Basic tests for quadrature GPy wrappers."""
 
-import pytest
-
 import GPy
 import numpy as np
+import pytest
 
 from emukit.model_wrappers.gpy_quadrature_wrappers import (
     BaseGaussianProcessGPy,

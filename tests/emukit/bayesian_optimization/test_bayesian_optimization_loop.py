@@ -5,10 +5,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import pytest
-
 import GPy
 import numpy as np
+import pytest
 
 from emukit.bayesian_optimization.acquisitions import ExpectedImprovement
 from emukit.bayesian_optimization.loops import BayesianOptimizationLoop

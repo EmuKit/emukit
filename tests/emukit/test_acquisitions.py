@@ -9,7 +9,6 @@ from collections import namedtuple
 
 import numpy as np
 import pytest
-
 from scipy.optimize import check_grad
 
 from emukit.bayesian_optimization.acquisitions import (

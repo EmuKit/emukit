@@ -5,9 +5,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import pytest
-
 import numpy as np
+import pytest
 from scipy.optimize import check_grad
 
 import emukit.multi_fidelity.models
