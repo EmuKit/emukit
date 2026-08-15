@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+import GPy
 import numpy as np
 
 from emukit.core.initial_designs import RandomDesign

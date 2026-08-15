@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
+import GPy
 import numpy as np
 import pytest
 
