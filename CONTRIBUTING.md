@@ -108,37 +108,15 @@ Legacy requirement files in `requirements/` remain temporarily for reference but
 ### Test markers & optional dependencies
 Emukit uses pytest markers to group tests that rely on optional dependencies. Current markers (defined in `pyproject.toml` under `[tool.pytest.ini_options]`):
 
-- gpy: tests requiring GPy optional dependency
 - pybnn: tests requiring pybnn optional dependency
 - sklearn: tests requiring scikit-learn optional dependency
 - notebooks: tests executing Jupyter notebooks (requires nbformat, nbconvert)
 
-Example of gating a test that needs GPy:
-```python
-import pytest
-
-pytest.importorskip("GPy")  # skip if GPy not installed
-pytestmark = pytest.mark.gpy  # file-level marker (can also set per test)
-
-def test_some_gpy_integration():
-    import GPy
-    # ... assertions using GPy ...
-```
-Function-level alternative:
-```python
-import pytest
-
-def test_feature_x():
-    GPy = pytest.importorskip("GPy")
-    # ... use GPy ...
-
-test_feature_x = pytest.mark.gpy(test_feature_x)
-```
 Guidelines:
 - Always protect optional imports with `pytest.importorskip("<module>")` to turn absence into a skip, not an error.
 - Apply the corresponding marker (`pytestmark = pytest.mark.<marker>` or function-level) so contributors can include/exclude groups via `-m`.
 - When introducing a new optional dependency group, add its marker entry in `setup.cfg` under `[tool:pytest]` and document it in this section.
-- Avoid installing heavy optional dependencies in default dev loops; install only when working on that area (e.g. `pip install .[gpy]`).
+- Avoid installing heavy optional dependencies in default dev loops; install only when working on that area (e.g. `pip install .[bnn]`).
 - Notebook execution tests use the `notebooks` marker; exclude them during rapid iteration with `pytest -m 'not notebooks'`.
 - Keep slow or heavyweight examples under an appropriate marker instead of core unit tests.
 
