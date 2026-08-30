@@ -184,7 +184,7 @@ class MultipointExpectedImprovement(ExpectedImprovement):
         :return: multipoint Expected Improvement at the input.
         """
         mean, variance = self.model.predict_with_full_covariance(x)
-        y_minimum = np.min(self.model.Y, axis=0)
+        y_minimum = np.min(self.model.Y, axis=0).item()
         return -self._get_acquisition(mean.flatten(), variance, y_minimum)[0]
 
     def evaluate_with_gradients(self, x: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
@@ -196,7 +196,7 @@ class MultipointExpectedImprovement(ExpectedImprovement):
         """
         mean, variance = self.model.predict_with_full_covariance(x)
         mean = mean.flatten()
-        y_minimum = np.min(self.model.Y, axis=0)
+        y_minimum = np.min(self.model.Y, axis=0).item()
         qei, pk, symmetric_term = self._get_acquisition(mean, variance, y_minimum)
 
         mean_dx, variance_dx = self.model.get_joint_prediction_gradients(x)
@@ -382,7 +382,7 @@ class MultipointExpectedImprovement(ExpectedImprovement):
         for l, j in itertools.product(range(q), range(d)):
             Sigk_dx[l, j, :, :] = Lk @ dSigma_dx[:, :, l, j] @ tLk
             mk_dx[l, j, :] = Lk @ dmu_dx[:, l, j]
-            Dpk[l, j] = 0.5 * np.sum(hesspk * Sigk_dx[l, j, :, :]) - gradpk[None, :] @ mk_dx[l, j, :, None]
+            Dpk[l, j] = (0.5 * np.sum(hesspk * Sigk_dx[l, j, :, :]) - gradpk[None, :] @ mk_dx[l, j, :, None]).item()
 
         # term A2: Second term in Equation (6) in the paper
         return grad_a + (y_minimum - mu[k]) * Dpk, mk_dx, Sigk_dx, gradpk, hesspk
@@ -439,7 +439,7 @@ class MultipointExpectedImprovement(ExpectedImprovement):
                     + 0.5 * np.sum(Sigk_dx[l, j, :, :] * hesspk1)
                 )
                 f = -(mk_dx[None, l, j, :] @ gradpk[:, None]) + 0.5 * np.sum(Sigk_dx[l, j, :, :] * hesspk)
-                B[l, j] = 1.0 / self.eps * (f1 - f)
+                B[l, j] = 1.0 / self.eps * (f1 - f).item()
         else:
             B1, B2, B3 = np.zeros((q, d)), np.zeros((q, d)), np.zeros((q, d))
             for i in range(q):
@@ -476,7 +476,7 @@ class MultipointExpectedImprovement(ExpectedImprovement):
                     # B2: Third row of Equation (6) in the paper
                     B2[l, j] = (
                         B2[l, j] + Sigk_ik * (mk_dx_i[l, j] * dphi_ik_dm + dphi_ik_dSig * Sigk_dx_ii[l, j]) * Phi_ik
-                    )
+                    ).item()
 
                     # B3: Fourth row of Equation (6) in the paper
                     dck_pi = (
@@ -578,7 +578,8 @@ def decompose_mvn(x: np.ndarray, mu: np.ndarray, Sigma: np.ndarray, k: list) -> 
     low = np.minimum(moy, x2) - 5.0 * np.sqrt(np.max(np.abs(varcov)))
     return (
         scipy.stats.multivariate_normal.pdf(x1.flatten(), mu[k].flatten(), Sig11)
-        * scipy.stats.mvn.mvnun(low, x2, moy, varcov, maxpts=1000 * q)[0]
+        * scipy.stats.multivariate_normal.cdf(x2, mean=moy, cov=varcov, maxpts=1000 * q, lower_limit=low)
+        # * scipy.stats.mvn.mvnun(low, x2, moy, varcov, )
     )
 
 

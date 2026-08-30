@@ -5,11 +5,8 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import pytest
-
-pytest.importorskip("GPy", reason="GPy not installed; install emukit[gpy]")
-pytestmark = pytest.mark.gpy
 import numpy as np
+import pytest
 from scipy.optimize import check_grad
 
 import emukit.multi_fidelity.models

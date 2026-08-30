@@ -9,7 +9,7 @@ dynamic = ["version"]
 description = "Toolkit for decision making under uncertainty."
 readme = "README.md"
 license = { file = "LICENSE" }
-requires-python = ">=3.10"
+requires-python = ">=3.11"
 authors = [ { name = "Emukit Authors" } ]
 keywords = ["bayesian-optimization", "active-learning", "uncertainty", "experimental-design"]
 classifiers = [
@@ -31,17 +31,16 @@ dependencies = [
   "scipy",
   "matplotlib>=3.9",
   "emcee>=2.2.1",
+  "GPy>=1.14.0",
 ]
 
 [project.optional-dependencies]
-gpy = ["GPy>=1.13.0"]
 bnn = ["pybnn>=0.0.5", "torch"]
 sklearn = ["scikit-learn"]
 examples = [
-  "emukit[gpy, bnn, sklearn]",
+  "emukit[bnn, sklearn]",
 ]
 docs = [
-  "emukit[gpy]",
   "ipykernel",
   "Sphinx>=1.7.5",
   "nbsphinx>=0.3.4",
@@ -100,7 +99,6 @@ exclude = [".git", "build", "__pycache__"]
 
 [tool.pytest.ini_options]
 markers = [
-  "gpy: tests requiring GPy optional dependency",
   "pybnn: tests requiring pybnn optional dependency",
   "sklearn: tests requiring scikit-learn optional dependency",
   "notebooks: tests executing Jupyter notebooks",

@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.10", "3.13"]
+        python-version: ["3.11", "3.14"]
 
     steps:
     - uses: actions/checkout@v7
@@ -20,45 +20,17 @@ jobs:
       uses: actions/setup-python@v7
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install core dependencies (no GPy)
+    - name: Install core dependencies
       run: |
         python -m pip install --upgrade pip
         pip install .[tests]
-        # work around issues with GPy setting matplotlib backend (defensive even w/o GPy)
-        echo 'backend: Agg' > matplotlibrc
     - name: Unit tests (core)
       run: |
         python -m pytest tests
     - name: Integration tests (core)
       run: |
-        pip install .[integration-tests]
+        pip install .[integration-tests,examples]
         python -m pytest integration_tests
-
-  gpy_tests:
-
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11"]
-
-    steps:
-    - uses: actions/checkout@v7
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v7
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies with GPy extra
-      run: |
-        python -m pip install --upgrade pip
-        pip install ".[tests, gpy]"
-        echo 'backend: Agg' > matplotlibrc
-    - name: Unit tests (with GPy)
-      run: |
-        python -m pytest tests -m 'gpy or not gpy'
-    - name: Integration tests (with GPy)
-      run: |
-        pip install ".[integration-tests, examples]"
-        python -m pytest integration_tests -m 'gpy or not gpy'
 
   os_versions:
 
@@ -69,23 +41,21 @@ jobs:
 
     steps:
     - uses: actions/checkout@v7
-    - name: Set up Python 3.10
+    - name: Set up Python
       uses: actions/setup-python@v7
       with:
-        python-version: "3.10"
+        python-version-file: 'pyproject.toml'
     - name: Install dependencies (core)
       run: |
         python -m pip install --upgrade pip
         pip install .[tests]
-        # work around issues with GPy setting matplotlib backend (defensive even w/o GPy)
-        echo 'backend: Agg' > matplotlibrc
     - name: Unit tests (core, multi-OS)
       run: |
         python -m pytest tests
 
   all-pass:
     if: always()
-    needs: [core_tests, gpy_tests, os_versions]
+    needs: [core_tests, os_versions]
 
     runs-on: ubuntu-latest
 
@@ -93,7 +63,6 @@ jobs:
       - name: Check all tests pass
         run: |
           if [[ "${{ needs.core_tests.result }}" != "success" && "${{ needs.core_tests.result }}" != "skipped" ]] || \
-             [[ "${{ needs.gpy_tests.result }}" != "success" && "${{ needs.gpy_tests.result }}" != "skipped" ]] || \
              [[ "${{ needs.os_versions.result }}" != "success" && "${{ needs.os_versions.result }}" != "skipped" ]]; then
             echo "One or more test jobs failed"
             exit 1

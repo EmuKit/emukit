@@ -96,7 +96,7 @@ class QuadratureBrownianLebesgueMeasure(QuadratureBrownian, LebesgueEmbedding):
         lb = self.measure.domain.lower_bounds[None, :]
         ub = self.measure.domain.upper_bounds[None, :]
         qKq = 0.5 * ub * (ub**2 - lb**2) - (ub**3 - lb**3) / 6 - 0.5 * lb**2 * (ub - lb)
-        return (self.measure.density**2 * self.variance) * float(qKq)
+        return (self.measure.density**2 * self.variance) * float(qKq.item())
 
     def dqK_dx(self, x2: np.ndarray) -> np.ndarray:
         ub = self.measure.domain.upper_bounds[None, :]
