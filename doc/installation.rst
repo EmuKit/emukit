@@ -15,7 +15,6 @@ You can install optional dependency groups via setuptools extras. Each group ena
 - ``sklearn``: scikit-learn model wrapper and related examples (adds ``scikit-learn``).
 - ``docs``: Build documentation locally (Sphinx toolchain + GPy for rendering GP API docs).
 - ``tests``: Test tooling only.
-- ``examples``: Convenience bundle for most example scripts (installs ``GPy``, ``pybnn``, ``torch``, ``scikit-learn``).
 - ``dev``: Convenience meta extra installing all of the above.
 
 .. code-block:: bash
@@ -29,9 +28,9 @@ You can install optional dependency groups via setuptools extras. Each group ena
     pip install emukit[docs]
 
     # Bundle of example dependencies
-    pip install emukit[examples]
+    pip install emukit[bnn, sklearn]
 
-    # Everything (core + bnn + sklearn + examples + docs + tests)
+    # Everything (core + bnn + sklearn + docs + tests)
     pip install emukit[dev]
  
 Installation from sources

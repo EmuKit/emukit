@@ -24,12 +24,12 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install .[tests]
-    - name: Unit tests (core)
+    - name: Unit tests
       run: |
         python -m pytest tests
-    - name: Integration tests (core)
+    - name: Integration tests
       run: |
-        pip install .[integration-tests,examples]
+        pip install .[integration-tests, bnn, sklearn]
         python -m pytest integration_tests
 
   os_versions:
@@ -45,11 +45,11 @@ jobs:
       uses: actions/setup-python@v7
       with:
         python-version-file: 'pyproject.toml'
-    - name: Install dependencies (core)
+    - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install .[tests]
-    - name: Unit tests (core, multi-OS)
+    - name: Unit tests
       run: |
         python -m pytest tests
 

@@ -37,7 +37,7 @@ Core dependencies are the numerical Python stack (GPy, NumPy, SciPy, matplotlib,
 - `sklearn`: scikit-learn model wrapper and examples (adds `scikit-learn`).
 - `docs`: Build documentation locally (adds Sphinx toolchain + GPy to render GP API docs).
 - `tests`: Test tooling.
-- `full`: Convenience meta extra installing all of the above.
+- `dev`: Convenience meta extra installing all of the above.
 
 Install extras via pip:
 ```
@@ -54,10 +54,10 @@ pip install emukit[sklearn]
 pip install emukit[docs]
 
 # Bundle for running most example scripts (core + pybnn + torch + scikit-learn)
-pip install emukit[examples]
+pip install emukit[bnn, sklearn]
 
-# Everything (core + bnn + sklearn + examples + docs + test tooling)
-pip install emukit[full]
+# Everything (core + bnn + sklearn + docs + test tooling)
+pip install emukit[dev]
 ```
 Legacy pinned requirement files remain in the `requirements/` directory for reference but extras (above) are the preferred installation mechanism going forward.
 

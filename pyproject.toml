@@ -37,9 +37,6 @@ dependencies = [
 [project.optional-dependencies]
 bnn = ["pybnn>=0.0.5", "torch"]
 sklearn = ["scikit-learn"]
-examples = [
-  "emukit[bnn, sklearn]",
-]
 docs = [
   "ipykernel",
   "Sphinx>=1.7.5",
@@ -65,7 +62,7 @@ integration-tests = [
 ]
 # Aggregate ALL optional dependencies for development
 dev = [
-  "emukit[examples, docs, tests]",
+  "emukit[bnn, sklearn, docs, integration-tests]",
 ]
 
 [project.urls]
