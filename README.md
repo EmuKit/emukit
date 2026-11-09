@@ -54,7 +54,7 @@ pip install emukit[sklearn]
 pip install emukit[docs]
 
 # Bundle for running most example scripts (core + pybnn + torch + scikit-learn)
-pip install emukit[bnn, sklearn]
+pip install emukit[bnn,sklearn]
 
 # Everything (core + bnn + sklearn + docs + test tooling)
 pip install emukit[dev]

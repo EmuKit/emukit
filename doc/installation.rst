@@ -28,7 +28,7 @@ You can install optional dependency groups via setuptools extras. Each group ena
     pip install emukit[docs]
 
     # Bundle of example dependencies
-    pip install emukit[bnn, sklearn]
+    pip install emukit[bnn,sklearn]
 
     # Everything (core + bnn + sklearn + docs + tests)
     pip install emukit[dev]
