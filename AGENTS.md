@@ -14,8 +14,7 @@ pytest tests/                                           # unit tests
 pytest integration_tests/                               # integration tests
 pytest tests/.../test_file.py::test_name                # single test (replace path and test name)
 pytest --cov emukit --cov-report term-missing tests/    # with coverage
-pytest -m 'not (gpy or pybnn or sklearn or notebooks)'  # skip optional-dependency tests
-pytest -m gpy                                           # only GPy tests
+pytest -m 'not (pybnn or sklearn or notebooks)'         # skip optional-dependency tests
 
 # Lint and format (enforced in CI) — line length: 120 chars, flake8 exceptions: E731, E127
 black .

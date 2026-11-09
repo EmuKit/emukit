@@ -8,10 +8,6 @@
 
 import importlib
 
-if importlib.util.find_spec("GPy") is None:  # pragma: no cover
-	raise ImportError(
-		"GPy is not installed. Install optional dependency with 'pip install emukit[gpy]' to use gpy_model_wrappers." 
-	)
 from typing import Optional, Tuple
 
 import GPy  # noqa: F401

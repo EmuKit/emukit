@@ -120,7 +120,7 @@ Guidelines:
 Filtering examples:
 Run only core tests (skip all optional groups):
 ```
-pytest -m 'not (gpy or pybnn or sklearn or notebooks)'
+pytest -m 'not (pybnn or sklearn or notebooks)'
 ```
 Run just the sklearn tests:
 ```
