@@ -8,9 +8,6 @@
 import numpy as np
 import pytest
 
-pytest.importorskip("GPy")
-pytestmark = pytest.mark.gpy
-
 from emukit.examples.fabolas import FabolasModel
 
 

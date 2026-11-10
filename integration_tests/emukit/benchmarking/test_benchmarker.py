@@ -5,11 +5,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-import pytest
-
-GPy = pytest.importorskip("GPy")
-pytestmark = pytest.mark.gpy
+import GPy
 import numpy as np
+import pytest
 
 import emukit.test_functions
 from emukit.bayesian_optimization.loops import BayesianOptimizationLoop

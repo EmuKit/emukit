@@ -7,11 +7,6 @@
 
 
 import importlib
-
-if importlib.util.find_spec("GPy") is None:  # pragma: no cover
-	raise ImportError(
-		"GPy is not installed. Install optional dependency with 'pip install emukit[gpy]' to use gpy_model_wrappers." 
-	)
 from typing import Optional, Tuple
 
 import GPy  # noqa: F401
@@ -235,7 +230,7 @@ def dmean(x_predict: np.ndarray, x_train: np.ndarray, kern: GPy.kern, w_vec: np.
     for i in range(d):
         dkxX_dx[:, :, i] = kern.dK_dX(x_predict, x_train, i)
         for j in range(q):
-            dmu[j, j, i] = (dkxX_dx[j, :, i][None, :] @ w_vec[:, None]).flatten()
+            dmu[j, j, i] = (dkxX_dx[j, :, i][None, :] @ w_vec[:, None]).item()
     return dmu
 
 

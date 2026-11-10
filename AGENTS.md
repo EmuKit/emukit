@@ -14,8 +14,7 @@ pytest tests/                                           # unit tests
 pytest integration_tests/                               # integration tests
 pytest tests/.../test_file.py::test_name                # single test (replace path and test name)
 pytest --cov emukit --cov-report term-missing tests/    # with coverage
-pytest -m 'not (gpy or pybnn or sklearn or notebooks)'  # skip optional-dependency tests
-pytest -m gpy                                           # only GPy tests
+pytest -m 'not (pybnn or sklearn or notebooks)'         # skip optional-dependency tests
 
 # Lint and format (enforced in CI) — line length: 120 chars, flake8 exceptions: E731, E127
 black .
@@ -90,7 +89,7 @@ def sample_uniform(self, point_count: int) -> np.ndarray:
 
 ### Optional Dependencies
 
-Optional backends (GPy, pybnn/torch, sklearn) are guarded by `pytest.importorskip()` in tests and declared as optional extras in `pyproject.toml`. Tests for these backends are marked with `@pytest.mark.gpy`, `@pytest.mark.pybnn`, `@pytest.mark.sklearn`, or `@pytest.mark.notebooks`.
+Optional backends (pybnn/torch, sklearn) are guarded by `pytest.importorskip()` in tests and declared as optional extras in `pyproject.toml`. Tests for these backends are marked with `@pytest.mark.pybnn`, `@pytest.mark.sklearn`, or `@pytest.mark.notebooks`.
 
 ### Documentation
 

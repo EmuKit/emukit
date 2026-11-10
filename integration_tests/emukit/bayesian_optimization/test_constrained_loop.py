@@ -4,11 +4,7 @@
 # Copyright 2018-2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
-
-import pytest
-
-GPy = pytest.importorskip("GPy")
-pytestmark = pytest.mark.gpy
+import GPy
 import numpy as np
 
 from emukit.bayesian_optimization.loops import BayesianOptimizationLoop

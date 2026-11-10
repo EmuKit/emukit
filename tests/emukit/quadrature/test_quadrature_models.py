@@ -5,12 +5,9 @@
 from dataclasses import dataclass
 from math import isclose
 
-import pytest
-
-pytest.importorskip("GPy", reason="GPy not installed; install emukit[gpy]")
-pytestmark = pytest.mark.gpy
 import GPy
 import numpy as np
+import pytest
 from numpy.testing import assert_allclose
 from utils import check_grad
 
