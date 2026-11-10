@@ -31,7 +31,6 @@ except ImportError:
 import GPy
 from GPy.models import BayesianGPLVM
 
-
 from emukit.examples.profet.meta_benchmarks.architecture import get_default_architecture
 from emukit.examples.profet.meta_benchmarks.meta_forrester import get_architecture_forrester
 

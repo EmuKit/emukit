@@ -7,7 +7,6 @@
 
 
 import importlib
-
 from typing import Optional, Tuple
 
 import GPy  # noqa: F401

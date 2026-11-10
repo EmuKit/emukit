@@ -14,8 +14,8 @@ import numpy as np
 import pytest
 
 from emukit.core import ContinuousParameter, OneHotEncoding, ParameterSpace
-
 from emukit.model_wrappers import GPyModelWrapper
+
 
 def pytest_configure(config):
     config.addinivalue_line("markers", "gpy: marks tests that require GPy")
