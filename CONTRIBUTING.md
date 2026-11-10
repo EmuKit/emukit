@@ -100,7 +100,6 @@ pip install -e .[tests]
 pip install -e .[bnn]
 pip install -e .[sklearn]
 ```
-Legacy requirement files in `requirements/` remain temporarily for reference but will be phased out; prefer extras going forward.
 
 ### Test markers & optional dependencies
 Emukit uses pytest markers to group tests that rely on optional dependencies. Current markers (defined in `pyproject.toml` under `[tool.pytest.ini_options]`):

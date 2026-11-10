@@ -28,11 +28,8 @@ try:
 except ImportError:
     raise ImportError("pybnn is not installed. Please install it by running pip install pybnn")
 
-try:
-    import GPy
-    from GPy.models import BayesianGPLVM
-except ImportError:
-    raise ImportError("GPy is not installed. Please install it by running pip install GPy")
+import GPy
+from GPy.models import BayesianGPLVM
 
 
 from emukit.examples.profet.meta_benchmarks.architecture import get_default_architecture
