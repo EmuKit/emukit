@@ -28,7 +28,7 @@ class BenchmarkPlot:
         x_axis_metric_name: str = None,
         metrics_to_plot: List[str] = None,
     ):
-        """ 
+        """
         :param benchmark_results: The output of a benchmark run
         :param loop_colours: Colours to use for each loop. Defaults to standard matplotlib colour palette
         :param loop_line_styles: Line style to use for each loop. Defaults to solid line style for all lines
@@ -112,8 +112,10 @@ class BenchmarkPlot:
             raise ValueError("Please call make_plot before saving to file")
         self.fig_handle.savefig(file_name)
 
+
 def _get_metric_stats(metric):
     return metric.mean(axis=0), metric.std(axis=0)
+
 
 def _get_default_colours():
     return plt.rcParams["axes.prop_cycle"].by_key()["color"]

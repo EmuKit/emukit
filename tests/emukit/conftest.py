@@ -62,6 +62,7 @@ def encoding():
     # different types of volcanoes
     return OneHotEncoding(["strato", "shield", "dome"])
 
+
 @pytest.fixture
 def seed_random():
     np.random.seed(42)

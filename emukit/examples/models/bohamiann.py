@@ -12,16 +12,14 @@ from ...core.interfaces.models import IDifferentiable, IModel
 try:
     from pybnn import bohamiann
 except ImportError:
-    raise ImportError(
-        """
+    raise ImportError("""
         Optional dependency 'pybnn' is not installed. Install from PyPI with:
 
             pip install pybnn
 
         For latest development version or more information see:
             https://github.com/automl/pybnn
-        """
-    )
+        """)
 
 import torch
 import torch.nn as nn
@@ -60,7 +58,7 @@ class Bohamiann(IModel, IDifferentiable):
         num_burnin: int = 5000,
         lr: float = 1e-2,
         get_architecture=get_default_network,
-        **kwargs
+        **kwargs,
     ) -> None:
         """
         Implements Bayesian neural networks as described by Springenberg et. al[1] based on
@@ -98,7 +96,7 @@ class Bohamiann(IModel, IDifferentiable):
             lr=lr,
             num_burn_in_steps=self.num_burnin,
             keep_every=100,
-            **kwargs
+            **kwargs,
         )
 
     @property

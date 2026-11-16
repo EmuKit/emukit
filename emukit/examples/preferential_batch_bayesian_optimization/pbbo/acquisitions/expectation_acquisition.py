@@ -251,7 +251,7 @@ class ExpectationAcquisition(AcquisitionFunction):
         for i in range(X.shape[0]):
             X_i = X[i, :]
             start = time.time()
-            (opt_val_i, dpdX_i) = self.acquisition_fun(X_i.reshape(k, n), m)
+            opt_val_i, dpdX_i = self.acquisition_fun(X_i.reshape(k, n), m)
             opt_val += [opt_val_i]
             dpdX = np.concatenate((dpdX, dpdX_i.flatten().reshape((1, -1))), axis=0)
         return np.array(opt_val).reshape((-1, 1)), dpdX

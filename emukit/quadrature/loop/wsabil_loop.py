@@ -4,7 +4,6 @@
 
 """The WSABI-L loop"""
 
-
 from ...core.loop import FixedIntervalUpdater, ModelUpdater, OuterLoop, SequentialPointCalculator
 from ...core.loop.loop_state import create_loop_state
 from ...core.optimization import AcquisitionOptimizerBase, GradientAcquisitionOptimizer

@@ -14,6 +14,7 @@ Nonlinear information fusion algorithms for data-efficient multi-fidelity modell
 P. Perdikaris, M. Raissi, A. Damianou, N. D. Lawrence and G. E. Karniadakis (2017)
 https://royalsocietypublishing.org/doi/10.1098/rspa.2016.0751
 """
+
 from typing import List, Tuple, Type
 
 import GPy  # noqa: F401

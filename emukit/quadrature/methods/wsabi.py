@@ -4,7 +4,6 @@
 
 """WSABI model as in Gunter et al. 2014"""
 
-
 import numpy as np
 
 from ..interfaces.base_gp import IBaseGaussianProcess

@@ -8,6 +8,7 @@
 """
 Contains linear models
 """
+
 import GPy  # noqa: F401
 import numpy as np
 

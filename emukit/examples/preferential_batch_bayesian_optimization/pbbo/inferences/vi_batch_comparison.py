@@ -212,7 +212,7 @@ def df_d(
         y_inds = np.zeros(len(y), dtype=int)
         # dir_list = np.random.choice(range(len(y)), size=len(y), replace=False)
         for ind in range(len(y)):
-            (y_inds[ind], ys[ind, 0]) = y[ind]  # index in kernel, y value
+            y_inds[ind], ys[ind, 0] = y[ind]  # index in kernel, y value
         F_full += -0.5 * np.sum(
             ((m[y_inds] - ys) ** 2 + Sigma[y_inds, y_inds].reshape((-1, 1))) / sigma2s[y_inds].reshape((-1, 1))
         )

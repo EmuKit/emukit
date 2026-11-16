@@ -12,15 +12,13 @@ from ...core.interfaces.models import IModel
 try:
     from sklearn.ensemble import RandomForestRegressor
 except ImportError:
-    raise ImportError(
-        """
+    raise ImportError("""
         This module is missing required dependencies. Try running:
 
         pip install scikit-learn
 
         Refer to http://scikit-learn.org/stable/install.html for further information.
-    """
-    )
+    """)
 
 
 class RandomForest(IModel):

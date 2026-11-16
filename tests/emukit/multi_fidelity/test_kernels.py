@@ -8,6 +8,7 @@
 """
 Tests for multi-fidelity kernels
 """
+
 import GPy
 import numpy as np
 from GPy.testing.test_kernel import check_kernel_gradient_functions

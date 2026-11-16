@@ -576,10 +576,8 @@ def decompose_mvn(x: np.ndarray, mu: np.ndarray, Sigma: np.ndarray, k: list) -> 
         varcov[range(len(neqk)), :][:, range(len(neqk))] = np.diag(varcov) * (np.diag(varcov) >= 0) + 1e-9
     moy = mu[neqk] + Sig21 @ Sig11Inv @ (x1 - mu1)
     low = np.minimum(moy, x2) - 5.0 * np.sqrt(np.max(np.abs(varcov)))
-    return (
-        scipy.stats.multivariate_normal.pdf(x1.flatten(), mu[k].flatten(), Sig11)
-        * scipy.stats.multivariate_normal.cdf(x2, mean=moy, cov=varcov, maxpts=1000 * q, lower_limit=low)
-        # * scipy.stats.mvn.mvnun(low, x2, moy, varcov, )
+    return scipy.stats.multivariate_normal.pdf(x1.ravel(), mu[k].ravel(), Sig11) * scipy.stats.multivariate_normal.cdf(
+        x2.ravel(), mean=moy.ravel(), cov=varcov, maxpts=1000 * q, lower_limit=low.ravel()
     )
 
 

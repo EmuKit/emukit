@@ -7,6 +7,7 @@
 
 import GPy
 import numpy as np
+import pytest
 from scipy.optimize import check_grad
 
 from emukit.bayesian_optimization.acquisitions import MultipointExpectedImprovement
@@ -73,3 +74,18 @@ def _check_grad(lp, tol, x0):
     )
 
     assert np.all(grad_error < tol)
+
+
+@pytest.mark.parametrize("fast_compute", [False, True])
+@pytest.mark.parametrize("q", [2, 3, 4])
+def test_multipoint_expected_improvement_shapes(gpy_model, q, fast_compute):
+    acquisition = MultipointExpectedImprovement(gpy_model, fast_compute=fast_compute)
+    x = np.random.RandomState(0).rand(q, 2)
+
+    value = acquisition.evaluate(x)
+    value_with_gradients, gradients = acquisition.evaluate_with_gradients(x)
+
+    assert np.shape(value) == ()
+    assert np.shape(value_with_gradients) == ()
+    assert gradients.shape == (q, 2)
+    assert np.all(np.isfinite(gradients))

@@ -5,8 +5,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-
-import importlib
 from typing import Optional, Tuple
 
 import GPy  # noqa: F401

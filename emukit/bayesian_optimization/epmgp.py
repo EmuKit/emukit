@@ -82,11 +82,11 @@ def joint_min(mu: np.ndarray, var: np.ndarray, with_derivatives: bool = False) -
 
 def min_factor(Mu: np.ndarray, Sigma: np.ndarray, k: int, gamma: float = 1) -> np.ndarray:
     """Compute the factor for the probability of minimum using expectation propagation.
-    
+
     Implements part of the EPMGP algorithm to compute factors needed for the joint
     minimum probability calculation. Uses iterative expectation propagation to refine
     the approximation, with up to 50 iterations until convergence.
-    
+
     :param Mu: Mean values of the Gaussian distribution, shape (D,).
     :param Sigma: Covariance matrix, shape (D, D).
     :param k: Index of the point for which to compute the minimum factor.
@@ -181,9 +181,9 @@ def min_factor(Mu: np.ndarray, Sigma: np.ndarray, k: int, gamma: float = 1) -> n
 
 def lt_factor(s: int, l: int, M: np.ndarray, V: np.ndarray, mp: float, p: float, gamma: float) -> tuple:
     """Compute a single likelihood term factor for expectation propagation update.
-    
+
     Updates the Gaussian approximation by incorporating the constraint s < l.
-    
+
     :param s: Index of the first element in the constraint (s < l).
     :param l: Index of the second element in the constraint (s < l).
     :param M: Current mean vector, shape (D,).
@@ -259,9 +259,9 @@ def lt_factor(s: int, l: int, M: np.ndarray, V: np.ndarray, mp: float, p: float,
 
 def log_relative_gauss(z: float) -> tuple:
     """Compute log(phi(z) / Phi(z)) where phi is the standard normal PDF and Phi is the CDF.
-    
+
     Handles extreme values to avoid numerical overflow/underflow.
-    
+
     :param z: Input value to the standard normal distribution.
     :returns: Tuple of (e, logPhi, exit_flag) with the ratio, log CDF, and exit status.
               exit_flag is -1 for z < -6 (lower tail), 1 for z > 6 (upper tail), 0 otherwise.
