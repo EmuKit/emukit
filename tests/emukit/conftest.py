@@ -17,10 +17,6 @@ from emukit.core import ContinuousParameter, OneHotEncoding, ParameterSpace
 from emukit.model_wrappers import GPyModelWrapper
 
 
-def pytest_configure(config):
-    config.addinivalue_line("markers", "gpy: marks tests that require GPy")
-
-
 @pytest.fixture
 def n_dims():
     # default to 2 dimensional inputs for tests, but can be overridden by individual tests if desired by using the
