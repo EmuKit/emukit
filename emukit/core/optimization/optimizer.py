@@ -26,9 +26,7 @@ class Optimizer(object):
         """
         self.bounds = bounds
 
-    def optimize(
-        self, x0: np.ndarray, f: Callable, df: Optional[Callable] = None
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    def optimize(self, x0: np.ndarray, f: Callable, df: Optional[Callable] = None) -> Tuple[np.ndarray, np.ndarray]:
         """
         Optimize f starting from x0.
 
@@ -49,9 +47,7 @@ class OptLbfgs(Optimizer):
         super(OptLbfgs, self).__init__(bounds)
         self.max_iterations = max_iterations
 
-    def optimize(
-        self, x0: np.ndarray, f: Callable, df: Optional[Callable] = None
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    def optimize(self, x0: np.ndarray, f: Callable, df: Optional[Callable] = None) -> Tuple[np.ndarray, np.ndarray]:
         """
         Minimize f using L-BFGS-B.
 
@@ -81,10 +77,8 @@ class OptLbfgs(Optimizer):
                 # Extract 1d gradient from 2d array
                 grad_1d = grad[0, :]
                 return f_val, grad_1d
-            
-            res = scipy.optimize.fmin_l_bfgs_b(
-                f_and_grad, x0=x0, bounds=self.bounds, maxiter=self.max_iterations
-            )
+
+            res = scipy.optimize.fmin_l_bfgs_b(f_and_grad, x0=x0, bounds=self.bounds, maxiter=self.max_iterations)
         else:
             # Approximate gradient using finite differences
             res = scipy.optimize.fmin_l_bfgs_b(
@@ -131,11 +125,7 @@ def apply_optimizer(
     add_context = lambda x: context_manager.expand_vector(x)
 
     # Optimize
-    optimized_x, _ = optimizer.optimize(
-        problem.x0_no_context, 
-        problem.f_no_context, 
-        problem.df_no_context
-    )
+    optimized_x, _ = optimizer.optimize(problem.x0_no_context, problem.f_no_context, problem.df_no_context)
 
     # Add context and round according to parameter types
     suggested_x_with_context = add_context(optimized_x)
@@ -143,7 +133,7 @@ def apply_optimizer(
 
     # Evaluate at final point
     f_opt = f(suggested_x_with_context_rounded)
-    
+
     return suggested_x_with_context_rounded, f_opt
 
 
@@ -162,7 +152,7 @@ class OptimizationWithContext(object):
         """
         Constructor of an objective function that takes as input a vector x of the non context variables
         and returns a value in which the context variables have been fixed.
-        
+
         :param x0: Initial point
         :param f: Objective function
         :param df: Gradient of objective function
@@ -175,7 +165,7 @@ class OptimizationWithContext(object):
 
         # Check if context is actually empty (no variables are fixed)
         has_context = context_manager and len(context_manager.context_values) > 0
-        
+
         if not has_context:
             self.x0_no_context = x0
             self.f_no_context = self.f
@@ -189,6 +179,7 @@ class OptimizationWithContext(object):
 
     def _make_f_no_context(self) -> Callable:
         """Create wrapper that adds context variables before calling f."""
+
         def f_no_context(x: np.ndarray) -> np.ndarray:
             x = np.atleast_2d(x)
             xx = self.context_manager.expand_vector(x)
@@ -196,10 +187,12 @@ class OptimizationWithContext(object):
                 return self.f(xx)[0]
             else:
                 return self.f(xx)
+
         return f_no_context
 
     def _make_df_no_context(self) -> Callable:
         """Create wrapper that extracts gradient for non-context variables."""
+
         def df_no_context(x: np.ndarray) -> np.ndarray:
             x = np.atleast_2d(x)
             xx = self.context_manager.expand_vector(x)
@@ -208,10 +201,15 @@ class OptimizationWithContext(object):
             # Extract only non-context dimensions
             if df_xx.shape[0] == 1 or len(df_xx.shape) == 1:
                 # Shape (n_dims,) or (1, n_dims) - transpose handling
-                return df_xx[:, np.array(self.context_manager.non_context_idxs)] if len(df_xx.shape) > 1 else df_xx[np.array(self.context_manager.non_context_idxs)]
+                return (
+                    df_xx[:, np.array(self.context_manager.non_context_idxs)]
+                    if len(df_xx.shape) > 1
+                    else df_xx[np.array(self.context_manager.non_context_idxs)]
+                )
             else:
                 # Shape (n_dims, n_samples) - extract rows for non-context dims
                 return df_xx[np.array(self.context_manager.non_context_idxs), :]
+
         return df_no_context
 
 
@@ -230,9 +228,7 @@ class OptTrustRegionConstrained(Optimizer):
         self.max_iterations = max_iterations
         self.constraints = _get_scipy_constraints(constraints)
 
-    def optimize(
-        self, x0: np.ndarray, f: Callable, df: Optional[Callable] = None
-    ) -> Tuple[np.ndarray, np.ndarray]:
+    def optimize(self, x0: np.ndarray, f: Callable, df: Optional[Callable] = None) -> Tuple[np.ndarray, np.ndarray]:
         """
         Run Trust region constrained optimization algorithm
 
@@ -264,6 +260,7 @@ class OptTrustRegionConstrained(Optimizer):
                 grad = df(x_2d)
                 # Extract 1d gradient from 2d array
                 return grad[0, :]
+
         else:
             # Let scipy approximate with finite differences
             df_1d = "2-point"
@@ -272,7 +269,7 @@ class OptTrustRegionConstrained(Optimizer):
 
         # Handle both 1D and 2D x0
         x0_1d = np.atleast_1d(x0).flatten()
-        
+
         res = scipy.optimize.minimize(
             f_wrapped,
             x0=x0_1d,

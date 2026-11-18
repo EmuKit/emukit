@@ -1,7 +1,0 @@
-# For random forest and GPR models
-scikit-learn
-# For BNN model
-pybnn==0.0.5
-# For notebook tests
-jupyter==1.0.0
-pandas>=1.0.5

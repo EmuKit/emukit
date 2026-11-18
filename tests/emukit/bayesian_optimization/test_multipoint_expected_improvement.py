@@ -1,16 +1,13 @@
-# Copyright 2020-2024 The Emukit Authors. All Rights Reserved.
+# Copyright 2020-2026 The Emukit Authors. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 # Copyright 2018-2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 # SPDX-License-Identifier: Apache-2.0
 
 
-import pytest
-
-pytest.importorskip("GPy", reason="GPy not installed; install emukit[gpy]")
-pytestmark = pytest.mark.gpy
 import GPy
 import numpy as np
+import pytest
 from scipy.optimize import check_grad
 
 from emukit.bayesian_optimization.acquisitions import MultipointExpectedImprovement
@@ -77,3 +74,18 @@ def _check_grad(lp, tol, x0):
     )
 
     assert np.all(grad_error < tol)
+
+
+@pytest.mark.parametrize("fast_compute", [False, True])
+@pytest.mark.parametrize("q", [2, 3, 4])
+def test_multipoint_expected_improvement_shapes(gpy_model, n_dims, q, fast_compute):
+    acquisition = MultipointExpectedImprovement(gpy_model, fast_compute=fast_compute)
+    x = np.random.RandomState(0).rand(q, n_dims)
+
+    value = acquisition.evaluate(x)
+    value_with_gradients, gradients = acquisition.evaluate_with_gradients(x)
+
+    assert np.shape(value) == ()
+    assert np.shape(value_with_gradients) == ()
+    assert gradients.shape == (q, n_dims)
+    assert np.all(np.isfinite(gradients))

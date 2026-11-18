@@ -15,9 +15,7 @@ import os
 
 import pytest
 
-# many notebooks use GPy, therefore add this mark too
-GPy = pytest.importorskip("GPy")
-pytestmark = [pytest.mark.gpy, pytest.mark.notebooks]
+pytestmark = [pytest.mark.notebooks]
 import nbformat
 from nbconvert.preprocessors import ExecutePreprocessor
 

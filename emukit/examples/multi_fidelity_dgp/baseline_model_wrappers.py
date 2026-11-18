@@ -10,6 +10,7 @@ These are emukit model wrappers that contain the specific optimization procedure
 
 The constructor for each model takes X and Y as lists, with each entry of the list corresponding to data for a fidelity
 """
+
 import logging
 
 import GPy

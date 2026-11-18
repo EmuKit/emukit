@@ -14,6 +14,7 @@ from the lowest fidelity to the highest fidelity.
 The array representation is one array for all inputs where the last column of the X array is a zero-based index
 indicating the fidelity.
 """
+
 from typing import List, Tuple
 
 import numpy as np

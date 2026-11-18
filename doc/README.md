@@ -5,7 +5,7 @@ Emukit uses Sphinx to build its documentation.
 To install dependencies required to build docs, run this from the package root folder:
 
 ```
-pip install -r requirements/doc_requirements.txt
+pip install .[docs]
 ```
 
 ### Generating API doc source files

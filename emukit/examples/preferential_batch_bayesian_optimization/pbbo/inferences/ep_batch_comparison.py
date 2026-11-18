@@ -37,7 +37,7 @@ def posdef_sqrtm(M: np.ndarray) -> np.ndarray:
     :param M: A positive definite matrix
     :return: Squarte root of M
     """
-    (U, S, VT) = svd(M)
+    U, S, VT = svd(M)
     D = np.diag(np.sqrt(S))
     return U @ D @ VT
 
@@ -260,7 +260,7 @@ def ep_comparison(
 
     # insert likelihood information to each gaussian approximation
     for i in range(Ndir):
-        (ii, yi) = y[i]  # index in kernel, y value
+        ii, yi = y[i]  # index in kernel, y value
         f_ga_approx.v[ii] = yi / sigma2s[i]
         f_ga_approx.tau[ii, ii] = 1.0 / sigma2s[i]
 
@@ -354,7 +354,7 @@ def ep_comparison(
 
     # compute normalization constant for likelihoods
     for i in range(Ndir):
-        (ii, yi) = y[i]  # index in kernel, y value
+        ii, yi = y[i]  # index in kernel, y value
         f_cavity._update_i(eta=eta, ga_approx=f_ga_approx, post_params=f_post_params, i=ii)
         f_marg_moments.logZ_hat[ii] = log_npdf(
             yi, f_cavity.v[ii] / f_cavity.tau[ii, ii], 1.0 / f_cavity.tau[ii, ii] + sigma2s[i]

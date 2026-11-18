@@ -16,6 +16,7 @@ This file requires the following packages:
 - gpflow 1.x
 - doubly_stochastic_dgp https://github.com/ICL-SML/Doubly-Stochastic-DGP/tree/master/doubly_stochastic_dgp
 """
+
 import logging
 from typing import List, Tuple
 

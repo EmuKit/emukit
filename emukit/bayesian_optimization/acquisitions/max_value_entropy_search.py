@@ -132,7 +132,7 @@ def _fit_gumbel(fmean, fsd):
 
     def probf(x: np.ndarray) -> float:
         # Build empirical CDF function
-        return 1 - np.exp(np.sum(norm.logcdf(-(x - fmean) / fsd), axis=0))
+        return (1 - np.exp(np.sum(norm.logcdf(-(x - fmean) / fsd), axis=0))).item()
 
     # initialise end-points for binary search (the choice of 5 standard deviations ensures that these are outside the IQ range)
     left = np.min(fmean - 5 * fsd)

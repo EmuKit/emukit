@@ -53,10 +53,12 @@ class GradientAcquisitionOptimizer(AcquisitionOptimizerBase):
 
         # Prepare gradient function (if available)
         if acquisition.has_gradients:
+
             def df(x):
                 f_value, df_value = acquisition.evaluate_with_gradients(x)
                 # Return negated gradient (since we negated f)
                 return -df_value
+
         else:
             df = None
 
